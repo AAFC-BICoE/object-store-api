@@ -11,9 +11,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
@@ -41,7 +41,7 @@ public class ObjectStoreMetadata implements java.io.Serializable , UniqueObj{
   /** The Constant serialVersionUID. */
   private static final long serialVersionUID = -5655824300348079540L;
 
-  private Integer objectStoreMetadataId;
+  private Integer id;
 
   private UUID uuid;
 
@@ -85,23 +85,16 @@ public class ObjectStoreMetadata implements java.io.Serializable , UniqueObj{
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")  
-  public Integer getObjectStoreMetadataId() {
-    return objectStoreMetadataId;
-  }
-
-  public void setObjectStoreMetadataId(Integer objectStoreMetadataId) {
-    this.objectStoreMetadataId = objectStoreMetadataId;
-  }
-
-  @Transient
   public Integer getId() {
-    return getObjectStoreMetadataId();
+    return id;
   }
 
   public void setId(Integer id) {
-    setObjectStoreMetadataId(id);
+    this.id = id;
   }
 
+
+  @NaturalId
   @NotNull
   @Column(name = "uuid", unique = true)
   public UUID getUuid() {

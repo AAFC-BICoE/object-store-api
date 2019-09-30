@@ -23,7 +23,7 @@ import io.crnk.core.repository.ResourceRepository;
 
 public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
   
-  @SuppressWarnings("unchecked")
+
   @Inject
   private ObjectStoreResourceRepository objectStoreResourceRepository;
   
@@ -43,11 +43,11 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
   @Test
   public void findMeta_whenNoFieldsAreSelected_MetadataReturnedWithAllFields() {
     ObjectStoreMetadataDto objectStoreMetadataDto = objectStoreResourceRepository.findOne(
-        testObjectStoreMetadata.getId(),
+        testObjectStoreMetadata.getUuid(),
         new QuerySpec(ObjectStoreMetadataDto.class)
     );  
     assertNotNull(objectStoreMetadataDto);
-    assertEquals(testObjectStoreMetadata.getId(), objectStoreMetadataDto.getId());
+    assertEquals(testObjectStoreMetadata.getUuid(), objectStoreMetadataDto.getUuid());
     assertEquals(testObjectStoreMetadata.getAcDigitizationDate(), objectStoreMetadataDto.getAcDigitizationDate());
   }
     

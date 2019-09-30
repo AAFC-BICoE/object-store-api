@@ -7,17 +7,12 @@ import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata.DcType;
 import io.crnk.core.resource.annotations.JsonApiId;
 import io.crnk.core.resource.annotations.JsonApiResource;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
 @Data
-@JsonApiResource(type = "objectStoreMetadataDto")
+@JsonApiResource(type = "object")
 public class ObjectStoreMetadataDto {
   
   @JsonApiId
-  private Integer id;
   private UUID uuid;
 
   private String dcFormat;
