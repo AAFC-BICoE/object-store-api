@@ -33,5 +33,5 @@ public class ObjectStoreApiLauncher {
     String endpoint = protocol + "://"+host;
     return new MinioClient(endpoint, port, accessKey, secretKey);
   }  
-  
+
 }

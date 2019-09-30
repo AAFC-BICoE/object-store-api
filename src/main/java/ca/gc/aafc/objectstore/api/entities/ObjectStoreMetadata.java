@@ -11,6 +11,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Type;
@@ -18,6 +19,7 @@ import org.hibernate.annotations.TypeDef;
 
 import com.vladmihalcea.hibernate.type.basic.PostgreSQLEnumType;
 
+import ca.gc.aafc.objectstore.api.interfaces.UniqueObj;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,12 +36,12 @@ import lombok.RequiredArgsConstructor;
 @Builder
 @AllArgsConstructor
 @RequiredArgsConstructor
-public class ObjectStoreMetadata implements java.io.Serializable {
+public class ObjectStoreMetadata implements java.io.Serializable , UniqueObj{
 
   /** The Constant serialVersionUID. */
   private static final long serialVersionUID = -5655824300348079540L;
 
-  private Integer id;
+  private Integer objectStoreMetadataId;
 
   private UUID uuid;
 
@@ -79,16 +81,25 @@ public class ObjectStoreMetadata implements java.io.Serializable {
       return value;
     }
   }
-
+  
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "id")
+  @Column(name = "id")  
+  public Integer getObjectStoreMetadataId() {
+    return objectStoreMetadataId;
+  }
+
+  public void setObjectStoreMetadataId(Integer objectStoreMetadataId) {
+    this.objectStoreMetadataId = objectStoreMetadataId;
+  }
+
+  @Transient
   public Integer getId() {
-    return id;
+    return getObjectStoreMetadataId();
   }
 
   public void setId(Integer id) {
-    this.id = id;
+    setObjectStoreMetadataId(id);
   }
 
   @NotNull
