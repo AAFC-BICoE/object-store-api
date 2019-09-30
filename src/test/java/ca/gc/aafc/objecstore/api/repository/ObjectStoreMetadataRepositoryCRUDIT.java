@@ -27,7 +27,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
   @Inject
   private ObjectStoreResourceRepository objectStoreResourceRepository;
   
-   private ObjectStoreMetadata testObjectStoreMetadata;
+  private ObjectStoreMetadata testObjectStoreMetadata;
   
   private ObjectStoreMetadata createTestObjectStoreMetadata() {
     testObjectStoreMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();

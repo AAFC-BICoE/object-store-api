@@ -2,9 +2,10 @@ package ca.gc.aafc.objectstore.api.respository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.transaction.Transactional;
 
 import org.mapstruct.factory.Mappers;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
@@ -15,9 +16,9 @@ import io.crnk.core.resource.list.ResourceList;
 
 
 @SuppressWarnings("rawtypes")
-@Component
+@Repository
+@Transactional
 public class ObjectStoreResourceRepository extends ResourceRepositoryBase<ObjectStoreMetadataDto, Integer>{
-  
   
   @PersistenceContext
   private EntityManager entityManager;
@@ -61,4 +62,9 @@ public class ObjectStoreResourceRepository extends ResourceRepositoryBase<Object
     super(ObjectStoreMetadataDto.class);
     
   }
+  
+  @Override
+  public <S extends ObjectStoreMetadataDto> S create(S resource) {
+    return save(resource);
+  }  
  }
