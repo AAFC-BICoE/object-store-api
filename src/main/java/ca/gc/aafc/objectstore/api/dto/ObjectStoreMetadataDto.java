@@ -17,7 +17,7 @@ public class ObjectStoreMetadataDto {
   private String dcType;
 
   private String acDigitizationDate;
-  private String xmpMetadataDdate;
+  private String xmpMetadataDate;
 
   private String acHashFunction;
   private String acHashValue;

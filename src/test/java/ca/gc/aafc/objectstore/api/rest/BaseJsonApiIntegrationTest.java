@@ -74,24 +74,12 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
       fail(e.getMessage());
     }
     IT_BASE_URI = tmpURI;
-    
-/*    uriBuilder = new URIBuilder();
-    uriBuilder.setScheme("https");
-    uriBuilder.setHost("github.com");
-    tmpURI = null;
-    try {
-      tmpURI = uriBuilder.build();
-    } catch (URISyntaxException e) {
-      fail(e.getMessage());
-    }*/
-    
     SCHEMA_BASE_URI = tmpURI;
     
     IT_OBJECT_MAPPER.setSerializationInclusion(Include.NON_NULL);
   }
 
   public static final String API_BASE_PATH = "/api";
-  //public static final String SCHEMA_BASE_PATH = "/DINA-Web/object-store-specs/blob/json-schema/schema";
   public static final String SCHEMA_BASE_PATH = "/json-schema";
 
    
@@ -212,7 +200,7 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
    * Try to get a non-existing id (id = 0).
    * 
    */
-  //@Test
+  @Test
   public void resourceUnderTest_whenIdDoesntExist_returnNotFound() {
     given().when().get(getResourceUnderTest() + "/a8098c1a-f86e-11da-bd1a-00112444be1e").then()
         .statusCode(HttpStatus.NOT_FOUND.value());
@@ -227,9 +215,6 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
     ValidatableResponse responseCompact = given().header("crnk-compact", "true").when()
         .get(getResourceUnderTest() + "/" + id).then().statusCode(HttpStatus.OK.value());
     
-    log.info("responseCompact.extract().body().asString() "+ responseCompact.extract().body().asString());
-    log.info("getGetOneSchemaFilename "+ getGetOneSchemaFilename());
-    
     validateJsonSchemaByURL(getGetOneSchemaFilename(), responseCompact.extract().body().asString());
     
     // Test without the crnk-compact header.
@@ -237,12 +222,12 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
         .statusCode(HttpStatus.OK.value());
     
     validateJsonSchemaByURL(getGetOneSchemaFilename(), response.extract().body().asString());
-
+    
     // cleanup
     sendDelete(id);
   }
 
- /* @Test
+  //@Test
   public void resourceUnderTest_whenMultipleResources_returnOkAndBody()
       throws IOException, URISyntaxException {
     String id1 = sendPost(toJsonAPIMap(buildCreateAttributeMap(), buildRelationshipMap()));
@@ -270,9 +255,9 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
     String id = sendPost(toJsonAPIMap(buildCreateAttributeMap(), buildRelationshipMap()));
     System.out.println("inside delete id is "+ id);
     sendDelete(id);
-  }*/
+  }
   
- // @Test
+  @Test
   public void resourceUnderTest_whenUpdating_returnOkAndResourceIsUpdated() {
     // Setup: create an resource
 
@@ -317,6 +302,7 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
   protected void sendDelete(String id) {
     given().contentType(JSON_API_CONTENT_TYPE).when().delete(getResourceUnderTest() + "/" + id)
         .then().statusCode(HttpStatus.NO_CONTENT.value());
+ 
   }
 
   /**
@@ -339,12 +325,10 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
    * @return id of the newly created resource
    */
   protected String sendPost(String resourceName, Map<String, Object> dataMap) {
-    System.out.println("resource name and datamap are : " + resourceName + "," + dataMap.toString());
     Response response = given().header("crnk-compact", "true").contentType(JSON_API_CONTENT_TYPE).body(dataMap).when()
         .post(resourceName);
     response.then().statusCode(HttpStatus.CREATED.value());
     String id = (String) response.body().jsonPath().get("data.id");
-   // int idInt = Integer.parseInt(id);
     return id;
   }
 

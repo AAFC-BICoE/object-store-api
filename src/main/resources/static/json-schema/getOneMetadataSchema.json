@@ -31,7 +31,7 @@
           "type": "object",
           "required": [
             "dcType",
-            "acDigitizationDate",
+            "acDigitizationDate"
           ],
           "properties": {
             "dcFormat": {
@@ -40,15 +40,15 @@
             },
             "dcType": {
               "enum": [
-                "IMAGE",
-                "MOVINGIMAGE",
-                "SOUND",
-                "TEXT"
+                "Image",
+                "Moving image",
+                "Sount",
+                "Text"
               ],
               "description": "Type of object stored. Higher level than mediaType. https://tdwg.github.io/ac/termlist/#dc_type"
             },
             "acDigitizationDate": {
-              "type": "object",
+              "type": "string",
               "description": "Date (ISO 8601 Date/Time) the first digital version was created. https://tdwg.github.io/ac/termlist/#ac_digitizationDate"
             },
             "xmpMetadataDate": {

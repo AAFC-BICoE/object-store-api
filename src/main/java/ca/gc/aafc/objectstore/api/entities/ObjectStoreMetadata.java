@@ -49,7 +49,7 @@ public class ObjectStoreMetadata implements java.io.Serializable , UniqueObj{
   private DcType dcType;
 
   private OffsetDateTime acDigitizationDate;
-  private OffsetDateTime xmpMetadataDdate;
+  private OffsetDateTime xmpMetadataDate;
 
   private String acHashFunction;
   private String acHashValue;
@@ -136,12 +136,12 @@ public class ObjectStoreMetadata implements java.io.Serializable , UniqueObj{
   }
 
   @Column(name = "xmp_metadata_date")
-  public OffsetDateTime getXmpMetadataDdate() {
-    return xmpMetadataDdate;
+  public OffsetDateTime getXmpMetadataDate() {
+    return xmpMetadataDate;
   }
 
-  public void setXmpMetadataDdate(OffsetDateTime xmpMetadataDdate) {
-    this.xmpMetadataDdate = xmpMetadataDdate;
+  public void setXmpMetadataDate(OffsetDateTime xmpMetadataDate) {
+    this.xmpMetadataDate = xmpMetadataDate;
   }
 
   @Column(name = "ac_hash_function")
