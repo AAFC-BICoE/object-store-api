@@ -39,8 +39,11 @@ public class ObjectStoreResourceRepository
    */
   @Override
   public <S extends ObjectStoreMetadataDto> S save(S resource) {
+    ObjectStoreMetadataDto dto =  (ObjectStoreMetadataDto) resource ;
+    if(dto.getUuid()==null)
+      dto.setUuid(UUID.randomUUID());
     ObjectStoreMetadata objectMetadata = mapper
-        .destinationToSource((ObjectStoreMetadataDto) resource);
+        .ObjectStoreMetadataDtotoObjectStoreMetadata((ObjectStoreMetadataDto) resource);
     entityManager.persist(objectMetadata);
     return resource;
   }
@@ -50,7 +53,7 @@ public class ObjectStoreResourceRepository
     ObjectStoreMetadata objectStoreMetadata = entityManager.unwrap(Session.class)
         .byNaturalId(ObjectStoreMetadata.class)
         .using("uuid", uuid).load();
-    return mapper.sourceToDestination(objectStoreMetadata);
+    return mapper.ObjectStoreMetadataToObjectStoreMetadataDto(objectStoreMetadata);
   }
 
   @Override

@@ -19,5 +19,11 @@ public abstract class BaseRepositoryTest extends BaseIntegrationTest {
     entityManager.persist(objectToPersist);
     assertNotNull( objectToPersist.getId());
   }
+  
+  protected void delete(UniqueObj objectToPersist) {
+    assertNotNull( objectToPersist.getId());
+    entityManager.remove(objectToPersist);
+    assertNull( objectToPersist.getId());
+  }
 
 }

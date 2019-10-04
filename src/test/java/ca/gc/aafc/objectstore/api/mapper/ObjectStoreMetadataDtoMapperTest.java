@@ -33,13 +33,13 @@ public class ObjectStoreMetadataDtoMapperTest {
 
     // when
     ObjectStoreMetadataDto objectStoreMetadataDto = DTO_MAPPER
-        .sourceToDestination(objectStoreMetadata);
+        .ObjectStoreMetadataToObjectStoreMetadataDto(objectStoreMetadata);
 
     // then
     assertEquals(objectStoreMetadataDto.getAcDigitizationDate(),
-        objectStoreMetadata.getAcDigitizationDate());
+        ""+objectStoreMetadata.getAcDigitizationDate());
     assertEquals(objectStoreMetadataDto.getUuid(), objectStoreMetadata.getUuid());
-    assertEquals(objectStoreMetadataDto.getDcType(), objectStoreMetadata.getDcType());
+    assertEquals(objectStoreMetadataDto.getDcType(), objectStoreMetadata.getDcType().getValue());
   }
 
   @Test
@@ -48,18 +48,18 @@ public class ObjectStoreMetadataDtoMapperTest {
     // given
     ObjectStoreMetadataDto objectStoreMetadataDto = new ObjectStoreMetadataDto();
     objectStoreMetadataDto.setUuid(UUID.randomUUID());
-    objectStoreMetadataDto.setDcType(DcType.IMAGE);
-    objectStoreMetadataDto.setAcDigitizationDate(TEST_OFFSET_DT);
+    objectStoreMetadataDto.setDcType(DcType.IMAGE.getValue());
+    objectStoreMetadataDto.setAcDigitizationDate(TEST_OFFSET_DT.toString());
 
     // when
     ObjectStoreMetadata objectStoreMetadata = DTO_MAPPER
-        .destinationToSource(objectStoreMetadataDto);
+        .ObjectStoreMetadataDtotoObjectStoreMetadata(objectStoreMetadataDto);
 
     // then
-    assertEquals(objectStoreMetadata.getAcDigitizationDate(),
+    assertEquals(objectStoreMetadata.getAcDigitizationDate().toString(),
         objectStoreMetadataDto.getAcDigitizationDate());
     assertEquals(objectStoreMetadata.getUuid(), objectStoreMetadataDto.getUuid());
-    assertEquals(objectStoreMetadata.getDcType(), objectStoreMetadataDto.getDcType());
+    assertEquals(objectStoreMetadata.getDcType().getValue(), objectStoreMetadataDto.getDcType());
   }
 
 }
