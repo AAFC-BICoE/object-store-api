@@ -110,14 +110,11 @@ public final class JsonSchemaAssertions {
       // Parses the JSON instance by javax.json.stream.JsonParser
       try (JsonParser parser = JSON_VALIDATION_SERVICE.createParser(apiResponse, schema, handler)) {
         while (parser.hasNext()) {
-          JsonParser.Event event = parser.next();
-          System.out.println(event);
-          log.info("event " + event);
+          parser.next();
         }
         
       }
     } catch (JsonException jsonEx) {
-      log.info("jsonEx:" + jsonEx.getMessage());
       fail("Trying to assert schema located at " + uri.toString() + ": " + jsonEx.getMessage());
     } finally {
       try {

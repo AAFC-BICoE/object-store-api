@@ -34,6 +34,13 @@ public class ObjectStoreResourceRepository
     super(ObjectStoreMetadataDto.class);
   }
 
+  private ObjectStoreMetadata findOneByUUID(UUID uuid) {
+    
+    ObjectStoreMetadata objectStoreMetadata = entityManager.unwrap(Session.class)
+        .byNaturalId(ObjectStoreMetadata.class).using("uuid", uuid).load();
+    return objectStoreMetadata;
+  
+  }
   /**
    * @param resource
    *          to save
@@ -42,19 +49,24 @@ public class ObjectStoreResourceRepository
   @Override
   public <S extends ObjectStoreMetadataDto> S save(S resource) {
     ObjectStoreMetadataDto dto =  (ObjectStoreMetadataDto) resource ;
-    if(dto.getUuid()==null)
-      dto.setUuid(UUID.randomUUID());
-    ObjectStoreMetadata objectMetadata = mapper
+    ObjectStoreMetadata objectMetadata = findOneByUUID(dto.getUuid());
+    ObjectStoreMetadata mappedObjectMetadata = mapper
         .ObjectStoreMetadataDtotoObjectStoreMetadata((ObjectStoreMetadataDto) resource);
-    entityManager.persist(objectMetadata);
+    
+    objectMetadata.setAcDigitizationDate(mappedObjectMetadata.getAcDigitizationDate());
+    objectMetadata.setAcHashFunction(mappedObjectMetadata.getAcHashFunction());
+    objectMetadata.setAcHashValue(mappedObjectMetadata.getAcHashValue());
+    objectMetadata.setDcFormat(mappedObjectMetadata.getDcFormat());
+    objectMetadata.setDcType(mappedObjectMetadata.getDcType());
+    objectMetadata.setXmpMetadataDate(mappedObjectMetadata.getXmpMetadataDate());
+    
+    entityManager.merge(objectMetadata);
     return resource;
   }
 
   @Override
   public ObjectStoreMetadataDto findOne(UUID uuid, QuerySpec querySpec) {
-    ObjectStoreMetadata objectStoreMetadata = entityManager.unwrap(Session.class)
-        .byNaturalId(ObjectStoreMetadata.class)
-        .using("uuid", uuid).load();
+    ObjectStoreMetadata objectStoreMetadata = findOneByUUID(uuid);
     if(objectStoreMetadata ==null)
    // Throw the 404 exception if the resource is not found.
       {
@@ -73,14 +85,19 @@ public class ObjectStoreResourceRepository
 
   @Override
   public <S extends ObjectStoreMetadataDto> S create(S resource) {
-    return save(resource);
+    ObjectStoreMetadataDto dto =  (ObjectStoreMetadataDto) resource ;
+    if(dto.getUuid()==null)
+      dto.setUuid(UUID.randomUUID());
+    ObjectStoreMetadata objectMetadata = mapper
+        .ObjectStoreMetadataDtotoObjectStoreMetadata((ObjectStoreMetadataDto) resource);
+    entityManager.persist(objectMetadata);
+    return resource;
   }
   
   @Override
   public void delete(UUID id) {
-    ObjectStoreMetadata objectStoreMetadata = entityManager.unwrap(Session.class)
-        .byNaturalId(ObjectStoreMetadata.class)
-        .using("uuid", id).load();    
-    entityManager.remove(objectStoreMetadata);
+    ObjectStoreMetadata objectStoreMetadata = findOneByUUID(id);
+    if(objectStoreMetadata != null)
+      entityManager.remove(objectStoreMetadata);
   }
 }

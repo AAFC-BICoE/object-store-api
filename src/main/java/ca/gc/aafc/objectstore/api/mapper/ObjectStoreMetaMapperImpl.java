@@ -15,27 +15,18 @@ public class ObjectStoreMetaMapperImpl implements ObjectStoreMetadataMapper{
     
     if(entity == null)
       return null;
-    System.out.println("entity is " + entity);
     
     ObjectStoreMetadataDto objectStoreMetadataDto = new ObjectStoreMetadataDto();
     objectStoreMetadataDto.setDcFormat(entity.getDcFormat()==null? "":entity.getDcFormat());
     objectStoreMetadataDto.setDcType(entity.getDcType().getValue());
-    
-    System.out.println("entity is end 2" + entity);
-    
     objectStoreMetadataDto.setAcDigitizationDate(entity.getAcDigitizationDate().toString());
-    
-    System.out.println("entity is end 3 " + entity);    
     objectStoreMetadataDto.setXmpMetadataDate(entity.getXmpMetadataDate().toString());
-    
-    System.out.println("entity is end 31 " + entity);
-    
+       
     objectStoreMetadataDto.setAcHashFunction(entity.getAcHashFunction()==null? "":entity.getAcHashFunction());
     objectStoreMetadataDto.setAcHashValue(entity.getAcHashValue()==null? "":entity.getAcHashValue());
     
     objectStoreMetadataDto.setUuid(entity.getUuid());
-    
-    System.out.println("entity is end 4" + entity);    
+        
     return objectStoreMetadataDto;
   }
 

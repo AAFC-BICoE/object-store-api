@@ -2,16 +2,25 @@ package ca.gc.aafc.objectstore.api.rest;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.UUID;
 
+import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata.DcType;
+import ca.gc.aafc.objectstore.api.mapper.ObjectStoreMetaMapperImpl;
+import ca.gc.aafc.objectstore.api.mapper.ObjectStoreMetadataMapper;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 
 public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
 
+  private ObjectStoreMetadataMapper mapper = new ObjectStoreMetaMapperImpl();
+  
+  private ObjectStoreMetadata objectStoreMetadata;
+  
   @Override
   protected String getResourceUnderTest() {
     return "object";
@@ -30,15 +39,15 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
   @Override
   protected Map<String, Object> buildCreateAttributeMap() {
     
-    OffsetDateTime acDigitizationDate = OffsetDateTime.now();
-    OffsetDateTime dateTime4 = OffsetDateTime.of(LocalDateTime.of(2019, 05, 12, 05, 45),
-        ZoneOffset.ofHoursMinutes(6, 30));    
-    ObjectStoreMetadata objectStoreMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata()
+    OffsetDateTime dateTime4Test = OffsetDateTime.now();
+    objectStoreMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata()
        .acHashFunction("MD5")
-       .acDigitizationDate(acDigitizationDate)
+       .acDigitizationDate(dateTime4Test)
+       .xmpMetadataDate(dateTime4Test)
       .build();
-    
-    Map<String, Object> map = toAttributeMap(objectStoreMetadata);
+    ObjectStoreMetadataDto objectStoreMetadatadto = mapper.ObjectStoreMetadataToObjectStoreMetadataDto(objectStoreMetadata);
+    Map<String, Object> map = toAttributeMap(objectStoreMetadatadto);
+  
     
     return map;
   }
@@ -46,14 +55,13 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
   @Override
   protected Map<String, Object> buildUpdateAttributeMap() {
     
-    OffsetDateTime acDigitizationDate = OffsetDateTime.now();
-    ObjectStoreMetadata objectStoreMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata()
-        .acHashFunction("SHA1")
-      .acDigitizationDate(acDigitizationDate)
-      .build();
-    
-    Map<String, Object> map = toAttributeMap(objectStoreMetadata);
-    
+    OffsetDateTime dateTime4TestUpdate = OffsetDateTime.now();
+    objectStoreMetadata.setAcHashFunction("SHA1");
+    objectStoreMetadata.setAcDigitizationDate(dateTime4TestUpdate);
+    objectStoreMetadata.setXmpMetadataDate(dateTime4TestUpdate);    
+    ObjectStoreMetadataDto objectStoreMetadatadto = mapper.ObjectStoreMetadataToObjectStoreMetadataDto(objectStoreMetadata);
+    Map<String, Object> map = toAttributeMap(objectStoreMetadatadto);
+   
     return map;    
   }
 }

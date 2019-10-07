@@ -263,16 +263,15 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
 
     String id = sendPost(toJsonAPIMap(buildCreateAttributeMap(), buildRelationshipMap()));
     Map<String, Object> updatedAttributeMap = buildUpdateAttributeMap();
-
-    System.out.println("when updating returnOkAndResourceIsUpdate id is " + id);
-    
     // update the resource
     sendPatch(id, toJsonAPIMap(getResourceUnderTest(), updatedAttributeMap, buildRelationshipMap(), id));
 
     ValidatableResponse responseUpdate = sendGet(id);
-
     // verify
     for (String attributeKey : updatedAttributeMap.keySet()) {
+      //uuid is used as id in the response, so should not verify
+      if("uuid".equals(attributeKey))
+        continue;
       responseUpdate.body("data.attributes." + attributeKey,
           equalTo(updatedAttributeMap.get(attributeKey)));
     }
