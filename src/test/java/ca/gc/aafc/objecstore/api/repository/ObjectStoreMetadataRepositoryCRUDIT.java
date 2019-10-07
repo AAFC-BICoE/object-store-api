@@ -8,11 +8,12 @@ import java.io.Serializable;
 
 import javax.inject.Inject;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.Bean;
 
-import ca.gc.aafc.objecstore.api.testsupport.DBBackedIntegrationTest;
+import ca.gc.aafc.objectstore.api.testsupport.DBBackedIntegrationTest;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
@@ -48,7 +49,9 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
     );  
     assertNotNull(objectStoreMetadataDto);
     assertEquals(testObjectStoreMetadata.getUuid(), objectStoreMetadataDto.getUuid());
-    assertEquals(testObjectStoreMetadata.getAcDigitizationDate(), objectStoreMetadataDto.getAcDigitizationDate());
+    assertEquals(testObjectStoreMetadata.getDcType().getValue(), objectStoreMetadataDto.getDcType());
+    assertEquals(testObjectStoreMetadata.getAcDigitizationDate()==null? "":testObjectStoreMetadata.getAcDigitizationDate().toString(),
+        objectStoreMetadataDto.getAcDigitizationDate());
   }
     
 }

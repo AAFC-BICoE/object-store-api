@@ -34,7 +34,7 @@ public class ObjectStoreMetadataDtoMapperTest {
 
     // when
     ObjectStoreMetadataDto objectStoreMetadataDto = DTO_MAPPER
-        .ObjectStoreMetadataToObjectStoreMetadataDto(objectStoreMetadata);
+        .objectStoreMetadataToObjectStoreMetadataDto(objectStoreMetadata);
 
     // then
     assertEquals(objectStoreMetadataDto.getAcDigitizationDate(),
@@ -55,7 +55,7 @@ public class ObjectStoreMetadataDtoMapperTest {
 
     // when
     ObjectStoreMetadata objectStoreMetadata = DTO_MAPPER
-        .ObjectStoreMetadataDtotoObjectStoreMetadata(objectStoreMetadataDto);
+        .objectStoreMetadataDtotoObjectStoreMetadata(objectStoreMetadataDto);
 
     // then
     assertEquals(objectStoreMetadata.getAcDigitizationDate().toString(),

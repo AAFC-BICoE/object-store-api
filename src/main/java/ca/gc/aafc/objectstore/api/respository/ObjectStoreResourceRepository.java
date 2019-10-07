@@ -2,7 +2,6 @@ package ca.gc.aafc.objectstore.api.respository;
 
 import java.util.UUID;
 
-import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
@@ -27,7 +26,6 @@ public class ObjectStoreResourceRepository
   @PersistenceContext
   private EntityManager entityManager;
 
-  //@Inject
   private ObjectStoreMetadataMapper mapper = new ObjectStoreMetaMapperImpl();
 
   public ObjectStoreResourceRepository() {
@@ -51,7 +49,7 @@ public class ObjectStoreResourceRepository
     ObjectStoreMetadataDto dto =  (ObjectStoreMetadataDto) resource ;
     ObjectStoreMetadata objectMetadata = findOneByUUID(dto.getUuid());
     ObjectStoreMetadata mappedObjectMetadata = mapper
-        .ObjectStoreMetadataDtotoObjectStoreMetadata((ObjectStoreMetadataDto) resource);
+        .objectStoreMetadataDtotoObjectStoreMetadata((ObjectStoreMetadataDto) resource);
     
     objectMetadata.setAcDigitizationDate(mappedObjectMetadata.getAcDigitizationDate());
     objectMetadata.setAcHashFunction(mappedObjectMetadata.getAcHashFunction());
@@ -67,14 +65,13 @@ public class ObjectStoreResourceRepository
   @Override
   public ObjectStoreMetadataDto findOne(UUID uuid, QuerySpec querySpec) {
     ObjectStoreMetadata objectStoreMetadata = findOneByUUID(uuid);
-    if(objectStoreMetadata ==null)
-   // Throw the 404 exception if the resource is not found.
-      {
-        throw new ResourceNotFoundException(
-            this.getClass().getSimpleName() + " with ID " + uuid + " Not Found."
-        );
-      }
-    return mapper.ObjectStoreMetadataToObjectStoreMetadataDto(objectStoreMetadata);
+    if(objectStoreMetadata ==null){
+    // Throw the 404 exception if the resource is not found.
+      throw new ResourceNotFoundException(
+          this.getClass().getSimpleName() + " with ID " + uuid + " Not Found."
+      );
+    }
+    return mapper.objectStoreMetadataToObjectStoreMetadataDto(objectStoreMetadata);
   }
 
   @Override
@@ -86,10 +83,11 @@ public class ObjectStoreResourceRepository
   @Override
   public <S extends ObjectStoreMetadataDto> S create(S resource) {
     ObjectStoreMetadataDto dto =  (ObjectStoreMetadataDto) resource ;
-    if(dto.getUuid()==null)
+    if(dto.getUuid()==null) {
       dto.setUuid(UUID.randomUUID());
+    }
     ObjectStoreMetadata objectMetadata = mapper
-        .ObjectStoreMetadataDtotoObjectStoreMetadata((ObjectStoreMetadataDto) resource);
+        .objectStoreMetadataDtotoObjectStoreMetadata((ObjectStoreMetadataDto) resource);
     entityManager.persist(objectMetadata);
     return resource;
   }
@@ -97,7 +95,8 @@ public class ObjectStoreResourceRepository
   @Override
   public void delete(UUID id) {
     ObjectStoreMetadata objectStoreMetadata = findOneByUUID(id);
-    if(objectStoreMetadata != null)
+    if(objectStoreMetadata != null) {
       entityManager.remove(objectStoreMetadata);
+    }
   }
 }
