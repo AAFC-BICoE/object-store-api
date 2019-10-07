@@ -1,6 +1,8 @@
 package ca.gc.aafc.objectstore.api.entities;
 
 import java.time.OffsetDateTime;
+import java.util.Arrays;
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -79,6 +81,15 @@ public class ObjectStoreMetadata implements java.io.Serializable , UniqueObj{
      */
     public String getValue() {
       return value;
+    }
+    
+    public static Optional<DcType> fromValue(String value) {
+      for(DcType currType : values()) {
+        if(currType.getValue().equalsIgnoreCase(value)) {
+          return Optional.of(currType);
+        }
+      }
+      return Optional.empty();
     }
   }
   

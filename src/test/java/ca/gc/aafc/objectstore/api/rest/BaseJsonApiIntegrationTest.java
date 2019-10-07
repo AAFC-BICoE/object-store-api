@@ -17,12 +17,16 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.CharStreams;
 
 import ca.gc.aafc.objecstore.api.repository.JsonSchemaAssertions;
 import ca.gc.aafc.objectstore.api.BaseHttpIntegrationTest;
+import ca.gc.aafc.objectstore.api.dto.DcTypeDeserializer;
+import ca.gc.aafc.objectstore.api.dto.DcTypeSerializer;
+import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata.DcType;
 
 import org.apache.http.client.utils.URIBuilder;
 import org.junit.jupiter.api.BeforeEach;
@@ -83,6 +87,12 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
     IT_OBJECT_MAPPER.registerModule(new JavaTimeModule());
     IT_OBJECT_MAPPER.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
     IT_OBJECT_MAPPER.setSerializationInclusion(Include.NON_NULL);
+    
+    SimpleModule module = new SimpleModule();
+    module.addSerializer(DcType.class, new DcTypeSerializer());
+    module.addDeserializer(DcType.class, new DcTypeDeserializer());
+    
+    IT_OBJECT_MAPPER.registerModule(module);
   }
 
   public static final String API_BASE_PATH = "/api";
