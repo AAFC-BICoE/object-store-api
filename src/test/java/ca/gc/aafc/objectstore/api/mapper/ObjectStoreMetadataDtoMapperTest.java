@@ -21,7 +21,7 @@ public class ObjectStoreMetadataDtoMapperTest {
   private final ZonedDateTime TEST_ZONED_DT = ZonedDateTime.of(2019, 1, 2, 3, 4, 5, 0, MTL_TZ);
   private final OffsetDateTime TEST_OFFSET_DT = TEST_ZONED_DT.toOffsetDateTime();
 
-  private static final ObjectStoreMetadataMapper DTO_MAPPER = new ObjectStoreMetaMapperImpl();  
+  private static final ObjectStoreMetadataMapper DTO_MAPPER = ObjectStoreMetadataMapper.INSTANCE;
 
   @Test
   public void testGivenObjectStoreMetadata_mapsToObjectStoreMetadataDto() {
@@ -37,10 +37,9 @@ public class ObjectStoreMetadataDtoMapperTest {
         .objectStoreMetadataToObjectStoreMetadataDto(objectStoreMetadata);
 
     // then
-    assertEquals(objectStoreMetadataDto.getAcDigitizationDate(),
-        ""+objectStoreMetadata.getAcDigitizationDate());
+    assertEquals(objectStoreMetadataDto.getAcDigitizationDate(), objectStoreMetadata.getAcDigitizationDate());
     assertEquals(objectStoreMetadataDto.getUuid(), objectStoreMetadata.getUuid());
-    assertEquals(objectStoreMetadataDto.getDcType(), objectStoreMetadata.getDcType().getValue());
+    assertEquals(objectStoreMetadataDto.getDcType(), objectStoreMetadata.getDcType());
   }
 
   @Test
@@ -49,19 +48,18 @@ public class ObjectStoreMetadataDtoMapperTest {
     // given
     ObjectStoreMetadataDto objectStoreMetadataDto = new ObjectStoreMetadataDto();
     objectStoreMetadataDto.setUuid(UUID.randomUUID());
-    objectStoreMetadataDto.setDcType(DcType.IMAGE.getValue());
-    objectStoreMetadataDto.setAcDigitizationDate(TEST_OFFSET_DT.toString());
-    objectStoreMetadataDto.setXmpMetadataDate(TEST_OFFSET_DT.toString());
+    objectStoreMetadataDto.setDcType(DcType.IMAGE);
+    objectStoreMetadataDto.setAcDigitizationDate(TEST_OFFSET_DT);
+    objectStoreMetadataDto.setXmpMetadataDate(TEST_OFFSET_DT);
 
     // when
     ObjectStoreMetadata objectStoreMetadata = DTO_MAPPER
         .objectStoreMetadataDtotoObjectStoreMetadata(objectStoreMetadataDto);
 
     // then
-    assertEquals(objectStoreMetadata.getAcDigitizationDate().toString(),
-        objectStoreMetadataDto.getAcDigitizationDate());
+    assertEquals(objectStoreMetadata.getAcDigitizationDate(), objectStoreMetadataDto.getAcDigitizationDate());
     assertEquals(objectStoreMetadata.getUuid(), objectStoreMetadataDto.getUuid());
-    assertEquals(objectStoreMetadata.getDcType().getValue(), objectStoreMetadataDto.getDcType());
+    assertEquals(objectStoreMetadata.getDcType(), objectStoreMetadataDto.getDcType());
   }
 
 }

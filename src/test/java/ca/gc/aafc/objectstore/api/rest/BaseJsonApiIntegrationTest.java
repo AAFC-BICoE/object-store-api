@@ -16,6 +16,8 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.CharStreams;
 
@@ -58,12 +60,14 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
   public static final String JSON_API_CONTENT_TYPE = "application/vnd.api+json";
   
   private static final ObjectMapper IT_OBJECT_MAPPER = new ObjectMapper();
+
   private static final TypeReference<Map<String, Object>> IT_OM_TYPE_REF = new TypeReference<Map<String, Object>>() {};
    
   public static final URI IT_BASE_URI;
   public static final URI SCHEMA_BASE_URI;
   
   static {
+    
     URIBuilder uriBuilder = new URIBuilder();
     uriBuilder.setScheme("http");
     uriBuilder.setHost("localhost");
@@ -76,6 +80,8 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
     IT_BASE_URI = tmpURI;
     SCHEMA_BASE_URI = tmpURI;
     
+    IT_OBJECT_MAPPER.registerModule(new JavaTimeModule());
+    IT_OBJECT_MAPPER.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
     IT_OBJECT_MAPPER.setSerializationInclusion(Include.NON_NULL);
   }
 
@@ -253,7 +259,6 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
   @Test
   public void resourceUnderTest_whenDeleteExisting_returnNoContent() {
     String id = sendPost(toJsonAPIMap(buildCreateAttributeMap(), buildRelationshipMap()));
-    System.out.println("inside delete id is "+ id);
     sendDelete(id);
   }
   
@@ -263,6 +268,7 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
 
     String id = sendPost(toJsonAPIMap(buildCreateAttributeMap(), buildRelationshipMap()));
     Map<String, Object> updatedAttributeMap = buildUpdateAttributeMap();
+    
     // update the resource
     sendPatch(id, toJsonAPIMap(getResourceUnderTest(), updatedAttributeMap, buildRelationshipMap(), id));
 

@@ -1,23 +1,16 @@
 package ca.gc.aafc.objectstore.api.rest;
 
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.Map;
-import java.util.UUID;
 
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
-import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata.DcType;
-import ca.gc.aafc.objectstore.api.mapper.ObjectStoreMetaMapperImpl;
 import ca.gc.aafc.objectstore.api.mapper.ObjectStoreMetadataMapper;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 
 public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
 
-  private ObjectStoreMetadataMapper mapper = new ObjectStoreMetaMapperImpl();
+  private ObjectStoreMetadataMapper mapper = ObjectStoreMetadataMapper.INSTANCE;
   
   private ObjectStoreMetadata objectStoreMetadata;
   

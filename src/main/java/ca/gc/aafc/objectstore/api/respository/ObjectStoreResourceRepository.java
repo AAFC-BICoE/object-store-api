@@ -2,6 +2,7 @@ package ca.gc.aafc.objectstore.api.respository;
 
 import java.util.UUID;
 
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Repository;
 
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
-import ca.gc.aafc.objectstore.api.mapper.ObjectStoreMetaMapperImpl;
 import ca.gc.aafc.objectstore.api.mapper.ObjectStoreMetadataMapper;
 import io.crnk.core.exception.ResourceNotFoundException;
 import io.crnk.core.queryspec.QuerySpec;
@@ -26,7 +26,8 @@ public class ObjectStoreResourceRepository
   @PersistenceContext
   private EntityManager entityManager;
 
-  private ObjectStoreMetadataMapper mapper = new ObjectStoreMetaMapperImpl();
+  @Inject
+  private ObjectStoreMetadataMapper mapper;
 
   public ObjectStoreResourceRepository() {
     super(ObjectStoreMetadataDto.class);

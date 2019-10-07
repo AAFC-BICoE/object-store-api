@@ -1,7 +1,9 @@
 package ca.gc.aafc.objectstore.api.dto;
 
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
+import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata.DcType;
 import io.crnk.core.resource.annotations.JsonApiId;
 import io.crnk.core.resource.annotations.JsonApiResource;
 import lombok.Data;
@@ -14,10 +16,10 @@ public class ObjectStoreMetadataDto {
   private UUID uuid;
 
   private String dcFormat;
-  private String dcType;
+  private DcType dcType;
 
-  private String acDigitizationDate;
-  private String xmpMetadataDate;
+  private OffsetDateTime acDigitizationDate;
+  private OffsetDateTime xmpMetadataDate;
 
   private String acHashFunction;
   private String acHashValue;

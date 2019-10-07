@@ -24,7 +24,6 @@ import io.crnk.core.repository.ResourceRepository;
 
 public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
   
-
   @Inject
   private ObjectStoreResourceRepository objectStoreResourceRepository;
   
@@ -49,8 +48,8 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
     );  
     assertNotNull(objectStoreMetadataDto);
     assertEquals(testObjectStoreMetadata.getUuid(), objectStoreMetadataDto.getUuid());
-    assertEquals(testObjectStoreMetadata.getDcType().getValue(), objectStoreMetadataDto.getDcType());
-    assertEquals(testObjectStoreMetadata.getAcDigitizationDate()==null? "":testObjectStoreMetadata.getAcDigitizationDate().toString(),
+    assertEquals(testObjectStoreMetadata.getDcType(), objectStoreMetadataDto.getDcType());
+    assertEquals(testObjectStoreMetadata.getAcDigitizationDate(), 
         objectStoreMetadataDto.getAcDigitizationDate());
   }
     
