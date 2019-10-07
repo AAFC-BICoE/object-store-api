@@ -37,6 +37,7 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
        .acHashFunction("MD5")
        .acDigitizationDate(dateTime4Test)
        .xmpMetadataDate(dateTime4Test)
+       .dcFormat("testFormat")
       .build();
     ObjectStoreMetadataDto objectStoreMetadatadto = mapper.objectStoreMetadataToObjectStoreMetadataDto(objectStoreMetadata);
     Map<String, Object> map = toAttributeMap(objectStoreMetadatadto);
@@ -51,7 +52,8 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
     OffsetDateTime dateTime4TestUpdate = OffsetDateTime.now();
     objectStoreMetadata.setAcHashFunction("SHA1");
     objectStoreMetadata.setAcDigitizationDate(dateTime4TestUpdate);
-    objectStoreMetadata.setXmpMetadataDate(dateTime4TestUpdate);    
+    objectStoreMetadata.setXmpMetadataDate(dateTime4TestUpdate);
+    objectStoreMetadata.setDcFormat("updatedTestFormat");
     ObjectStoreMetadataDto objectStoreMetadatadto = mapper.objectStoreMetadataToObjectStoreMetadataDto(objectStoreMetadata);
     Map<String, Object> map = toAttributeMap(objectStoreMetadatadto);
    

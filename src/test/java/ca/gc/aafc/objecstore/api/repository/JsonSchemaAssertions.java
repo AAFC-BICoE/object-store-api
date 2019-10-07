@@ -96,16 +96,13 @@ public final class JsonSchemaAssertions {
    */
   public static void assertJsonSchema(URI uri, Reader apiResponse) {
 
-    log.info("assertJsonSchema uri  " +  uri+ ", " + uri.getPort());    
     CloseableHttpClient httpClient = HttpClients.createDefault();
     try {
       JsonSchema schema = new NetworkJsonSchemaResolver(uri.getPort(), httpClient)
           .resolveSchema(uri);
 
-      log.info("schema , uri  " + schema + ", " + uri);
-      
       // Problem handler which will print problems found.
-      ProblemHandler handler = JSON_VALIDATION_SERVICE.createProblemPrinter(System.out::println);
+      ProblemHandler handler = JSON_VALIDATION_SERVICE.createProblemPrinter(ASSERTION_PRINTER);
 
       // Parses the JSON instance by javax.json.stream.JsonParser
       try (JsonParser parser = JSON_VALIDATION_SERVICE.createParser(apiResponse, schema, handler)) {
