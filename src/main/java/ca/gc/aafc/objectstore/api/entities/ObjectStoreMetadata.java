@@ -1,7 +1,6 @@
 package ca.gc.aafc.objectstore.api.entities;
 
 import java.time.OffsetDateTime;
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
 
