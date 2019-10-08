@@ -16,6 +16,9 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata.DcType;
 
 public class DcTypeJsonSerDe {
+  
+  // hidden constructor, utility class
+  private DcTypeJsonSerDe() {}
 
   @JsonComponent
   public static class DcTypeDeserializer extends JsonDeserializer<DcType> {
