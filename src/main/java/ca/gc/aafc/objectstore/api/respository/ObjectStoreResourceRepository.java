@@ -50,7 +50,7 @@ public class ObjectStoreResourceRepository
     ObjectStoreMetadataDto dto =  (ObjectStoreMetadataDto) resource ;
     ObjectStoreMetadata objectMetadata = findOneByUUID(dto.getUuid());
     ObjectStoreMetadata mappedObjectMetadata = mapper
-        .objectStoreMetadataDtotoObjectStoreMetadata((ObjectStoreMetadataDto) resource);
+        .toEntity((ObjectStoreMetadataDto) resource);
     
     objectMetadata.setAcDigitizationDate(mappedObjectMetadata.getAcDigitizationDate());
     objectMetadata.setAcHashFunction(mappedObjectMetadata.getAcHashFunction());
@@ -72,7 +72,7 @@ public class ObjectStoreResourceRepository
           this.getClass().getSimpleName() + " with ID " + uuid + " Not Found."
       );
     }
-    return mapper.objectStoreMetadataToObjectStoreMetadataDto(objectStoreMetadata);
+    return mapper.toDto(objectStoreMetadata);
   }
 
   @Override
@@ -88,7 +88,7 @@ public class ObjectStoreResourceRepository
       dto.setUuid(UUID.randomUUID());
     }
     ObjectStoreMetadata objectMetadata = mapper
-        .objectStoreMetadataDtotoObjectStoreMetadata((ObjectStoreMetadataDto) resource);
+        .toEntity((ObjectStoreMetadataDto) resource);
     entityManager.persist(objectMetadata);
     return resource;
   }

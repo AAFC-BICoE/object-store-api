@@ -37,7 +37,7 @@ import lombok.RequiredArgsConstructor;
 @Builder
 @AllArgsConstructor
 @RequiredArgsConstructor
-public class ObjectStoreMetadata implements java.io.Serializable , UniqueObj{
+public class ObjectStoreMetadata implements java.io.Serializable, UniqueObj {
 
   /** The Constant serialVersionUID. */
   private static final long serialVersionUID = -5655824300348079540L;
@@ -56,45 +56,42 @@ public class ObjectStoreMetadata implements java.io.Serializable , UniqueObj{
   private String acHashValue;
 
   public enum DcType {
-    IMAGE("Image"),
-    MOVING_IMAGE("Moving Image"),
-    SOUND("Sound"),
+    IMAGE("Image"), 
+    MOVING_IMAGE("Moving Image"), 
+    SOUND("Sound"), 
     TEXT("Text");
 
     private final String value;
 
-    /**
-     * Instantiates a new DcType.
-     *
-     * @param value
-     *          the value
-     */
     DcType(String value) {
       this.value = value;
     }
 
-    /**
-     * Gets the value.
-     *
-     * @return the value
-     */
     public String getValue() {
       return value;
     }
-    
+
+    /**
+     * Get the {@link DcType} value from the provided string. The string is matched in a case
+     * insensitive manner.
+     * 
+     * @param value
+     * @return the {@link DcType} wrapped in an {@link Optional} or {@link Optional#empty()} is no
+     *         there is {@link DcType} match.
+     */
     public static Optional<DcType> fromValue(String value) {
-      for(DcType currType : values()) {
-        if(currType.getValue().equalsIgnoreCase(value)) {
+      for (DcType currType : values()) {
+        if (currType.getValue().equalsIgnoreCase(value)) {
           return Optional.of(currType);
         }
       }
       return Optional.empty();
     }
   }
-  
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "id")  
+  @Column(name = "id")
   public Integer getId() {
     return id;
   }
@@ -102,7 +99,6 @@ public class ObjectStoreMetadata implements java.io.Serializable , UniqueObj{
   public void setId(Integer id) {
     this.id = id;
   }
-
 
   @NaturalId
   @NotNull

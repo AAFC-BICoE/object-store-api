@@ -39,7 +39,7 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
        .xmpMetadataDate(dateTime4Test)
        .dcFormat("testFormat")
       .build();
-    ObjectStoreMetadataDto objectStoreMetadatadto = mapper.objectStoreMetadataToObjectStoreMetadataDto(objectStoreMetadata);
+    ObjectStoreMetadataDto objectStoreMetadatadto = mapper.toDto(objectStoreMetadata);
     Map<String, Object> map = toAttributeMap(objectStoreMetadatadto);
   
     
@@ -54,7 +54,7 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
     objectStoreMetadata.setAcDigitizationDate(dateTime4TestUpdate);
     objectStoreMetadata.setXmpMetadataDate(dateTime4TestUpdate);
     objectStoreMetadata.setDcFormat("updatedTestFormat");
-    ObjectStoreMetadataDto objectStoreMetadatadto = mapper.objectStoreMetadataToObjectStoreMetadataDto(objectStoreMetadata);
+    ObjectStoreMetadataDto objectStoreMetadatadto = mapper.toDto(objectStoreMetadata);
     Map<String, Object> map = toAttributeMap(objectStoreMetadatadto);
    
     return map;    

@@ -5,10 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
-import org.mapstruct.factory.Mappers;
 
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
@@ -34,7 +34,7 @@ public class ObjectStoreMetadataDtoMapperTest {
 
     // when
     ObjectStoreMetadataDto objectStoreMetadataDto = DTO_MAPPER
-        .objectStoreMetadataToObjectStoreMetadataDto(objectStoreMetadata);
+        .toDto(objectStoreMetadata);
 
     // then
     assertEquals(objectStoreMetadataDto.getAcDigitizationDate(), objectStoreMetadata.getAcDigitizationDate());
@@ -54,7 +54,7 @@ public class ObjectStoreMetadataDtoMapperTest {
 
     // when
     ObjectStoreMetadata objectStoreMetadata = DTO_MAPPER
-        .objectStoreMetadataDtotoObjectStoreMetadata(objectStoreMetadataDto);
+        .toEntity(objectStoreMetadataDto);
 
     // then
     assertEquals(objectStoreMetadata.getAcDigitizationDate(), objectStoreMetadataDto.getAcDigitizationDate());
