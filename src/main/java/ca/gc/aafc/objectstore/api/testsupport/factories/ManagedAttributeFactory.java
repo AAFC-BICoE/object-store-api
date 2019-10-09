@@ -1,6 +1,7 @@
 package ca.gc.aafc.objectstore.api.testsupport.factories;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.function.BiFunction;
 
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
@@ -21,6 +22,7 @@ public class ManagedAttributeFactory implements TestableEntityFactory<ManagedAtt
    */
   public static ManagedAttribute.ManagedAttributeBuilder newManagedAttribute() {
     return ManagedAttribute.builder()
+        .uuid(UUID.randomUUID())
         .name(TestableEntityFactory.generateRandomNameLettersOnly(12))
         .managedAttributeType(ManagedAttributeType.STRING);
    } 

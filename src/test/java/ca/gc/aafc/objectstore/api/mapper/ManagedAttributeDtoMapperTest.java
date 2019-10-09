@@ -2,8 +2,7 @@ package ca.gc.aafc.objectstore.api.mapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
@@ -24,21 +23,18 @@ public class ManagedAttributeDtoMapperTest {
     String[] acceptedValues  = new String[] {"CataloguedObject"};
     
     // given
-    ManagedAttribute ManagedAttribute = ManagedAttributeFactory.newManagedAttribute()
+    ManagedAttribute managedAttribute = ManagedAttributeFactory.newManagedAttribute()
         .acceptedValues(acceptedValues).build();
 
     // when
-    ManagedAttributeDto ManagedAttributeDto = DTO_MAPPER
-        .managedAttributeToManagedAttributeDto(ManagedAttribute);
+    ManagedAttributeDto managedAttributeDto = DTO_MAPPER.toDto(managedAttribute);
 
     // then
-    assertEquals(ManagedAttributeDto.getName(),
-        ManagedAttribute.getName());
-    assertEquals(ManagedAttributeDto.getManagedAttributeType(), ManagedAttribute.getManagedAttributeType());
-    int arrLen = ManagedAttributeDto.getAcceptedValues().length;
-    assertEquals(arrLen, ManagedAttribute.getAcceptedValues().length);
-    for(int i=0 ; i< arrLen; i++) {
-      assertEquals(ManagedAttributeDto.getAcceptedValues()[i], ManagedAttribute.getAcceptedValues()[i]);      
+    assertEquals(managedAttributeDto.getName(), managedAttribute.getName());
+    assertEquals(managedAttributeDto.getManagedAttributeType(), managedAttribute.getManagedAttributeType());
+    
+    for(int i=0 ; i< acceptedValues.length; i++) {
+      assertEquals(acceptedValues[i], managedAttributeDto.getAcceptedValues().get(i));
     }
   }
 
@@ -49,24 +45,21 @@ public class ManagedAttributeDtoMapperTest {
     String[] acceptedValues  = new String[] {"dosal"};
     
     // given
-    ManagedAttributeDto ManagedAttributeDto = new ManagedAttributeDto();
-    ManagedAttributeDto.setName("specimen_view");
-    ManagedAttributeDto.setManagedAttributeType(ManagedAttributeType.STRING);
-    ManagedAttributeDto.setAcceptedValues(acceptedValues);
+    ManagedAttributeDto managedAttributeDto = new ManagedAttributeDto();
+    managedAttributeDto.setName("specimen_view");
+    managedAttributeDto.setManagedAttributeType(ManagedAttributeType.STRING);
+    managedAttributeDto.setAcceptedValues(Arrays.asList(acceptedValues));
 
     // when
-    ManagedAttribute ManagedAttribute = DTO_MAPPER
-        .managedAttributeDtoToManagedAttribute(ManagedAttributeDto);
+    ManagedAttribute managedAttribute = DTO_MAPPER.toEntity(managedAttributeDto);
 
     // then
-    assertEquals(ManagedAttribute.getName(),
-        ManagedAttributeDto.getName());
-    assertEquals(ManagedAttribute.getManagedAttributeType(), ManagedAttributeDto.getManagedAttributeType());
-    int arrLen = ManagedAttribute.getAcceptedValues().length;
-    assertEquals(arrLen, ManagedAttributeDto.getAcceptedValues().length);
-    for(int i = 0 ; i< arrLen; i++) {
-      assertEquals(ManagedAttribute.getAcceptedValues()[i], ManagedAttributeDto.getAcceptedValues()[i]);      
-    }    
+    assertEquals(managedAttribute.getName(), managedAttributeDto.getName());
+    assertEquals(managedAttribute.getManagedAttributeType(), managedAttributeDto.getManagedAttributeType());
+    
+    for(int i=0 ; i< acceptedValues.length; i++) {
+      assertEquals(acceptedValues[i], managedAttributeDto.getAcceptedValues().get(i));
+    }  
   }
 
 }
