@@ -24,6 +24,7 @@ public class ObjectStoreMetadataFactory implements TestableEntityFactory<ObjectS
     
     return  ObjectStoreMetadata.builder()
         .uuid(UUID.randomUUID())
+        .acHashValue("abc")
         .dcType(DcType.IMAGE);
    }  
     

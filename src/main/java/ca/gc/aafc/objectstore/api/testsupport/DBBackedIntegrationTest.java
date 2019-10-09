@@ -1,4 +1,4 @@
-package ca.gc.aafc.objecstore.api.testsupport;
+package ca.gc.aafc.objectstore.api.testsupport;
 
 import java.io.Serializable;
 import javax.inject.Inject;

@@ -1,6 +1,7 @@
 package ca.gc.aafc.objectstore.api.entities;
 
 import java.time.OffsetDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -13,11 +14,13 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
 import com.vladmihalcea.hibernate.type.basic.PostgreSQLEnumType;
 
+import ca.gc.aafc.objectstore.api.interfaces.UniqueObj;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,7 +37,7 @@ import lombok.RequiredArgsConstructor;
 @Builder
 @AllArgsConstructor
 @RequiredArgsConstructor
-public class ObjectStoreMetadata implements java.io.Serializable {
+public class ObjectStoreMetadata implements java.io.Serializable, UniqueObj {
 
   /** The Constant serialVersionUID. */
   private static final long serialVersionUID = -5655824300348079540L;
@@ -47,36 +50,42 @@ public class ObjectStoreMetadata implements java.io.Serializable {
   private DcType dcType;
 
   private OffsetDateTime acDigitizationDate;
-  private OffsetDateTime xmpMetadataDdate;
+  private OffsetDateTime xmpMetadataDate;
 
   private String acHashFunction;
   private String acHashValue;
 
   public enum DcType {
-    IMAGE("Image"),
-    MOVING_IMAGE("Moving Image"),
-    SOUND("Sound"),
+    IMAGE("Image"), 
+    MOVING_IMAGE("Moving Image"), 
+    SOUND("Sound"), 
     TEXT("Text");
 
     private final String value;
 
-    /**
-     * Instantiates a new DcType.
-     *
-     * @param value
-     *          the value
-     */
     DcType(String value) {
       this.value = value;
     }
 
-    /**
-     * Gets the value.
-     *
-     * @return the value
-     */
     public String getValue() {
       return value;
+    }
+
+    /**
+     * Get the {@link DcType} value from the provided string. The string is matched in a case
+     * insensitive manner.
+     * 
+     * @param value
+     * @return the {@link DcType} wrapped in an {@link Optional} or {@link Optional#empty()} is no
+     *         there is {@link DcType} match.
+     */
+    public static Optional<DcType> fromValue(String value) {
+      for (DcType currType : values()) {
+        if (currType.getValue().equalsIgnoreCase(value)) {
+          return Optional.of(currType);
+        }
+      }
+      return Optional.empty();
     }
   }
 
@@ -91,6 +100,7 @@ public class ObjectStoreMetadata implements java.io.Serializable {
     this.id = id;
   }
 
+  @NaturalId
   @NotNull
   @Column(name = "uuid", unique = true)
   public UUID getUuid() {
@@ -132,12 +142,12 @@ public class ObjectStoreMetadata implements java.io.Serializable {
   }
 
   @Column(name = "xmp_metadata_date")
-  public OffsetDateTime getXmpMetadataDdate() {
-    return xmpMetadataDdate;
+  public OffsetDateTime getXmpMetadataDate() {
+    return xmpMetadataDate;
   }
 
-  public void setXmpMetadataDdate(OffsetDateTime xmpMetadataDdate) {
-    this.xmpMetadataDdate = xmpMetadataDdate;
+  public void setXmpMetadataDate(OffsetDateTime xmpMetadataDate) {
+    this.xmpMetadataDate = xmpMetadataDate;
   }
 
   @Column(name = "ac_hash_function")
