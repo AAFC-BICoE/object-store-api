@@ -30,11 +30,12 @@ public class ManagedAttributeDtoMapperTest {
     ManagedAttributeDto managedAttributeDto = DTO_MAPPER.toDto(managedAttribute);
 
     // then
-    assertEquals(managedAttributeDto.getName(), managedAttribute.getName());
-    assertEquals(managedAttributeDto.getManagedAttributeType(), managedAttribute.getManagedAttributeType());
+    assertEquals(managedAttribute.getName(), managedAttributeDto.getName());
+    assertEquals(managedAttribute.getManagedAttributeType(), managedAttributeDto.getManagedAttributeType());
+    assertEquals(managedAttribute.getAcceptedValues().length, managedAttributeDto.getAcceptedValues().size());
     
-    for(int i=0 ; i< acceptedValues.length; i++) {
-      assertEquals(acceptedValues[i], managedAttributeDto.getAcceptedValues().get(i));
+    for(int i=0 ; i< managedAttribute.getAcceptedValues().length; i++) {
+      assertEquals(managedAttribute.getAcceptedValues()[i], managedAttributeDto.getAcceptedValues().get(i));
     }
   }
 
@@ -54,11 +55,12 @@ public class ManagedAttributeDtoMapperTest {
     ManagedAttribute managedAttribute = DTO_MAPPER.toEntity(managedAttributeDto);
 
     // then
-    assertEquals(managedAttribute.getName(), managedAttributeDto.getName());
-    assertEquals(managedAttribute.getManagedAttributeType(), managedAttributeDto.getManagedAttributeType());
+    assertEquals(managedAttributeDto.getName(), managedAttribute.getName());
+    assertEquals(managedAttributeDto.getManagedAttributeType(), managedAttribute.getManagedAttributeType());
+    assertEquals(managedAttributeDto.getAcceptedValues().size(), managedAttribute.getAcceptedValues().length);
     
-    for(int i=0 ; i< acceptedValues.length; i++) {
-      assertEquals(acceptedValues[i], managedAttributeDto.getAcceptedValues().get(i));
+    for(int i=0 ; i< managedAttributeDto.getAcceptedValues().size(); i++) {
+      assertEquals(managedAttributeDto.getAcceptedValues().get(i), managedAttribute.getAcceptedValues()[i]);
     }  
   }
 
