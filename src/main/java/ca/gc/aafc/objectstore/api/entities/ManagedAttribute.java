@@ -19,6 +19,7 @@ import org.hibernate.annotations.TypeDefs;
 import com.vladmihalcea.hibernate.type.array.StringArrayType;
 import com.vladmihalcea.hibernate.type.basic.PostgreSQLEnumType;
 
+import ca.gc.aafc.objectstore.api.interfaces.UniqueObj;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,8 +34,9 @@ import lombok.RequiredArgsConstructor;
 @Builder
 @RequiredArgsConstructor
 @SuppressFBWarnings(justification = "ok for Hibernate Entity", value = { "EI_EXPOSE_REP", "EI_EXPOSE_REP2" })
-public class ManagedAttribute {
+public class ManagedAttribute implements java.io.Serializable, UniqueObj {
 
+  private static final long serialVersionUID = 1L;
   private Integer id;
   private UUID uuid;
   

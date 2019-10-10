@@ -5,14 +5,16 @@ import java.util.UUID;
 
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute.ManagedAttributeType;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import lombok.Getter;
-import lombok.Setter;
+import io.crnk.core.resource.annotations.JsonApiId;
+import io.crnk.core.resource.annotations.JsonApiResource;
+import lombok.Data;
 
-@Getter
-@Setter
 @SuppressFBWarnings({ "EI_EXPOSE_REP", "EI_EXPOSE_REP2" })
+@Data
+@JsonApiResource(type = "managedAttribute")
 public class ManagedAttributeDto {
   
+  @JsonApiId  
   private UUID uuid;
   private String name;
   private ManagedAttributeType managedAttributeType;
