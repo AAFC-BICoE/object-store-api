@@ -16,7 +16,7 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
   
   @Override
   protected String getResourceUnderTest() {
-    return "object";
+    return "metadata";
   }
 
   @Override
@@ -39,24 +39,21 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
        .xmpMetadataDate(dateTime4Test)
        .dcFormat("testFormat")
       .build();
-    ObjectStoreMetadataDto objectStoreMetadatadto = mapper.toDto(objectStoreMetadata);
-    Map<String, Object> map = toAttributeMap(objectStoreMetadatadto);
-  
     
-    return map;
+    ObjectStoreMetadataDto objectStoreMetadatadto = mapper.toDto(objectStoreMetadata);
+    return toAttributeMap(objectStoreMetadatadto);
   }
 
   @Override
   protected Map<String, Object> buildUpdateAttributeMap() {
-    
+
     OffsetDateTime dateTime4TestUpdate = OffsetDateTime.now();
     objectStoreMetadata.setAcHashFunction("SHA1");
     objectStoreMetadata.setAcDigitizationDate(dateTime4TestUpdate);
     objectStoreMetadata.setXmpMetadataDate(dateTime4TestUpdate);
     objectStoreMetadata.setDcFormat("updatedTestFormat");
     ObjectStoreMetadataDto objectStoreMetadatadto = mapper.toDto(objectStoreMetadata);
-    Map<String, Object> map = toAttributeMap(objectStoreMetadatadto);
-   
-    return map;    
+    
+    return toAttributeMap(objectStoreMetadatadto);
   }
 }

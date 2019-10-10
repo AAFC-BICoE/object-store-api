@@ -9,7 +9,7 @@ import io.crnk.core.resource.annotations.JsonApiResource;
 import lombok.Data;
 
 @Data
-@JsonApiResource(type = "object")
+@JsonApiResource(type = "metadata")
 public class ObjectStoreMetadataDto {
   
   @JsonApiId

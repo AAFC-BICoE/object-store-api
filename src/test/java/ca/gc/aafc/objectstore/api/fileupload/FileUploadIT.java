@@ -31,7 +31,7 @@ public class FileUploadIT {
         "Test Content".getBytes());
 
     webAppContextSetup(this.wac).build()
-        .perform(MockMvcRequestBuilders.multipart("/api/v1/file").file(file).param("bucket", "testbucket"))
+        .perform(MockMvcRequestBuilders.multipart("/api/v1/file/mybucket").file(file))
         .andExpect(status().is(200)).andExpect(content().string(containsString("testfile")));
   }
 

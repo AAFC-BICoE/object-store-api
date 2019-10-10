@@ -48,6 +48,9 @@
 			<column autoIncrement="true" name="id" type="SERIAL">
 				<constraints primaryKey="true" primaryKeyName="pk_managed_attribute_id" />
 			</column>
+			<column name="uuid" type="uuid">
+			    <constraints nullable="false" unique="true" />
+			</column>
 			<column name="type" type="managed_attribute_type">
 				<constraints nullable="false" />
 			</column>

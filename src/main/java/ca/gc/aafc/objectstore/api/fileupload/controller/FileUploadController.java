@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -35,9 +36,9 @@ public class FileUploadController {
     this.minioService = minioService;
   }
 
-  @PostMapping("/file")
+  @PostMapping("/file/{bucket}")
   public FileUploadResponse handleFileUpload(@RequestParam("file") MultipartFile file,
-      @RequestParam("bucket") String bucket) throws InvalidKeyException, NoSuchAlgorithmException,
+      @PathVariable String bucket) throws InvalidKeyException, NoSuchAlgorithmException,
       InvalidBucketNameException, NoResponseException, ErrorResponseException, InternalException,
       InvalidArgumentException, InsufficientDataException, InvalidResponseException,
       RegionConflictException, InvalidEndpointException, InvalidPortException, IOException,

@@ -23,7 +23,7 @@
           "description": "Identifier of the object as UUID"
         },
         "type": {
-          "const": "object",
+          "const": "metadata",
           "description": "The type of the object of the data being returned."
         },
         "attributes": {

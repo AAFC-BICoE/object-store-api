@@ -1,5 +1,7 @@
 package ca.gc.aafc.objectstore.api.entities;
 
+import java.util.UUID;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -9,6 +11,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
@@ -33,6 +36,8 @@ import lombok.RequiredArgsConstructor;
 public class ManagedAttribute {
 
   private Integer id;
+  private UUID uuid;
+  
   private String name;
   private ManagedAttributeType managedAttributeType;
 
@@ -50,6 +55,17 @@ public class ManagedAttribute {
 
   public void setId(Integer id) {
     this.id = id;
+  }
+  
+  @NaturalId
+  @NotNull
+  @Column(name = "uuid", unique = true)
+  public UUID getUuid() {
+    return uuid;
+  }
+
+  public void setUuid(UUID uuid) {
+    this.uuid = uuid;
   }
 
   @NotNull
