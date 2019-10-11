@@ -49,12 +49,7 @@ public class ManagedAttributeResourceRepository extends ResourceRepositoryBase<M
   public <S extends ManagedAttributeDto> S save(S resource) {
     ManagedAttributeDto dto = (ManagedAttributeDto) resource;
     ManagedAttribute managedAttribute = findOneByUUID(dto.getUuid());
-    ManagedAttribute mappedManagedAttribute = mapper.toEntity((ManagedAttributeDto) resource);
-
-    managedAttribute.setManagedAttributeType(mappedManagedAttribute.getManagedAttributeType());
-    managedAttribute.setName(mappedManagedAttribute.getName());
-    managedAttribute.setAcceptedValues(mappedManagedAttribute.getAcceptedValues());
-    
+    mapper.updateManagedAttributeFromDto(dto, managedAttribute);
     entityManager.merge(managedAttribute);
     return resource;
   }

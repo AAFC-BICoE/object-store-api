@@ -49,16 +49,7 @@ public class ObjectStoreResourceRepository
   public <S extends ObjectStoreMetadataDto> S save(S resource) {
     ObjectStoreMetadataDto dto =  (ObjectStoreMetadataDto) resource ;
     ObjectStoreMetadata objectMetadata = findOneByUUID(dto.getUuid());
-    ObjectStoreMetadata mappedObjectMetadata = mapper
-        .toEntity((ObjectStoreMetadataDto) resource);
-    
-    objectMetadata.setAcDigitizationDate(mappedObjectMetadata.getAcDigitizationDate());
-    objectMetadata.setAcHashFunction(mappedObjectMetadata.getAcHashFunction());
-    objectMetadata.setAcHashValue(mappedObjectMetadata.getAcHashValue());
-    objectMetadata.setDcFormat(mappedObjectMetadata.getDcFormat());
-    objectMetadata.setDcType(mappedObjectMetadata.getDcType());
-    objectMetadata.setXmpMetadataDate(mappedObjectMetadata.getXmpMetadataDate());
-    
+    mapper.updateObjectStoreMetadataFromDto(dto, objectMetadata);
     entityManager.merge(objectMetadata);
     return resource;
   }

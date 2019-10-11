@@ -2,6 +2,7 @@ package ca.gc.aafc.objectstore.api.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
@@ -16,5 +17,7 @@ public interface ObjectStoreMetadataMapper {
 
   @Mapping(target = "id", ignore = true)
   ObjectStoreMetadata toEntity(ObjectStoreMetadataDto dto);
+  
+  void updateObjectStoreMetadataFromDto(ObjectStoreMetadataDto dto, @MappingTarget ObjectStoreMetadata entity);  
 
 }
