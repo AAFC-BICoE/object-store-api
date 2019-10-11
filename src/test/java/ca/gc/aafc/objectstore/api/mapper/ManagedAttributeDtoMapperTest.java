@@ -24,6 +24,7 @@ public class ManagedAttributeDtoMapperTest {
     
     // given
     ManagedAttribute managedAttribute = ManagedAttributeFactory.newManagedAttribute()
+        .id(1)
         .acceptedValues(acceptedValues).build();
 
     // when

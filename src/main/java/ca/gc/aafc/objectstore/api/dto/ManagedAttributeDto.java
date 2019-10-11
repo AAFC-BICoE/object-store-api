@@ -11,7 +11,7 @@ import lombok.Data;
 
 @SuppressFBWarnings({ "EI_EXPOSE_REP", "EI_EXPOSE_REP2" })
 @Data
-@JsonApiResource(type = "managedAttribute")
+@JsonApiResource(type = "managed-attribute")
 public class ManagedAttributeDto {
   
   @JsonApiId  

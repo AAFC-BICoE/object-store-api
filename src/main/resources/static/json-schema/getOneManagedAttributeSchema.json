@@ -29,7 +29,7 @@
 					]
 				},
 				"type": {
-					"const": "managedAttribute",
+					"const": "managed-attribute",
 					"description": "The type of the object being returned."
 				},
 				"attributes": {
