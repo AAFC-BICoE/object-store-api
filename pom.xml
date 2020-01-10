@@ -60,10 +60,21 @@
 	        <name>bintray</name>
 	        <url>https://dl.bintray.com/crnk-project/mavenLatest</url>
 	    </repository>
+
+		<repository>
+			<id>github</id>
+			<name>GitHub AAFC-BICoE Apache Maven Packages</name>
+			<url>https://maven.pkg.github.com/AAFC-BICoE/dina-base-api</url>
+		</repository>
 	</repositories>
 
 	<dependencies>
 
+		<dependency>
+			<groupId>ca.gc.aafc</groupId>
+			<artifactId>dina-base-api</artifactId>
+			<version>0.17</version>
+		</dependency>
 		<!-- Spring -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
