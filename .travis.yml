@@ -5,15 +5,16 @@ addons:
 
 cache:
   directories:
-  - $HOME/.m2
+    - $HOME/.m2/repository #Cache one level down from .m2/ to avoid caching the GITHUB_TOKEN
 
 before_script:
   - psql -c "CREATE DATABASE object_store_test;" -U postgres
   - psql -f src/test/resources/create-test-users.sql -U postgres
 
-script: 
+script:
   - mvn verify -Dspring.datasource.url=jdbc:postgresql://localhost/object_store_test -Dspring.datasource.username=test -Dspring.datasource.password=test checkstyle:check com.github.spotbugs:spotbugs-maven-plugin:check jacoco:check
- 
+  - echo "<settings><servers><server><id>github</id><username>"$GITHUB_USER"</username><password>"$GITHUB_TOKEN"</password></server></servers></settings>" > ~/.m2/settings.xml
+
 jdk:
   - openjdk8
   - openjdk10
