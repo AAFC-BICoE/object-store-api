@@ -6,8 +6,7 @@ import java.util.function.BiFunction;
 
 import ca.gc.aafc.objectstore.api.entities.Agent;
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
-
-import static ca.gc.aafc.objectstore.api.testsupport.factories.TestableEntityFactory.generateRandomNameLettersOnly;
+import ca.gc.aafc.seqdb.testsupport.factories.TestableEntityFactory;
 
 public class AgentFactory implements TestableEntityFactory<Agent> {
 
@@ -25,8 +24,11 @@ public class AgentFactory implements TestableEntityFactory<Agent> {
   public static Agent.AgentBuilder newAgent() {
     return Agent.builder()
         .uuid(UUID.randomUUID())
-        .displayName(generateRandomNameLettersOnly(5) + " " + generateRandomNameLettersOnly(8))
-        .email(generateRandomNameLettersOnly(5) + "@email.com");
+        .displayName(
+          TestableEntityFactory.generateRandomNameLettersOnly(5)
+          + " "
+          + TestableEntityFactory.generateRandomNameLettersOnly(8))
+        .email(TestableEntityFactory.generateRandomNameLettersOnly(5) + "@email.com");
    } 
   
   /**

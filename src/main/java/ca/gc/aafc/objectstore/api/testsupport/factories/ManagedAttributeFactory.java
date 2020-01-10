@@ -6,6 +6,7 @@ import java.util.function.BiFunction;
 
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute.ManagedAttributeType;
+import ca.gc.aafc.seqdb.testsupport.factories.TestableEntityFactory;
 
 public class ManagedAttributeFactory implements TestableEntityFactory<ManagedAttribute> {
 
