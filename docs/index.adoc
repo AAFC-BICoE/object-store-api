@@ -11,5 +11,3 @@ include::managed_attributes.adoc[]
 include::media_type_detection.adoc[]
 
 include::design.adoc[]
-
-include::github_package_registry_authentication.adoc[]
