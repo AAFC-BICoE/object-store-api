@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import ca.gc.aafc.seqdb.testsupport.DBBackedIntegrationTest;
+import ca.gc.aafc.dina.testsupport.DBBackedIntegrationTest;
 
 /**
  * The class is ported from seqdb.dbi with below changes, will be moved to a common package later.

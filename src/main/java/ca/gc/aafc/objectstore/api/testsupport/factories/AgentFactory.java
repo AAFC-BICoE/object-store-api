@@ -6,7 +6,7 @@ import java.util.function.BiFunction;
 
 import ca.gc.aafc.objectstore.api.entities.Agent;
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
-import ca.gc.aafc.seqdb.testsupport.factories.TestableEntityFactory;
+import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
 
 public class AgentFactory implements TestableEntityFactory<Agent> {
 

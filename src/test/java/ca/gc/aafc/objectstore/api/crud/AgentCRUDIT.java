@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import ca.gc.aafc.objectstore.api.entities.Agent;
 import ca.gc.aafc.objectstore.api.testsupport.factories.AgentFactory;
-import ca.gc.aafc.seqdb.testsupport.factories.TestableEntityFactory;
+import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
 
 public class AgentCRUDIT extends BaseEntityCRUDIT {
 

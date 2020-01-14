@@ -6,7 +6,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
-import ca.gc.aafc.seqdb.testsupport.DBBackedIntegrationTest;
+import ca.gc.aafc.dina.testsupport.DBBackedIntegrationTest;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ObjectStoreApiLauncher.class)
