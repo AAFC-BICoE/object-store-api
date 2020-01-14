@@ -33,7 +33,8 @@ public class ManagedAttributeJsonApiIT extends BaseJsonApiIntegrationTest {
     String[] acceptedValues  = new String[] {"CataloguedObject"};
     
     managedAttribute = ManagedAttributeFactory.newManagedAttribute()
-      .acceptedValues(acceptedValues)   
+      .acceptedValues(acceptedValues)
+      .uuid(null)
       .build();
     ManagedAttributeDto managedAttributeDto = mapper.toDto(managedAttribute);
     return toAttributeMap(managedAttributeDto);

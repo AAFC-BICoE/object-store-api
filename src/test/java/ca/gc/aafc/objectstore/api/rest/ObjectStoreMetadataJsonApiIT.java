@@ -60,6 +60,7 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
     OffsetDateTime dateTime4Test = OffsetDateTime.now();
     // file related data has to match what is set by TestConfiguration
     objectStoreMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata()
+       .uuid(null)
        .acHashFunction("SHA-1")
        .dcType(null) //on creation null should be accepted
        .xmpRightsWebStatement(null) // default value from configuration should be used
