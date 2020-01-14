@@ -46,6 +46,7 @@
 		<hibernate-types-52.version>2.4.4</hibernate-types-52.version>
 		<mapstruct-processor.version>1.3.0.Final</mapstruct-processor.version>
 		<crnk.version>3.1.20191113192440</crnk.version>
+		<dina-base-api.version>0.20</dina-base-api.version>
 	</properties>
 	<repositories>
 	    <!-- Required for Crnk 3.0 -->
@@ -73,7 +74,7 @@
 		<dependency>
 			<groupId>ca.gc.aafc</groupId>
 			<artifactId>dina-base-api</artifactId>
-			<version>0.19</version>
+			<version>${dina-base-api.version}</version>
 		</dependency>
 		<!-- Spring -->
 		<dependency>
