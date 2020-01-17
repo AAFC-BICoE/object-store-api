@@ -1,5 +1,6 @@
 package ca.gc.aafc.objectstore.api.minio;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
@@ -65,7 +66,7 @@ public class MinioFileService implements FileInformationService {
   private String getFileLocation(String filename) {
     return Streams.stream(folderStructureStrategy.getPathFor(filename).iterator())
         .map(p -> p.getFileName().toString())
-        .collect(Collectors.joining("/"));
+        .collect(Collectors.joining(File.separator));
   }
   
   private static boolean isNotFoundException(ErrorResponseException erEx) {
