@@ -12,7 +12,6 @@ before_script:
   - psql -f src/test/resources/create-test-users.sql -U postgres
 
 script: 
-  - mvn dependency:resolve
   - mvn verify -Dspring.datasource.url=jdbc:postgresql://localhost/object_store_test -Dspring.datasource.username=test -Dspring.datasource.password=test checkstyle:check com.github.spotbugs:spotbugs-maven-plugin:check jacoco:check
  
 jdk:
