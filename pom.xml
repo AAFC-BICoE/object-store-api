@@ -37,7 +37,7 @@
 		<dependency-check-maven.version>5.2.1</dependency-check-maven.version>
 		<jacoco-maven-plugin.version>0.8.4</jacoco-maven-plugin.version>
 		<maven-checkstyle-plugin.version>3.1.0</maven-checkstyle-plugin.version>
-		<checkstyle.version>8.23</checkstyle.version>
+		<checkstyle.version>8.29</checkstyle.version>
 		<asciidoctor-maven-plugin.version>1.5.7.1</asciidoctor-maven-plugin.version>
 		<asciidoctorj.diagram.version>1.5.18</asciidoctorj.diagram.version>
 		<justify.version>0.17.0</justify.version>
