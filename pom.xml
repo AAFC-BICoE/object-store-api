@@ -29,7 +29,7 @@
 		<minio.version>6.0.11</minio.version>
 		<tika.version>1.21</tika.version>
 
-		<spotbugs-maven-plugin.version>3.1.12</spotbugs-maven-plugin.version>
+		<spotbugs-maven-plugin.version>3.1.12.2</spotbugs-maven-plugin.version>
 		<spotbugs.version>3.1.12</spotbugs.version>
 		<jcip-annotations.version>1.0</jcip-annotations.version>
 		<!-- Override SpringBoot version (3.6) to avoid NoClassDefFoundError: org/apache/maven/doxia/siterenderer/DocumentContent -->
