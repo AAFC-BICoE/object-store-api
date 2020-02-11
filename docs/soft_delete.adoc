@@ -1,0 +1,39 @@
+= Soft Delete
+
+The object store uses soft deleting. 
+
+When deleting a metadata, the record will still remain but will be hidden from the API.
+
+*Get One By id*
+----
+ GET /metadata/{id}
+----
+
+Would Return HTTP *410 GONE* if the metadata was soft-deleted.
+
+*Get all*
+
+----
+ GET /metadata/
+----
+
+Would not return any soft-deleted data to you.
+
+=== Returning a Soft Deleted Entity
+
+You can use crnks natural filtering to return a soft-deleted entity.
+
+Adding the filter _?filter[deletedDate][NEQ]=null_ will allow queries on soft deleted metadata.
+
+----
+GET /metadata/{id}?filter[deletedDate][NEQ]=null
+
+GET /metadata/?filter[deletedDate][NEQ]=null
+----
+
+Respectively these two requests would return one or multiple metadata including soft-deleted metadata.
+
+
+
+
+

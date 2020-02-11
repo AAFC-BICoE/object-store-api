@@ -82,20 +82,48 @@ public class TestConfiguration {
     String testFile = "This is a test\n";
     InputStream is = new ByteArrayInputStream(
         testFile.getBytes(StandardCharsets.UTF_8));
-    // since we are storing files directly (without the FRileController) we need to apply the folderStructureStrategy
-    minioClient.putObject(TEST_BUCKET, folderStructureStrategy.getPathFor(TEST_FILE_IDENTIFIER + TEST_FILE_EXT).toString(), is, null,
-        null, null, MediaType.TEXT_PLAIN_VALUE);
     
-    FileMetaEntry fme = new FileMetaEntry(TEST_FILE_IDENTIFIER);
-    fme.setEvaluatedFileExtension(TEST_FILE_EXT);
-    fme.setReceivedMediaType(MediaType.TEXT_PLAIN_VALUE);
-    fme.setDetectedMediaType(MediaType.TEXT_PLAIN_VALUE);
+    storeTestObject(minioClient, TEST_FILE_IDENTIFIER, TEST_FILE_EXT, is, MediaType.TEXT_PLAIN_VALUE);    
+  }
+  
+  /**
+   * Store a test object using the provided minio client.
+   * 
+   * @param minioClient
+   * @param id
+   * @param objExt
+   * @param objStream
+   * @param mediaType
+   * @throws InvalidKeyException
+   * @throws InvalidBucketNameException
+   * @throws NoSuchAlgorithmException
+   * @throws NoResponseException
+   * @throws ErrorResponseException
+   * @throws InternalException
+   * @throws InvalidArgumentException
+   * @throws InsufficientDataException
+   * @throws InvalidResponseException
+   * @throws IOException
+   * @throws XmlPullParserException
+   */
+  private void storeTestObject(MinioClient minioClient, UUID id, String objExt,
+      InputStream objStream, String mediaType)
+      throws InvalidKeyException, InvalidBucketNameException, NoSuchAlgorithmException,
+      NoResponseException, ErrorResponseException, InternalException, InvalidArgumentException,
+      InsufficientDataException, InvalidResponseException, IOException, XmlPullParserException {
+    minioClient.putObject(TEST_BUCKET, folderStructureStrategy.getPathFor(id + objExt).toString(),
+        objStream, null, null, null, MediaType.TEXT_PLAIN_VALUE);
+
+    FileMetaEntry fme = new FileMetaEntry(id);
+    fme.setEvaluatedFileExtension(objExt);
+    fme.setReceivedMediaType(mediaType);
+    fme.setDetectedMediaType(mediaType);
     fme.setSha1Hex("123");
     String jsonContent = OBJECT_MAPPER.writeValueAsString(fme);
-    is = new ByteArrayInputStream(
-        jsonContent.getBytes(StandardCharsets.UTF_8));
-    minioClient.putObject(TEST_BUCKET, folderStructureStrategy.getPathFor(TEST_FILE_IDENTIFIER + FileMetaEntry.SUFFIX).toString(), is, null,
-        null, null, MediaType.TEXT_PLAIN_VALUE);
+    InputStream metaStream = new ByteArrayInputStream(jsonContent.getBytes(StandardCharsets.UTF_8));
+    minioClient.putObject(TEST_BUCKET,
+        folderStructureStrategy.getPathFor(id + FileMetaEntry.SUFFIX).toString(), metaStream, null,
+        null, null, mediaType);
   }
   
   /**
