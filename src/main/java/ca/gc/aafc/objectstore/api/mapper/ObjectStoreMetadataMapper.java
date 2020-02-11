@@ -28,7 +28,7 @@ public interface ObjectStoreMetadataMapper {
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "managedAttribute", ignore = true)
   @Mapping(target = "acMetadataCreator", ignore = true)
-  @Mapping(target = "cdCreator", ignore = true)
+  @Mapping(target = "dcCreator", ignore = true)
   ObjectStoreMetadata toEntity(ObjectStoreMetadataDto dto);
   
   @InheritConfiguration
