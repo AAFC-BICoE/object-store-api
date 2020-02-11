@@ -81,6 +81,7 @@ public class ObjectStoreMetadata implements java.io.Serializable, UniqueObj {
   
   private List<MetadataManagedAttribute> managedAttribute;
   private Agent acMetadataCreator;
+  private Agent dcCreator;
 
   private boolean publiclyReleasable;
   private String notPubliclyReleasableReason;
@@ -341,6 +342,15 @@ public class ObjectStoreMetadata implements java.io.Serializable, UniqueObj {
 
   public void setAcMetadataCreator(Agent acMetadataCreator) {
     this.acMetadataCreator = acMetadataCreator;
+  }
+  
+  @OneToOne
+  @JoinColumn(name = "dc_creator_id", referencedColumnName= "id")
+  public Agent getDcCreator() {
+    return dcCreator;
+  }
+  public void setDcCreator(Agent dcCreator) {
+    this.dcCreator = dcCreator;
   }
   
   @NotNull
