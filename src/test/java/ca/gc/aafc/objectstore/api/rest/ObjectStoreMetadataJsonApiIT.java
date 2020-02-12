@@ -1,5 +1,7 @@
 package ca.gc.aafc.objectstore.api.rest;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.log;
+
 import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -21,6 +23,7 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
 
   private final ObjectStoreMetadataMapper mapper = ObjectStoreMetadataMapper.INSTANCE;
   private static final String METADATA_CREATOR_PROPERTY_NAME = "acMetadataCreator";
+  private static final String DC_OWNER_PROPERTY_NAME = "dcCreator";
   
   private ObjectStoreMetadata objectStoreMetadata;
   
@@ -87,10 +90,12 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
     ObjectStoreMetadataDto objectStoreMetadatadto = mapper.toDto(objectStoreMetadata, null, new CycleAvoidingMappingContext());
     return toAttributeMap(objectStoreMetadatadto);
   }
-  
   @Override
   protected List<Relationship> buildRelationshipList() {
-    return Arrays.asList(Relationship.of(METADATA_CREATOR_PROPERTY_NAME, "agent", agentId.toString()));
+    List<Relationship> relationshipList =  Arrays.asList(Relationship.of(METADATA_CREATOR_PROPERTY_NAME, "agent", agentId.toString()));
+    //Append the dcOwner Relationships to the current list
+    relationshipList.addAll(Arrays.asList(Relationship.of(DC_OWNER_PROPERTY_NAME, "agent", agentId.toString())));
+    return relationshipList;
   }
   
 }
