@@ -28,7 +28,8 @@
 		<javax.interceptor-api>1.2.2</javax.interceptor-api>
 		<minio.version>6.0.13</minio.version>
 		<tika.version>1.21</tika.version>
-
+		<thumbnailator.version>0.4.9</thumbnailator.version>
+		<imageio.version>3.5</imageio.version>
 		<spotbugs-maven-plugin.version>3.1.12.2</spotbugs-maven-plugin.version>
 		<spotbugs.version>3.1.12</spotbugs.version>
 		<jcip-annotations.version>1.0</jcip-annotations.version>
@@ -96,6 +97,7 @@
 			<groupId>org.liquibase</groupId>
 			<artifactId>liquibase-core</artifactId>
 		</dependency>
+		<!--  Added for compatability with new liquibase update, ticket: #18663 -->
 		<dependency>
   		    <groupId>com.fasterxml.jackson.module</groupId>
     		<artifactId>jackson-module-jaxb-annotations</artifactId>
@@ -185,17 +187,17 @@
 		<dependency>
 				<groupId>net.coobird</groupId>
 				<artifactId>thumbnailator</artifactId>
-				<version>0.4.9</version>
+				<version>${thumbnailator.version}</version>
 		</dependency>
 		<dependency>
 				<groupId>com.twelvemonkeys.imageio</groupId>
 				<artifactId>imageio-jpeg</artifactId>
-				<version>3.5</version>
+				<version>${imageio.version}</version>
 		</dependency>
 		<dependency>
 				<groupId>com.twelvemonkeys.imageio</groupId>
 				<artifactId>imageio-tiff</artifactId>
-				<version>3.5</version>
+				<version>${imageio.version}</version>
 		</dependency>
 
 		<!-- crnk -->
