@@ -8,7 +8,7 @@ Include a client-friendly map of all of a stored object's managed attribute valu
 JSONAPI's "include" URL parameter:
 
 ```
-GET /api/metadata?include=managedAttributeMap
+GET /api/v1/metadata?include=managedAttributeMap
 
 Returns the following data in the "included" section:
 "included": [
@@ -31,7 +31,7 @@ Returns the following data in the "included" section:
 Send a POST request with the following URL and body structure:
 
 ```
-POST /api/managed-attribute-map
+POST /api/v1/managed-attribute-map
 
 {
   "data": {

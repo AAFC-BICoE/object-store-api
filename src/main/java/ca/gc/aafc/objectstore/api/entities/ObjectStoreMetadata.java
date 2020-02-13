@@ -30,6 +30,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import com.vladmihalcea.hibernate.type.array.StringArrayType;
 import com.vladmihalcea.hibernate.type.basic.PostgreSQLEnumType;
 
+import ca.gc.aafc.objectstore.api.interfaces.SoftDeletable;
 import ca.gc.aafc.objectstore.api.interfaces.UniqueObj;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.AllArgsConstructor;
@@ -48,7 +49,7 @@ import lombok.RequiredArgsConstructor;
 @AllArgsConstructor
 @RequiredArgsConstructor
 @NaturalIdCache
-public class ObjectStoreMetadata implements java.io.Serializable, UniqueObj {
+public class ObjectStoreMetadata implements java.io.Serializable, UniqueObj, SoftDeletable {
 
   /** The Constant serialVersionUID. */
   private static final long serialVersionUID = -5655824300348079540L;
@@ -78,6 +79,7 @@ public class ObjectStoreMetadata implements java.io.Serializable, UniqueObj {
   private String[] acTags;
   
   private OffsetDateTime createdDate;
+  private OffsetDateTime deletedDate;
   
   private List<MetadataManagedAttribute> managedAttribute;
   private Agent acMetadataCreator;
@@ -373,6 +375,16 @@ public class ObjectStoreMetadata implements java.io.Serializable, UniqueObj {
 
   public void setDcRights(String dcRights) {
     this.dcRights = dcRights;
+  }
+
+  @Override
+  public OffsetDateTime getDeletedDate() {
+    return deletedDate;
+  }
+
+  @Override
+  public void setDeletedDate(OffsetDateTime deletedDate) {
+    this.deletedDate = deletedDate;
   }
   
   @NotNull

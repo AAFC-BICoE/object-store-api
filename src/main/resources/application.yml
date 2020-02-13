@@ -17,7 +17,7 @@ minio:
   accessKey:  minio	
   secretKey:  minio123
 crnk:
-  pathPrefix: /api
+  pathPrefix: /api/v1
   domainName: ""
   defaultPageLimit: 20
   maxPageLimit: 1000

@@ -1,6 +1,7 @@
 package ca.gc.aafc.objectstore.api.respository;
 
 import java.io.IOException;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -27,11 +28,15 @@ import ca.gc.aafc.objectstore.api.file.FileController;
 import ca.gc.aafc.objectstore.api.file.FileInformationService;
 import ca.gc.aafc.objectstore.api.file.FileMetaEntry;
 import ca.gc.aafc.objectstore.api.filter.RsqlFilterHandler;
+import ca.gc.aafc.objectstore.api.interfaces.SoftDeletable;
 import ca.gc.aafc.objectstore.api.mapper.CycleAvoidingMappingContext;
 import ca.gc.aafc.objectstore.api.mapper.ObjectStoreMetadataMapper;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataReadService;
 import io.crnk.core.exception.BadRequestException;
 import io.crnk.core.exception.ResourceNotFoundException;
+import io.crnk.core.queryspec.FilterOperator;
+import io.crnk.core.queryspec.FilterSpec;
+import io.crnk.core.queryspec.PathSpec;
 import io.crnk.core.queryspec.QuerySpec;
 import io.crnk.core.repository.ResourceRepositoryBase;
 import io.crnk.core.resource.list.DefaultResourceList;
@@ -54,6 +59,9 @@ public class ObjectStoreResourceRepository extends ResourceRepositoryBase<Object
   private final RsqlFilterHandler rsqlFilterHandler;
 
   private JpaCriteriaQueryFactory queryFactory;
+
+  private static PathSpec DELETED_PATH_SPEC = PathSpec.of(SoftDeletable.DELETED_DATE_FIELD_NAME);
+  private static FilterSpec DELETED_DATE_IS_NULL = new FilterSpec(DELETED_PATH_SPEC, FilterOperator.EQ, null);
 
   @Inject
   public ObjectStoreResourceRepository(ObjectStoreConfiguration config, BaseDAO dao, ObjectStoreMetadataMapper mapper,
@@ -100,6 +108,12 @@ public class ObjectStoreResourceRepository extends ResourceRepositoryBase<Object
   public ObjectStoreMetadataDto findOne(UUID uuid, QuerySpec querySpec) {
     ObjectStoreMetadata objectStoreMetadata = loadObjectStoreMetadata(uuid).orElseThrow(
         () -> new ResourceNotFoundException(this.getClass().getSimpleName() + " with ID " + uuid + " Not Found."));
+
+    if( objectStoreMetadata.getDeletedDate() != null &&
+        !querySpec.findFilter(DELETED_PATH_SPEC).isPresent() ) {
+      throw new GoneException("ID " + uuid + " deleted");
+    }
+
     return mapper.toDto(objectStoreMetadata, fieldName -> dao.isLoaded(objectStoreMetadata, fieldName),
         new CycleAvoidingMappingContext());
   }
@@ -121,6 +135,10 @@ public class ObjectStoreResourceRepository extends ResourceRepositoryBase<Object
     QuerySpec jpaFriendlyQuerySpec = querySpec.clone();
     jpaFriendlyQuerySpec.getIncludedRelations()
       .removeIf(include -> include.getPath().toString().equals("managedAttributeMap"));
+
+    if (!querySpec.findFilter(DELETED_PATH_SPEC).isPresent()) {
+      jpaFriendlyQuerySpec.addFilter(DELETED_DATE_IS_NULL);
+    }
 
     Consumer<JpaQueryExecutor<?>> rsqlApplier = rsqlFilterHandler.getRestrictionApplier(jpaFriendlyQuerySpec);
     JpaQueryExecutor<ObjectStoreMetadata> executor = jq.buildExecutor(jpaFriendlyQuerySpec);
@@ -167,7 +185,7 @@ public class ObjectStoreResourceRepository extends ResourceRepositoryBase<Object
   public void delete(UUID id) {
     ObjectStoreMetadata objectStoreMetadata = dao.findOneByNaturalId(id, ObjectStoreMetadata.class);
     if(objectStoreMetadata != null) {
-      dao.delete(objectStoreMetadata);
+      objectStoreMetadata.setDeletedDate(OffsetDateTime.now());
     }
   }
   

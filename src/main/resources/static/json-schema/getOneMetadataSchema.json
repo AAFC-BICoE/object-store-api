@@ -105,6 +105,10 @@
               "type": "string",
               "description": "Point in time (ISO 8601 Date/Time) recording when the metadata entry was created."
             },
+            "deletedDate": {
+              "type": "string",
+              "description": "Point in time (ISO 8601 Date/Time) recording when the metadata entry was deleted."
+            },
             "uploadedBy": {
               "type": "string",
               "description": "Reference to the person who uploaded the object."
