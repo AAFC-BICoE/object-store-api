@@ -27,7 +27,9 @@ import io.crnk.core.resource.list.ResourceList;
 import io.crnk.data.jpa.query.JpaQueryExecutor;
 import io.crnk.data.jpa.query.criteria.JpaCriteriaQuery;
 import io.crnk.data.jpa.query.criteria.JpaCriteriaQueryFactory;
+import lombok.extern.log4j.Log4j2;
 
+@Log4j2
 @Repository
 @Transactional
 public class MetadataManagedAttributeRepository extends ResourceRepositoryBase<MetadataManagedAttributeDto, UUID> {
@@ -65,7 +67,9 @@ public class MetadataManagedAttributeRepository extends ResourceRepositoryBase<M
     MetadataManagedAttribute metadataManagedAttribute = dao.findOneByNaturalId(dto.getUuid(), MetadataManagedAttribute.class);
     mapper.updateMetadataManagedAttributeFromDto(dto, metadataManagedAttribute);
     
-    System.out.println("Saving current objectStoreMetadata:" + metadataManagedAttribute.getObjectStoreMetadata());
+    log.debug(() -> "Saving current objectStoreMetadata:"
+        + metadataManagedAttribute.getObjectStoreMetadata());
+    
     dao.save(metadataManagedAttribute);
     return resource;
   }

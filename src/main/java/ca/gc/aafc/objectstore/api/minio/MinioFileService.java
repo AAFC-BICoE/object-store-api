@@ -3,11 +3,13 @@ package ca.gc.aafc.objectstore.api.minio;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -57,15 +59,26 @@ public class MinioFileService implements FileInformationService {
   }
   
   /**
+   * Utility method that can turn a {@link Path} into a Minio object name. {@link Path} is different
+   * depending on the OS but the Minio object name will always be the same.
+   * 
+   * @param path
+   * @return minio object name
+   */
+  public static String toMinioObjectName(Path path) {
+    Objects.requireNonNull(path);
+    return Streams.stream(path.iterator()).map(p -> p.getFileName().toString())
+        .collect(Collectors.joining("/"));
+  }
+  
+  /**
    * Return the file location following the {@link FolderStructureStrategy}
    * 
    * @param filename
    * @return
    */
   private String getFileLocation(String filename) {
-    return Streams.stream(folderStructureStrategy.getPathFor(filename).iterator())
-        .map(p -> p.getFileName().toString())
-        .collect(Collectors.joining("/"));
+    return toMinioObjectName(folderStructureStrategy.getPathFor(filename));
   }
   
   private static boolean isNotFoundException(ErrorResponseException erEx) {

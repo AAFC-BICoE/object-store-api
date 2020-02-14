@@ -12,7 +12,9 @@
 			'IMAGE',
 			'MOVING_IMAGE',
 			'SOUND',
-			'TEXT'
+			'TEXT',
+			'DATASET',
+			'UNDETERMINED'
 			);
 		</sql>
 	</changeSet>

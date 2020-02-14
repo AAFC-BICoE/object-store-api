@@ -234,7 +234,7 @@ public class ObjectStoreResourceRepository extends ResourceRepositoryBase<Object
    */
   private ObjectStoreMetadata assignDefaultValues(ObjectStoreMetadata objectMetadata) {
     if (objectMetadata.getDcType() == null) {
-      objectMetadata.setDcType(DcType.fromDcFormat(objectMetadata.getDcFormat()).orElse(null));
+      objectMetadata.setDcType(DcType.fromDcFormat(objectMetadata.getDcFormat()).orElse(ObjectStoreMetadata.DcType.UNDETERMINED));
     }
     
     if (objectMetadata.getXmpRightsWebStatement() == null) {
