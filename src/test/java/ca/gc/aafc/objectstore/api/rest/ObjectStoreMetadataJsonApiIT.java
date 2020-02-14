@@ -113,14 +113,10 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
   
   @Override
   protected List<Relationship> buildRelationshipList() {
-    List<Relationship> relationshipList = new LinkedList<Relationship>(Arrays.asList(Relationship.of(METADATA_CREATOR_PROPERTY_NAME, "agent", agentId.toString())));
-    List<Relationship> dcCreatorRelationshipList = new LinkedList<Relationship>(Arrays.asList(Relationship.of(DC_CREATOR_PROPERTY_NAME, "agent", agentId.toString())));
     
-    for (Relationship relation : dcCreatorRelationshipList) {
-      relationshipList.add(relation);
-    }
-    
-    return relationshipList;
+    return Arrays.asList(
+    Relationship.of(METADATA_CREATOR_PROPERTY_NAME, "agent", agentId.toString()),
+    Relationship.of(DC_CREATOR_PROPERTY_NAME, "agent", agentId.toString()));
   }
   
   @Test
