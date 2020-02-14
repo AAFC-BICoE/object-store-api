@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ca.gc.aafc.objectstore.api.file.FileMetaEntry;
 import ca.gc.aafc.objectstore.api.file.FolderStructureStrategy;
+import ca.gc.aafc.objectstore.api.minio.MinioFileService;
 import io.minio.MinioClient;
 import io.minio.ObjectStat;
 import io.minio.ResponseHeader;
@@ -111,7 +112,8 @@ public class TestConfiguration {
       throws InvalidKeyException, InvalidBucketNameException, NoSuchAlgorithmException,
       NoResponseException, ErrorResponseException, InternalException, InvalidArgumentException,
       InsufficientDataException, InvalidResponseException, IOException, XmlPullParserException {
-    minioClient.putObject(TEST_BUCKET, folderStructureStrategy.getPathFor(id + objExt).toString(),
+    minioClient.putObject(TEST_BUCKET,
+        MinioFileService.toMinioObjectName(folderStructureStrategy.getPathFor(id + objExt)),
         objStream, null, null, null, MediaType.TEXT_PLAIN_VALUE);
 
     FileMetaEntry fme = new FileMetaEntry(id);
@@ -122,8 +124,9 @@ public class TestConfiguration {
     String jsonContent = OBJECT_MAPPER.writeValueAsString(fme);
     InputStream metaStream = new ByteArrayInputStream(jsonContent.getBytes(StandardCharsets.UTF_8));
     minioClient.putObject(TEST_BUCKET,
-        folderStructureStrategy.getPathFor(id + FileMetaEntry.SUFFIX).toString(), metaStream, null,
-        null, null, mediaType);
+        MinioFileService
+            .toMinioObjectName(folderStructureStrategy.getPathFor(id + FileMetaEntry.SUFFIX)),
+        metaStream, null, null, null, mediaType);
   }
   
   /**

@@ -88,10 +88,12 @@ public class ObjectStoreMetadata implements java.io.Serializable, UniqueObj, Sof
   private String notPubliclyReleasableReason;
 
   public enum DcType {
-    IMAGE("Image"), 
-    MOVING_IMAGE("Moving Image", "video"), 
-    SOUND("Sound"), 
-    TEXT("Text");
+    IMAGE("Image"),
+    MOVING_IMAGE("Moving Image", "video"),
+    SOUND("Sound"),
+    TEXT("Text"),
+    DATASET("Dataset"), // Data encoded in a defined structure
+    UNDETERMINED("Undetermined");
 
     private final String value;
     private final String dcFormatType;
