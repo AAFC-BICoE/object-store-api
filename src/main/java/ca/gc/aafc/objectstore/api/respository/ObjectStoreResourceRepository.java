@@ -96,6 +96,9 @@ public class ObjectStoreResourceRepository extends ResourceRepositoryBase<Object
       objectMetadata
           .setAcMetadataCreator(dao.getReferenceByNaturalId(Agent.class, resource.getAcMetadataCreator().getUuid()));
     }
+    if (resource.getDcCreator() != null) {
+      objectMetadata.setDcCreator(dao.getReferenceByNaturalId(Agent.class, resource.getDcCreator().getUuid()));
+    }
 
     dao.save(objectMetadata);
     return resource;
@@ -168,6 +171,10 @@ public class ObjectStoreResourceRepository extends ResourceRepositoryBase<Object
     if (resource.getAcMetadataCreator() != null) {
       objectMetadata.setAcMetadataCreator(
           dao.getReferenceByNaturalId(Agent.class, resource.getAcMetadataCreator().getUuid()));
+    }
+    if (resource.getDcCreator() != null) {
+      objectMetadata.setDcCreator(
+          dao.getReferenceByNaturalId(Agent.class, resource.getDcCreator().getUuid()));
     }
     
     dao.save(objectMetadata);
