@@ -64,6 +64,7 @@
 			<column name="ac_hash_function" type="VARCHAR(50)" />
 			<column name="ac_hash_value" type="VARCHAR(128)" />
 			<column name="ac_tags" type="text[]" />
+			<column name="dc_creator_id" type="INTEGER" />
 			<column name="ac_metadata_creator_id" type="INTEGER" />
 			<column name="created_date" type="timestamptz" defaultValueComputed="current_timestamp" />
 			<column name="deleted_date" type="timestamptz" />
@@ -128,5 +129,10 @@
             constraintName="fk_metadata_creator_agent"
             referencedColumnNames="id"
             referencedTableName="agent"/>
+        <addForeignKeyConstraint baseColumnNames="dc_creator_id" 
+        	baseTableName="metadata" 
+        	constraintName="fk_dc_creator_agent" 
+        	referencedColumnNames="id" 
+        	referencedTableName="agent"/>
 	</changeSet>
 </databaseChangeLog>
