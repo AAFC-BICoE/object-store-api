@@ -61,11 +61,11 @@ public class ManagedAttribute implements java.io.Serializable, UniqueObj {
   
   @Type(type = "jsonb")
   @Column(name = "description", columnDefinition = "jsonb")
-  public Map<String,String> getDescription() {
+  public Map<String, String> getDescription() {
     return description;
   }
 
-  public void setDescription(Map<String,String> description) {
+  public void setDescription(Map<String, String> description) {
     this.description = description;
   }
 

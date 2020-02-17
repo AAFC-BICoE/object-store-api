@@ -5,33 +5,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.junit.Before;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
 
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ManagedAttributeFactory;
 
 public class ManagedAttributeCRUDIT extends BaseEntityCRUDIT {
-  
-  private Map<String, String> testDesc;  
-   
+     
   private ManagedAttribute managedAttributeUnderTest = ManagedAttributeFactory.newManagedAttribute()
-      .acceptedValues(new String[] {"a", "b"})
-      .description(testDesc)
+      .acceptedValues(new String[] { "a", "b" })
+      .description(ImmutableMap.of("en", "attrEn", "fr", "attrFr"))
       .build();
   
-  @Before
-  private void setupTest() {    
-    testDesc = new HashMap<String,String>();
-    testDesc.put("en","attrEn");
-    testDesc.put("fr","attrFr");       
-  }  
+
       
   @Override
   public void testSave() {
@@ -45,11 +31,10 @@ public class ManagedAttributeCRUDIT extends BaseEntityCRUDIT {
     ManagedAttribute fetchedObjectStoreMeta = find(ManagedAttribute.class,
         managedAttributeUnderTest.getId());
     assertEquals(managedAttributeUnderTest.getId(), fetchedObjectStoreMeta.getId());
-    
-    assertArrayEquals(new String[] {"a", "b"}, managedAttributeUnderTest.getAcceptedValues());
-    
-    assertEquals(testDesc, managedAttributeUnderTest.getDescription());
-    
+
+    assertArrayEquals(new String[] { "a", "b" }, managedAttributeUnderTest.getAcceptedValues());
+
+    assertEquals("attrFr", managedAttributeUnderTest.getDescription().get("fr"));
     assertNotNull(fetchedObjectStoreMeta.getCreatedDate());
   }
 

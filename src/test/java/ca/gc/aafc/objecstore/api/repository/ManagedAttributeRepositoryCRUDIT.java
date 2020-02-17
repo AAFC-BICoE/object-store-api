@@ -4,19 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.inject.Inject;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.vladmihalcea.hibernate.type.json.JsonNodeBinaryType;
+import com.google.common.collect.ImmutableMap;
 
 import ca.gc.aafc.objectstore.api.dto.ManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
@@ -31,15 +25,12 @@ public class ManagedAttributeRepositoryCRUDIT extends BaseRepositoryTest {
   
   private ManagedAttribute testManagedAttribute;
   
-  private ManagedAttribute createTestManagedAttribute() throws JsonProcessingException{
-    testManagedAttribute = ManagedAttributeFactory.newManagedAttribute().build();
-    testManagedAttribute.setAcceptedValues(new String[] {"dosal"});    
-    
-    Map<String, String> testAttrMap = new HashMap<String,String>();
-    testAttrMap.put("en","attrEn");
-    testAttrMap.put("fr","attrFr");
-    testManagedAttribute.setDescription(testAttrMap);  
-    
+  private ManagedAttribute createTestManagedAttribute() throws JsonProcessingException {
+    testManagedAttribute = ManagedAttributeFactory.newManagedAttribute()
+        .acceptedValues(new String[] { "dosal" })
+        .description(ImmutableMap.of("en", "attrEn", "fr", "attrFr"))
+        .build();
+
     persist(testManagedAttribute);
     return testManagedAttribute;
   }
@@ -51,19 +42,17 @@ public class ManagedAttributeRepositoryCRUDIT extends BaseRepositoryTest {
 
   @Test
   public void findManagedAttribute_whenNoFieldsAreSelected_manageAttributeReturnedWithAllFields() {
-    ManagedAttributeDto managedAttributeDto = managedResourceRepository.findOne(
-        testManagedAttribute.getUuid(),
-        new QuerySpec(ManagedAttributeDto.class)
-    );  
+    ManagedAttributeDto managedAttributeDto = managedResourceRepository
+        .findOne(testManagedAttribute.getUuid(), new QuerySpec(ManagedAttributeDto.class));
     assertNotNull(managedAttributeDto);
     assertEquals(testManagedAttribute.getUuid(), managedAttributeDto.getUuid());
-    System.out.println("managedAttributeDto.getAcceptedValues() " +managedAttributeDto.getAcceptedValues());
-    assertArrayEquals(testManagedAttribute.getAcceptedValues(), 
-        (String[])(managedAttributeDto.getAcceptedValues().toArray(new String[0])));
-    assertEquals(testManagedAttribute.getManagedAttributeType(), 
+    assertArrayEquals(testManagedAttribute.getAcceptedValues(),
+        (String[]) (managedAttributeDto.getAcceptedValues().toArray(new String[0])));
+    assertEquals(testManagedAttribute.getManagedAttributeType(),
         managedAttributeDto.getManagedAttributeType());
-    assertEquals(testManagedAttribute.getName(), managedAttributeDto.getName());    
-    assertEquals(testManagedAttribute.getDescription().get("en"), managedAttributeDto.getDescription().get("en"));    
+    assertEquals(testManagedAttribute.getName(), managedAttributeDto.getName());
+    assertEquals(testManagedAttribute.getDescription().get("en"),
+        managedAttributeDto.getDescription().get("en"));
   }
     
 }

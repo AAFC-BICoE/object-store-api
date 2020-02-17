@@ -24,6 +24,6 @@ public class ManagedAttributeDto {
   private List<String> acceptedValues;
   private OffsetDateTime createdDate;
   
-  private Map<String,String> description;
+  private Map<String, String> description;
   
 }
