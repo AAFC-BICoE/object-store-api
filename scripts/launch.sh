@@ -8,4 +8,4 @@ VERSION=$(cat ./pom.xml | grep -m 1 '<version>' | awk -F"[><]" '{print $3}')
 export VERSION
 echo "Version: '$VERSION'"
 echo "executing java"
-exec java -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -jar  object-store.api-$VERSION.jar
+exec java -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -jar $1-$VERSION.jar

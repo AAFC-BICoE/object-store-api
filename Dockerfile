@@ -36,4 +36,4 @@ ENV minio.accessKey=minio
 ENV minio.secretKey=minio123
 ENV spring.http.log-request-details=true
 
-ENTRYPOINT ["bash","/app/launch.sh"]
+ENTRYPOINT ["bash","/app/launch.sh","object-store.api"]
