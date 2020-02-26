@@ -7,7 +7,7 @@ STATUS=$(./executeSQL.sh "SELECT status FROM public.DatabaseReadiness WHERE appl
 if [ "$STATUS" = "3" ]; then
    exit
 else
-   "CREATE DATABASE $POSTGRES_DB;" | psql  -h $POSTGRES_HOST -d object_store -U $POSTGRES_USER
+   echo "CREATE DATABASE $POSTGRES_DB;" | psql  -h $POSTGRES_HOST -d object_store -U $POSTGRES_USER
    awk -f envSubstitution.awk createUsers.sql
    awk -f envSubstitution.awk createUsers.sql | psql  -h $POSTGRES_HOST -d $POSTGRES_DB -U $POSTGRES_USER
    

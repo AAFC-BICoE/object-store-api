@@ -1,0 +1,21 @@
+version: '3'
+services:
+  database:
+    image: 'postgres:9.6'
+    env_file:
+     - ./postgres_env_var.txt
+  minio:
+    image: 'minio/minio'
+    volumes:
+       - ./minio-data:/data
+    ports:
+      - "9000:9000"
+    env_file:
+     - ./minio_env_var.txt
+    command: server /data
+  api:
+    image: 'object-store-api:latest'
+    env_file:
+     - ./objectstore_env_var.txt
+    links:
+     - database

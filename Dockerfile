@@ -4,9 +4,10 @@ USER root
 
 WORKDIR /app
 COPY --chown=user target/object-store.api-*.jar /app/
-COPY --chown=user *.sh /app/
-COPY --chown=user *.sql /app/
-COPY --chown=user *.awk /app/
+COPY --chown=user scripts/*.sh /app/
+COPY --chown=user scripts/*.sql /app/
+COPY --chown=user scripts/*.awk /app/
+COPY --chown=user pom.xml /app/
 
 RUN apt-get update && apt-get install -y postgresql-client-11
 RUN apt-get install -y curl
