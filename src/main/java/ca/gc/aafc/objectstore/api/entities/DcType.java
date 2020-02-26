@@ -47,8 +47,10 @@ public enum DcType {
    *         there is {@link DcType} match.
    */
   public static Optional<DcType> fromValue(String value) {
+    String nonAlphaNumReg = "[^a-zA-Z0-9]";
     for (DcType currType : values()) {
-      if (currType.getValue().equalsIgnoreCase(value)) {
+      if (currType.getValue().replaceAll(nonAlphaNumReg, "")
+          .equalsIgnoreCase(value.replaceAll(nonAlphaNumReg, ""))) {
         return Optional.of(currType);
       }
     }
