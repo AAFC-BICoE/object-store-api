@@ -1,5 +1,7 @@
 package ca.gc.aafc.objectstore.api.entities;
 import java.util.Optional;
+import java.util.regex.Pattern;
+
 import org.apache.commons.lang3.StringUtils;
 
 public enum DcType {
@@ -49,8 +51,9 @@ public enum DcType {
   public static Optional<DcType> fromValue(String value) {
     String nonAlphaNumReg = "[^a-zA-Z0-9]";
     for (DcType currType : values()) {
-      if (currType.getValue().replaceAll(nonAlphaNumReg, "")
-          .equalsIgnoreCase(value.replaceAll(nonAlphaNumReg, ""))) {
+      String currVal = Pattern.compile(nonAlphaNumReg).matcher(currType.getValue()).replaceAll("");
+      String val = Pattern.compile(nonAlphaNumReg).matcher(value).replaceAll("");
+      if (currVal.equalsIgnoreCase(val)) {
         return Optional.of(currType);
       }
     }
