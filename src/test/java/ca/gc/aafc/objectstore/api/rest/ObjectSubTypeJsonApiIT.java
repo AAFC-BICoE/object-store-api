@@ -68,6 +68,7 @@ public class ObjectSubTypeJsonApiIT extends BaseJsonApiIntegrationTest {
   protected Map<String, Object> buildUpdateAttributeMap() {
 
     objectSubtype.setAcSubtype("MultimediaLearningObject");
+    objectSubtype.setDcType(DcType.MOVING_IMAGE);
     ObjectSubtypeDto objectSubtypeDto = mapper.toDto(objectSubtype);
     return toAttributeMap(objectSubtypeDto);
   }

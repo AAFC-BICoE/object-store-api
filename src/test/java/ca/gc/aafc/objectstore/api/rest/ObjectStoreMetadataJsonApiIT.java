@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import ca.gc.aafc.objectstore.api.TestConfiguration;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.Agent;
+import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.mapper.CycleAvoidingMappingContext;
 import ca.gc.aafc.objectstore.api.mapper.ObjectStoreMetadataMapper;
@@ -116,6 +117,7 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
 
     OffsetDateTime dateTime4TestUpdate = OffsetDateTime.now();
     objectStoreMetadata.setAcDigitizationDate(dateTime4TestUpdate);
+    objectStoreMetadata.setDcType(DcType.MOVING_IMAGE);
     ObjectStoreMetadataDto objectStoreMetadatadto = mapper.toDto(objectStoreMetadata, null, new CycleAvoidingMappingContext());
     return toAttributeMap(objectStoreMetadatadto);
   }
