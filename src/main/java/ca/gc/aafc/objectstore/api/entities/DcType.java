@@ -11,6 +11,8 @@ public enum DcType {
   TEXT("Text"),
   DATASET("Dataset"), // Data encoded in a defined structure
   UNDETERMINED("Undetermined");
+  
+  private static final Pattern ALPHA_VALUE_ONLY = Pattern.compile("[^a-zA-Z]");
 
   private final String value;
   private final String dcFormatType;
@@ -49,11 +51,13 @@ public enum DcType {
    *         there is {@link DcType} match.
    */
   public static Optional<DcType> fromValue(String value) {
-    String nonAlphaNumReg = "[^a-zA-Z0-9]";
+    if(StringUtils.isBlank(value)) {
+      return Optional.empty();
+    }
+    
+    String alphaOnlyValue = ALPHA_VALUE_ONLY.matcher(value).replaceAll("");
     for (DcType currType : values()) {
-      String currVal = Pattern.compile(nonAlphaNumReg).matcher(currType.getValue()).replaceAll("");
-      String val = Pattern.compile(nonAlphaNumReg).matcher(value).replaceAll("");
-      if (currVal.equalsIgnoreCase(val)) {
+      if (alphaOnlyValue.equalsIgnoreCase(ALPHA_VALUE_ONLY.matcher(currType.getValue()).replaceAll(""))) {
         return Optional.of(currType);
       }
     }
