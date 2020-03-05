@@ -1,6 +1,8 @@
 #!/bin/bash
 cd /app
 
+./waitForDatabase.sh
+
 echo "checking for users"
 ./checkUsers.sh
 echo "url=$(echo '$spring.datasource.url' | awk  -f envSubstitution.awk)"
