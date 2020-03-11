@@ -26,7 +26,9 @@ public final class DcTypeJsonSerDe {
     @Override
     public DcType deserialize(JsonParser jsonParser, DeserializationContext deserializationContext)
         throws IOException {
-      return DcType.fromValue(jsonParser.getValueAsString()).orElse(null);
+      String valueAsString = jsonParser.getValueAsString();
+      return DcType.fromValue(valueAsString)
+          .orElseThrow(() -> new IllegalArgumentException("'" + valueAsString + "' is not a valid dc type"));
     }
   }
 
