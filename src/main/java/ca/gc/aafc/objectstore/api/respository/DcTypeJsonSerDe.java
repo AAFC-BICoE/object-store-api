@@ -2,8 +2,6 @@ package ca.gc.aafc.objectstore.api.respository;
 
 import java.io.IOException;
 
-import org.springframework.boot.jackson.JsonComponent;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -13,7 +11,10 @@ import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
+import org.springframework.boot.jackson.JsonComponent;
+
 import ca.gc.aafc.objectstore.api.entities.DcType;
+import io.crnk.core.exception.BadRequestException;
 
 public final class DcTypeJsonSerDe {
   
@@ -28,7 +29,7 @@ public final class DcTypeJsonSerDe {
         throws IOException {
       String valueAsString = jsonParser.getValueAsString();
       return DcType.fromValue(valueAsString)
-          .orElseThrow(() -> new IllegalArgumentException("'" + valueAsString + "' is not a valid dc type"));
+          .orElseThrow(() -> new BadRequestException("'" + valueAsString + "' is not a valid dc type"));
     }
   }
 
