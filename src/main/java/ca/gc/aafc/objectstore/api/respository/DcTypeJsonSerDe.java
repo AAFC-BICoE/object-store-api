@@ -14,7 +14,6 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.springframework.boot.jackson.JsonComponent;
 
 import ca.gc.aafc.objectstore.api.entities.DcType;
-import io.crnk.core.exception.BadRequestException;
 
 public final class DcTypeJsonSerDe {
   
@@ -29,7 +28,7 @@ public final class DcTypeJsonSerDe {
         throws IOException {
       String valueAsString = jsonParser.getValueAsString();
       return DcType.fromValue(valueAsString)
-          .orElseThrow(() -> new BadRequestException("'" + valueAsString + "' is not a valid dc type"));
+          .orElseThrow(() -> new IllegalArgumentException("'" + valueAsString + "' is not a valid dc type"));
     }
   }
 
