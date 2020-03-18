@@ -10,8 +10,8 @@ import org.junit.jupiter.api.Test;
 
 import ca.gc.aafc.objectstore.api.MediaTypeToDcTypeConfiguration;
 import ca.gc.aafc.objectstore.api.ObjectStoreConfiguration;
+import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.DcType;
-import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 
 public class ObjectStoreMetadataDefaultValueSetterServiceTest {
   
@@ -40,14 +40,14 @@ public class ObjectStoreMetadataDefaultValueSetterServiceTest {
   
   @Test
   public void assignDefaultValues_onNoDcFormat_DcTypeIsUndetermined() {
-    ObjectStoreMetadata osmd = new ObjectStoreMetadata();
+    ObjectStoreMetadataDto osmd = new ObjectStoreMetadataDto();
     serviceUnderTest.assignDefaultValues(osmd);
     assertEquals(DcType.UNDETERMINED, osmd.getDcType());
   }
   
   @Test
   public void assignDefaultValues_onPngDcFormat_DcTypeIsImage() {
-    ObjectStoreMetadata osmd = new ObjectStoreMetadata();
+    ObjectStoreMetadataDto osmd = new ObjectStoreMetadataDto();
     osmd.setDcFormat("image/png");
     serviceUnderTest.assignDefaultValues(osmd);
     assertEquals(DcType.IMAGE, osmd.getDcType());

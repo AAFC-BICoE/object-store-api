@@ -9,19 +9,19 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
+import com.vladmihalcea.hibernate.type.basic.PostgreSQLEnumType;
 
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.NaturalIdCache;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
-import com.vladmihalcea.hibernate.type.basic.PostgreSQLEnumType;
-
-import ca.gc.aafc.objectstore.api.interfaces.UniqueObj;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,19 +31,18 @@ import lombok.RequiredArgsConstructor;
 @Table(name = "object_subtype")
 @TypeDef(name = "pgsql_enum", typeClass = PostgreSQLEnumType.class)
 @SuppressFBWarnings({ "EI_EXPOSE_REP", "EI_EXPOSE_REP2" })
-@Builder(toBuilder=true)
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @RequiredArgsConstructor
 @NaturalIdCache
-public class ObjectSubtype implements java.io.Serializable, UniqueObj {
+public class ObjectSubtype {
 
-  private static final long serialVersionUID = 1L;
   private Integer id;
   private DcType dcType;
   private String acSubtype;
-  
-  private UUID uuid;  
-  
+
+  private UUID uuid;
+
   @NaturalId
   @NotNull
   @Column(name = "uuid", unique = true)
@@ -54,9 +53,9 @@ public class ObjectSubtype implements java.io.Serializable, UniqueObj {
   public void setUuid(UUID uuid) {
     this.uuid = uuid;
   }
-  
-  @Column(name = "ac_subtype")  
-  @Size(max=50)
+
+  @Column(name = "ac_subtype")
+  @Size(max = 50)
   @NotBlank
   public String getAcSubtype() {
     return acSubtype;
@@ -75,7 +74,7 @@ public class ObjectSubtype implements java.io.Serializable, UniqueObj {
   public void setId(Integer id) {
     this.id = id;
   }
-  
+
   @NotNull
   @Type(type = "pgsql_enum")
   @Enumerated(EnumType.STRING)
@@ -88,5 +87,9 @@ public class ObjectSubtype implements java.io.Serializable, UniqueObj {
     this.dcType = dcType;
   }
 
-  
+  @PrePersist
+  public void initUuid() {
+    this.uuid = UUID.randomUUID();
+  }
+
 }

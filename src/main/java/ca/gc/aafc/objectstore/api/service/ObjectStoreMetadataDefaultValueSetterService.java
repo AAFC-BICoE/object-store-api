@@ -2,7 +2,6 @@ package ca.gc.aafc.objectstore.api.service;
 
 import java.util.LinkedList;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -13,8 +12,10 @@ import org.springframework.stereotype.Service;
 
 import ca.gc.aafc.objectstore.api.MediaTypeToDcTypeConfiguration;
 import ca.gc.aafc.objectstore.api.ObjectStoreConfiguration;
+import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
+import lombok.NonNull;
 
 /**
  * 
@@ -41,9 +42,7 @@ public class ObjectStoreMetadataDefaultValueSetterService {
    * @param objectMetadata
    * @return
    */
-  public ObjectStoreMetadata assignDefaultValues(ObjectStoreMetadata objectMetadata) {
-    Objects.requireNonNull(objectMetadata);
-    
+  public ObjectStoreMetadataDto assignDefaultValues(@NonNull ObjectStoreMetadataDto objectMetadata) {
     if (objectMetadata.getDcType() == null) {
       objectMetadata.setDcType(dcTypeFromDcFormat(objectMetadata.getDcFormat()));
     }

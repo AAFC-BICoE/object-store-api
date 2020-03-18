@@ -47,7 +47,7 @@ public class ManagedAttributeRepositoryCRUDIT extends BaseRepositoryTest {
     assertNotNull(managedAttributeDto);
     assertEquals(testManagedAttribute.getUuid(), managedAttributeDto.getUuid());
     assertArrayEquals(testManagedAttribute.getAcceptedValues(),
-        (String[]) (managedAttributeDto.getAcceptedValues().toArray(new String[0])));
+        managedAttributeDto.getAcceptedValues());
     assertEquals(testManagedAttribute.getManagedAttributeType(),
         managedAttributeDto.getManagedAttributeType());
     assertEquals(testManagedAttribute.getName(), managedAttributeDto.getName());

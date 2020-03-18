@@ -11,7 +11,7 @@ import javax.transaction.Transactional;
 
 import org.springframework.stereotype.Repository;
 
-import ca.gc.aafc.objectstore.api.dao.BaseDAO;
+import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.objectstore.api.dto.ManagedAttributeMapDto;
 import ca.gc.aafc.objectstore.api.dto.ManagedAttributeMapDto.ManagedAttributeMapValue;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
@@ -51,7 +51,7 @@ public class MetadataToManagedAttributeMapRepository
     Map<UUID, ManagedAttributeMapDto> findOneMap = new HashMap<>();
 
     for (UUID metadataUuid : sourceIds) {
-      ObjectStoreMetadata metadata = dao.findOneByNaturalId(metadataUuid, ObjectStoreMetadata.class);
+      ObjectStoreMetadata metadata = dao.findOneById(metadataUuid, ObjectStoreMetadata.class);
       List<MetadataManagedAttribute> attrs = metadata.getManagedAttribute();
 
       // Build the attribute values map:

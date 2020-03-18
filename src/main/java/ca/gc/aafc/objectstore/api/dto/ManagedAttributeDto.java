@@ -1,7 +1,6 @@
 package ca.gc.aafc.objectstore.api.dto;
 
 import java.time.OffsetDateTime;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -21,7 +20,7 @@ public class ManagedAttributeDto {
   
   private String name;
   private ManagedAttributeType managedAttributeType;
-  private List<String> acceptedValues;
+  private String[] acceptedValues;
   private OffsetDateTime createdDate;
   
   private Map<String, String> description;

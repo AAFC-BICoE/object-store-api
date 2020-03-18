@@ -21,14 +21,14 @@ Would not return any soft-deleted data to you.
 
 === Returning a Soft Deleted Entity
 
-You can use crnks natural filtering to return a soft-deleted entity.
+You can use a special filter parameter to return a soft-deleted entity.
 
-Adding the filter _?filter[deletedDate][NEQ]=null_ will allow queries on soft deleted metadata.
+Adding the filter _?filter[softDeleted] will allow queries on soft deleted metadata.
 
 ----
-GET /metadata/{id}?filter[deletedDate][NEQ]=null
+GET /metadata/{id}?filter[softDeleted]
 
-GET /metadata/?filter[deletedDate][NEQ]=null
+GET /metadata/?filter[softDeleted]
 ----
 
 Respectively these two requests would return one or multiple metadata including soft-deleted metadata.

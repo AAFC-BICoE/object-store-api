@@ -2,17 +2,14 @@ package ca.gc.aafc.objectstore.api.rest;
 
 import java.util.Map;
 
+import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
 import ca.gc.aafc.objectstore.api.dto.ManagedAttributeDto;
-import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
-import ca.gc.aafc.objectstore.api.mapper.ManagedAttributeMapper;
-import ca.gc.aafc.objectstore.api.testsupport.factories.ManagedAttributeFactory;
+import ca.gc.aafc.objectstore.api.entities.ManagedAttribute.ManagedAttributeType;
 
 public class ManagedAttributeJsonApiIT extends BaseJsonApiIntegrationTest {
 
-  private ManagedAttributeMapper mapper = ManagedAttributeMapper.INSTANCE;
-  
-  private ManagedAttribute managedAttribute;
-  
+  private ManagedAttributeDto managedAttribute;
+
   @Override
   protected String getResourceUnderTest() {
     return "managed-attribute";
@@ -32,25 +29,21 @@ public class ManagedAttributeJsonApiIT extends BaseJsonApiIntegrationTest {
   protected Map<String, Object> buildCreateAttributeMap() {
     String[] acceptedValues  = new String[] {"CataloguedObject"};
     
-    managedAttribute = ManagedAttributeFactory.newManagedAttribute()
-      .acceptedValues(acceptedValues)
-      .uuid(null)
-      .build();
-    ManagedAttributeDto managedAttributeDto = mapper.toDto(managedAttribute);
-    return toAttributeMap(managedAttributeDto);
-
+    managedAttribute = new ManagedAttributeDto();
+    managedAttribute.setAcceptedValues(acceptedValues);
+    managedAttribute.setName(TestableEntityFactory.generateRandomNameLettersOnly(12));
+    managedAttribute.setManagedAttributeType(ManagedAttributeType.STRING);
+    
+    return toAttributeMap(managedAttribute);
   }
 
   @Override
   protected Map<String, Object> buildUpdateAttributeMap() {
-    
-    String[] acceptedValues  = new String[] {"dorsal"};
+    String[] acceptedValues  =  new String[] {"dorsal"};
     
     managedAttribute.setName("specimen_view");
     managedAttribute.setAcceptedValues(acceptedValues);
     
-    ManagedAttributeDto managedAttributeDto = mapper.toDto(managedAttribute);
-    return toAttributeMap(managedAttributeDto);
-    
+    return toAttributeMap(managedAttribute);
   }
 }
