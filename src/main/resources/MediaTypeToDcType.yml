@@ -1,0 +1,18 @@
+#Format DcType and a list of regex that will be applied in order
+toDcType:
+  IMAGE:
+    - ^image\/[\w\.-]+$
+  MOVING_IMAGE:
+    - ^video\/[\w\.-]+$
+  SOUND:
+    - ^audio/[\w\.-]+$
+  DATASET:
+    - ^text/csv$
+    - ^application/vnd.openxmlformats-officedocument.spreadsheetml.sheet$
+    - ^application/vnd.oasis.opendocument.spreadsheet$
+    - ^application/json$
+  TEXT:
+    - ^application/pdf$
+    - ^application/vnd.openxmlformats-officedocument.wordprocessingml.document$
+    - ^application/vnd.oasis.opendocument.text$
+    - ^text/[\w\.-]+$
