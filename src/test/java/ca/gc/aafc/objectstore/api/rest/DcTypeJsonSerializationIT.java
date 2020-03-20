@@ -2,9 +2,13 @@ package ca.gc.aafc.objectstore.api.rest;
 
 import static io.restassured.RestAssured.given;
 
+import java.util.Map;
+
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.Root;
+
+import com.google.common.collect.ImmutableMap;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,7 +22,7 @@ import io.restassured.response.Response;
 
 public class DcTypeJsonSerializationIT extends BaseHttpIntegrationTest {
 
-  private static final String TEST_ENDPOINT = "/api/v1/object-subtype";
+  private static final String RESOURCE_UNDER_TEST = "object-subtype";
 
   @BeforeEach
   public void setup() {
@@ -54,13 +58,15 @@ public class DcTypeJsonSerializationIT extends BaseHttpIntegrationTest {
         .contentType(BaseJsonApiIntegrationTest.JSON_API_CONTENT_TYPE)
         .body(getPostBody(dcType))
         .when()
-        .post(TEST_ENDPOINT);
+        .post(BaseJsonApiIntegrationTest.API_BASE_PATH + "/" + RESOURCE_UNDER_TEST);
   }
 
-  private static String getPostBody(String dcType) {
-    return "{ \"data\": { \"type\": \"object-subtype\", \"attributes\": { \"dcType\":\"" 
-      + dcType
-      + "\", \"acSubtype\":\"thumbnail\" } } }";
+  private static Map<String, Object> getPostBody(String dcType) {
+    ImmutableMap.Builder<String, Object> objAttribMap = new ImmutableMap.Builder<>();
+    objAttribMap.put("dcType", dcType);
+    objAttribMap.put("acSubtype", "thumbnail");
+
+    return BaseJsonApiIntegrationTest.toJsonAPIMap(RESOURCE_UNDER_TEST, objAttribMap.build(), null, null);
   }
 
 }
