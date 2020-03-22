@@ -11,14 +11,13 @@ COPY --chown=user pom.xml /app/
 
 RUN apt-get update && apt-get install -y postgresql-client-11
 RUN apt-get install -y curl
-RUN mkdir -p /home/user
+RUN apt-get install gettext-base
 
 USER user
 
 EXPOSE 8080
 WORKDIR /app
 
-ENV spring.datasource.url=jdbc:postgresql://localhost/object_store?currentSchema=objectstore
 ENV spring.datasource.username=springuser
 ENV spring.datasource.password=springcreds
 ENV spring.liquibase.user=liquibaseuser
