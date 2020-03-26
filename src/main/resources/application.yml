@@ -10,6 +10,8 @@ spring:
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.xml
     contexts: schema-change
+  jpa:
+    open-in-view: false
 minio:
   scheme:  http
   host:  localhost

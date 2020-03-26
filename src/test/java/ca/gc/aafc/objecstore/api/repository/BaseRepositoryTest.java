@@ -1,10 +1,6 @@
 package ca.gc.aafc.objecstore.api.repository;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
-import ca.gc.aafc.objectstore.api.interfaces.UniqueObj;
 
 public abstract class BaseRepositoryTest extends BaseIntegrationTest {
   
@@ -14,16 +10,12 @@ public abstract class BaseRepositoryTest extends BaseIntegrationTest {
    * 
    * @param the entity to persist
    */
-  protected void persist(UniqueObj objectToPersist) {
-    assertNull( objectToPersist.getId());
+  protected void persist(Object objectToPersist) {
     save(objectToPersist);
-    assertNotNull( objectToPersist.getId());
   }
   
-  protected void delete(UniqueObj objectToPersist) {
-    assertNotNull( objectToPersist.getId());
+  protected void delete(Object objectToPersist) {
     delete(objectToPersist);
-    assertNull( objectToPersist.getId());
   }
 
 }

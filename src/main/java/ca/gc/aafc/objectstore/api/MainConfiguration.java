@@ -1,22 +1,31 @@
 package ca.gc.aafc.objectstore.api;
 
-import javax.inject.Inject;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import io.crnk.operations.server.OperationsModule;
-import io.crnk.operations.server.TransactionOperationFilter;
-import io.crnk.spring.jpa.SpringTransactionRunner;
+import ca.gc.aafc.dina.DinaBaseApiAutoConfiguration;
+import ca.gc.aafc.dina.jpa.BaseDAO;
+import ca.gc.aafc.dina.mapper.JpaDtoMapper;
+import ca.gc.aafc.dina.repository.SelectionHandler;
+import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
+import ca.gc.aafc.objectstore.api.respository.DtoEntityMapping;
 import io.minio.MinioClient;
 import io.minio.errors.InvalidEndpointException;
 import io.minio.errors.InvalidPortException;
 
 @Configuration
 @EntityScan("ca.gc.aafc.objectstore.api.entities")
+@ComponentScan(basePackageClasses = DinaBaseApiAutoConfiguration.class)
+@ImportAutoConfiguration(DinaBaseApiAutoConfiguration.class)
 public class MainConfiguration {
   
   @Bean
@@ -33,25 +42,15 @@ public class MainConfiguration {
   }
 
   /**
-   * Registers the transaction filter that executes a transaction around bulk
-   * jsonpatch operations.
+   * Configures DTO-to-Entity mappings.
    * 
-   * @param module the Crnk operations module.
-   */
-  @Inject
-  public void initTransactionOperationFilter(OperationsModule module) {
-    module.addFilter(new TransactionOperationFilter());
-  }
-
-  /**
-   * Provides Crnk's SpringTransactionRunner that implements transactions around
-   * bulk jsonpatch operations using Spring's transaction management.
-   * 
-   * @return the transaction runner.
+   * @return the DtoJpaMapper
    */
   @Bean
-  public SpringTransactionRunner crnkSpringTransactionRunner() {
-    return new SpringTransactionRunner();
+  public JpaDtoMapper dtoJpaMapper(SelectionHandler selectionHandler, BaseDAO baseDAO) {
+    Map<Class<?>, List<JpaDtoMapper.CustomFieldResolverSpec<?>>> customFieldResolvers = new HashMap<>();
+    return new JpaDtoMapper(DtoEntityMapping.getDtoToEntityMapping(ObjectStoreMetadataDto.class),
+        customFieldResolvers, selectionHandler, baseDAO);
   }
 
 }

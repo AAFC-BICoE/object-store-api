@@ -18,24 +18,22 @@ import org.junit.jupiter.api.Test;
 import ca.gc.aafc.objectstore.api.TestConfiguration;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.Agent;
+import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
-import ca.gc.aafc.objectstore.api.mapper.CycleAvoidingMappingContext;
-import ca.gc.aafc.objectstore.api.mapper.ObjectStoreMetadataMapper;
 import ca.gc.aafc.objectstore.api.testsupport.factories.AgentFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import io.restassured.response.ValidatableResponse;
 
 public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
 
-  private final ObjectStoreMetadataMapper mapper = ObjectStoreMetadataMapper.INSTANCE;
   private static final String METADATA_CREATOR_PROPERTY_NAME = "acMetadataCreator";
   private static final String METADATA_DERIVED_PROPERTY_NAME = "acDerivedFrom";
   private static final String DC_CREATOR_PROPERTY_NAME = "dcCreator";
   
-  private ObjectStoreMetadata objectStoreMetadata;
+  private ObjectStoreMetadataDto objectStoreMetadata;
   
-  private final UUID agentId = UUID.randomUUID();
-  private final UUID metadataId = UUID.randomUUID();
+  private UUID agentId;
+  private UUID metadataId;
 
   @BeforeEach
   public void setup() {
@@ -55,6 +53,9 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
       em.persist(agent);
       em.persist(metadata);
     });
+
+    agentId = agent.getUuid();
+    metadataId = metadata.getUuid();
   }
 
   /**
@@ -70,7 +71,7 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
       em.createQuery(query).executeUpdate();
     });
   }
-
+  
   @Override
   protected String getResourceUnderTest() {
     return "metadata";
@@ -91,24 +92,22 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
     
     OffsetDateTime dateTime4Test = OffsetDateTime.now();
     // file related data has to match what is set by TestConfiguration
-    objectStoreMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata()
-       .uuid(null)
-       .acHashFunction("SHA-1")
-       .dcType(null) //on creation null should be accepted
-       .xmpRightsWebStatement(null) // default value from configuration should be used
-       .dcRights(null) // default value from configuration should be used
-       .xmpRightsOwner(null) // default value from configuration should be used
-       .acDigitizationDate(dateTime4Test)
-       .fileIdentifier(TestConfiguration.TEST_FILE_IDENTIFIER)
-       .fileExtension(TestConfiguration.TEST_FILE_EXT)
-       .bucket(TestConfiguration.TEST_BUCKET)
-       .acHashValue("123")
-       .publiclyReleasable(true)
-       .notPubliclyReleasableReason("Classified")
-       .build();
+    objectStoreMetadata = new ObjectStoreMetadataDto();
+    objectStoreMetadata.setUuid(null);
+    objectStoreMetadata.setAcHashFunction("SHA-1");
+    objectStoreMetadata.setDcType(null); //on creation null should be accepted
+    objectStoreMetadata.setXmpRightsWebStatement(null); // default value from configuration should be used
+    objectStoreMetadata.setDcRights(null); // default value from configuration should be used
+    objectStoreMetadata.setXmpRightsOwner(null); // default value from configuration should be used
+    objectStoreMetadata.setAcDigitizationDate(dateTime4Test);
+    objectStoreMetadata.setFileIdentifier(TestConfiguration.TEST_FILE_IDENTIFIER);
+    objectStoreMetadata.setFileExtension(TestConfiguration.TEST_FILE_EXT);
+    objectStoreMetadata.setBucket(TestConfiguration.TEST_BUCKET);
+    objectStoreMetadata.setAcHashValue("123");
+    objectStoreMetadata.setPubliclyReleasable(true);
+    objectStoreMetadata.setNotPubliclyReleasableReason("Classified");
 
-    ObjectStoreMetadataDto objectStoreMetadatadto = mapper.toDto(objectStoreMetadata, null, new CycleAvoidingMappingContext());
-    return toAttributeMap(objectStoreMetadatadto);
+    return toAttributeMap(objectStoreMetadata);
   }
 
   @Override
@@ -116,8 +115,8 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
 
     OffsetDateTime dateTime4TestUpdate = OffsetDateTime.now();
     objectStoreMetadata.setAcDigitizationDate(dateTime4TestUpdate);
-    ObjectStoreMetadataDto objectStoreMetadatadto = mapper.toDto(objectStoreMetadata, null, new CycleAvoidingMappingContext());
-    return toAttributeMap(objectStoreMetadatadto);
+    objectStoreMetadata.setDcType(DcType.MOVING_IMAGE);
+    return toAttributeMap(objectStoreMetadata);
   }
   
   @Override
@@ -139,14 +138,14 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
     responseUpdate.body("data.id", Matchers.not(Matchers.hasItem(Matchers.containsString(id))));
 
     // get list should return deleted resource with deleted filter
-    responseUpdate = sendGet("?filter[deletedDate][NEQ]=null");
+    responseUpdate = sendGet("?filter[softDeleted]");
     responseUpdate.body("data.id", Matchers.hasItem(Matchers.containsString(id)));
 
     // get one throws gone 410 as expected
     sendGet(id, 410);
 
     // get one resource is available with the deleted filter
-    sendGet(id + "?filter[deletedDate][NEQ]=null");
+    sendGet(id + "?filter[softDeleted]");
   }
 
 }

@@ -14,10 +14,14 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
+import com.vladmihalcea.hibernate.type.array.StringArrayType;
+import com.vladmihalcea.hibernate.type.basic.PostgreSQLEnumType;
 
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.NaturalIdCache;
@@ -25,11 +29,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import com.vladmihalcea.hibernate.type.array.StringArrayType;
-import com.vladmihalcea.hibernate.type.basic.PostgreSQLEnumType;
-
-import ca.gc.aafc.objectstore.api.interfaces.SoftDeletable;
-import ca.gc.aafc.objectstore.api.interfaces.UniqueObj;
+import ca.gc.aafc.dina.entity.SoftDeletable;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -43,14 +43,11 @@ import lombok.RequiredArgsConstructor;
 @TypeDef(name = "pgsql_enum", typeClass = PostgreSQLEnumType.class)
 @TypeDef(name = "string-array", typeClass = StringArrayType.class)
 @SuppressFBWarnings({ "EI_EXPOSE_REP", "EI_EXPOSE_REP2" })
-@Builder(toBuilder=true)
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @RequiredArgsConstructor
 @NaturalIdCache
-public class ObjectStoreMetadata implements java.io.Serializable, UniqueObj, SoftDeletable {
-
-  /** The Constant serialVersionUID. */
-  private static final long serialVersionUID = -5655824300348079540L;
+public class ObjectStoreMetadata implements SoftDeletable {
 
   private Integer id;
 
@@ -65,20 +62,20 @@ public class ObjectStoreMetadata implements java.io.Serializable, UniqueObj, Sof
 
   private OffsetDateTime acDigitizationDate;
   private OffsetDateTime xmpMetadataDate;
-  
+
   private String xmpRightsWebStatement;
   private String dcRights;
   private String xmpRightsOwner;
 
   private String originalFilename;
-  
+
   private String acHashFunction;
   private String acHashValue;
   private String[] acTags;
-  
+
   private OffsetDateTime createdDate;
   private OffsetDateTime deletedDate;
-  
+
   private List<MetadataManagedAttribute> managedAttribute;
   private Agent acMetadataCreator;
   private Agent dcCreator;
@@ -109,7 +106,7 @@ public class ObjectStoreMetadata implements java.io.Serializable, UniqueObj, Sof
   public void setUuid(UUID uuid) {
     this.uuid = uuid;
   }
-  
+
   @NotNull
   @Column(name = "file_identifier", unique = true)
   public UUID getFileIdentifier() {
@@ -119,7 +116,7 @@ public class ObjectStoreMetadata implements java.io.Serializable, UniqueObj, Sof
   public void setFileIdentifier(UUID fileIdentifier) {
     this.fileIdentifier = fileIdentifier;
   }
-  
+
   @NotNull
   @Column(name = "file_extension")
   @Size(max = 10)
@@ -130,9 +127,10 @@ public class ObjectStoreMetadata implements java.io.Serializable, UniqueObj, Sof
   public void setFileExtension(String fileExtension) {
     this.fileExtension = fileExtension;
   }
-  
+
   /**
    * Returns ileIdentifier + fileExtension
+   * 
    * @return
    */
   @Transient
@@ -149,8 +147,7 @@ public class ObjectStoreMetadata implements java.io.Serializable, UniqueObj, Sof
   public void setBucket(String bucket) {
     this.bucket = bucket;
   }
-  
-  
+
   @Column(name = "ac_caption")
   @Size(max = 250)
   public String getAcCaption() {
@@ -160,7 +157,7 @@ public class ObjectStoreMetadata implements java.io.Serializable, UniqueObj, Sof
   public void setAcCaption(String acCaption) {
     this.acCaption = acCaption;
   }
-  
+
   @Column(name = "dc_format")
   @Size(max = 150)
   public String getDcFormat() {
@@ -201,7 +198,7 @@ public class ObjectStoreMetadata implements java.io.Serializable, UniqueObj, Sof
   public void setXmpMetadataDate(OffsetDateTime xmpMetadataDate) {
     this.xmpMetadataDate = xmpMetadataDate;
   }
-  
+
   @Column(name = "original_filename")
   public String getOriginalFilename() {
     return originalFilename;
@@ -228,11 +225,9 @@ public class ObjectStoreMetadata implements java.io.Serializable, UniqueObj, Sof
   public void setAcHashValue(String acHashValue) {
     this.acHashValue = acHashValue;
   }
-    
-  @Type( type = "string-array" )
-  @Column(name = "ac_tags", 
-      columnDefinition = "text[]"
-  )
+
+  @Type(type = "string-array")
+  @Column(name = "ac_tags", columnDefinition = "text[]")
   public String[] getAcTags() {
     return acTags;
   }
@@ -240,12 +235,12 @@ public class ObjectStoreMetadata implements java.io.Serializable, UniqueObj, Sof
   public void setAcTags(String[] acTags) {
     this.acTags = acTags;
   }
-  
+
   @Column(name = "created_date", insertable = false, updatable = false)
   public OffsetDateTime getCreatedDate() {
     return createdDate;
   }
-  
+
   public void setCreatedDate(OffsetDateTime createdDate) {
     this.createdDate = createdDate;
   }
@@ -269,9 +264,9 @@ public class ObjectStoreMetadata implements java.io.Serializable, UniqueObj, Sof
   public void setAcMetadataCreator(Agent acMetadataCreator) {
     this.acMetadataCreator = acMetadataCreator;
   }
-  
+
   @OneToOne
-  @JoinColumn(name = "dc_creator_id", referencedColumnName= "id")
+  @JoinColumn(name = "dc_creator_id", referencedColumnName = "id")
   public Agent getDcCreator() {
     return dcCreator;
   }
@@ -279,7 +274,7 @@ public class ObjectStoreMetadata implements java.io.Serializable, UniqueObj, Sof
   public void setDcCreator(Agent dcCreator) {
     this.dcCreator = dcCreator;
   }
-  
+
   @NotNull
   @Column(name = "xmp_rights_web_statement")
   @Size(max = 250)
@@ -311,7 +306,7 @@ public class ObjectStoreMetadata implements java.io.Serializable, UniqueObj, Sof
   public void setDeletedDate(OffsetDateTime deletedDate) {
     this.deletedDate = deletedDate;
   }
-  
+
   @NotNull
   @Column(name = "xmp_rights_owner")
   @Size(max = 250)
@@ -349,6 +344,26 @@ public class ObjectStoreMetadata implements java.io.Serializable, UniqueObj, Sof
 
   public void setNotPubliclyReleasableReason(String notPubliclyReleasableReason) {
     this.notPubliclyReleasableReason = notPubliclyReleasableReason;
+  }
+
+  // TODO: Fix dina-base-api modifyRelation method so it doesn't fail when the
+  // DTO has a relation that the entity doesn't.
+  @Deprecated
+  @Transient
+  public Object getManagedAttributeMap() {
+    return null;
+  }
+  
+  // TODO: Fix dina-base-api modifyRelation method so it doesn't fail when the
+  // DTO has a relation that the entity doesn't.
+  @Deprecated
+  @Transient
+  public void setManagedAttributeMap(Object object) {
+  }
+
+  @PrePersist
+  public void initUuid() {
+    this.uuid = UUID.randomUUID();
   }
 
 }

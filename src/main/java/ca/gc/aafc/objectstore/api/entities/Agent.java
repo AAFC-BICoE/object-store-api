@@ -7,12 +7,12 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.PrePersist;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.NaturalIdCache;
 
-import ca.gc.aafc.objectstore.api.interfaces.UniqueObj;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,9 +24,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @SuppressFBWarnings(justification = "ok for Hibernate Entity", value = { "EI_EXPOSE_REP", "EI_EXPOSE_REP2" })
 @NaturalIdCache
-public class Agent implements java.io.Serializable, UniqueObj {
+public class Agent {
 
-  private static final long serialVersionUID = 1L;
   private Integer id;
   private UUID uuid;
   
@@ -68,6 +67,11 @@ public class Agent implements java.io.Serializable, UniqueObj {
 
   public void setEmail(String email) {
     this.email = email;
+  }
+
+  @PrePersist
+  public void initUuid() {
+    this.uuid = UUID.randomUUID();
   }
 
 }

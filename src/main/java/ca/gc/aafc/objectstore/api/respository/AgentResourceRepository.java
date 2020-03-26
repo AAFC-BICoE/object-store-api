@@ -1,110 +1,31 @@
 package ca.gc.aafc.objectstore.api.respository;
 
-import java.util.List;
-import java.util.UUID;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
-import javax.annotation.PostConstruct;
-import javax.transaction.Transactional;
+import java.util.Arrays;
 
 import org.springframework.stereotype.Repository;
 
-import ca.gc.aafc.objectstore.api.dao.BaseDAO;
+import ca.gc.aafc.dina.filter.RsqlFilterHandler;
+import ca.gc.aafc.dina.filter.SimpleFilterHandler;
+import ca.gc.aafc.dina.repository.JpaDtoRepository;
+import ca.gc.aafc.dina.repository.JpaResourceRepository;
+import ca.gc.aafc.dina.repository.meta.JpaMetaInformationProvider;
 import ca.gc.aafc.objectstore.api.dto.AgentDto;
-import ca.gc.aafc.objectstore.api.entities.Agent;
-import ca.gc.aafc.objectstore.api.filter.RsqlFilterHandler;
-import ca.gc.aafc.objectstore.api.mapper.AgentMapper;
-import io.crnk.core.exception.ResourceNotFoundException;
-import io.crnk.core.queryspec.QuerySpec;
-import io.crnk.core.repository.ResourceRepositoryBase;
-import io.crnk.core.resource.list.DefaultResourceList;
-import io.crnk.core.resource.list.ResourceList;
-import io.crnk.data.jpa.query.JpaQueryExecutor;
-import io.crnk.data.jpa.query.criteria.JpaCriteriaQuery;
-import io.crnk.data.jpa.query.criteria.JpaCriteriaQueryFactory;
 
 @Repository
-@Transactional
-public class AgentResourceRepository extends ResourceRepositoryBase<AgentDto, UUID> {
+public class AgentResourceRepository extends JpaResourceRepository<AgentDto> {
 
-  private final BaseDAO dao;
-  private final AgentMapper mapper;
-  private final RsqlFilterHandler rsqlFilterHandler;
-
-  private JpaCriteriaQueryFactory queryFactory;  
-
-  @PostConstruct
-  void setup() {
-    queryFactory = dao.createWithEntityManager(JpaCriteriaQueryFactory::newInstance);
-  }
-  
   public AgentResourceRepository(
-    BaseDAO dao,
-    AgentMapper mapper,
-    RsqlFilterHandler rsqlFilterHandler
+    JpaDtoRepository dtoRepository,
+    SimpleFilterHandler simpleFilterHandler,
+    RsqlFilterHandler rsqlFilterHandler,
+    JpaMetaInformationProvider metaInformationProvider
   ) {
-    super(AgentDto.class);
-    this.dao = dao;
-    this.mapper = mapper;
-    this.rsqlFilterHandler = rsqlFilterHandler;
+    super(
+      AgentDto.class,
+      dtoRepository,
+      Arrays.asList(simpleFilterHandler, rsqlFilterHandler),
+      metaInformationProvider
+    );
   }
 
-  @Override
-  public <S extends AgentDto> S save(S resource) {
-    AgentDto dto =  (AgentDto) resource ;
-    Agent entity = dao.findOneByNaturalId(dto.getUuid(), Agent.class);
-    mapper.updateAgentFromDto(dto, entity);
-    
-    dao.save(entity);
-    return resource;
-  }
-
-  @Override
-  public AgentDto findOne(UUID uuid, QuerySpec querySpec) {
-    Agent agent = dao.findOneByNaturalId(uuid, Agent.class);
-    if (agent == null) {
-      // Throw the 404 exception if the resource is not found.
-      throw new ResourceNotFoundException(
-          this.getClass().getSimpleName() + " with ID " + uuid + " Not Found.");
-    }
-    return mapper.toDto(agent);
-  }
-
-  @Override
-  public ResourceList<AgentDto> findAll(QuerySpec querySpec) {
-    JpaCriteriaQuery<Agent> jq = queryFactory.query(Agent.class);
-    
-    Consumer<JpaQueryExecutor<?>> rsqlApplier = rsqlFilterHandler.getRestrictionApplier(querySpec);
-    JpaQueryExecutor<Agent> executor = jq.buildExecutor(querySpec);
-    rsqlApplier.accept(executor);
-
-    List<AgentDto> l = executor.getResultList().stream()
-    .map( e -> mapper.toDto(e))
-    .collect(Collectors.toList());
-    
-    return new DefaultResourceList<AgentDto>(l, null, null);
-  }
-
-  @Override
-  public <S extends AgentDto> S create(S resource) {
-    AgentDto dto =  (AgentDto) resource ;
-    if(dto.getUuid()==null) {
-      dto.setUuid(UUID.randomUUID());
-    }
-    
-    Agent entity = mapper.toEntity(dto);
-    dao.save(entity);
-
-    return resource;
-  }
-  
-  @Override
-  public void delete(UUID id) {
-    Agent agent = dao.findOneByNaturalId(id, Agent.class);
-    if(agent != null) {
-      dao.delete(agent);
-    }
-  }
-  
 }

@@ -1,6 +1,5 @@
 package ca.gc.aafc.objectstore.api.entities;
 
-import java.io.Serializable;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -10,32 +9,31 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.PrePersist;
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.annotations.NaturalId;
 
-import ca.gc.aafc.objectstore.api.interfaces.UniqueObj;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 
 @Entity
-@Builder(toBuilder=true)
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @RequiredArgsConstructor
 @SuppressFBWarnings(justification = "ok for Hibernate Entity", value = { "EI_EXPOSE_REP", "EI_EXPOSE_REP2" })
-public class MetadataManagedAttribute implements Serializable, UniqueObj {
+public class MetadataManagedAttribute {
 
-  private static final long serialVersionUID = -3484692979076302405L;
   private Integer id;
   private UUID uuid;
-  
+
   private ObjectStoreMetadata objectStoreMetadata;
   private ManagedAttribute managedAttribute;
-  private String assignedValue;  
-  
+  private String assignedValue;
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
@@ -46,7 +44,7 @@ public class MetadataManagedAttribute implements Serializable, UniqueObj {
   public void setId(Integer id) {
     this.id = id;
   }
-  
+
   @NaturalId
   @NotNull
   @Column(name = "uuid", unique = true)
@@ -57,9 +55,9 @@ public class MetadataManagedAttribute implements Serializable, UniqueObj {
   public void setUuid(UUID uuid) {
     this.uuid = uuid;
   }
-  
+
   @NotNull
-  @ManyToOne(cascade = {} )
+  @ManyToOne(cascade = {})
   @JoinColumn(name = "metadata_id", referencedColumnName = "id")
   public ObjectStoreMetadata getObjectStoreMetadata() {
     return objectStoreMetadata;
@@ -79,7 +77,7 @@ public class MetadataManagedAttribute implements Serializable, UniqueObj {
   public void setManagedAttribute(ManagedAttribute managedAttribute) {
     this.managedAttribute = managedAttribute;
   }
-  
+
   public String getAssignedValue() {
     return assignedValue;
   }
@@ -87,18 +85,15 @@ public class MetadataManagedAttribute implements Serializable, UniqueObj {
   public void setAssignedValue(String assignedValue) {
     this.assignedValue = assignedValue;
   }
-  
+
   public String toString() {
-    return new ToStringBuilder(this)
-        .append("id", id)
-        .append("uuid", uuid)
-        .append("assignedValue", assignedValue)
-        .append("managedAttribute", managedAttribute)
-        .append("objectStoreMetadata", objectStoreMetadata)
-        .toString();
+    return new ToStringBuilder(this).append("id", id).append("uuid", uuid).append("assignedValue", assignedValue)
+        .append("managedAttribute", managedAttribute).append("objectStoreMetadata", objectStoreMetadata).toString();
   }
-  
+
+  @PrePersist
+  public void initUuid() {
+    this.uuid = UUID.randomUUID();
+  }
 
 }
-
-

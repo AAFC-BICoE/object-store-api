@@ -9,28 +9,21 @@ import org.junit.jupiter.api.BeforeEach;
 
 import ca.gc.aafc.objectstore.api.dto.MetadataManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
-import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
-import ca.gc.aafc.objectstore.api.mapper.CycleAvoidingMappingContext;
-import ca.gc.aafc.objectstore.api.mapper.MetadataManagedAttributeMapper;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ManagedAttributeFactory;
-import ca.gc.aafc.objectstore.api.testsupport.factories.MetadataManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 
 public class MetadataManagedAttributeJsonApiIT extends BaseJsonApiIntegrationTest {
 
-  private MetadataManagedAttributeMapper mapper = MetadataManagedAttributeMapper.INSTANCE;
-  
-  private MetadataManagedAttribute mmaCreated;
+  private MetadataManagedAttributeDto mmaCreated;
 
-  private UUID managedAttributeId = UUID.randomUUID();
-  private UUID metadataId = UUID.randomUUID();
+  private UUID managedAttributeId;
+  private UUID metadataId;
 
   @BeforeEach
   public void setup() {
-    ManagedAttribute ma = ManagedAttributeFactory.newManagedAttribute().uuid(managedAttributeId)
-        .build();
-    ObjectStoreMetadata osm = ObjectStoreMetadataFactory.newObjectStoreMetadata().uuid(metadataId).build();
+    ManagedAttribute ma = ManagedAttributeFactory.newManagedAttribute().build();
+    ObjectStoreMetadata osm = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
 
     // we need to run the setup in another transaction and commit it otherwise it can't be visible
     // to the test web server.
@@ -38,6 +31,9 @@ public class MetadataManagedAttributeJsonApiIT extends BaseJsonApiIntegrationTes
       em.persist(ma);
       em.persist(osm);
     });
+
+    managedAttributeId = ma.getUuid();
+    metadataId = osm.getUuid();
   }
 
   @Override
@@ -58,21 +54,19 @@ public class MetadataManagedAttributeJsonApiIT extends BaseJsonApiIntegrationTes
   @Override
   protected Map<String, Object> buildCreateAttributeMap() {
 
-    mmaCreated = MetadataManagedAttributeFactory.newMetadataManagedAttribute()
-        .uuid(null)
-        .managedAttribute(null)
-        .objectStoreMetadata(null)
-        .build();
+    mmaCreated = new MetadataManagedAttributeDto();
+    mmaCreated.setUuid(null);
+    mmaCreated.setManagedAttribute(null);
+    mmaCreated.setObjectStoreMetadata(null);
+    mmaCreated.setAssignedValue("test value");
 
-    MetadataManagedAttributeDto objectStoreMetadatadto = mapper.toDto(mmaCreated, new CycleAvoidingMappingContext());
-    return toAttributeMap(objectStoreMetadatadto);
+    return toAttributeMap(mmaCreated);
   }
 
   @Override
   protected Map<String, Object> buildUpdateAttributeMap() {
     mmaCreated.setAssignedValue("zxy");
-    MetadataManagedAttributeDto objectStoreMetadatadto = mapper.toDto(mmaCreated, new CycleAvoidingMappingContext());
-    return toAttributeMap(objectStoreMetadatadto);
+    return toAttributeMap(mmaCreated);
   }
 
   @Override

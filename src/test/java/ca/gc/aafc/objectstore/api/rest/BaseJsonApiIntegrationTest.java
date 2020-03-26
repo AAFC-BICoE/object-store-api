@@ -364,7 +364,8 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
   }
   
   protected ValidatableResponse sendGet(String id, int expectedReturnCode) {
-    return given().header("crnk-compact", "true").when().get(getResourceUnderTest() + "/" + id).then()
+    Response response = given().header("crnk-compact", "true").when().get(getResourceUnderTest() + "/" + id);
+    return response.then()
         .statusCode(expectedReturnCode);
   }
 
@@ -375,9 +376,8 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
    * @param id
    */
   protected void sendDelete(String id) {
-    given().contentType(JSON_API_CONTENT_TYPE).when().delete(getResourceUnderTest() + "/" + id)
-        .then().statusCode(HttpStatus.NO_CONTENT.value());
- 
+    Response response = given().contentType(JSON_API_CONTENT_TYPE).when().delete(getResourceUnderTest() + "/" + id);
+    response.then().statusCode(HttpStatus.NO_CONTENT.value());
   }
 
   /**

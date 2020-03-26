@@ -37,10 +37,10 @@
           "properties": {
             "dcType": {
               "enum": [
-                "Image",
-                "Moving image",
-                "Sound",
-                "Text"
+                "IMAGE",
+                "MOVING_IMAGE",
+                "SOUND",
+                "TEXT"
               ],
               "description": "Type of object stored. Higher level than mediaType. https://tdwg.github.io/ac/termlist/#dc_type"
             },
