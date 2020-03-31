@@ -28,6 +28,7 @@ Start the app (default port is 8081):
 docker-compose up --build
 ```
 
+Once the services have started you can access the endpoints at http://localhost:8081/api/v1
 
 ## Testing
 For testing purposes a [Docker Compose](https://docs.docker.com/compose/) example file is available in the `local` folder.
