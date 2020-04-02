@@ -8,6 +8,7 @@ RUN mvn clean install -Dmaven.test.skip=true -Dspring-boot.repackage.skip
 
 # Stage 1: build jar
 ADD . /project
+RUN mvn -Dtest=DcTypeJsonSerDeTest,DtoEntityMappingTest,JsonSchemaAssertions,DcTypeTest,FolderStructureStrategyTest,MediaTypeDetectionStrategyTest,ObjectStoreMetadataDefaultValueSetterServiceTest test
 RUN mvn clean install -Dmaven.test.skip=true
 
 # Stage 2: extract jar and set entrypoint
