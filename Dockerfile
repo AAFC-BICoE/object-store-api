@@ -8,6 +8,7 @@ RUN mvn clean install -Dmaven.test.skip=true -Dspring-boot.repackage.skip
 
 # Stage 1: build jar
 ADD . /project
+# Integration Tests will be skipped as they require a database
 RUN mvn test
 RUN mvn clean install -Dmaven.test.skip=true
 
