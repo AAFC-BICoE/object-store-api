@@ -24,6 +24,7 @@ COPY --chown=user scripts/*.sh /app/
 COPY --chown=user scripts/*.sql /app/
 COPY --chown=user scripts/*.awk /app/
 COPY --chown=user pom.xml /app/
+RUN chmod +x *.sh
 
 RUN apt-get update && apt-get install -y postgresql-client-11
 RUN apt-get install -y curl
