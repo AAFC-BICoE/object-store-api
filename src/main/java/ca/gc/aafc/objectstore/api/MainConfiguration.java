@@ -16,16 +16,8 @@ import ca.gc.aafc.dina.DinaBaseApiAutoConfiguration;
 import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.dina.mapper.JpaDtoMapper;
 import ca.gc.aafc.dina.repository.SelectionHandler;
-import ca.gc.aafc.objectstore.api.dto.AgentDto;
-import ca.gc.aafc.objectstore.api.dto.ManagedAttributeDto;
-import ca.gc.aafc.objectstore.api.dto.MetadataManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
-import ca.gc.aafc.objectstore.api.dto.ObjectSubtypeDto;
-import ca.gc.aafc.objectstore.api.entities.Agent;
-import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
-import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
-import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
-import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
+import ca.gc.aafc.objectstore.api.respository.DtoEntityMapping;
 import io.minio.MinioClient;
 import io.minio.errors.InvalidEndpointException;
 import io.minio.errors.InvalidPortException;
@@ -56,16 +48,9 @@ public class MainConfiguration {
    */
   @Bean
   public JpaDtoMapper dtoJpaMapper(SelectionHandler selectionHandler, BaseDAO baseDAO) {
-    Map<Class<?>, Class<?>> jpaEntities = new HashMap<>();
     Map<Class<?>, List<JpaDtoMapper.CustomFieldResolverSpec<?>>> customFieldResolvers = new HashMap<>();
-
-    jpaEntities.put(AgentDto.class, Agent.class);
-    jpaEntities.put(ManagedAttributeDto.class, ManagedAttribute.class);
-    jpaEntities.put(MetadataManagedAttributeDto.class, MetadataManagedAttribute.class);
-    jpaEntities.put(ObjectStoreMetadataDto.class, ObjectStoreMetadata.class);
-    jpaEntities.put(ObjectSubtypeDto.class, ObjectSubtype.class);
-    
-    return new JpaDtoMapper(jpaEntities, customFieldResolvers, selectionHandler, baseDAO);
+    return new JpaDtoMapper(DtoEntityMapping.getDtoToEntityMapping(ObjectStoreMetadataDto.class),
+        customFieldResolvers, selectionHandler, baseDAO);
   }
 
 }
