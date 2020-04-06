@@ -1,4 +1,6 @@
 FROM maven:ibmjava-alpine
+
+RUN mkdir /project
 WORKDIR /project
 # Cache maven dependencies
 ADD pom.xml /project
