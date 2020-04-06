@@ -115,7 +115,6 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
 
     OffsetDateTime dateTime4TestUpdate = OffsetDateTime.now();
     objectStoreMetadata.setAcDigitizationDate(dateTime4TestUpdate);
-    objectStoreMetadata.setDcType(DcType.MOVING_IMAGE);
     return toAttributeMap(objectStoreMetadata);
   }
   

@@ -1,8 +1,11 @@
 package ca.gc.aafc.objectstore.api;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.inject.Inject;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
@@ -15,8 +18,11 @@ import org.springframework.context.annotation.Profile;
 import ca.gc.aafc.dina.DinaBaseApiAutoConfiguration;
 import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.dina.mapper.JpaDtoMapper;
+import ca.gc.aafc.dina.mapper.JpaDtoMapper.CustomFieldResolverSpec;
 import ca.gc.aafc.dina.repository.SelectionHandler;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
+import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
+import ca.gc.aafc.objectstore.api.resolvers.ObjectStoreMetaDataFieldResolvers;
 import ca.gc.aafc.objectstore.api.respository.DtoEntityMapping;
 import io.minio.MinioClient;
 import io.minio.errors.InvalidEndpointException;
@@ -27,7 +33,10 @@ import io.minio.errors.InvalidPortException;
 @ComponentScan(basePackageClasses = DinaBaseApiAutoConfiguration.class)
 @ImportAutoConfiguration(DinaBaseApiAutoConfiguration.class)
 public class MainConfiguration {
-  
+
+  @Inject
+  private ObjectStoreMetaDataFieldResolvers metaDataFieldResolver;
+
   @Bean
   @Profile("!test")
   public MinioClient initMinioClient(
@@ -49,6 +58,27 @@ public class MainConfiguration {
   @Bean
   public JpaDtoMapper dtoJpaMapper(SelectionHandler selectionHandler, BaseDAO baseDAO) {
     Map<Class<?>, List<JpaDtoMapper.CustomFieldResolverSpec<?>>> customFieldResolvers = new HashMap<>();
+
+    customFieldResolvers.put(
+      ObjectStoreMetadataDto.class,
+      Arrays.asList(
+        CustomFieldResolverSpec.<ObjectStoreMetadata>builder()
+          .field("acSubType")
+          .resolver(metadata -> ObjectStoreMetaDataFieldResolvers.acSubTypeToDTO(metadata.getAcSubType()))
+          .build()
+    ));
+
+    customFieldResolvers.put(
+      ObjectStoreMetadata.class,
+      Arrays.asList(
+        CustomFieldResolverSpec.<ObjectStoreMetadataDto>builder()
+          .field("acSubType")
+          .resolver(metadataDTO -> metaDataFieldResolver.acSubTypeToEntity(
+            metadataDTO.getDcType(),
+            metadataDTO.getAcSubType()))
+          .build()
+    ));
+
     return new JpaDtoMapper(DtoEntityMapping.getDtoToEntityMapping(ObjectStoreMetadataDto.class),
         customFieldResolvers, selectionHandler, baseDAO);
   }
