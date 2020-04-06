@@ -1,3 +1,17 @@
+FROM maven:ibmjava-alpine
+WORKDIR /project
+# Cache maven dependencies
+ADD pom.xml /project
+
+RUN mvn clean install -Dmaven.test.skip=true -Dspring-boot.repackage.skip
+
+# Stage 1: build jar
+ADD . /project
+
+#RUN mvn test
+
+RUN mvn clean install -Dmaven.test.skip=true
+
 FROM openjdk:8-jre-slim
 RUN useradd -s /bin/bash user
 USER root
