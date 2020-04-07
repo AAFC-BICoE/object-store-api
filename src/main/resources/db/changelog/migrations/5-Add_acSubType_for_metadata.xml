@@ -19,13 +19,10 @@
       referencedColumnNames="id"
       referencedTableName="object_subtype"/>
 
-    <!-- Alter unquie constraint for object_subtype to be case insensitive-->
+    <!-- Alter unquie constraint for object_subtypes ac_subtype to be case insensitive-->
     <sql>
-      ALTER TABLE object_subtype
-        DROP CONSTRAINT unique_dctype_acsubtype_combination_per_object;
-
-      CREATE UNIQUE INDEX unique_dctype_acsubtype_combination_per_object
-        ON object_subtype ((lower(ac_subtype)), dc_type);
+      CREATE UNIQUE INDEX object_subtype_unique_acsubtype
+      ON object_subtype (lower(ac_subtype));
     </sql>
   </changeSet>
 
