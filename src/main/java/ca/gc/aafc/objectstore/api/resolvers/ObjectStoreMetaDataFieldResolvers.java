@@ -13,7 +13,12 @@ import org.springframework.stereotype.Component;
 
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
+import io.crnk.core.exception.BadRequestException;
 
+/**
+ * Field resolvers for the
+ * {@link ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata} Class
+ */
 @Component
 public class ObjectStoreMetaDataFieldResolvers {
 
@@ -24,10 +29,27 @@ public class ObjectStoreMetaDataFieldResolvers {
     this.entityManager = entityManager;
   }
 
+  /**
+   * Returns the AcSubType of the given {@link ObjectSubtype}. Null is returned if
+   * the given {@link ObjectSubtype} is null.
+   * 
+   * @param aSubtype - {@link ObjectSubtype} to map.
+   * @return AcSubType of the given {@link ObjectSubtype}
+   */
   public static String acSubTypeToDTO(ObjectSubtype aSubtype) {
     return aSubtype == null ? null : aSubtype.getAcSubtype();
   }
 
+  /**
+   * Returns an {@link ObjectSubtype} from the database with a given dcType and
+   * acSubType. Null is returned if the dcType or acSubType is blank. Throws
+   * {@link BadRequestException} If a match is not found.
+   * 
+   * @param dcType    - dcType to match
+   * @param acSubType - acSubType to match
+   * @throws BadRequestException If a match is not found.
+   * @return {@link ObjectSubtype} from the database
+   */
   public ObjectSubtype acSubTypeToEntity(DcType dcType, String acSubType) {
     if (dcType == null || StringUtils.isBlank(acSubType)) {
       return null;
@@ -36,6 +58,15 @@ public class ObjectStoreMetaDataFieldResolvers {
     return getObjectSubType(dcType, acSubType);
   }
 
+  /**
+   * Returns an {@link ObjectSubtype} from the database with a given dcType and
+   * acSubType. Throws {@link BadRequestException} If a match is not found.
+   * 
+   * @param dcType    - dcType to match
+   * @param acSubType - acSubType to match
+   * @throws BadRequestException If a match is not found.
+   * @return {@link ObjectSubtype} from the database
+   */
   private ObjectSubtype getObjectSubType(DcType dcType, String acSubType) {
     CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
     CriteriaQuery<ObjectSubtype> query = criteriaBuilder.createQuery(ObjectSubtype.class);
@@ -48,7 +79,11 @@ public class ObjectStoreMetaDataFieldResolvers {
     query.select(root).where(predicates);
     TypedQuery<ObjectSubtype> results = entityManager.createQuery(query);
 
-    return results.getSingleResult();
+    return results.getResultList()
+      .stream()
+      .findFirst()
+      .orElseThrow(() -> 
+        new BadRequestException(acSubType + "/" + dcType + " is not a valid acSubType/dcType"));
   }
 
 }

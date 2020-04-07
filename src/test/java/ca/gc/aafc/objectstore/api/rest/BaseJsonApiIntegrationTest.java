@@ -426,6 +426,15 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
     return response.then().statusCode(HttpStatus.OK.value());
   }
 
+  /**
+   * Removes an Entity from the database where a given property name has a given
+   * UUID.
+   *
+   * @param <T>              - Type of entity to delete
+   * @param uuidPropertyName - Name of the field matching a given UUID
+   * @param uuid             - UUID to match
+   * @param entityClass      - Class representing the entity to delete.
+   */
   protected <T> void deleteEntityByUUID(String uuidPropertyName, UUID uuid, Class<T> entityClass) {
     runInNewTransaction(em -> {
       CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
