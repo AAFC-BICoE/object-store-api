@@ -1,4 +1,4 @@
-FROM maven:ibmjava-alpine
+FROM maven:ibmjava-alpine AS build-stage
 
 RUN mkdir /project
 WORKDIR /project
@@ -19,7 +19,7 @@ RUN useradd -s /bin/bash user
 USER root
 
 WORKDIR /app
-COPY --chown=user target/object-store.api-*.jar /app/
+COPY --from=build-stage --chown=user /project/target/object-store.api-*.jar /app/
 COPY --chown=user scripts/*.sh /app/
 COPY --chown=user scripts/*.sql /app/
 COPY --chown=user scripts/*.awk /app/
