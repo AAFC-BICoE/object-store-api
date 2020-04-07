@@ -19,13 +19,6 @@
       referencedColumnNames="id"
       referencedTableName="object_subtype"/>
 
-    <!-- Add check to prevent trailing whitespace for object_subtype -->
-    <sql>
-      ALTER TABLE object_subtype
-        ADD CONSTRAINT check_white_space_ac_subtype
-        CHECK (trim(ac_subtype) = ac_subtype);
-    </sql>
-
     <!-- Alter unquie constraint for object_subtype to be case insensitive-->
     <sql>
       ALTER TABLE object_subtype
