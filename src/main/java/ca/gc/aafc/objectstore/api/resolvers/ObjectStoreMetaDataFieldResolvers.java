@@ -98,7 +98,8 @@ public class ObjectStoreMetaDataFieldResolvers {
 
   /**
    * Returns an {@link ObjectSubtype} from the database with a given dcType and
-   * acSubType. Throws {@link BadRequestException} If a match is not found.
+   * acSubType (Case Insensitive). Throws {@link BadRequestException} If a match
+   * is not found.
    * 
    * @param dcType    - dcType to match
    * @param acSubType - acSubType to match
@@ -112,7 +113,10 @@ public class ObjectStoreMetaDataFieldResolvers {
 
     Predicate[] predicates = new Predicate[2];
     predicates[0] = criteriaBuilder.equal(root.get("dcType"), dcType);
-    predicates[1] = criteriaBuilder.equal(root.get("acSubtype"), acSubType);
+    predicates[1] = criteriaBuilder.equal(
+      criteriaBuilder.upper(root.get("acSubtype")),
+      acSubType.toUpperCase()
+    );
 
     query.select(root).where(predicates);
     TypedQuery<ObjectSubtype> results = entityManager.createQuery(query);
