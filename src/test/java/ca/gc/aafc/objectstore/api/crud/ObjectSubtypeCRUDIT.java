@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
-import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
 
 public class ObjectSubtypeCRUDIT extends BaseEntityCRUDIT {
 
