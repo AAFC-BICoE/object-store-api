@@ -4,16 +4,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
+import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.dina.mapper.JpaDtoMapper.CustomFieldResolverSpec;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.DcType;
@@ -28,11 +23,11 @@ import io.crnk.core.exception.BadRequestException;
 @Component
 public class ObjectStoreMetaDataFieldResolvers {
 
-  private final EntityManager entityManager;
+  private final BaseDAO dao;
 
   @Inject
-  public ObjectStoreMetaDataFieldResolvers(EntityManager entityManager) {
-    this.entityManager = entityManager;
+  public ObjectStoreMetaDataFieldResolvers(BaseDAO dao) {
+    this.dao = dao;
   }
 
   /**
@@ -93,39 +88,11 @@ public class ObjectStoreMetaDataFieldResolvers {
       return null;
     }
 
-    return getObjectSubType(dcType, acSubType);
-  }
-
-  /**
-   * Returns an {@link ObjectSubtype} from the database with a given dcType and
-   * acSubType (Case Insensitive). Throws {@link BadRequestException} If a match
-   * is not found.
-   * 
-   * @param dcType    - dcType to match
-   * @param acSubType - acSubType to match
-   * @throws BadRequestException If a match is not found.
-   * @return {@link ObjectSubtype} from the database
-   */
-  private ObjectSubtype getObjectSubType(DcType dcType, String acSubType) {
-    CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-    CriteriaQuery<ObjectSubtype> query = criteriaBuilder.createQuery(ObjectSubtype.class);
-    Root<ObjectSubtype> root = query.from(ObjectSubtype.class);
-
-    Predicate[] predicates = new Predicate[2];
-    predicates[0] = criteriaBuilder.equal(root.get("dcType"), dcType);
-    predicates[1] = criteriaBuilder.equal(
-      criteriaBuilder.upper(root.get("acSubtype")),
-      acSubType.toUpperCase()
-    );
-
-    query.select(root).where(predicates);
-    TypedQuery<ObjectSubtype> results = entityManager.createQuery(query);
-
-    return results.getResultList()
-      .stream()
-      .findFirst()
-      .orElseThrow(() -> 
-        new BadRequestException(acSubType + "/" + dcType + " is not a valid acSubType/dcType"));
+    ObjectSubtype result = dao.findOneByProperty(ObjectSubtype.class, "acSubtype", acSubType);
+    if (result == null || dcType != result.getDcType()) {
+      throw new BadRequestException(acSubType + "/" + dcType + " is not a valid acSubType/dcType");
+    }
+    return result;
   }
 
 }
