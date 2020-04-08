@@ -88,7 +88,10 @@ public class ObjectStoreMetaDataFieldResolvers {
       return null;
     }
 
-    ObjectSubtype result = dao.findOneByProperty(ObjectSubtype.class, "acSubtype", acSubType);
+    // acSubType always stored in uppercase
+    String acSubTypeUpperCased = acSubType.toUpperCase();
+
+    ObjectSubtype result = dao.findOneByProperty(ObjectSubtype.class, "acSubtype", acSubTypeUpperCased);
     if (result == null || dcType != result.getDcType()) {
       throw new BadRequestException(acSubType + "/" + dcType + " is not a valid acSubType/dcType");
     }
