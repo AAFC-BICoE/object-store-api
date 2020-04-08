@@ -10,7 +10,6 @@ import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
 public class ObjectSubtypeCRUDIT extends BaseEntityCRUDIT {
 
   private ObjectSubtype objectSubtypeUnderTest = ObjectSubtypeFactory.newObjectSubtype()
-      .acSubtype("drawing")
       .build();
 
   @Override
@@ -25,7 +24,7 @@ public class ObjectSubtypeCRUDIT extends BaseEntityCRUDIT {
     ObjectSubtype fetchedAcSubtype = find(ObjectSubtype.class,
         objectSubtypeUnderTest.getId());
     assertEquals(objectSubtypeUnderTest.getId(), fetchedAcSubtype.getId());
-    assertEquals("drawing", fetchedAcSubtype.getAcSubtype());
+    assertEquals(objectSubtypeUnderTest.getAcSubtype(), fetchedAcSubtype.getAcSubtype());
   }
 
   @Override
