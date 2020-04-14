@@ -1,4 +1,4 @@
-FROM maven:ibmjava-alpine
+FROM maven:ibmjava-alpine AS build-stage
 
 WORKDIR /project
 
