@@ -61,8 +61,11 @@ public class MainConfiguration {
     customFieldResolvers.put(ObjectStoreMetadataDto.class, metaDataFieldResolver.getDtoResolvers());
     customFieldResolvers.put(ObjectStoreMetadata.class, metaDataFieldResolver.getEntityResolvers());
 
-    return new JpaDtoMapper(DtoEntityMapping.getDtoToEntityMapping(ObjectStoreMetadataDto.class),
-        customFieldResolvers, selectionHandler, baseDAO);
+    return new JpaDtoMapper(
+      DtoEntityMapping.getDtoToEntityMapping(ObjectStoreMetadataDto.class),
+      customFieldResolvers,
+      selectionHandler
+    );
   }
 
 }

@@ -75,14 +75,14 @@ public class ManagedAttributeMapRepository extends ResourceRepositoryBase<Manage
     final UUID metadataUuid = Optional.ofNullable(resource.getMetadata())
       .map(m -> m.getUuid())
       .orElseThrow(() -> new ValidationException("Metadata relationship required to add managed attributes map."));
-    final ObjectStoreMetadata metadata = dao.findOneById(metadataUuid, ObjectStoreMetadata.class);
+    final ObjectStoreMetadata metadata = dao.findOneByNaturalId(metadataUuid, ObjectStoreMetadata.class);
 
     final List<MetadataManagedAttribute> existingAttributes = metadata.getManagedAttribute();
     
     // Loop through the changed attribute values:
     for (final Entry<String, ManagedAttributeMapValue> entry : resource.getValues().entrySet()) {
       final UUID changedAttributeUuid = UUID.fromString(entry.getKey());
-      final ManagedAttribute changedAttribute = dao.findOneById(changedAttributeUuid, ManagedAttribute.class);
+      final ManagedAttribute changedAttribute = dao.findOneByNaturalId(changedAttributeUuid, ManagedAttribute.class);
       final String newValue = entry.getValue().getValue();
 
       final Optional<MetadataManagedAttribute> existingAttributeValue = existingAttributes.stream()
