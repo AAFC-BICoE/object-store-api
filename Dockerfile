@@ -1,19 +1,19 @@
-FROM maven:ibmjava-alpine AS build-stage
+FROM maven:ibmjava-alpine
 
-RUN mkdir /project
 WORKDIR /project
+
 # Cache maven dependencies
 ADD pom.xml /project
-
 RUN mvn clean install -Dmaven.test.skip=true -Dspring-boot.repackage.skip
 
 # Stage 1: build jar
 ADD . /project
 
-#RUN mvn test
-
+# Integration Tests will be skipped as they require a database
+RUN mvn test
 RUN mvn clean install -Dmaven.test.skip=true
 
+# Stage 2: extract jar and set entrypoint
 FROM openjdk:8-jre-slim
 RUN useradd -s /bin/bash user
 USER root
@@ -31,7 +31,6 @@ RUN apt-get install -y curl
 RUN apt-get install gettext-base
 
 USER user
-
 EXPOSE 8080
 WORKDIR /app
 
