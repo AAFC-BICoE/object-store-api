@@ -2,7 +2,6 @@ package ca.gc.aafc.objectstore.api.dto;
 
 import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import javax.persistence.Id;
@@ -16,12 +15,14 @@ import org.javers.core.metamodel.annotation.TypeName;
 
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.crnk.core.resource.annotations.JsonApiId;
 import io.crnk.core.resource.annotations.JsonApiRelation;
 import io.crnk.core.resource.annotations.JsonApiResource;
 import io.crnk.core.resource.annotations.LookupIncludeBehavior;
 import lombok.Data;
 
+@SuppressFBWarnings({ "EI_EXPOSE_REP", "EI_EXPOSE_REP2" })
 @RelatedEntity(ObjectStoreMetadata.class)
 @Data
 @JsonApiResource(type = ObjectStoreMetadataDto.TYPENAME)
@@ -66,7 +67,7 @@ public class ObjectStoreMetadataDto {
   private OffsetDateTime deletedDate;
   
   @JsonInclude(Include.NON_EMPTY)
-  private Set<String> acTags;
+  private String[] acTags;
   
   @JsonApiRelation
   private List<MetadataManagedAttributeDto> managedAttribute;
