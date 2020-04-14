@@ -1,5 +1,6 @@
 FROM maven:ibmjava-alpine AS build-stage
 
+RUN mkdir /project
 WORKDIR /project
 
 # Cache maven dependencies
