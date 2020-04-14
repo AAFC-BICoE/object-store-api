@@ -1,4 +1,13 @@
 version: "3"
+
+# Keycloak needs a fixed IP/hostname, accessible both within and outside the Docker network
+# So setup a network with fixed subnet, put all containers on the same network, and specify IP for keycloak
+networks:
+  dina:
+    ipam:
+      config:
+        - subnet: ${KEYCLOAK_SUBNET}
+
 services:
   object-store-db:
     image: "postgres:9.6"
@@ -8,6 +17,8 @@ services:
       POSTGRES_PASSWORD: ${PG_PASSWORD}
     volumes:
       - ./src/test/resources/create-test-users.sql:/docker-entrypoint-initdb.d/1-init-schema.sql
+    networks:
+      dina:
 
   minio:
     image: minio/minio
@@ -17,6 +28,8 @@ services:
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
     command: server /data
+    networks:
+      dina:
 
   object-store-api:
     build: .
@@ -33,3 +46,13 @@ services:
       minio.host: minio
       minio.accessKey: ${MINIO_ACCESS_KEY}
       minio.secretKey: ${MINIO_SECRET_KEY}
+    networks:
+      dina:
+
+  keycloak:
+    # the Dockerfile builds a Keycloak image, imports DINA realm and adds a couple test users
+    build: ./local/keycloak
+    networks:
+      dina:
+        # Here we set the IP for Keycloak
+        ipv4_address: ${KEYCLOAK_IP}
