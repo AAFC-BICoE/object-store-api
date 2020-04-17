@@ -10,6 +10,7 @@ spring:
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.xml
     contexts: schema-change
+    liquibase-schema: object_store
   jpa:
     open-in-view: false
 minio:
