@@ -113,6 +113,8 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
 
     OffsetDateTime dateTime4TestUpdate = OffsetDateTime.now();
     objectStoreMetadata.setAcDigitizationDate(dateTime4TestUpdate);
+    objectStoreMetadata.setDcType(oSubtype.getDcType());
+    objectStoreMetadata.setAcSubType(oSubtype.getAcSubtype());
     return toAttributeMap(objectStoreMetadata);
   }
   
