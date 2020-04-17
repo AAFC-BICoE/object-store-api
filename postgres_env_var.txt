@@ -1,4 +1,0 @@
-POSTGRES_DB=object_store
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=databasecreds
-POSTGRES_HOST=localhost
