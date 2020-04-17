@@ -93,7 +93,7 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
     objectStoreMetadata = new ObjectStoreMetadataDto();
     objectStoreMetadata.setUuid(null);
     objectStoreMetadata.setAcHashFunction("SHA-1");
-    objectStoreMetadata.setDcType(oSubtype.getDcType());
+    objectStoreMetadata.setDcType(null); //on creation null should be accepted
     objectStoreMetadata.setXmpRightsWebStatement(null); // default value from configuration should be used
     objectStoreMetadata.setDcRights(null); // default value from configuration should be used
     objectStoreMetadata.setXmpRightsOwner(null); // default value from configuration should be used
@@ -104,7 +104,6 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
     objectStoreMetadata.setAcHashValue("123");
     objectStoreMetadata.setPubliclyReleasable(true);
     objectStoreMetadata.setNotPubliclyReleasableReason("Classified");
-    objectStoreMetadata.setAcSubType(oSubtype.getAcSubtype());
 
     return toAttributeMap(objectStoreMetadata);
   }
