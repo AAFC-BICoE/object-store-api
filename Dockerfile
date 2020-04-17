@@ -39,7 +39,6 @@ ENV spring.datasource.username=springuser
 ENV spring.datasource.password=springcreds
 ENV spring.liquibase.user=liquibaseuser
 ENV spring.liquibase.password=liquibasecreds
-ENV spring.liquibase.contexts=schema-change
 ENV spring.liquibase.defaultSchema=objectstore
 ENV POSTGRES_DB=object_store
 ENV POSTGRES_USER=postgres
@@ -51,5 +50,7 @@ ENV minio.port=9000
 ENV minio.accessKey=minio
 ENV minio.secretKey=minio123
 ENV spring.http.log-request-details=true
+ENV spring.servlet.multipart.max-file-size: 1GB
+ENV spring.servlet.multipart.max-request-size: 1GB
 
 ENTRYPOINT ["bash","/app/launch.sh","object-store.api"]
