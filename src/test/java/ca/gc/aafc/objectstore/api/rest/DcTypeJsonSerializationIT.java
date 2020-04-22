@@ -14,6 +14,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
 import ca.gc.aafc.objectstore.api.BaseHttpIntegrationTest;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import io.crnk.core.engine.http.HttpStatus;
@@ -64,7 +65,7 @@ public class DcTypeJsonSerializationIT extends BaseHttpIntegrationTest {
   private static Map<String, Object> getPostBody(String dcType) {
     ImmutableMap.Builder<String, Object> objAttribMap = new ImmutableMap.Builder<>();
     objAttribMap.put("dcType", dcType);
-    objAttribMap.put("acSubtype", "thumbnail");
+    objAttribMap.put("acSubtype", TestableEntityFactory.generateRandomNameLettersOnly(5));
 
     return BaseJsonApiIntegrationTest.toJsonAPIMap(RESOURCE_UNDER_TEST, objAttribMap.build(), null, null);
   }
