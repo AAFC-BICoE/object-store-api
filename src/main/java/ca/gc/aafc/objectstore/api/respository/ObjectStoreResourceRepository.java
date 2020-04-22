@@ -27,6 +27,7 @@ import ca.gc.aafc.dina.repository.JpaResourceRepository;
 import ca.gc.aafc.dina.repository.meta.JpaMetaInformationProvider;
 import ca.gc.aafc.objectstore.api.ObjectStoreConfiguration;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
+import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.file.FileController;
 import ca.gc.aafc.objectstore.api.file.FileInformationService;
@@ -133,9 +134,7 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
 
     ObjectStoreMetadataDto created = super.create(resource);
 
-    if (hasThumbNail(created)) {
       handleThumbNailMetaEntry(created);
-    }
 
     return this.findOne(
       created.getUuid(),
@@ -170,11 +169,7 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
     }
 
     try {
-      FileMetaEntry fileMetaEntry = fileInformationService.getJsonFileContentAs(
-          objectMetadata.getBucket(),
-          objectMetadata.getFileIdentifier().toString() + FileMetaEntry.SUFFIX,
-          FileMetaEntry.class).orElseThrow( () -> new BadRequestException(
-              this.getClass().getSimpleName() + " with ID " + objectMetadata.getFileIdentifier() + " Not Found."));
+      FileMetaEntry fileMetaEntry = getFileMetaEntry(objectMetadata);
 
       objectMetadata.setFileExtension(fileMetaEntry.getEvaluatedFileExtension());
       objectMetadata.setOriginalFilename(fileMetaEntry.getOriginalFilename());
@@ -191,6 +186,17 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
 
   }
 
+  private FileMetaEntry getFileMetaEntry(ObjectStoreMetadataDto objectMetadata) throws IOException {
+    FileMetaEntry fileMetaEntry = fileInformationService
+      .getJsonFileContentAs(
+          objectMetadata.getBucket(),
+          objectMetadata.getFileIdentifier().toString() + FileMetaEntry.SUFFIX,
+          FileMetaEntry.class)
+      .orElseThrow(() -> new BadRequestException(
+          this.getClass().getSimpleName() + " with ID " + objectMetadata.getFileIdentifier() + " Not Found."));
+    return fileMetaEntry;
+  }
+
   /**
    * Shows only non-soft-deleted records by default.
    * Shows only soft-deleted records if DELETED_PATH_SPEC is present.
@@ -200,11 +206,25 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
           ? cb.isNull(root.get(SoftDeletable.DELETED_DATE_FIELD_NAME))
           : cb.isNotNull(root.get(SoftDeletable.DELETED_DATE_FIELD_NAME));
 
-  private boolean hasThumbNail(ObjectStoreMetadataDto resource) {
-    return false;// TODO
-  }
-
   private void handleThumbNailMetaEntry(ObjectStoreMetadataDto resource) {
-    // TODO
+    try {
+      FileMetaEntry fileMetaEntry = getFileMetaEntry(resource);
+      if (fileMetaEntry.getThumbnailIdentifier() != null) {
+        ObjectStoreMetadataDto thumbnailMetadataDto = new ObjectStoreMetadataDto();
+        thumbnailMetadataDto.setFileIdentifier(fileMetaEntry.getThumbnailIdentifier());
+        thumbnailMetadataDto.setAcDerivedFrom(resource);
+        thumbnailMetadataDto.setDcType(DcType.IMAGE);
+        thumbnailMetadataDto.setAcSubType("Thumbnail");
+        thumbnailMetadataDto.setBucket(resource.getBucket());
+        thumbnailMetadataDto.setFileExtension(".jpg");
+        thumbnailMetadataDto.setOriginalFilename(resource.getOriginalFilename());
+        defaultValueSetterService.assignDefaultValues(thumbnailMetadataDto);
+
+        super.create(thumbnailMetadataDto);
+      }
+    } catch (IOException e) {
+      log.error(e.getMessage());
+      throw new BadRequestException("Can't process " + resource.getFileIdentifier());
+    }
   }
 }

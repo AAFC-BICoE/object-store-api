@@ -120,21 +120,23 @@ public class FileController {
     
     String sha1Hex = DigestUtils.sha1Hex(md.digest());
     fileMetaEntry.setSha1Hex(sha1Hex);
-    
-    storeFileMetaEntry(fileMetaEntry, bucket);
 
     // Generate thumbnail if the file format can be thumbnailed:
     if (thumbnailService.isSupported(mtdr.getEvaluatedMediatype())) {
+      UUID thumbUuid = getNewUUID(bucket);
       try (InputStream thumbnail = thumbnailService.generateThumbnail(file.getInputStream())) {
         minioService.storeFile(
-          uuid.toString() + ".thumbnail.jpg",
+          thumbUuid.toString() + ".thumbnail.jpg",
           thumbnail,
           "image/jpeg",
           bucket,
           null
         );
       }
+      fileMetaEntry.setThumbnailIdentifier(thumbUuid);
     }
+
+    storeFileMetaEntry(fileMetaEntry, bucket);
 
     return fileMetaEntry;
   }
