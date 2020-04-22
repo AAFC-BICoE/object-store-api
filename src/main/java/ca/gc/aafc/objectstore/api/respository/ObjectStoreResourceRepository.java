@@ -134,7 +134,7 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
 
     ObjectStoreMetadataDto created = super.create(resource);
 
-      handleThumbNailMetaEntry(created);
+    handleThumbNailMetaEntry(created);
 
     return this.findOne(
       created.getUuid(),
