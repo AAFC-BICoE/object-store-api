@@ -132,7 +132,11 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
     handleFileDataFct.andThen(defaultValueSetterService::assignDefaultValues).apply(resource);
 
     ObjectStoreMetadataDto created = super.create(resource);
-    
+
+    if (hasThumbNail(created)) {
+      handleThumbNailMetaEntry(created);
+    }
+
     return this.findOne(
       created.getUuid(),
       new QuerySpec(ObjectStoreMetadataDto.class)
@@ -195,4 +199,12 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
       cb) -> !querySpec.findFilter(DELETED_PATH_SPEC).isPresent()
           ? cb.isNull(root.get(SoftDeletable.DELETED_DATE_FIELD_NAME))
           : cb.isNotNull(root.get(SoftDeletable.DELETED_DATE_FIELD_NAME));
+
+  private boolean hasThumbNail(ObjectStoreMetadataDto resource) {
+    return false;// TODO
+  }
+
+  private void handleThumbNailMetaEntry(ObjectStoreMetadataDto resource) {
+    // TODO
+  }
 }
