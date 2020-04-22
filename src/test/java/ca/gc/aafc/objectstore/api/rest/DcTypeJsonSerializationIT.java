@@ -42,7 +42,7 @@ public class DcTypeJsonSerializationIT extends BaseHttpIntegrationTest {
 
   @Test
   public void ValidDcType_ReturnsCreated_201() {
-    Response response = sendPostWithDcType("image");
+    Response response = sendPostWithDcType("sound");
     response.then().statusCode(HttpStatus.CREATED_201);
   }
 
