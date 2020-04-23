@@ -126,7 +126,7 @@ public class FileController {
       UUID thumbUuid = getNewUUID(bucket);
       try (InputStream thumbnail = thumbnailService.generateThumbnail(file.getInputStream())) {
         minioService.storeFile(
-          thumbUuid.toString() + ".thumbnail.jpg",
+          thumbUuid.toString() + ".thumbnail" + ThumbnailService.THUMBNAIL_EXTENSION,
           thumbnail,
           "image/jpeg",
           bucket,
@@ -200,7 +200,8 @@ public class FileController {
           .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
               "No metadata found for FileIdentifier " + fileUuid + " or bucket " + bucket, null));
 
-      String filename = thumbnailRequested ? metadata.getFileIdentifier() + ".thumbnail.jpg"
+      String filename = thumbnailRequested ? 
+          metadata.getFileIdentifier() + ".thumbnail" + ThumbnailService.THUMBNAIL_EXTENSION
         : metadata.getFilename();
     
       FileObjectInfo foi = minioService.getFileInfo(filename, bucket)
