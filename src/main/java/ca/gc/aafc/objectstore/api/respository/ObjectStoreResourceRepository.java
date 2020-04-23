@@ -168,33 +168,30 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
       throw new ValidationException("fileIdentifier and bucket should be provided");
     }
 
+    FileMetaEntry fileMetaEntry = getFileMetaEntry(objectMetadata);
+
+    objectMetadata.setFileExtension(fileMetaEntry.getEvaluatedFileExtension());
+    objectMetadata.setOriginalFilename(fileMetaEntry.getOriginalFilename());
+    objectMetadata.setDcFormat(fileMetaEntry.getDetectedMediaType());
+    objectMetadata.setAcHashValue(fileMetaEntry.getSha1Hex());
+    objectMetadata.setAcHashFunction(FileController.DIGEST_ALGORITHM);
+
+    return objectMetadata;
+  }
+
+  private FileMetaEntry getFileMetaEntry(ObjectStoreMetadataDto objectMetadata) {
     try {
-      FileMetaEntry fileMetaEntry = getFileMetaEntry(objectMetadata);
-
-      objectMetadata.setFileExtension(fileMetaEntry.getEvaluatedFileExtension());
-      objectMetadata.setOriginalFilename(fileMetaEntry.getOriginalFilename());
-      objectMetadata.setDcFormat(fileMetaEntry.getDetectedMediaType());
-      objectMetadata.setAcHashValue(fileMetaEntry.getSha1Hex());
-      objectMetadata.setAcHashFunction(FileController.DIGEST_ALGORITHM);
-
-      return objectMetadata;
-
+      return fileInformationService
+          .getJsonFileContentAs(
+              objectMetadata.getBucket(),
+              objectMetadata.getFileIdentifier().toString() + FileMetaEntry.SUFFIX,
+              FileMetaEntry.class)
+          .orElseThrow(() -> new BadRequestException(
+              this.getClass().getSimpleName() + " with ID " + objectMetadata.getFileIdentifier() + " Not Found."));
     } catch (IOException e) {
       log.error(e.getMessage());
       throw new BadRequestException("Can't process " + objectMetadata.getFileIdentifier());
     }
-
-  }
-
-  private FileMetaEntry getFileMetaEntry(ObjectStoreMetadataDto objectMetadata) throws IOException {
-    FileMetaEntry fileMetaEntry = fileInformationService
-      .getJsonFileContentAs(
-          objectMetadata.getBucket(),
-          objectMetadata.getFileIdentifier().toString() + FileMetaEntry.SUFFIX,
-          FileMetaEntry.class)
-      .orElseThrow(() -> new BadRequestException(
-          this.getClass().getSimpleName() + " with ID " + objectMetadata.getFileIdentifier() + " Not Found."));
-    return fileMetaEntry;
   }
 
   /**
@@ -207,18 +204,13 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
           : cb.isNotNull(root.get(SoftDeletable.DELETED_DATE_FIELD_NAME));
 
   private void handleThumbNailMetaEntry(ObjectStoreMetadataDto resource) {
-    try {
-      FileMetaEntry fileMetaEntry = getFileMetaEntry(resource);
-      if (fileMetaEntry.getThumbnailIdentifier() != null) {
-        ObjectStoreMetadataDto thumbnailMetadataDto = generateThumbMetaData(
-            resource,
-            fileMetaEntry.getThumbnailIdentifier());
+    FileMetaEntry fileMetaEntry = getFileMetaEntry(resource);
+    if (fileMetaEntry.getThumbnailIdentifier() != null) {
+      ObjectStoreMetadataDto thumbnailMetadataDto = generateThumbMetaData(
+          resource,
+          fileMetaEntry.getThumbnailIdentifier());
 
-        super.create(thumbnailMetadataDto);
-      }
-    } catch (IOException e) {
-      log.error(e.getMessage());
-      throw new BadRequestException("Can't process " + resource.getFileIdentifier());
+      super.create(thumbnailMetadataDto);
     }
   }
 
