@@ -210,15 +210,9 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
     try {
       FileMetaEntry fileMetaEntry = getFileMetaEntry(resource);
       if (fileMetaEntry.getThumbnailIdentifier() != null) {
-        ObjectStoreMetadataDto thumbnailMetadataDto = new ObjectStoreMetadataDto();
-        thumbnailMetadataDto.setFileIdentifier(fileMetaEntry.getThumbnailIdentifier());
-        thumbnailMetadataDto.setAcDerivedFrom(resource);
-        thumbnailMetadataDto.setDcType(DcType.IMAGE);
-        thumbnailMetadataDto.setAcSubType("Thumbnail");
-        thumbnailMetadataDto.setBucket(resource.getBucket());
-        thumbnailMetadataDto.setFileExtension(".jpg");
-        thumbnailMetadataDto.setOriginalFilename(resource.getOriginalFilename());
-        defaultValueSetterService.assignDefaultValues(thumbnailMetadataDto);
+        ObjectStoreMetadataDto thumbnailMetadataDto = generateThumbMetaData(
+            resource,
+            fileMetaEntry.getThumbnailIdentifier());
 
         super.create(thumbnailMetadataDto);
       }
@@ -226,5 +220,18 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
       log.error(e.getMessage());
       throw new BadRequestException("Can't process " + resource.getFileIdentifier());
     }
+  }
+
+  private ObjectStoreMetadataDto generateThumbMetaData(ObjectStoreMetadataDto resource, UUID thumbUuid) {
+    ObjectStoreMetadataDto thumbnailMetadataDto = new ObjectStoreMetadataDto();
+    thumbnailMetadataDto.setFileIdentifier(thumbUuid);
+    thumbnailMetadataDto.setAcDerivedFrom(resource);
+    thumbnailMetadataDto.setDcType(DcType.IMAGE);
+    thumbnailMetadataDto.setAcSubType("Thumbnail");
+    thumbnailMetadataDto.setBucket(resource.getBucket());
+    thumbnailMetadataDto.setFileExtension(".jpg");
+    thumbnailMetadataDto.setOriginalFilename(resource.getOriginalFilename());
+    defaultValueSetterService.assignDefaultValues(thumbnailMetadataDto);
+    return thumbnailMetadataDto;
   }
 }
