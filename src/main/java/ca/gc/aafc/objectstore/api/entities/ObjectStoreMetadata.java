@@ -12,6 +12,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.PrePersist;
@@ -84,6 +85,8 @@ public class ObjectStoreMetadata implements SoftDeletable {
 
   private boolean publiclyReleasable;
   private String notPubliclyReleasableReason;
+
+  private ObjectSubtype acSubType;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -344,6 +347,16 @@ public class ObjectStoreMetadata implements SoftDeletable {
 
   public void setNotPubliclyReleasableReason(String notPubliclyReleasableReason) {
     this.notPubliclyReleasableReason = notPubliclyReleasableReason;
+  }
+
+  @ManyToOne
+  @JoinColumn(name = "ac_sub_type_id", referencedColumnName = "id")
+  public ObjectSubtype getAcSubType() {
+    return acSubType;
+  }
+
+  public void setAcSubType(ObjectSubtype acSubType) {
+    this.acSubType = acSubType;
   }
 
   // TODO: Fix dina-base-api modifyRelation method so it doesn't fail when the

@@ -121,6 +121,10 @@
               "type": "string",
               "description": "Hash of the uploaded object. Automaticaly generated on successful file upload. https://tdwg.github.io/ac/termlist/#ac_hashValue"
             },
+            "acSubType": {
+              "type": "string",
+              "description": "Subtype of object stored. Specialization of dcType. https://terms.tdwg.org/wiki/Audubon_Core_Term_List#ac:subtype"
+            },
             "managedAttributes": {
               "type": "array",
               "items": [

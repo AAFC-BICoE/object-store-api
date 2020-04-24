@@ -45,7 +45,7 @@ Create an override file to expose the postgres port on your host:
 version: "3"
 
 services:
-  db:
+  object-store-db:
     ports:
       - 5432:5432
 
@@ -69,7 +69,7 @@ mvn verify -Dspring.datasource.url=jdbc:postgresql://$POSTGRES_IP/object_store_t
 
 docker-compose down
 
-
+```
 ## IDE
 
 `object-store-api` requires [Project Lombok](https://projectlombok.org/) to be setup in your IDE.

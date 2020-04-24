@@ -115,7 +115,7 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
 
   @Override
   public Optional<ObjectStoreMetadata> loadObjectStoreMetadata(UUID id) {
-    return Optional.ofNullable(dao.findOneById(id, ObjectStoreMetadata.class));
+    return Optional.ofNullable(dao.findOneByNaturalId(id, ObjectStoreMetadata.class));
   }
 
   @Override
@@ -144,7 +144,7 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
    */
   @Override
   public void delete(Serializable id) {
-    ObjectStoreMetadata objectStoreMetadata = dao.findOneById(id, ObjectStoreMetadata.class);
+    ObjectStoreMetadata objectStoreMetadata = dao.findOneByNaturalId(id, ObjectStoreMetadata.class);
     if(objectStoreMetadata != null) {
       objectStoreMetadata.setDeletedDate(OffsetDateTime.now());
     }

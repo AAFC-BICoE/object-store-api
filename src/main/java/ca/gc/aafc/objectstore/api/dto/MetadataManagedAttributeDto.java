@@ -2,6 +2,7 @@ package ca.gc.aafc.objectstore.api.dto;
 
 import java.util.UUID;
 
+import ca.gc.aafc.dina.dto.RelatedEntity;
 import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.crnk.core.resource.annotations.JsonApiId;

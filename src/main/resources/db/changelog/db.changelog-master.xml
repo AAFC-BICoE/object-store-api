@@ -4,5 +4,6 @@
   <include file="db/changelog/migrations/1-Add_description_to_managed_attribute.xml"/>
   <include file="db/changelog/migrations/2-Add_support_for_dcCreator.xml"/>
   <include file="db/changelog/migrations/3-Add_acDerivedFrom_relationship_to_metadata.xml"/>
-  <include file="db/changelog/migrations/4-Add_object_subtype_table.xml"/>  
+  <include file="db/changelog/migrations/4-Add_object_subtype_table.xml"/>
+  <include file="db/changelog/migrations/5-Add_acSubType_for_metadata.xml"/>
 </databaseChangeLog>

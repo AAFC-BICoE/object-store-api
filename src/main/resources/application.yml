@@ -10,6 +10,7 @@ spring:
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.xml
     contexts: schema-change
+    liquibase-schema: object_store
   jpa:
     open-in-view: false
 minio:
@@ -34,5 +35,24 @@ objectstore:
   defaultCopyrightOwner: Government of Canada
 logging:
   level:
+    Root: INFO
     # Reduce the logging from the rsql-jpa library, which is otherwise too excessive:
     com.github.tennaito.rsql: ERROR
+keycloak:
+  enabled: false
+  realm: dina
+  auth-server-url: http://${KEYCLOAK_HOST_IP}:8080/auth
+  ssl-required: none
+  resource: objectstore
+  public-client: true
+  bearer-only: true
+  principal-attribute: preferred_username
+
+  # All endpoints require a logged-in user with the "user" role.
+  security-constraints:
+    - auth-roles:
+      - user
+      security-collections:
+        - patterns:
+          - /*
+  
