@@ -1,5 +1,8 @@
 FROM jboss/keycloak
 
+RUN useradd -s /bin/bash user
+USER root
+
 ENV KEYCLOAK_ADMIN_USER=admin
 ENV KEYCLOAK_ADMIN_PASSWORD=admin
 
@@ -14,5 +17,7 @@ ADD README.* local/keycloak/dina-realm.* /opt/jboss/keycloak/
 
 EXPOSE 8080
 ENTRYPOINT [ "/opt/jboss/tools/docker-entrypoint.sh" ]
+
+USER user
 
 CMD ["-b", "0.0.0.0", "-Dkeycloak.import=/opt/jboss/keycloak/dina-realm.json"]
