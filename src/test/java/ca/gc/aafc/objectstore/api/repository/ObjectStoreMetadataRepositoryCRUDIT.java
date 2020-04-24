@@ -17,6 +17,7 @@ import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectSubtypeDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
+import ca.gc.aafc.objectstore.api.file.ThumbnailService;
 import ca.gc.aafc.objectstore.api.respository.ObjectStoreResourceRepository;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
@@ -104,6 +105,28 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
     assertEquals(TestConfiguration.TEST_FILE_IDENTIFIER, result.getFileIdentifier());
     assertEquals(derived.getUuid(), result.getAcDerivedFrom().getUuid());
     assertEquals(acSubType.getUuid(), result.getAcSubType().getUuid());
+  }
+
+  @Test
+  public void create_ValidResource_ThumbNailMetaDerivesFromParent() {
+
+    ObjectStoreMetadataDto parentDTO = new ObjectStoreMetadataDto();
+    parentDTO.setBucket(TestConfiguration.TEST_BUCKET);
+    parentDTO.setFileIdentifier(TestConfiguration.TEST_FILE_IDENTIFIER);
+    parentDTO.setDcType(acSubType.getDcType());
+
+    UUID parentUuid = objectStoreResourceRepository.create(parentDTO).getUuid();
+
+    ObjectStoreMetadata thumbNailMetaResult = findUnique(
+      ObjectStoreMetadata.class,
+      "fileIdentifier",
+      TestConfiguration.TEST_THUMBNAIL_IDENTIFIER);
+
+    assertEquals(TestConfiguration.TEST_BUCKET, thumbNailMetaResult.getBucket());
+    assertEquals(TestConfiguration.TEST_THUMBNAIL_IDENTIFIER, thumbNailMetaResult.getFileIdentifier());
+    assertEquals(parentUuid, thumbNailMetaResult.getAcDerivedFrom().getUuid());
+    assertEquals(ThumbnailService.THUMBNAIL_AC_SUB_TYPE, thumbNailMetaResult.getAcSubType().getAcSubtype());
+    assertEquals(ThumbnailService.THUMBNAIL_DC_TYPE, thumbNailMetaResult.getAcSubType().getDcType());
   }
 
   @Test
