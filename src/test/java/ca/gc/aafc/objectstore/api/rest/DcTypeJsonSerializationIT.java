@@ -6,7 +6,6 @@ import java.util.Map;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaDelete;
-import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import com.google.common.collect.ImmutableMap;
@@ -18,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
 import ca.gc.aafc.objectstore.api.BaseHttpIntegrationTest;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
-import ca.gc.aafc.objectstore.api.file.ThumbnailService;
 import io.crnk.core.engine.http.HttpStatus;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
@@ -26,6 +24,7 @@ import io.restassured.response.Response;
 public class DcTypeJsonSerializationIT extends BaseHttpIntegrationTest {
 
   private static final String RESOURCE_UNDER_TEST = "object-subtype";
+  private static final String AC_SUB_TYPE = TestableEntityFactory.generateRandomNameLettersOnly(5);
 
   @BeforeEach
   public void setup() {
@@ -40,18 +39,14 @@ public class DcTypeJsonSerializationIT extends BaseHttpIntegrationTest {
       CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
       CriteriaDelete<ObjectSubtype> query = criteriaBuilder.createCriteriaDelete(ObjectSubtype.class);
       Root<ObjectSubtype> root = query.from(ObjectSubtype.class);
-      Predicate notNull = criteriaBuilder.isNotNull(root.get("dcType"));
-      Predicate notThumbnail = criteriaBuilder.notLike(
-        root.get("acSubtype"),
-        ThumbnailService.THUMBNAIL_AC_SUB_TYPE);
-      query.where(notNull, notThumbnail);
+      query.where(criteriaBuilder.equal(root.get("acSubtype"), AC_SUB_TYPE));
       em.createQuery(query).executeUpdate();
     });
   }
 
   @Test
   public void ValidDcType_ReturnsCreated_201() {
-    Response response = sendPostWithDcType("sound");
+    Response response = sendPostWithDcType("image");
     response.then().statusCode(HttpStatus.CREATED_201);
   }
 
@@ -73,7 +68,7 @@ public class DcTypeJsonSerializationIT extends BaseHttpIntegrationTest {
   private static Map<String, Object> getPostBody(String dcType) {
     ImmutableMap.Builder<String, Object> objAttribMap = new ImmutableMap.Builder<>();
     objAttribMap.put("dcType", dcType);
-    objAttribMap.put("acSubtype", TestableEntityFactory.generateRandomNameLettersOnly(5));
+    objAttribMap.put("acSubtype", AC_SUB_TYPE);
 
     return BaseJsonApiIntegrationTest.toJsonAPIMap(RESOURCE_UNDER_TEST, objAttribMap.build(), null, null);
   }
