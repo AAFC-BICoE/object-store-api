@@ -51,17 +51,24 @@ services:
 
 ```
 
-### 2. Launch the database service
+### 2. Launch the database service and object services: (to perform db initialization)
 
 ```
-docker-compose up -d object-store-db
-```
+docker-compose up -d
 
-To run the integration tests:
+### 3. Get the ip address of the Postgres database:
+...
+POSTGRES_IP=$(docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' objectstoreapifork_object-store-db_1)
 
-```
- mvn verify -Dspring.datasource.url=jdbc:postgresql://localhost/object_store_test -Dspring.datasource.username=web_user -Dspring.datasource.password=test
-```
+### 3. Launch  the integration tests:
+...
+mvn verify -Dspring.datasource.url=jdbc:postgresql://$POSTGRES_IP/object_store_test -Dspring.datasource.username=web_user -Dspring.datasource.password=test
+
+### 4. Shutdown all of the containers:
+...
+
+docker-compose down
+
 
 ## IDE
 
