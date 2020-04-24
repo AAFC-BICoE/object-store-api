@@ -21,7 +21,7 @@ public class ThumbnailService {
   public static final int THUMBNAIL_WIDTH = 200;
   public static final int THUMBNAIL_HEIGHT = 200;
   public static final String THUMBNAIL_EXTENSION = ".jpg";
-  public static final String THUMBNAIL_AC_SUB_TYPE = "Thumbnail";
+  public static final String THUMBNAIL_AC_SUB_TYPE = "THUMBNAIL";
   public static final DcType THUMBNAIL_DC_TYPE = DcType.IMAGE;
 
   public InputStream generateThumbnail(InputStream sourceImageStream) throws IOException {
