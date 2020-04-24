@@ -29,8 +29,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.collect.ImmutableMap;
 
-import ca.gc.aafc.objecstore.api.repository.JsonSchemaAssertions;
 import ca.gc.aafc.objectstore.api.BaseHttpIntegrationTest;
+import ca.gc.aafc.objectstore.api.repository.JsonSchemaAssertions;
 import ca.gc.aafc.objectstore.api.respository.DcTypeJsonSerDe;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;

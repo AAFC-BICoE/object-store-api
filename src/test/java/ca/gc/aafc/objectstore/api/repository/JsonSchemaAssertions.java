@@ -1,4 +1,4 @@
-package ca.gc.aafc.objecstore.api.repository;
+package ca.gc.aafc.objectstore.api.repository;
 
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
