@@ -1,7 +1,7 @@
 FROM jboss/keycloak
 
-ARG KEYCLOAK_ADMIN_USER=admin
-ARG KEYCLOAK_ADMIN_PASWORD=admin
+ENV KEYCLOAK_ADMIN_USER=admin
+ENV KEYCLOAK_ADMIN_PASWORD=admin
 
 RUN /opt/jboss/keycloak/bin/add-user-keycloak.sh -u ${KEYCLOAK_ADMIN_USER} -p ${KEYCLOAK_ADMIN_PASWORD}
 
