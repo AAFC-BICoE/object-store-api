@@ -203,6 +203,12 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
           ? cb.isNull(root.get(SoftDeletable.DELETED_DATE_FIELD_NAME))
           : cb.isNotNull(root.get(SoftDeletable.DELETED_DATE_FIELD_NAME));
 
+  /**
+   * Persists a thumbnail Metadata based off a given resource if the resource has
+   * an associated thumbnail.
+   * 
+   * @param resource - parent resource metadata of the thumbnail
+   */
   private void handleThumbNailMetaEntry(ObjectStoreMetadataDto resource) {
     FileMetaEntry fileMetaEntry = getFileMetaEntry(resource);
     if (fileMetaEntry.getThumbnailIdentifier() != null) {
@@ -214,6 +220,14 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
     }
   }
 
+  /**
+   * Returns a {@link ObjectStoreMetadataDto} for a thumbnail based of the given
+   * parent resource and thumbnail identifier.
+   * 
+   * @param resource  - parent resource metadata of the thumbnail
+   * @param thumbUuid - thumbnail identifier
+   * @return {@link ObjectStoreMetadataDto} for the thumbnail
+   */
   private ObjectStoreMetadataDto generateThumbMetaData(ObjectStoreMetadataDto resource, UUID thumbUuid) {
     ObjectStoreMetadataDto thumbnailMetadataDto = new ObjectStoreMetadataDto();
     thumbnailMetadataDto.setFileIdentifier(thumbUuid);
