@@ -179,6 +179,13 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
     return objectMetadata;
   }
 
+  /**
+   * Returns the {@link FileMetaEntry} for the resource of the given
+   * {@link ObjectStoreMetadataDto}
+   * 
+   * @param objectMetadata - meta data for the resource
+   * @return {@link FileMetaEntry} for the resource
+   */
   private FileMetaEntry getFileMetaEntry(ObjectStoreMetadataDto objectMetadata) {
     try {
       return fileInformationService
