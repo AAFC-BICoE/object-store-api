@@ -30,6 +30,8 @@ public class DcTypeJsonSerializationIT extends BaseHttpIntegrationTest {
   @BeforeEach
   public void setup() {
     RestAssured.port = testPort;
+    RestAssured.baseURI = BaseJsonApiIntegrationTest.IT_BASE_URI.toString();
+    RestAssured.basePath = BaseJsonApiIntegrationTest.API_BASE_PATH;
   }
 
   @AfterEach
@@ -65,7 +67,7 @@ public class DcTypeJsonSerializationIT extends BaseHttpIntegrationTest {
         .contentType(BaseJsonApiIntegrationTest.JSON_API_CONTENT_TYPE)
         .body(getPostBody(dcType))
         .when()
-        .post(BaseJsonApiIntegrationTest.API_BASE_PATH + "/" + RESOURCE_UNDER_TEST);
+        .post(RESOURCE_UNDER_TEST);
   }
 
   private static Map<String, Object> getPostBody(String dcType) {

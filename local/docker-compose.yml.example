@@ -10,7 +10,7 @@ networks:
 
 services:
   object-store-db:
-    image: "postgres:9.6"
+    image: "postgres:10"
     environment:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: postgres

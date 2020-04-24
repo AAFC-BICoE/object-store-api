@@ -45,7 +45,7 @@ Create an override file to expose the postgres port on your host:
 version: "3"
 
 services:
-  db:
+  object-store-db:
     ports:
       - 5432:5432
 
@@ -54,13 +54,13 @@ services:
 ### 2. Launch the database service
 
 ```
-docker-compose up -d object-store-db
+docker-compose up object-store-db
 ```
 
 To run the integration tests:
 
 ```
- mvn verify -Dspring.datasource.url=jdbc:postgresql://localhost/object_store_test -Dspring.datasource.username=web_user -Dspring.datasource.password=test
+mvn verify -Dspring.datasource.url=jdbc:postgresql://localhost/object_store_test?currentSchema=object_store -Dspring.datasource.username=web_user -Dspring.datasource.password=test -Dspring.liquibase.user=migration_user -Dspring.liquibase.password=test
 ```
 
 ## IDE
