@@ -8,7 +8,8 @@ RUN /opt/jboss/keycloak/bin/add-user-keycloak.sh -u ${KEYCLOAK_ADMIN_USER} -p ${
 RUN /opt/jboss/keycloak/bin/add-user-keycloak.sh -r "dina" -u bob -p test --roles user
 RUN /opt/jboss/keycloak/bin/add-user-keycloak.sh -r "dina" -u jeff -p test
 
-ADD dina-realm.json /opt/jboss/keycloak/
+ADD README.* dina-realm.* /opt/jboss/keycloak/
+ADD README.* local/keycloak/dina-realm.* /opt/jboss/keycloak/
 
 ENTRYPOINT [ "/opt/jboss/tools/docker-entrypoint.sh" ]
 
