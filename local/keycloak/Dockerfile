@@ -3,6 +3,7 @@ FROM jboss/keycloak
 ENV KEYCLOAK_ADMIN_USER=admin
 ENV KEYCLOAK_ADMIN_PASSWORD=admin
 
+RUN mkdir /data
 RUN /opt/jboss/keycloak/bin/add-user-keycloak.sh -u ${KEYCLOAK_ADMIN_USER} -p ${KEYCLOAK_ADMIN_PASSWORD}
 
 RUN /opt/jboss/keycloak/bin/add-user-keycloak.sh -r "dina" -u bob -p test --roles user
