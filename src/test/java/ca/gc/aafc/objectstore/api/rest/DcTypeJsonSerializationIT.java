@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaDelete;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import com.google.common.collect.ImmutableMap;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
 import ca.gc.aafc.objectstore.api.BaseHttpIntegrationTest;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
+import ca.gc.aafc.objectstore.api.file.ThumbnailService;
 import io.crnk.core.engine.http.HttpStatus;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
@@ -36,7 +38,11 @@ public class DcTypeJsonSerializationIT extends BaseHttpIntegrationTest {
       CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
       CriteriaDelete<ObjectSubtype> query = criteriaBuilder.createCriteriaDelete(ObjectSubtype.class);
       Root<ObjectSubtype> root = query.from(ObjectSubtype.class);
-      query.where(criteriaBuilder.isNotNull(root.get("dcType")));
+      Predicate notNull = criteriaBuilder.isNotNull(root.get("dcType"));
+      Predicate notThumbnail = criteriaBuilder.notLike(
+        root.get("acSubtype"),
+        ThumbnailService.THUMBNAIL_AC_SUB_TYPE);
+      query.where(notNull, notThumbnail);
       em.createQuery(query).executeUpdate();
     });
   }
