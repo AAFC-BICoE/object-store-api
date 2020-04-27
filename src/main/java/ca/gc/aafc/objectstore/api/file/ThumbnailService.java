@@ -12,7 +12,9 @@ import javax.imageio.ImageIO;
 import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Service;
 
+import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.DcType;
+import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import net.coobird.thumbnailator.Thumbnails;
 
 @Service
@@ -46,6 +48,28 @@ public class ThumbnailService {
 
   public boolean isSupported(String extension) {
     return ImageIO.getImageReadersByMIMEType(extension).hasNext();
+  }
+
+  /**
+   * Returns a {@link ObjectStoreMetadataDto} for a thumbnail based off the given
+   * parent resource and thumbnail identifier.
+   * 
+   * @param parent  - parent resource metadata of the thumbnail
+   * @param thumbUuid - thumbnail identifier
+   * @return {@link ObjectStoreMetadataDto} for the thumbnail
+   */
+  public static ObjectStoreMetadata generateThumbMetaData(ObjectStoreMetadata parent, UUID thumbUuid) {
+    ObjectStoreMetadata thumbnailMetadataDto = new ObjectStoreMetadata();
+    thumbnailMetadataDto.setFileIdentifier(thumbUuid);
+    thumbnailMetadataDto.setAcDerivedFrom(parent);
+    thumbnailMetadataDto.setDcType(THUMBNAIL_DC_TYPE);
+    thumbnailMetadataDto.setBucket(parent.getBucket());
+    thumbnailMetadataDto.setFileExtension(THUMBNAIL_EXTENSION);
+    thumbnailMetadataDto.setOriginalFilename(parent.getOriginalFilename());
+    thumbnailMetadataDto.setDcRights(parent.getDcRights());
+    thumbnailMetadataDto.setXmpRightsOwner(parent.getXmpRightsOwner());
+    thumbnailMetadataDto.setXmpRightsWebStatement(parent.getXmpRightsWebStatement());
+    return thumbnailMetadataDto;
   }
 
 }

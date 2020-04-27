@@ -28,6 +28,7 @@ import ca.gc.aafc.dina.repository.meta.JpaMetaInformationProvider;
 import ca.gc.aafc.objectstore.api.ObjectStoreConfiguration;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
+import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.file.FileController;
 import ca.gc.aafc.objectstore.api.file.FileInformationService;
 import ca.gc.aafc.objectstore.api.file.FileMetaEntry;
@@ -219,32 +220,15 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
   private void handleThumbNailMetaEntry(ObjectStoreMetadataDto resource) {
     FileMetaEntry fileMetaEntry = getFileMetaEntry(resource);
     if (fileMetaEntry.getThumbnailIdentifier() != null) {
-      ObjectStoreMetadataDto thumbnailMetadataDto = generateThumbMetaData(
-          resource,
+      ObjectStoreMetadata thumbnailMetadata = ThumbnailService.generateThumbMetaData(
+          dao.findOneByNaturalId(resource.getUuid(), ObjectStoreMetadata.class),
           fileMetaEntry.getThumbnailIdentifier());
 
-      super.create(thumbnailMetadataDto);
-    }
-  }
+      thumbnailMetadata.setAcSubType(
+        dao.findOneByProperty(ObjectSubtype.class, "acSubtype", ThumbnailService.THUMBNAIL_AC_SUB_TYPE)
+      );
 
-  /**
-   * Returns a {@link ObjectStoreMetadataDto} for a thumbnail based of the given
-   * parent resource and thumbnail identifier.
-   * 
-   * @param resource  - parent resource metadata of the thumbnail
-   * @param thumbUuid - thumbnail identifier
-   * @return {@link ObjectStoreMetadataDto} for the thumbnail
-   */
-  private ObjectStoreMetadataDto generateThumbMetaData(ObjectStoreMetadataDto resource, UUID thumbUuid) {
-    ObjectStoreMetadataDto thumbnailMetadataDto = new ObjectStoreMetadataDto();
-    thumbnailMetadataDto.setFileIdentifier(thumbUuid);
-    thumbnailMetadataDto.setAcDerivedFrom(resource);
-    thumbnailMetadataDto.setDcType(ThumbnailService.THUMBNAIL_DC_TYPE);
-    thumbnailMetadataDto.setAcSubType(ThumbnailService.THUMBNAIL_AC_SUB_TYPE);
-    thumbnailMetadataDto.setBucket(resource.getBucket());
-    thumbnailMetadataDto.setFileExtension(ThumbnailService.THUMBNAIL_EXTENSION);
-    thumbnailMetadataDto.setOriginalFilename(resource.getOriginalFilename());
-    defaultValueSetterService.assignDefaultValues(thumbnailMetadataDto);
-    return thumbnailMetadataDto;
+      dao.save(thumbnailMetadata);
+    }
   }
 }
