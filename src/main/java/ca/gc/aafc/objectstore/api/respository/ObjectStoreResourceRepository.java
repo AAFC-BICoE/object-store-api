@@ -28,7 +28,6 @@ import ca.gc.aafc.dina.repository.meta.JpaMetaInformationProvider;
 import ca.gc.aafc.objectstore.api.ObjectStoreConfiguration;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
-import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.file.FileController;
 import ca.gc.aafc.objectstore.api.file.FileInformationService;
 import ca.gc.aafc.objectstore.api.file.FileMetaEntry;
@@ -220,15 +219,11 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
   private void handleThumbNailMetaEntry(ObjectStoreMetadataDto resource) {
     FileMetaEntry fileMetaEntry = getFileMetaEntry(resource);
     if (fileMetaEntry.getThumbnailIdentifier() != null) {
-      ObjectStoreMetadata thumbnailMetadata = ThumbnailService.generateThumbMetaData(
-          dao.getReferenceByNaturalId(ObjectStoreMetadata.class, resource.getUuid()),
+      ObjectStoreMetadataDto thumbnailMetadataDto = ThumbnailService.generateThumbMetaData(
+          resource,
           fileMetaEntry.getThumbnailIdentifier());
 
-      thumbnailMetadata.setAcSubType(
-        dao.getReferenceByNaturalId(ObjectSubtype.class, ThumbnailService.THUMBNAIL_TYPE_UUID)
-      );
-
-      dao.save(thumbnailMetadata);
+      super.create(thumbnailMetadataDto);
     }
   }
 }

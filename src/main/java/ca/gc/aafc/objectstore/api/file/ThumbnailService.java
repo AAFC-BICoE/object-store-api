@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.DcType;
-import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import net.coobird.thumbnailator.Thumbnails;
 
 @Service
@@ -23,7 +22,6 @@ public class ThumbnailService {
   public static final String THUMBNAIL_EXTENSION = ".jpg";
   public static final String THUMBNAIL_AC_SUB_TYPE = "THUMBNAIL";
   public static final DcType THUMBNAIL_DC_TYPE = DcType.IMAGE;
-  public static final UUID THUMBNAIL_TYPE_UUID = UUID.fromString("34e4e0d8-91d8-4d52-99ae-ec42d6b0e66e");
 
   public InputStream generateThumbnail(InputStream sourceImageStream) throws IOException {
 
@@ -44,18 +42,19 @@ public class ThumbnailService {
   }
 
   /**
-   * Returns a {@link ObjectStoreMetadataDto} for a thumbnail based off the given
+   * Returns a {@link ObjectStoreMetadataDto} for a thumbnail based of the given
    * parent resource and thumbnail identifier.
    * 
-   * @param parent  - parent resource metadata of the thumbnail
+   * @param parent    - parent resource metadata of the thumbnail
    * @param thumbUuid - thumbnail identifier
    * @return {@link ObjectStoreMetadataDto} for the thumbnail
    */
-  public static ObjectStoreMetadata generateThumbMetaData(ObjectStoreMetadata parent, UUID thumbUuid) {
-    ObjectStoreMetadata thumbnailMetadataDto = new ObjectStoreMetadata();
+  public static ObjectStoreMetadataDto generateThumbMetaData(ObjectStoreMetadataDto parent, UUID thumbUuid) {
+    ObjectStoreMetadataDto thumbnailMetadataDto = new ObjectStoreMetadataDto();
     thumbnailMetadataDto.setFileIdentifier(thumbUuid);
     thumbnailMetadataDto.setAcDerivedFrom(parent);
     thumbnailMetadataDto.setDcType(THUMBNAIL_DC_TYPE);
+    thumbnailMetadataDto.setAcSubType(THUMBNAIL_AC_SUB_TYPE);
     thumbnailMetadataDto.setBucket(parent.getBucket());
     thumbnailMetadataDto.setFileExtension(THUMBNAIL_EXTENSION);
     thumbnailMetadataDto.setOriginalFilename(parent.getOriginalFilename());
