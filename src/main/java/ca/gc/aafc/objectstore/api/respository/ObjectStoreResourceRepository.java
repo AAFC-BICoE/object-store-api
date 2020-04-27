@@ -225,7 +225,7 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
           fileMetaEntry.getThumbnailIdentifier());
 
       thumbnailMetadata.setAcSubType(
-        dao.findOneByProperty(ObjectSubtype.class, "acSubtype", ThumbnailService.THUMBNAIL_AC_SUB_TYPE)
+        dao.getReferenceByNaturalId(ObjectSubtype.class, ThumbnailService.THUMBNAIL_TYPE_UUID)
       );
 
       dao.save(thumbnailMetadata);

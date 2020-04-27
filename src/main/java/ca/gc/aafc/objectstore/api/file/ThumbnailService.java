@@ -23,6 +23,7 @@ public class ThumbnailService {
   public static final String THUMBNAIL_EXTENSION = ".jpg";
   public static final String THUMBNAIL_AC_SUB_TYPE = "THUMBNAIL";
   public static final DcType THUMBNAIL_DC_TYPE = DcType.IMAGE;
+  public static final UUID THUMBNAIL_TYPE_UUID = UUID.fromString("34e4e0d8-91d8-4d52-99ae-ec42d6b0e66e");
 
   public InputStream generateThumbnail(InputStream sourceImageStream) throws IOException {
 
