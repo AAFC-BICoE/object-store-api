@@ -24,6 +24,7 @@ import javax.validation.constraints.Size;
 import com.vladmihalcea.hibernate.type.array.StringArrayType;
 import com.vladmihalcea.hibernate.type.basic.PostgreSQLEnumType;
 
+import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.NaturalIdCache;
 import org.hibernate.annotations.Type;
@@ -82,11 +83,14 @@ public class ObjectStoreMetadata implements SoftDeletable {
   private Agent dcCreator;
 
   private ObjectStoreMetadata acDerivedFrom;
-
+  
   private boolean publiclyReleasable;
   private String notPubliclyReleasableReason;
-
+  
   private ObjectSubtype acSubType;
+  
+  /** Read-only Formula field to get the ac_sub_type_id to allow filtering by null values. */
+  private Integer acSubTypeId;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -357,6 +361,16 @@ public class ObjectStoreMetadata implements SoftDeletable {
 
   public void setAcSubType(ObjectSubtype acSubType) {
     this.acSubType = acSubType;
+  }
+
+  /** Read-only Formula field to get the ac_derived_from_id to allow filtering by null values. */
+  @Formula("ac_sub_type_id")
+  public Integer getAcSubTypeId() {
+    return acSubTypeId;
+  }
+
+  public void setAcSubTypeId(Integer acSubTypeId) {
+    this.acSubTypeId = acSubTypeId;
   }
 
   // TODO: Fix dina-base-api modifyRelation method so it doesn't fail when the
