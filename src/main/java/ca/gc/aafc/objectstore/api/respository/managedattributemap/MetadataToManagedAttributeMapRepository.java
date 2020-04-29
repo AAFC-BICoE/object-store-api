@@ -47,7 +47,7 @@ public class MetadataToManagedAttributeMapRepository
     Map<UUID, ManagedAttributeMapDto> findOneMap = new HashMap<>();
 
     for (UUID metadataUuid : sourceIds) {
-      ObjectStoreMetadata metadata = dao.findOneById(metadataUuid, ObjectStoreMetadata.class);
+      ObjectStoreMetadata metadata = dao.findOneByNaturalId(metadataUuid, ObjectStoreMetadata.class);
       ManagedAttributeMapDto attrMap = getAttributeMapFromMetadata(metadata);
       findOneMap.put(metadataUuid, attrMap);
     }

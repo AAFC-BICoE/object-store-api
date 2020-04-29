@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import org.javers.core.metamodel.annotation.PropertyName;
 
+import ca.gc.aafc.dina.dto.RelatedEntity;
 import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -25,7 +26,7 @@ public class MetadataManagedAttributeDto {
 
   @JsonApiRelation
   private ObjectStoreMetadataDto objectStoreMetadata;
-  
+
   @JsonApiRelation
   private ManagedAttributeDto managedAttribute;
 }

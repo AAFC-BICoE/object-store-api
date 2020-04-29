@@ -2,6 +2,7 @@ package ca.gc.aafc.objectstore.api.dto;
 
 import java.util.UUID;
 
+import ca.gc.aafc.dina.dto.RelatedEntity;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;

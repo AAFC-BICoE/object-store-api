@@ -6,8 +6,6 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
-import ca.gc.aafc.objectstore.api.entities.DcType;
-
 
 public class DcTypeTest {
   

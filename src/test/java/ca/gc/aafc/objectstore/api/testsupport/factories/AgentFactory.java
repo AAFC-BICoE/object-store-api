@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.BiFunction;
 
+import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
 import ca.gc.aafc.objectstore.api.entities.Agent;
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
-import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
 
 public class AgentFactory implements TestableEntityFactory<Agent> {
 

@@ -55,6 +55,7 @@ public class TestConfiguration {
   public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
   public static final String TEST_BUCKET = "test";
   public static final UUID TEST_FILE_IDENTIFIER = UUID.randomUUID();
+  public static final UUID TEST_THUMBNAIL_IDENTIFIER = UUID.randomUUID();
   public static final String TEST_FILE_EXT = ".txt";
   public static final String TEST_ORIGINAL_FILENAME = "myfile" + TEST_FILE_EXT;
   public static final String ILLEGAL_BUCKET_CHAR = "~";
@@ -120,6 +121,7 @@ public class TestConfiguration {
     fme.setEvaluatedFileExtension(objExt);
     fme.setReceivedMediaType(mediaType);
     fme.setDetectedMediaType(mediaType);
+    fme.setThumbnailIdentifier(TEST_THUMBNAIL_IDENTIFIER);
     fme.setSha1Hex("123");
     String jsonContent = OBJECT_MAPPER.writeValueAsString(fme);
     InputStream metaStream = new ByteArrayInputStream(jsonContent.getBytes(StandardCharsets.UTF_8));

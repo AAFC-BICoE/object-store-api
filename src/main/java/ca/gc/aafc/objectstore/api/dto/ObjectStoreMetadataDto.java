@@ -13,6 +13,7 @@ import org.javers.core.metamodel.annotation.DiffIgnore;
 import org.javers.core.metamodel.annotation.PropertyName;
 import org.javers.core.metamodel.annotation.TypeName;
 
+import ca.gc.aafc.dina.dto.RelatedEntity;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -28,21 +29,21 @@ import lombok.Data;
 @JsonApiResource(type = ObjectStoreMetadataDto.TYPENAME)
 @TypeName(ObjectStoreMetadataDto.TYPENAME)
 public class ObjectStoreMetadataDto {
-  
+
   public static final String TYPENAME = "metadata";
 
   @JsonApiId
   @Id
   @PropertyName("id")
   private UUID uuid;
-  
+
   private String bucket;
   private UUID fileIdentifier;
   private String fileExtension;
 
   private String dcFormat;
   private DcType dcType;
-  
+
   @JsonInclude(Include.NON_EMPTY)
   private String acCaption;
 
@@ -50,11 +51,11 @@ public class ObjectStoreMetadataDto {
 
   @DiffIgnore
   private OffsetDateTime xmpMetadataDate;
-  
+
   private String xmpRightsWebStatement;
   private String dcRights;
   private String xmpRightsOwner;
-  
+
   @JsonInclude(Include.NON_EMPTY)
   private String originalFilename;
 
@@ -65,10 +66,10 @@ public class ObjectStoreMetadataDto {
   private OffsetDateTime createdDate;
   @JsonInclude(Include.NON_EMPTY)
   private OffsetDateTime deletedDate;
-  
+
   @JsonInclude(Include.NON_EMPTY)
   private String[] acTags;
-  
+
   @JsonApiRelation
   private List<MetadataManagedAttributeDto> managedAttribute;
 
@@ -76,16 +77,18 @@ public class ObjectStoreMetadataDto {
   // MetadataToManagedAttributeMapRepository.
   @JsonApiRelation(lookUp = LookupIncludeBehavior.AUTOMATICALLY_ALWAYS)
   private ManagedAttributeMapDto managedAttributeMap;
-  
+
   @JsonApiRelation
-  @DiffIgnore // Agent fields will be replaced with references to external data, so don't audit them yet.
+  @DiffIgnore // Agent fields will be replaced with references to external data, so don't
+              // audit them yet.
   private AgentDto acMetadataCreator;
-  
+
   @JsonApiRelation
   private ObjectStoreMetadataDto acDerivedFrom;
-  
+
   @JsonApiRelation
-  @DiffIgnore // Agent fields will be replaced with references to external data, so don't audit them yet.
+  @DiffIgnore // Agent fields will be replaced with references to external data, so don't
+              // audit them yet.
   private AgentDto dcCreator;
 
   private boolean publiclyReleasable;
@@ -93,4 +96,6 @@ public class ObjectStoreMetadataDto {
   @JsonInclude(Include.NON_EMPTY)
   private String notPubliclyReleasableReason;
 
+  @JsonInclude(Include.NON_EMPTY)
+  private String acSubType;
 }

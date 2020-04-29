@@ -1,6 +1,5 @@
-package ca.gc.aafc.objecstore.api.repository;
+package ca.gc.aafc.objectstore.api.repository;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -8,8 +7,6 @@ import javax.inject.Inject;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import com.google.common.collect.ImmutableMap;
 
 import ca.gc.aafc.objectstore.api.dto.ObjectSubtypeDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
@@ -26,7 +23,6 @@ public class ObjectSubtypeRepositoryCRUDIT extends BaseRepositoryTest {
   
   private ObjectSubtype createTestAcSubtype() {
     testObjectSubtype = ObjectSubtypeFactory.newObjectSubtype()
-        .acSubtype("drawing")
         .build();
 
     persist(testObjectSubtype);
@@ -44,7 +40,7 @@ public class ObjectSubtypeRepositoryCRUDIT extends BaseRepositoryTest {
         .findOne(testObjectSubtype.getUuid(), new QuerySpec(ObjectSubtypeDto.class));
     assertNotNull(objectSubtypeDto);
     assertEquals(testObjectSubtype.getUuid(), objectSubtypeDto.getUuid());
-    assertEquals("drawing", objectSubtypeDto.getAcSubtype());
+    assertEquals(testObjectSubtype.getAcSubtype(), objectSubtypeDto.getAcSubtype());
     assertEquals(testObjectSubtype.getDcType(), objectSubtypeDto.getDcType());
   }
     

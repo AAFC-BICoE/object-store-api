@@ -1,4 +1,4 @@
-package ca.gc.aafc.objecstore.api.repository;
+package ca.gc.aafc.objectstore.api.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;

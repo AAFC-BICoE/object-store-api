@@ -17,6 +17,7 @@ import javax.validation.constraints.Size;
 
 import com.vladmihalcea.hibernate.type.basic.PostgreSQLEnumType;
 
+import org.hibernate.annotations.ColumnTransformer;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.NaturalIdCache;
 import org.hibernate.annotations.Type;
@@ -56,6 +57,7 @@ public class ObjectSubtype {
 
   @Column(name = "ac_subtype")
   @Size(max = 50)
+  @ColumnTransformer(write = "UPPER(TRIM(?))")
   @NotBlank
   public String getAcSubtype() {
     return acSubtype;

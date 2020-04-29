@@ -31,6 +31,7 @@ import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.file.FileController;
 import ca.gc.aafc.objectstore.api.file.FileInformationService;
 import ca.gc.aafc.objectstore.api.file.FileMetaEntry;
+import ca.gc.aafc.objectstore.api.file.ThumbnailService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataDefaultValueSetterService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataReadService;
 import io.crnk.core.queryspec.PathSpec;
@@ -115,7 +116,7 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
 
   @Override
   public Optional<ObjectStoreMetadata> loadObjectStoreMetadata(UUID id) {
-    return Optional.ofNullable(dao.findOneById(id, ObjectStoreMetadata.class));
+    return Optional.ofNullable(dao.findOneByNaturalId(id, ObjectStoreMetadata.class));
   }
 
   @Override
@@ -132,7 +133,9 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
     handleFileDataFct.andThen(defaultValueSetterService::assignDefaultValues).apply(resource);
 
     ObjectStoreMetadataDto created = super.create(resource);
-    
+
+    handleThumbNailMetaEntry(created);
+
     return this.findOne(
       created.getUuid(),
       new QuerySpec(ObjectStoreMetadataDto.class)
@@ -144,7 +147,7 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
    */
   @Override
   public void delete(Serializable id) {
-    ObjectStoreMetadata objectStoreMetadata = dao.findOneById(id, ObjectStoreMetadata.class);
+    ObjectStoreMetadata objectStoreMetadata = dao.findOneByNaturalId(id, ObjectStoreMetadata.class);
     if(objectStoreMetadata != null) {
       objectStoreMetadata.setDeletedDate(OffsetDateTime.now());
     }
@@ -165,26 +168,37 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
       throw new ValidationException("fileIdentifier and bucket should be provided");
     }
 
+    FileMetaEntry fileMetaEntry = getFileMetaEntry(objectMetadata);
+
+    objectMetadata.setFileExtension(fileMetaEntry.getEvaluatedFileExtension());
+    objectMetadata.setOriginalFilename(fileMetaEntry.getOriginalFilename());
+    objectMetadata.setDcFormat(fileMetaEntry.getDetectedMediaType());
+    objectMetadata.setAcHashValue(fileMetaEntry.getSha1Hex());
+    objectMetadata.setAcHashFunction(FileController.DIGEST_ALGORITHM);
+
+    return objectMetadata;
+  }
+
+  /**
+   * Returns the {@link FileMetaEntry} for the resource of the given
+   * {@link ObjectStoreMetadataDto}
+   * 
+   * @param objectMetadata - meta data for the resource
+   * @return {@link FileMetaEntry} for the resource
+   */
+  private FileMetaEntry getFileMetaEntry(ObjectStoreMetadataDto objectMetadata) {
     try {
-      FileMetaEntry fileMetaEntry = fileInformationService.getJsonFileContentAs(
-          objectMetadata.getBucket(),
-          objectMetadata.getFileIdentifier().toString() + FileMetaEntry.SUFFIX,
-          FileMetaEntry.class).orElseThrow( () -> new BadRequestException(
+      return fileInformationService
+          .getJsonFileContentAs(
+              objectMetadata.getBucket(),
+              objectMetadata.getFileIdentifier().toString() + FileMetaEntry.SUFFIX,
+              FileMetaEntry.class)
+          .orElseThrow(() -> new BadRequestException(
               this.getClass().getSimpleName() + " with ID " + objectMetadata.getFileIdentifier() + " Not Found."));
-
-      objectMetadata.setFileExtension(fileMetaEntry.getEvaluatedFileExtension());
-      objectMetadata.setOriginalFilename(fileMetaEntry.getOriginalFilename());
-      objectMetadata.setDcFormat(fileMetaEntry.getDetectedMediaType());
-      objectMetadata.setAcHashValue(fileMetaEntry.getSha1Hex());
-      objectMetadata.setAcHashFunction(FileController.DIGEST_ALGORITHM);
-
-      return objectMetadata;
-
     } catch (IOException e) {
       log.error(e.getMessage());
       throw new BadRequestException("Can't process " + objectMetadata.getFileIdentifier());
     }
-
   }
 
   /**
@@ -195,4 +209,21 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
       cb) -> !querySpec.findFilter(DELETED_PATH_SPEC).isPresent()
           ? cb.isNull(root.get(SoftDeletable.DELETED_DATE_FIELD_NAME))
           : cb.isNotNull(root.get(SoftDeletable.DELETED_DATE_FIELD_NAME));
+
+  /**
+   * Persists a thumbnail Metadata based off a given resource if the resource has
+   * an associated thumbnail.
+   * 
+   * @param resource - parent resource metadata of the thumbnail
+   */
+  private void handleThumbNailMetaEntry(ObjectStoreMetadataDto resource) {
+    FileMetaEntry fileMetaEntry = getFileMetaEntry(resource);
+    if (fileMetaEntry.getThumbnailIdentifier() != null) {
+      ObjectStoreMetadataDto thumbnailMetadataDto = ThumbnailService.generateThumbMetaData(
+          resource,
+          fileMetaEntry.getThumbnailIdentifier());
+
+      super.create(thumbnailMetadataDto);
+    }
+  }
 }
