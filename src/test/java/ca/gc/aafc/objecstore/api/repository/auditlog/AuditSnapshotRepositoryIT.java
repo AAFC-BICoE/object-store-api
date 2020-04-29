@@ -9,9 +9,9 @@ import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import ca.gc.aafc.objecstore.api.repository.BaseRepositoryTest;
 import ca.gc.aafc.objectstore.api.dto.AuditSnapshotDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
+import ca.gc.aafc.objectstore.api.repository.BaseRepositoryTest;
 import ca.gc.aafc.objectstore.api.respository.auditlog.AuditSnapshotRepository;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import io.crnk.core.queryspec.FilterOperator;

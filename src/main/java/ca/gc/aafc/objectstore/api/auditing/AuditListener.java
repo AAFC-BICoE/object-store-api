@@ -1,5 +1,7 @@
 package ca.gc.aafc.objectstore.api.auditing;
 
+import java.util.Optional;
+
 import javax.annotation.PostConstruct;
 import javax.inject.Named;
 import javax.persistence.EntityManagerFactory;
@@ -18,6 +20,8 @@ import org.hibernate.persister.entity.EntityPersister;
 import org.javers.core.Javers;
 import org.javers.repository.jql.GlobalIdDTO;
 import org.javers.repository.jql.InstanceIdDTO;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import ca.gc.aafc.dina.entity.SoftDeletable;
 import ca.gc.aafc.dina.jpa.BaseDAO;
@@ -27,7 +31,8 @@ import io.crnk.core.engine.internal.utils.PropertyUtils;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Hooks into Hibernate to listen for create/update/delete events so it can store audits of changed data.
+ * Hooks into Hibernate to listen for create/update/delete events so it can
+ * store audits of changed data.
  */
 @Named
 @RequiredArgsConstructor
@@ -44,8 +49,8 @@ public class AuditListener implements PostUpdateEventListener, PostInsertEventLi
   /** Hook this listener into Hibernate's entity lifecycle methods. */
   @PostConstruct
   public void init() {
-    EventListenerRegistry registry = emf.unwrap(SessionFactoryImpl.class)
-        .getServiceRegistry().getService(EventListenerRegistry.class);
+    EventListenerRegistry registry = emf.unwrap(SessionFactoryImpl.class).getServiceRegistry()
+        .getService(EventListenerRegistry.class);
 
     registry.appendListeners(EventType.POST_INSERT, this);
     registry.appendListeners(EventType.POST_UPDATE, this);
@@ -77,12 +82,16 @@ public class AuditListener implements PostUpdateEventListener, PostInsertEventLi
     }
 
     // Replace this with the actual user name after we setup authentication:
-    String author = "anonymous";
+    String author = Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
+        .map(Authentication::getPrincipal)
+        .orElse("anonymous")
+        .toString();
 
     Class<?> eventType = event.getClass();
 
     if (eventType == PreDeleteEvent.class) {
-      // If this is a delete, load the identifier because you can't look up a snapshot:
+      // If this is a delete, load the identifier because you can't look up a
+      // snapshot:
       GlobalIdDTO globalId = loadGlobalId(entity);
       javers.commitShallowDeleteById(author, globalId);
       return;
@@ -90,8 +99,8 @@ public class AuditListener implements PostUpdateEventListener, PostInsertEventLi
 
     Object snapshot = snapshotLoader.loadSnapshot(entity);
 
-    boolean softDeleted = (entity instanceof SoftDeletable) && ((SoftDeletable) entity).getDeletedDate() != null;  
-    
+    boolean softDeleted = (entity instanceof SoftDeletable) && ((SoftDeletable) entity).getDeletedDate() != null;
+
     if (snapshot != null) {
       // Soft Deletes are treated as audit deletes:
       if (softDeleted) {
@@ -103,7 +112,7 @@ public class AuditListener implements PostUpdateEventListener, PostInsertEventLi
   }
 
   private GlobalIdDTO loadGlobalId(Object entity) {
-    Object id = baseDao.getId(entity);
+    Object id = PropertyUtils.getProperty(entity, baseDao.getNaturalIdFieldName(entity.getClass()));
     Class<?> clazz = jpaDtoMapper.getDtoClassForEntity(entity.getClass());
 
     return InstanceIdDTO.instanceId(id, clazz);
