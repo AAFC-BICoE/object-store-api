@@ -11,12 +11,10 @@ networks:
 services:
   object-store-db:
     image: "postgres:10"
-    environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${PG_PASSWORD}
+    env_file:
+      - ${PATH_FROM_COMPOSE:-.}/pg.env
     volumes:
-      - ./src/test/resources/create-test-users.sql:/docker-entrypoint-initdb.d/1-init-schema.sql
+      - .${PATH_FROM_COMPOSE:-}/src/test/resources/create-test-users.sql:/docker-entrypoint-initdb.d/1-init-schema.sql
     networks:
       dina:
 
@@ -24,9 +22,8 @@ services:
     image: minio/minio
     volumes:
       - ./minio-data:/data
-    environment:
-      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
-      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+    env_file:
+      - ${PATH_FROM_COMPOSE:-.}/minio.env
     command: server /data
     networks:
       dina:
@@ -35,17 +32,9 @@ services:
     build: .
     ports:
       - "8081:8080"
+    env_file:
+      - ${PATH_FROM_COMPOSE:-.}/object-store-api.env
     environment:
-      spring.datasource.url: ${SPRING_DATASOURCE_URL}
-      spring.datasource.username: ${SPRING_DATASOURCE_USER}
-      spring.datasource.password: ${SPRING_DATASOURCE_PASSWORD}
-      spring.liquibase.user: ${LIQUIBASE_USER}
-      spring.liquibase.password: ${LIQUIBASE_PASSWORD}
-      spring.servlet.multipart.max-file-size: ${MULTI_PART_SIZE}
-      spring.servlet.multipart.max-request-size: ${MULTI_PART_SIZE}
-      minio.host: minio
-      minio.accessKey: ${MINIO_ACCESS_KEY}
-      minio.secretKey: ${MINIO_SECRET_KEY}
       KEYCLOAK_HOST_IP: ${KEYCLOAK_IP}
     networks:
       dina:
