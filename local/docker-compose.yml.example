@@ -14,7 +14,7 @@ services:
     env_file:
       - ${PATH_FROM_COMPOSE:-.}/pg.env
     volumes:
-      - .${PATH_FROM_COMPOSE:-}/src/test/resources/create-test-users.sql:/docker-entrypoint-initdb.d/1-init-schema.sql
+      - ${PATH_FROM_COMPOSE:-.}/src/test/resources/create-test-users.sql:/docker-entrypoint-initdb.d/1-init-schema.sql
     networks:
       dina:
 
