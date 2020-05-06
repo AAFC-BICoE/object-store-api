@@ -364,7 +364,7 @@ public class ObjectStoreMetadata implements SoftDeletable {
   }
 
   /** Read-only Formula field to get the ac_derived_from_id to allow filtering by null values. */
-  @Formula("ac_sub_type_id")
+  @Column(name = "ac_sub_type_id", updatable = false, insertable = false)
   public Integer getAcSubTypeId() {
     return acSubTypeId;
   }
