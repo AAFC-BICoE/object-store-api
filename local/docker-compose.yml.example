@@ -1,59 +1,26 @@
-version: "3"
-
-# Keycloak needs a fixed IP/hostname, accessible both within and outside the Docker network
-# So setup a network with fixed subnet, put all containers on the same network, and specify IP for keycloak
-networks:
-  dina:
-    ipam:
-      config:
-        - subnet: ${KEYCLOAK_SUBNET}
+version: "3.7"
 
 services:
   object-store-db:
     image: "postgres:10"
-    environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${PG_PASSWORD}
+    env_file:
+      - ${BASE_PATH_TO_OBJECT_STORE:-.}/pg.env
     volumes:
-      - ./src/test/resources/create-test-users.sql:/docker-entrypoint-initdb.d/1-init-schema.sql
-    networks:
-      dina:
+      - ${BASE_PATH_TO_OBJECT_STORE:-.}/src/test/resources/create-test-users.sql:/docker-entrypoint-initdb.d/1-init-schema.sql
 
   minio:
     image: minio/minio
     volumes:
       - ./minio-data:/data
-    environment:
-      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
-      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+    env_file:
+      - ${BASE_PATH_TO_OBJECT_STORE:-.}/minio.env
     command: server /data
-    networks:
-      dina:
 
   object-store-api:
-    build: .
+    build: ${BASE_PATH_TO_OBJECT_STORE:-.}
     ports:
       - "8081:8080"
-    environment:
-      spring.datasource.url: ${SPRING_DATASOURCE_URL}
-      spring.datasource.username: ${SPRING_DATASOURCE_USER}
-      spring.datasource.password: ${SPRING_DATASOURCE_PASSWORD}
-      spring.liquibase.user: ${LIQUIBASE_USER}
-      spring.liquibase.password: ${LIQUIBASE_PASSWORD}
-      spring.servlet.multipart.max-file-size: ${MULTI_PART_SIZE}
-      spring.servlet.multipart.max-request-size: ${MULTI_PART_SIZE}
-      minio.host: minio
-      minio.accessKey: ${MINIO_ACCESS_KEY}
-      minio.secretKey: ${MINIO_SECRET_KEY}
-      KEYCLOAK_HOST_IP: ${KEYCLOAK_IP}
+    env_file:
+      - ${BASE_PATH_TO_OBJECT_STORE:-.}/object-store-api.env
     networks:
-      dina:
-
-  keycloak:
-    # the Dockerfile builds a Keycloak image, imports DINA realm and adds a couple test users
-    build: ./local/keycloak
-    networks:
-      dina:
-        # Here we set the IP for Keycloak
-        ipv4_address: ${KEYCLOAK_IP}
+      default:
