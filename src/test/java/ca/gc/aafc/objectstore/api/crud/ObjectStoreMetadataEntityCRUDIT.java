@@ -91,7 +91,7 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
         .build();
 
     // Use "true" here to detach the Metadata,
-    // which will make sure the @Formula getAcSubTypeId field is populated when the Metadata is restored. 
+    // which will make sure the getAcSubTypeId read-only field is populated when the Metadata is restored. 
     save(osm, true);
 
     ObjectStoreMetadata restoredOsm = find(ObjectStoreMetadata.class, osm.getId());

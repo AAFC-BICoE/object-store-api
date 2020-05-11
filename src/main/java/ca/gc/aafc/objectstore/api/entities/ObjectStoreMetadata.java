@@ -88,7 +88,7 @@ public class ObjectStoreMetadata implements SoftDeletable {
   
   private ObjectSubtype acSubType;
   
-  /** Read-only Formula field to get the ac_sub_type_id to allow filtering by null values. */
+  /** Read-only field to get the ac_sub_type_id to allow filtering by null values. */
   private Integer acSubTypeId;
 
   @Id
@@ -135,7 +135,7 @@ public class ObjectStoreMetadata implements SoftDeletable {
   }
 
   /**
-   * Returns ileIdentifier + fileExtension
+   * Returns fileIdentifier + fileExtension
    * 
    * @return
    */
@@ -362,7 +362,7 @@ public class ObjectStoreMetadata implements SoftDeletable {
     this.acSubType = acSubType;
   }
 
-  /** Read-only Formula field to get the ac_derived_from_id to allow filtering by null values. */
+  /** Read-only field to get the ac_derived_from_id to allow filtering by null values. */
   @Column(name = "ac_sub_type_id", updatable = false, insertable = false)
   public Integer getAcSubTypeId() {
     return acSubTypeId;
