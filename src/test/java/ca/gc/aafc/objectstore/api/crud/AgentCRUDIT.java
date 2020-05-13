@@ -34,7 +34,7 @@ public class AgentCRUDIT extends BaseEntityCRUDIT {
   @Override
   public void testRemove() {
     Integer id = agentUnderTest.getId();
-    remove(Agent.class, id);
+    deleteById(Agent.class, id);
     assertNull(find(Agent.class, id));
   }
 }

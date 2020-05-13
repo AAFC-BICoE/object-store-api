@@ -9,7 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import ca.gc.aafc.dina.jpa.BaseDAO;
-import ca.gc.aafc.dina.mapper.JpaDtoMapper.CustomFieldResolverSpec;
+import ca.gc.aafc.dina.mapper.CustomFieldResolverSpec;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
