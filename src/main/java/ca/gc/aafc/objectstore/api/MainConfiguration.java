@@ -18,7 +18,6 @@ import ca.gc.aafc.dina.DinaBaseApiAutoConfiguration;
 import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.dina.mapper.CustomFieldResolverSpec;
 import ca.gc.aafc.dina.mapper.JpaDtoMapper;
-import ca.gc.aafc.dina.repository.SelectionHandler;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.resolvers.ObjectStoreMetaDataFieldResolvers;
@@ -55,7 +54,7 @@ public class MainConfiguration {
    * @return the DtoJpaMapper
    */
   @Bean
-  public JpaDtoMapper dtoJpaMapper(SelectionHandler selectionHandler, BaseDAO baseDAO) {
+  public JpaDtoMapper dtoJpaMapper(BaseDAO baseDAO) {
     Map<Class<?>, List<CustomFieldResolverSpec<?>>> customFieldResolvers = new HashMap<>();
 
     // Add custom field mapping for ObjectStoreMetadata DTO and Entity
