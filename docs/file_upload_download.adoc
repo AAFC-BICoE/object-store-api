@@ -9,31 +9,33 @@ To upload a file:
 Example request:
 
 ```sh
-curl -i http://localhost:8080/api/v1/file/mybucket -F file=@./my-image.png;type=image/png
+curl -i http://localhost:8081/api/v1/file/mybucket -F file=@./my-image.png;type=image/png
 ```
 
 Example response:
 
 ```sh
 {
-  "fileIdentifier": "0887c8c2-500e-4eb4-8c0e-58eef9b66a18",
-  "metaFileEntryVersion": "1.0",
-  "originalFilename": "drawing.png",
-  "sha1Hex": "3a37e3546074b6a67afef2fc1b402bf9233a1eb7",
-  "receivedMediaType": "image/png",
-  "detectedMediaType": "image/png",
-  "detectedFileExtension": ".png",
-  "evaluatedMediaType": "image/png",
-  "evaluatedFileExtension": ".png",
-  "sizeInBytes": 6091
+	"fileIdentifier": "0050559c-beae-48d6-a2b0-91f5a666fad1",
+	"metaFileEntryVersion": "1.0",
+	"originalFilename": "example-png.png",
+	"sha1Hex": "c0c1d898ed827d6db02a03df941225184277d9e5",
+	"receivedMediaType": "image/png",
+	"detectedMediaType": "image/png",
+	"detectedFileExtension": ".png",
+	"evaluatedMediaType": "image/png",
+	"evaluatedFileExtension": ".png",
+	"sizeInBytes": 976,
+	"thumbnailIdentifier": "b9f6f58b-1b41-400f-b178-f91d11221b7c"
 }
+
 ```
 
 2. Send a POST request to the `/api/v1/metadata` endpoint to create a Metadata record for the stored
 object, using the fileIdentifier from the upload response.
 
 ```sh
-curl -X POST http://localhost:8080/api/v1/metadata \
+curl -X POST http://localhost:8081/api/v1/metadata \
 -H "Content-Type: application/vnd.api+json" \
 -H "Accept: application/vnd.api+json" \
 --data-binary @- << EOF
@@ -44,7 +46,7 @@ curl -X POST http://localhost:8080/api/v1/metadata \
       "bucket": "mybucket",
       "dcType": "Image",
       "fileExtension": ".png",
-      "fileIdentifier": "d512084a-ab2f-44c0-b981-25c3d579a43c"
+      "fileIdentifier": "0050559c-beae-48d6-a2b0-91f5a666fad1"
     }
   }
 }
@@ -58,16 +60,16 @@ To download a stored object, send a GET request to the `/api/v1/file/{bucket}/{f
 Example request:
 
 ```sh
-curl http:/localhost:8080/api/v1/file/mybucket/d512084a-ab2f-44c0-b981-25c3d579a43c > my-downloaded-image.png
+curl http:/localhost:8081/api/v1/file/mybucket/0050559c-beae-48d6-a2b0-91f5a666fad1 > my-downloaded-image.png
 ```
 
 == File Thumbnail Download
 
 A thumbnail is automatically generated when an image file is uploaded. To download the thumbnail,
-send a GET request using the file identifier with the ".thumbnail" extension.
+send a GET request using the thumbnailIdentifier from the response of File Upload post request with the ".thumbnail" extension.
 
 Example request:
 
 ```sh
-curl http:/localhost:8080/api/v1/file/mybucket/d512084a-ab2f-44c0-b981-25c3d579a43c.thumbnail > my-downloaded-thumbnail.png
+curl http:/localhost:8081/api/v1/file/mybucket/b9f6f58b-1b41-400f-b178-f91d11221b7c.thumbnail > my-downloaded-thumbnail.jpg
 ```
