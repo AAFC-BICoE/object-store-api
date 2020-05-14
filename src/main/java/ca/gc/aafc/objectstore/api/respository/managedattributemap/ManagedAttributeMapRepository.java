@@ -106,7 +106,7 @@ public class ManagedAttributeMapRepository extends ResourceRepositoryBase<Manage
           .assignedValue(newValue)
           .uuid(UUID.randomUUID())
           .build();
-        dao.save(newAttributeValue);
+        dao.create(newAttributeValue);
       }
     }
 

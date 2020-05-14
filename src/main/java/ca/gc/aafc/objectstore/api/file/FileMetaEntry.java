@@ -52,6 +52,9 @@ public class FileMetaEntry {
   @Setter
   private long sizeInBytes;
 
+  @Setter
+  private UUID thumbnailIdentifier;
+
   @JsonIgnore
   public String getFileMetaEntryFilename() {
     return fileIdentifier + SUFFIX;

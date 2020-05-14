@@ -14,6 +14,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
 import ca.gc.aafc.objectstore.api.BaseHttpIntegrationTest;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import io.crnk.core.engine.http.HttpStatus;
@@ -23,6 +24,7 @@ import io.restassured.response.Response;
 public class DcTypeJsonSerializationIT extends BaseHttpIntegrationTest {
 
   private static final String RESOURCE_UNDER_TEST = "object-subtype";
+  private static final String AC_SUB_TYPE = TestableEntityFactory.generateRandomNameLettersOnly(5);
 
   @BeforeEach
   public void setup() {
@@ -37,7 +39,7 @@ public class DcTypeJsonSerializationIT extends BaseHttpIntegrationTest {
       CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
       CriteriaDelete<ObjectSubtype> query = criteriaBuilder.createCriteriaDelete(ObjectSubtype.class);
       Root<ObjectSubtype> root = query.from(ObjectSubtype.class);
-      query.where(criteriaBuilder.isNotNull(root.get("dcType")));
+      query.where(criteriaBuilder.equal(root.get("acSubtype"), AC_SUB_TYPE));
       em.createQuery(query).executeUpdate();
     });
   }
@@ -66,7 +68,7 @@ public class DcTypeJsonSerializationIT extends BaseHttpIntegrationTest {
   private static Map<String, Object> getPostBody(String dcType) {
     ImmutableMap.Builder<String, Object> objAttribMap = new ImmutableMap.Builder<>();
     objAttribMap.put("dcType", dcType);
-    objAttribMap.put("acSubtype", "thumbnail");
+    objAttribMap.put("acSubtype", AC_SUB_TYPE);
 
     return BaseJsonApiIntegrationTest.toJsonAPIMap(RESOURCE_UNDER_TEST, objAttribMap.build(), null, null);
   }

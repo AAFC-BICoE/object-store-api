@@ -66,6 +66,7 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
    */
   @AfterEach
   public void tearDown() {
+    deleteEntityByUUID("fileIdentifier", TestConfiguration.TEST_THUMBNAIL_IDENTIFIER, ObjectStoreMetadata.class);
     deleteEntityByUUID("fileIdentifier", TestConfiguration.TEST_FILE_IDENTIFIER, ObjectStoreMetadata.class);
     deleteEntityByUUID("uuid", oSubtype.getUuid(), ObjectSubtype.class);
   }

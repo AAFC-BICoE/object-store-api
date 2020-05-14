@@ -53,17 +53,17 @@ public class FileControllerIT {
 
     FileMetaEntry uploadResponse = fileController.handleFileUpload(mockFile, "mybucket");
 
-    UUID fileId = uploadResponse.getFileIdentifier();
+    UUID thumbnailIdentifier = uploadResponse.getThumbnailIdentifier();
 
-    // Persist the associated metadata separately:
-    ObjectStoreMetadata newMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata()
-      .fileIdentifier(fileId)
+    // Persist the associated metadata and thumbnail meta separately:
+    ObjectStoreMetadata thumbMetaData = ObjectStoreMetadataFactory.newObjectStoreMetadata()
+      .fileIdentifier(thumbnailIdentifier)
       .build();
-    entityManager.persist(newMetadata);
-
+    entityManager.persist(thumbMetaData);
+    
     ResponseEntity<InputStreamResource> thumbnailDownloadResponse = fileController.downloadObject(
       "mybucket",
-      fileId + ".thumbnail"
+      thumbnailIdentifier + ".thumbnail"
     );
 
     assertEquals(HttpStatus.OK, thumbnailDownloadResponse.getStatusCode());
