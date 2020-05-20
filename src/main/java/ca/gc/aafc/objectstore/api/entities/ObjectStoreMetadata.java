@@ -50,7 +50,7 @@ import lombok.RequiredArgsConstructor;
 @NaturalIdCache
 public class ObjectStoreMetadata implements SoftDeletable {
 
-  private Integer id;
+  private Long id;
 
   private UUID uuid;
   private String bucket;
@@ -94,11 +94,11 @@ public class ObjectStoreMetadata implements SoftDeletable {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
-  public Integer getId() {
+  public Long getId() {
     return id;
   }
 
-  public void setId(Integer id) {
+  public void setId(Long id) {
     this.id = id;
   }
 

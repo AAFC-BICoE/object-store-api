@@ -59,7 +59,7 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
 
   @Override
   public void testRemove() {
-    Integer id = objectStoreMetaUnderTest.getId();
+    Long id = objectStoreMetaUnderTest.getId();
     deleteById(ObjectStoreMetadata.class, id);
     assertNull(find(ObjectStoreMetadata.class, id));
   }

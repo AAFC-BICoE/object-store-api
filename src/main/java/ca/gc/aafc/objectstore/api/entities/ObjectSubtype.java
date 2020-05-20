@@ -38,7 +38,7 @@ import lombok.RequiredArgsConstructor;
 @NaturalIdCache
 public class ObjectSubtype {
 
-  private Integer id;
+  private Long id;
   private DcType dcType;
   private String acSubtype;
 
@@ -69,11 +69,11 @@ public class ObjectSubtype {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  public Integer getId() {
+  public Long getId() {
     return id;
   }
 
-  public void setId(Integer id) {
+  public void setId(Long id) {
     this.id = id;
   }
 
