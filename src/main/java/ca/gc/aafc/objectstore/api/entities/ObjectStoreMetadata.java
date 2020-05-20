@@ -89,7 +89,7 @@ public class ObjectStoreMetadata implements SoftDeletable {
   private ObjectSubtype acSubType;
   
   /** Read-only field to get the ac_sub_type_id to allow filtering by null values. */
-  private Integer acSubTypeId;
+  private Long acSubTypeId;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -364,11 +364,11 @@ public class ObjectStoreMetadata implements SoftDeletable {
 
   /** Read-only field to get the ac_derived_from_id to allow filtering by null values. */
   @Column(name = "ac_sub_type_id", updatable = false, insertable = false)
-  public Integer getAcSubTypeId() {
+  public Long getAcSubTypeId() {
     return acSubTypeId;
   }
 
-  public void setAcSubTypeId(Integer acSubTypeId) {
+  public void setAcSubTypeId(Long acSubTypeId) {
     this.acSubTypeId = acSubTypeId;
   }
 
