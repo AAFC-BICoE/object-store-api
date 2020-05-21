@@ -5,7 +5,6 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -20,6 +19,8 @@ import javax.persistence.criteria.Root;
 import org.apache.http.client.utils.URIBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.openapi4j.core.exception.ResolutionException;
+import org.openapi4j.core.validation.ValidationException;
 import org.springframework.http.HttpStatus;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -29,8 +30,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.collect.ImmutableMap;
 
+import ca.gc.aafc.dina.testsupport.specs.OpenAPI3Assertions;
 import ca.gc.aafc.objectstore.api.BaseHttpIntegrationTest;
-import ca.gc.aafc.objectstore.api.repository.JsonSchemaAssertions;
 import ca.gc.aafc.objectstore.api.respository.DcTypeJsonSerDe;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
@@ -63,6 +64,9 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
    
   public static final URI IT_BASE_URI;
   public static final URI SCHEMA_BASE_URI;
+  
+  private static final String SPEC_HOST = "raw.githubusercontent.com";
+  private static final String ROOT_SPEC_PATH = "DINA-Web/object-store-specs/master/schema/object-store-api.yaml";  
   
   static {
     URIBuilder uriBuilder = new URIBuilder();
@@ -141,14 +145,22 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
    * @throws IOException
    * @throws URISyntaxException
    */
-  protected void validateJsonSchemaByURL(String schemaFileName, String responseJson)
-      throws IOException, URISyntaxException {
-
-    URIBuilder uriBuilder = new URIBuilder(SCHEMA_BASE_URI);
-    uriBuilder.setPath(SCHEMA_BASE_PATH + "/" + schemaFileName);
-    uriBuilder.setPort(testPort);
-    log.info("Validating {} schema against the following response: {}", () -> schemaFileName, () -> responseJson);
-    JsonSchemaAssertions.assertJsonSchema(uriBuilder.build(), new StringReader(responseJson));
+  protected void validateJsonSchemaByURL(String schemaPath, String responseJson)
+      throws IOException, URISyntaxException, ResolutionException, ValidationException {
+   
+    URIBuilder uriBuilder = new URIBuilder();
+    uriBuilder.setScheme("https");
+    uriBuilder.setHost(SPEC_HOST);
+    
+    uriBuilder.setPath(ROOT_SPEC_PATH);
+    OpenAPI3Assertions.parseAndValidateOpenAPI3Specs(uriBuilder.build().toURL());
+  
+//Following will be enabled in another task that validates against specific schemas
+    
+/*  log.info("Validating {} schema against the following response: {}", () -> schemaPath, () -> responseJson);    
+    uriBuilder.setPath(schemaPath);
+    OpenAPI3Assertions.assertSchema(uriBuilder.build().toURL(), "", responseJson);*/ 
+    
   }
   
   /**
@@ -236,7 +248,7 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
   
   @Test
   public void resourceUnderTest_whenIdExists_returnOkAndBody()
-      throws IOException, URISyntaxException {
+      throws IOException, URISyntaxException, ResolutionException, ValidationException {
     List<Relationship> relationships = buildRelationshipList();
     String id = sendPost(toJsonAPIMap(buildCreateAttributeMap(), toRelationshipMap(relationships)));
     
@@ -306,7 +318,7 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
 
   //@Test
   public void resourceUnderTest_whenMultipleResources_returnOkAndBody()
-      throws IOException, URISyntaxException {
+      throws IOException, URISyntaxException, ResolutionException, ValidationException {
     String id1 = sendPost(toJsonAPIMap(buildCreateAttributeMap(), toRelationshipMap(buildRelationshipList())));
     String id2 = sendPost(toJsonAPIMap(buildCreateAttributeMap(), toRelationshipMap(buildRelationshipList())));
 
