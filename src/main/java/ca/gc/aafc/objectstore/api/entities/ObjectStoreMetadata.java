@@ -50,7 +50,7 @@ import lombok.RequiredArgsConstructor;
 @NaturalIdCache
 public class ObjectStoreMetadata implements SoftDeletable {
 
-  private Long id;
+  private Integer id;
 
   private UUID uuid;
   private String bucket;
@@ -89,16 +89,16 @@ public class ObjectStoreMetadata implements SoftDeletable {
   private ObjectSubtype acSubType;
   
   /** Read-only field to get the ac_sub_type_id to allow filtering by null values. */
-  private Long acSubTypeId;
+  private Integer acSubTypeId;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
-  public Long getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(Long id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 
@@ -364,11 +364,11 @@ public class ObjectStoreMetadata implements SoftDeletable {
 
   /** Read-only field to get the ac_derived_from_id to allow filtering by null values. */
   @Column(name = "ac_sub_type_id", updatable = false, insertable = false)
-  public Long getAcSubTypeId() {
+  public Integer getAcSubTypeId() {
     return acSubTypeId;
   }
 
-  public void setAcSubTypeId(Long acSubTypeId) {
+  public void setAcSubTypeId(Integer acSubTypeId) {
     this.acSubTypeId = acSubTypeId;
   }
 

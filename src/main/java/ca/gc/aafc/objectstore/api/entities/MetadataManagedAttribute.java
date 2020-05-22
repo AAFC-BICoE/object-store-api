@@ -28,7 +28,7 @@ import lombok.RequiredArgsConstructor;
 @SuppressFBWarnings(justification = "ok for Hibernate Entity", value = { "EI_EXPOSE_REP", "EI_EXPOSE_REP2" })
 public class MetadataManagedAttribute implements DinaEntity{
 
-  private Long id;
+  private Integer id;
   private UUID uuid;
 
   private ObjectStoreMetadata objectStoreMetadata;
@@ -38,11 +38,11 @@ public class MetadataManagedAttribute implements DinaEntity{
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
-  public Long getId() {
+  public Integer getId() {
     return id;
   }
 
-  public void setId(Long id) {
+  public void setId(Integer id) {
     this.id = id;
   }
 

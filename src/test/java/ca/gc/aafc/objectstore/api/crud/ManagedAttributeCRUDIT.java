@@ -40,7 +40,7 @@ public class ManagedAttributeCRUDIT extends BaseEntityCRUDIT {
 
   @Override
   public void testRemove() {
-    Long id = managedAttributeUnderTest.getId();
+    Integer id = managedAttributeUnderTest.getId();
     deleteById(ManagedAttribute.class, id);
     assertNull(find(ManagedAttribute.class, id));
   }
