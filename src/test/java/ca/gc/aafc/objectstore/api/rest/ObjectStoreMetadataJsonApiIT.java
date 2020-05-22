@@ -77,15 +77,15 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
   }
 
   @Override
-  protected String getGetOneSchemaFilename() {
-    return "getOneMetadataSchema.json";
+  protected String getSchemaName() {
+    return "Metadata";
   }
-
+  
   @Override
-  protected String getGetManySchemaFilename() {
-    return null;
+  protected String getSchemaPath() {
+    return "DINA-Web/object-store-specs/master/schema/metadata.yaml";
   }
-
+  
   @Override
   protected Map<String, Object> buildCreateAttributeMap() {
     

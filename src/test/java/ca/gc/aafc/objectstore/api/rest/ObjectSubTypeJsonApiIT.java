@@ -10,18 +10,18 @@ public class ObjectSubTypeJsonApiIT extends BaseJsonApiIntegrationTest {
   private ObjectSubtypeDto objectSubtype;  
   
   @Override
+  protected String getSchemaName() {
+    return null;
+  }
+  
+  @Override
+  protected String getSchemaPath() {
+    return null;
+  }  
+  
+  @Override
   protected String getResourceUnderTest() {
     return "object-subtype";
-  }
-
-  @Override
-  protected String getGetOneSchemaFilename() {
-    return "getOneObjectSubtypeSchema.json";
-  }
-
-  @Override
-  protected String getGetManySchemaFilename() {
-    return null;
   }
 
   @Override
