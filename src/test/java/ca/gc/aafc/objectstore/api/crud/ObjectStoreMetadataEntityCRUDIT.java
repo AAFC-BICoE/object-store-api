@@ -94,11 +94,12 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
     // Use "true" here to detach the Metadata,
     // which will make sure the getAcSubTypeId read-only field is populated when the Metadata is restored. 
     save(osm, true);
-
+    
+    
     ObjectStoreMetadata restoredOsm = find(ObjectStoreMetadata.class, osm.getId());
     assertNotNull(restoredOsm.getId());
 
-    OffsetDateTime initialTimestamp = osm.getXmpMetadataDate();
+    OffsetDateTime initialTimestamp = restoredOsm.getXmpMetadataDate();
     
     // link the 2 entities
     MetadataManagedAttribute mma = MetadataManagedAttributeFactory.newMetadataManagedAttribute()
@@ -109,7 +110,7 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
     
     save(mma);
   
-    OffsetDateTime newTimestamp = osm.getXmpMetadataDate();
+    OffsetDateTime newTimestamp = restoredOsm.getXmpMetadataDate();
 
     // Adding a MetadataManagedAttribute should update the parent ObjectStoreMetadata:
     assertNotEquals(newTimestamp, initialTimestamp);
