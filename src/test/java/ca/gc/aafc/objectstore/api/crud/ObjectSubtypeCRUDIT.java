@@ -30,7 +30,7 @@ public class ObjectSubtypeCRUDIT extends BaseEntityCRUDIT {
   @Override
   public void testRemove() {
     Integer id = objectSubtypeUnderTest.getId();
-    remove(ObjectSubtype.class, id);
+    deleteById(ObjectSubtype.class, id);
     assertNull(find(ObjectSubtype.class, id));
   }
 }

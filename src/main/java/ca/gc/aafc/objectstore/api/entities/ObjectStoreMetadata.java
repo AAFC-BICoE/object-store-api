@@ -84,11 +84,14 @@ public class ObjectStoreMetadata implements SoftDeletable {
   private Agent dcCreator;
 
   private ObjectStoreMetadata acDerivedFrom;
-
+  
   private boolean publiclyReleasable;
   private String notPubliclyReleasableReason;
-
+  
   private ObjectSubtype acSubType;
+  
+  /** Read-only field to get the ac_sub_type_id to allow filtering by null values. */
+  private Integer acSubTypeId;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -134,7 +137,7 @@ public class ObjectStoreMetadata implements SoftDeletable {
   }
 
   /**
-   * Returns ileIdentifier + fileExtension
+   * Returns fileIdentifier + fileExtension
    * 
    * @return
    */
@@ -359,6 +362,16 @@ public class ObjectStoreMetadata implements SoftDeletable {
 
   public void setAcSubType(ObjectSubtype acSubType) {
     this.acSubType = acSubType;
+  }
+
+  /** Read-only field to get the ac_derived_from_id to allow filtering by null values. */
+  @Column(name = "ac_sub_type_id", updatable = false, insertable = false)
+  public Integer getAcSubTypeId() {
+    return acSubTypeId;
+  }
+
+  public void setAcSubTypeId(Integer acSubTypeId) {
+    this.acSubTypeId = acSubTypeId;
   }
 
   // TODO: Fix dina-base-api modifyRelation method so it doesn't fail when the
