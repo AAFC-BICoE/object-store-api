@@ -11,6 +11,9 @@ https://javers.org/[JaVers] is used to save snapshots of DTOs on create, update 
 * @Id and @PropertyName("id") should be added to the ID field, which JaVers uses to track multiple versions of
 the same entity.
 
+* @ShallowReference should be added to relation fields (along with Crnk's @JsonApiRelation).
+This prevents a problem where the referenced resource is re-audited with all fields null.
+
 * @Value should be added to embedded objects, like other DTOs that are considered values of a parent DTO.
 e.g. "AddressDto" is an embedded Value in "PersonDto", not a standalone entity.
 
