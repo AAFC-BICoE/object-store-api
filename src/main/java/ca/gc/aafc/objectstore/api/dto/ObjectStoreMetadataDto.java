@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import org.javers.core.metamodel.annotation.DiffIgnore;
 import org.javers.core.metamodel.annotation.PropertyName;
+import org.javers.core.metamodel.annotation.ShallowReference;
 import org.javers.core.metamodel.annotation.TypeName;
 
 import ca.gc.aafc.dina.dto.RelatedEntity;
@@ -84,6 +85,7 @@ public class ObjectStoreMetadataDto {
   private AgentDto acMetadataCreator;
 
   @JsonApiRelation
+  @ShallowReference
   private ObjectStoreMetadataDto acDerivedFrom;
 
   @JsonApiRelation
