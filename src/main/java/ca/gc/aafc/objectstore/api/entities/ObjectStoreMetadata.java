@@ -78,8 +78,8 @@ public class ObjectStoreMetadata implements SoftDeletable {
   private OffsetDateTime deletedDate;
 
   private List<MetadataManagedAttribute> managedAttribute;
-  private Agent acMetadataCreator;
-  private Agent dcCreator;
+  private UUID acMetadataCreator;
+  private UUID dcCreator;
 
   private ObjectStoreMetadata acDerivedFrom;
   
@@ -261,26 +261,6 @@ public class ObjectStoreMetadata implements SoftDeletable {
     this.managedAttribute = managedAttribute;
   }
 
-  @OneToOne
-  @JoinColumn(name = "ac_metadata_creator_id", referencedColumnName = "id")
-  public Agent getAcMetadataCreator() {
-    return acMetadataCreator;
-  }
-
-  public void setAcMetadataCreator(Agent acMetadataCreator) {
-    this.acMetadataCreator = acMetadataCreator;
-  }
-
-  @OneToOne
-  @JoinColumn(name = "dc_creator_id", referencedColumnName = "id")
-  public Agent getDcCreator() {
-    return dcCreator;
-  }
-
-  public void setDcCreator(Agent dcCreator) {
-    this.dcCreator = dcCreator;
-  }
-
   @NotNull
   @Column(name = "xmp_rights_web_statement")
   @Size(max = 250)
@@ -390,6 +370,24 @@ public class ObjectStoreMetadata implements SoftDeletable {
   @PrePersist
   public void initUuid() {
     this.uuid = UUID.randomUUID();
+  }
+
+  @Column(name = "ac_metadata_creator_id")
+  public UUID getAcMetadataCreator() {
+    return acMetadataCreator;
+  }
+
+  public void setAcMetadataCreator(UUID acMetadataCreator) {
+    this.acMetadataCreator = acMetadataCreator;
+  }
+
+  @Column(name = "dc_creator_id")
+  public UUID getDcCreator() {
+    return dcCreator;
+  }
+
+  public void setDcCreator(UUID dcCreator) {
+    this.dcCreator = dcCreator;
   }
 
 }

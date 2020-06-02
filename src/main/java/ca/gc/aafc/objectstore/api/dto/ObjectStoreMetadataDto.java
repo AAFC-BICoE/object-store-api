@@ -62,14 +62,12 @@ public class ObjectStoreMetadataDto {
   @JsonApiRelation(lookUp = LookupIncludeBehavior.AUTOMATICALLY_ALWAYS)
   private ManagedAttributeMapDto managedAttributeMap;
   
-  @JsonApiRelation
-  private AgentDto acMetadataCreator;
+  private UUID acMetadataCreator;
   
   @JsonApiRelation
   private ObjectStoreMetadataDto acDerivedFrom;
 
-  @JsonApiRelation
-  private AgentDto dcCreator;
+  private UUID dcCreator;
 
   private boolean publiclyReleasable;
 
