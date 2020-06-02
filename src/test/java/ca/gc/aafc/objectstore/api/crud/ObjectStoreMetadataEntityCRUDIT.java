@@ -11,12 +11,10 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
-import ca.gc.aafc.objectstore.api.entities.Agent;
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
-import ca.gc.aafc.objectstore.api.testsupport.factories.AgentFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MetadataManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
@@ -30,6 +28,8 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
 
   private ObjectStoreMetadata objectStoreMetaUnderTest = ObjectStoreMetadataFactory
       .newObjectStoreMetadata()
+      .acMetadataCreator(UUID.randomUUID())
+      .dcCreator(UUID.randomUUID())
       .acDigitizationDate(TEST_OFFSET_DT)
       .build();
 
@@ -44,8 +44,14 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
   public void testFind() {
     ObjectStoreMetadata fetchedObjectStoreMeta = find(ObjectStoreMetadata.class,
         objectStoreMetaUnderTest.getId());
+
     assertEquals(objectStoreMetaUnderTest.getId(), fetchedObjectStoreMeta.getId());
-    
+    assertEquals(objectStoreMetaUnderTest.getDcCreator(), fetchedObjectStoreMeta.getDcCreator());
+    assertEquals(objectStoreMetaUnderTest.getId(), fetchedObjectStoreMeta.getId());
+    assertEquals(
+      objectStoreMetaUnderTest.getAcMetadataCreator(),
+      fetchedObjectStoreMeta.getAcMetadataCreator());
+
     // the returned acDigitizationDate will use the timezone of the server
     assertEquals(objectStoreMetaUnderTest.getAcDigitizationDate(),
         fetchedObjectStoreMeta.getAcDigitizationDate()
@@ -74,19 +80,13 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
         .build();
     save(derivedFrom);
 
-    Agent metatdataCreator = AgentFactory.newAgent().build();
-    save(metatdataCreator, false);
-    assertNotNull(metatdataCreator.getId());
-    
     ObjectSubtype ost = ObjectSubtypeFactory.newObjectSubtype().build();
     save(ost, false);
    
     ObjectStoreMetadata osm = ObjectStoreMetadataFactory
         .newObjectStoreMetadata()
-        .acMetadataCreator(metatdataCreator)
         .acDigitizationDate(TEST_OFFSET_DT)
         .acDerivedFrom(derivedFrom)
-        .dcCreator(metatdataCreator)
         .acSubType(ost)
         .build();
 
@@ -113,9 +113,7 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
     assertEquals(ost.getId(), restoredOsm.getAcSubTypeId());
     assertEquals(ost.getId(), restoredOsm.getAcSubType().getId());
 
-    assertEquals(metatdataCreator.getId(), restoredOsm.getAcMetadataCreator().getId());
     assertEquals(derivedFrom.getId(), restoredOsm.getAcDerivedFrom().getId());
-    assertEquals(metatdataCreator.getId(), restoredOsm.getDcCreator().getId());
   }
 
 }

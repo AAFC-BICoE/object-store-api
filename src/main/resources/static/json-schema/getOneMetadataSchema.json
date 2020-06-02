@@ -113,6 +113,14 @@
               "type": "string",
               "description": "Reference to the person who uploaded the object."
             },
+             "acMetadataCreator": {
+              "type": "string",
+              "description": "Identifier (as UUID) of the acMetadataCreator Agent"
+            },
+             "dcCreator": {
+              "type": "string",
+              "description": "Identifier (as UUID) of the dcCreator Agent"
+            },
             "acHashFunction": {
               "type": "string",
               "description": "The cryptographic hash function used to compute the value given in acHashValue. https://tdwg.github.io/ac/termlist/#ac_hashFunction"
@@ -151,25 +159,6 @@
         },
         "relationships": {
           "properties": {
-            "dcCreator": {
-              "data": { 
-              "type": "object",
-              "required": [
-                 "id",
-                 "type"
-               ],
-               "properties": {
-                  "id": {
-                    "type": "string",
-                    "description": "The id of the dcCreator."
-                  },
-                  "type": {
-                    "const": "agent",
-                    "description": "The type of the dcCreator object."
-                  }
-                }      			  
-              }              
-            },
             "acDerivedFrom": {
               "data": {
                 "type": "object",
