@@ -30,6 +30,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import ca.gc.aafc.dina.entity.DinaEntity;
 import ca.gc.aafc.dina.entity.SoftDeletable;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.AllArgsConstructor;
@@ -48,7 +49,7 @@ import lombok.RequiredArgsConstructor;
 @AllArgsConstructor
 @RequiredArgsConstructor
 @NaturalIdCache
-public class ObjectStoreMetadata implements SoftDeletable {
+public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
 
   private Integer id;
 

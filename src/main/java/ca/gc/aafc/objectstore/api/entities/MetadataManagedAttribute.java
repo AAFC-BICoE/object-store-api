@@ -26,7 +26,7 @@ import lombok.RequiredArgsConstructor;
 @AllArgsConstructor
 @RequiredArgsConstructor
 @SuppressFBWarnings(justification = "ok for Hibernate Entity", value = { "EI_EXPOSE_REP", "EI_EXPOSE_REP2" })
-public class MetadataManagedAttribute implements DinaEntity{
+public class MetadataManagedAttribute implements DinaEntity {
 
   private Integer id;
   private UUID uuid;

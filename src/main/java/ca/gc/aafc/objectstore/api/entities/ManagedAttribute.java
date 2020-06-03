@@ -40,7 +40,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @SuppressFBWarnings(justification = "ok for Hibernate Entity", value = { "EI_EXPOSE_REP", "EI_EXPOSE_REP2" })
 @NaturalIdCache
-public class ManagedAttribute implements DinaEntity{
+public class ManagedAttribute implements DinaEntity {
 
   private Integer id;
   private UUID uuid;
