@@ -17,6 +17,8 @@ import javax.validation.constraints.Size;
 
 import com.vladmihalcea.hibernate.type.basic.PostgreSQLEnumType;
 
+import ca.gc.aafc.dina.entity.DinaEntity;
+
 import org.hibernate.annotations.ColumnTransformer;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.NaturalIdCache;
@@ -36,7 +38,7 @@ import lombok.RequiredArgsConstructor;
 @AllArgsConstructor
 @RequiredArgsConstructor
 @NaturalIdCache
-public class ObjectSubtype {
+public class ObjectSubtype implements DinaEntity {
 
   private Integer id;
   private DcType dcType;

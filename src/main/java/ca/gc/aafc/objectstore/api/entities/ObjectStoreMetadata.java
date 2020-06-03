@@ -30,6 +30,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import ca.gc.aafc.dina.entity.DinaEntity;
 import ca.gc.aafc.dina.entity.SoftDeletable;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.AllArgsConstructor;
@@ -48,7 +49,7 @@ import lombok.RequiredArgsConstructor;
 @AllArgsConstructor
 @RequiredArgsConstructor
 @NaturalIdCache
-public class ObjectStoreMetadata implements SoftDeletable {
+public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
 
   private Integer id;
 
@@ -67,6 +68,7 @@ public class ObjectStoreMetadata implements SoftDeletable {
   private String xmpRightsWebStatement;
   private String dcRights;
   private String xmpRightsOwner;
+  private String xmpRightsUsageTerms;
 
   private String originalFilename;
 
@@ -78,8 +80,8 @@ public class ObjectStoreMetadata implements SoftDeletable {
   private OffsetDateTime deletedDate;
 
   private List<MetadataManagedAttribute> managedAttribute;
-  private Agent acMetadataCreator;
-  private Agent dcCreator;
+  private UUID acMetadataCreator;
+  private UUID dcCreator;
 
   private ObjectStoreMetadata acDerivedFrom;
   
@@ -260,27 +262,7 @@ public class ObjectStoreMetadata implements SoftDeletable {
   public void setManagedAttribute(List<MetadataManagedAttribute> managedAttribute) {
     this.managedAttribute = managedAttribute;
   }
-
-  @OneToOne
-  @JoinColumn(name = "ac_metadata_creator_id", referencedColumnName = "id")
-  public Agent getAcMetadataCreator() {
-    return acMetadataCreator;
-  }
-
-  public void setAcMetadataCreator(Agent acMetadataCreator) {
-    this.acMetadataCreator = acMetadataCreator;
-  }
-
-  @OneToOne
-  @JoinColumn(name = "dc_creator_id", referencedColumnName = "id")
-  public Agent getDcCreator() {
-    return dcCreator;
-  }
-
-  public void setDcCreator(Agent dcCreator) {
-    this.dcCreator = dcCreator;
-  }
-
+  
   @NotNull
   @Column(name = "xmp_rights_web_statement")
   @Size(max = 250)
@@ -390,6 +372,35 @@ public class ObjectStoreMetadata implements SoftDeletable {
   @PrePersist
   public void initUuid() {
     this.uuid = UUID.randomUUID();
+  }
+
+  @Column(name = "ac_metadata_creator_id")
+  public UUID getAcMetadataCreator() {
+    return acMetadataCreator;
+  }
+
+  public void setAcMetadataCreator(UUID acMetadataCreator) {
+    this.acMetadataCreator = acMetadataCreator;
+  }
+
+  @Column(name = "dc_creator_id")
+  public UUID getDcCreator() {
+    return dcCreator;
+  }
+
+  public void setDcCreator(UUID dcCreator) {
+    this.dcCreator = dcCreator;
+  }
+
+  @NotNull
+  @Column(name = "xmp_rights_usage_terms")
+  @Size(max = 500)
+  public String getXmpRightsUsageTerms() {
+    return xmpRightsUsageTerms;
+  }
+
+  public void setXmpRightsUsageTerms(String xmpRightsUsageTerms) {
+    this.xmpRightsUsageTerms = xmpRightsUsageTerms;
   }
 
 }

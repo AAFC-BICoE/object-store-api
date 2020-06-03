@@ -54,6 +54,7 @@ public class TestConfiguration {
   private final FolderStructureStrategy folderStructureStrategy = new FolderStructureStrategy();
   public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
   public static final String TEST_BUCKET = "test";
+  public static final String TEST_USAGE_TERMS = "test usage terms";
   public static final UUID TEST_FILE_IDENTIFIER = UUID.randomUUID();
   public static final UUID TEST_THUMBNAIL_IDENTIFIER = UUID.randomUUID();
   public static final String TEST_FILE_EXT = ".txt";

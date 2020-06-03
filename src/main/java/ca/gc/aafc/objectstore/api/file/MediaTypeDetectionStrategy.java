@@ -90,7 +90,7 @@ public class MediaTypeDetectionStrategy {
     ByteArrayInputStream bais = new ByteArrayInputStream(buffer, 0, lenght);
     
     Metadata metadata = new Metadata();
-    if(StringUtils.isNotBlank(originalFilename)) {
+    if (StringUtils.isNotBlank(originalFilename)) {
       metadata.set(Metadata.RESOURCE_NAME_KEY, originalFilename);
     }
 

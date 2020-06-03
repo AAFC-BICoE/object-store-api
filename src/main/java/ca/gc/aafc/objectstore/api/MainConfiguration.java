@@ -44,7 +44,7 @@ public class MainConfiguration {
       @Value("${minio.accessKey:}") String accessKey, 
       @Value("${minio.secretKey:}") String secretKey)
       throws InvalidEndpointException, InvalidPortException {
-    String endpoint = protocol + "://"+host;
+    String endpoint = protocol + "://" + host;
     return new MinioClient(endpoint, port, accessKey, secretKey);
   }
 

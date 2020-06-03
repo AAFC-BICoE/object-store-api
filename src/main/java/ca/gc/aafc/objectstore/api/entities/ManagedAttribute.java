@@ -18,6 +18,8 @@ import com.vladmihalcea.hibernate.type.array.StringArrayType;
 import com.vladmihalcea.hibernate.type.basic.PostgreSQLEnumType;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 
+import ca.gc.aafc.dina.entity.DinaEntity;
+
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.NaturalIdCache;
 import org.hibernate.annotations.Type;
@@ -38,7 +40,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @SuppressFBWarnings(justification = "ok for Hibernate Entity", value = { "EI_EXPOSE_REP", "EI_EXPOSE_REP2" })
 @NaturalIdCache
-public class ManagedAttribute {
+public class ManagedAttribute implements DinaEntity {
 
   private Integer id;
   private UUID uuid;

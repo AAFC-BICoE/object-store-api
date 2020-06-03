@@ -58,6 +58,10 @@ public class ObjectStoreMetadataDefaultValueSetterService {
     if (StringUtils.isBlank(objectMetadata.getXmpRightsOwner())) {
       objectMetadata.setXmpRightsOwner(config.getDefaultCopyrightOwner());
     }
+    
+    if (StringUtils.isBlank(objectMetadata.getXmpRightsUsageTerms())) {
+      objectMetadata.setXmpRightsUsageTerms(config.getDefaultUsageTerms());
+    }    
 
     return objectMetadata;
   }

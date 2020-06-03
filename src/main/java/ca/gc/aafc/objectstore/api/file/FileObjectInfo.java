@@ -18,12 +18,12 @@ public class FileObjectInfo {
   private Map<String, List<String>> headerMap;
   
   public List<String> extractHeader(String header) {
-    if(headerMap == null || headerMap.isEmpty()) {
+    if (headerMap == null || headerMap.isEmpty()) {
       return Collections.emptyList();
     }
     
-    for(Map.Entry<String, List<String>> entry: headerMap.entrySet()) {
-      if(entry.getKey().equalsIgnoreCase(header)) {
+    for (Map.Entry<String, List<String>> entry: headerMap.entrySet()) {
+      if (entry.getKey().equalsIgnoreCase(header)) {
          return entry.getValue();
       }
     }

@@ -32,7 +32,7 @@ public class MediaTypeToDcTypeConfiguration {
   
   private void computePatterns(LinkedHashMap<String, LinkedList<String>> toDcType) {
     toDcTypePatterns.clear();
-    for(Entry<String, LinkedList<String>> entry : toDcType.entrySet()) {
+    for (Entry<String, LinkedList<String>> entry : toDcType.entrySet()) {
       LinkedList<Pattern> patternList = new LinkedList<>();
       toDcTypePatterns.put(DcType.fromValue(entry.getKey()).orElseThrow(() -> new IllegalArgumentException(entry.getKey() + " is not a valid valud for DcType")), patternList);
       for (String currPattern : entry.getValue()) {

@@ -12,8 +12,6 @@ include::file_upload_download.adoc[]
 
 include::managed_attributes.adoc[]
 
-include::agent_upload_retrieval.adoc[]
-
 include::media_type_detection.adoc[]
 
 include::design.adoc[]

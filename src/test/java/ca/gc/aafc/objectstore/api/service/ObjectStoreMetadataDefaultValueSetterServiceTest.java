@@ -19,7 +19,7 @@ public class ObjectStoreMetadataDefaultValueSetterServiceTest {
 
   @BeforeEach
   public void setup() {
-    ObjectStoreConfiguration config = new ObjectStoreConfiguration("a", "b", "c");
+    ObjectStoreConfiguration config = new ObjectStoreConfiguration("a", "b", "c", "d");
     
     LinkedHashMap<String, LinkedList<String>> toDcType = new LinkedHashMap<>();
     LinkedList<String> patterns = new LinkedList<>();
