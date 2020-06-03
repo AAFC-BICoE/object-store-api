@@ -12,7 +12,7 @@ public final class DtoEntityMapping {
   /**
    * Utility class
    */
-  private DtoEntityMapping() {}
+  private DtoEntityMapping() { }
   
   /**
    * Get the mapping between dto and entity classes.
