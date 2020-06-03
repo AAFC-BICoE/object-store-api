@@ -10,20 +10,24 @@ import ca.gc.aafc.objectstore.api.entities.ManagedAttribute.ManagedAttributeType
 public class ManagedAttributeJsonApiIT extends BaseJsonApiIntegrationTest {
 
   private ManagedAttributeDto managedAttribute;
+  
+  private static final String SCHEMA_NAME = "ManagedAttribute";
+  private static final String RESOURCE_UNDER_TEST = "managed-attribute";
+  private static final String SCHEMA_PATH = "DINA-Web/object-store-specs/master/schema/managedAttribute.yaml";  
 
   @Override
   protected String getSchemaName() {
-    return "ManagedAttribute";
+    return SCHEMA_NAME;
   }
   
   @Override
   protected String getSchemaPath() {
-    return "DINA-Web/object-store-specs/master/schema/managedAttribute.yaml";
+    return SCHEMA_PATH;
   }
      
   @Override
   protected String getResourceUnderTest() {
-    return "managed-attribute";
+    return RESOURCE_UNDER_TEST;
   }
 
   @Override

@@ -156,10 +156,7 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
     uriBuilder.setPath(ROOT_SPEC_PATH);
     OpenAPI3Assertions.parseAndValidateOpenAPI3Specs(uriBuilder.build().toURL());
   
-//Following will be enabled in another task that validates against specific schemas
-    
     log.info("Validating {} schema against the following response: {}", () -> schemaPath, () -> responseJson);
-    System.out.println("Validating {} schema against the following response: {} "+ schemaPath + ",  " + responseJson);
     uriBuilder.setPath(schemaPath);
     OpenAPI3Assertions.assertSchema(uriBuilder.build().toURL(), schemaName, responseJson); 
     
