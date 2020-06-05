@@ -51,18 +51,25 @@ services:
 
 ```
 
-### 2. Launch the database service
+### 2. Launch the database service and object services: (to perform db initialization)
 
 ```
-docker-compose up object-store-db
-```
+docker-compose up -d
 
-To run the integration tests:
+### 3. Get the ip address of the Postgres database:
+...
+POSTGRES_IP=$(docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' objectstoreapifork_object-store-db_1)
+
+### 3. Launch  the integration tests:
+...
+mvn verify -Dspring.datasource.url=jdbc:postgresql://$POSTGRES_IP/object_store_test -Dspring.datasource.username=web_user -Dspring.datasource.password=test
+
+### 4. Shutdown all of the containers:
+...
+
+docker-compose down
 
 ```
-mvn verify -Dspring.datasource.url=jdbc:postgresql://localhost/object_store_test?currentSchema=object_store -Dspring.datasource.username=web_user -Dspring.datasource.password=test -Dspring.liquibase.user=migration_user -Dspring.liquibase.password=test
-```
-
 ## IDE
 
 `object-store-api` requires [Project Lombok](https://projectlombok.org/) to be setup in your IDE.
