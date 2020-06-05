@@ -27,7 +27,7 @@ public class FolderStructureStrategy {
     Preconditions.checkArgument(filename.length() >= 4,
         "FolderStructureStrategy requires at least 4 characters:" + filename);
     Preconditions.checkArgument(StringUtils.isAlphanumeric(filename.substring(0, 4)),
-        "FolderStructureStrategy requires the first 4 characters to be alphanumeric:"+ filename);
+        "FolderStructureStrategy requires the first 4 characters to be alphanumeric:" + filename);
 
     return Paths.get(filename.substring(0, 2), filename.substring(2, 4),
         filename);

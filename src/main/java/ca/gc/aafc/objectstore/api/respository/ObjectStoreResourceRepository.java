@@ -96,7 +96,7 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
 
     ObjectStoreMetadataDto dto = super.findOne(id, jpaFriendlyQuerySpec);
 
-    if( dto.getDeletedDate() != null &&
+    if ( dto.getDeletedDate() != null &&
         !jpaFriendlyQuerySpec.findFilter(DELETED_PATH_SPEC).isPresent() ) {
       throw new GoneException("Deleted", "ID " + id + " deleted");
     }
@@ -148,7 +148,7 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
   @Override
   public void delete(Serializable id) {
     ObjectStoreMetadata objectStoreMetadata = dao.findOneByNaturalId(id, ObjectStoreMetadata.class);
-    if(objectStoreMetadata != null) {
+    if (objectStoreMetadata != null) {
       objectStoreMetadata.setDeletedDate(OffsetDateTime.now());
     }
   }

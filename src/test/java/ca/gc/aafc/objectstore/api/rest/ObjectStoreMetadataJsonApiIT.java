@@ -13,32 +13,26 @@ import org.junit.jupiter.api.Test;
 
 import ca.gc.aafc.objectstore.api.TestConfiguration;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
-import ca.gc.aafc.objectstore.api.entities.Agent;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
-import ca.gc.aafc.objectstore.api.testsupport.factories.AgentFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
 import io.restassured.response.ValidatableResponse;
 
 public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
 
-  private static final String METADATA_CREATOR_PROPERTY_NAME = "acMetadataCreator";
   private static final String METADATA_DERIVED_PROPERTY_NAME = "acDerivedFrom";
-  private static final String DC_CREATOR_PROPERTY_NAME = "dcCreator";
+  private static final String SCHEMA_NAME = "Metadata";
+  private static final String RESOURCE_UNDER_TEST = "metadata";
+  private static final String SCHEMA_PATH = "DINA-Web/object-store-specs/master/schema/metadata.yaml";  
   
   private ObjectStoreMetadataDto objectStoreMetadata;
   private ObjectSubtype oSubtype;
 
-  private UUID agentId;
   private UUID metadataId;
 
   @BeforeEach
   public void setup() {
-    Agent agent = AgentFactory.newAgent()
-        .uuid(agentId)
-        .build();
-
     ObjectStoreMetadata metadata = ObjectStoreMetadataFactory
       .newObjectStoreMetadata()
       .uuid(metadataId)
@@ -52,12 +46,10 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
     // we need to run the setup in another transaction and commit it otherwise it can't be visible
     // to the test web server.
     runInNewTransaction(em -> {
-      em.persist(agent);
       em.persist(metadata);
       em.persist(oSubtype);
     });
 
-    agentId = agent.getUuid();
     metadataId = metadata.getUuid();
   }
 
@@ -73,19 +65,19 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
   
   @Override
   protected String getResourceUnderTest() {
-    return "metadata";
+    return RESOURCE_UNDER_TEST;
   }
 
   @Override
-  protected String getGetOneSchemaFilename() {
-    return "getOneMetadataSchema.json";
+  protected String getSchemaName() {
+    return SCHEMA_NAME;
   }
-
+  
   @Override
-  protected String getGetManySchemaFilename() {
-    return null;
+  protected String getSchemaPath() {
+    return SCHEMA_PATH;
   }
-
+  
   @Override
   protected Map<String, Object> buildCreateAttributeMap() {
     
@@ -103,8 +95,11 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
     objectStoreMetadata.setFileExtension(TestConfiguration.TEST_FILE_EXT);
     objectStoreMetadata.setBucket(TestConfiguration.TEST_BUCKET);
     objectStoreMetadata.setAcHashValue("123");
+    objectStoreMetadata.setAcMetadataCreator(UUID.randomUUID());
+    objectStoreMetadata.setDcCreator(UUID.randomUUID());
     objectStoreMetadata.setPubliclyReleasable(true);
     objectStoreMetadata.setNotPubliclyReleasableReason("Classified");
+    objectStoreMetadata.setXmpRightsUsageTerms(null);
 
     return toAttributeMap(objectStoreMetadata);
   }
@@ -122,9 +117,7 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
   @Override
   protected List<Relationship> buildRelationshipList() {
     return Arrays.asList(
-        Relationship.of(METADATA_CREATOR_PROPERTY_NAME, "agent", agentId.toString()),
-        Relationship.of(METADATA_DERIVED_PROPERTY_NAME, "metadata", metadataId.toString()),
-        Relationship.of(DC_CREATOR_PROPERTY_NAME, "agent", agentId.toString()));
+      Relationship.of(METADATA_DERIVED_PROPERTY_NAME, "metadata", metadataId.toString()));
   }
   
   @Test

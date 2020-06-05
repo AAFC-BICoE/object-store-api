@@ -7,21 +7,24 @@ import ca.gc.aafc.objectstore.api.entities.DcType;
 
 public class ObjectSubTypeJsonApiIT extends BaseJsonApiIntegrationTest {
 
-  private ObjectSubtypeDto objectSubtype;  
+  private ObjectSubtypeDto objectSubtype;
+  private static final String SCHEMA_NAME = "ObjectSubtype";
+  private static final String RESOURCE_UNDER_TEST = "object-subtype";
+  private static final String SCHEMA_PATH = "DINA-Web/object-store-specs/master/schema/objectSubtype.yaml";  
+  
+  @Override
+  protected String getSchemaName() {
+    return SCHEMA_NAME;
+  }
+  
+  @Override
+  protected String getSchemaPath() {
+    return SCHEMA_PATH;
+  }  
   
   @Override
   protected String getResourceUnderTest() {
-    return "object-subtype";
-  }
-
-  @Override
-  protected String getGetOneSchemaFilename() {
-    return "getOneObjectSubtypeSchema.json";
-  }
-
-  @Override
-  protected String getGetManySchemaFilename() {
-    return null;
+    return RESOURCE_UNDER_TEST;
   }
 
   @Override

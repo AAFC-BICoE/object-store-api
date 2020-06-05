@@ -33,7 +33,7 @@ public enum DcType {
    *         there is {@link DcType} match.
    */
   public static Optional<DcType> fromValue(String value) {
-    if(StringUtils.isBlank(value)) {
+    if (StringUtils.isBlank(value)) {
       return Optional.empty();
     }
     

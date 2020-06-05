@@ -237,7 +237,7 @@ public class FileController {
     int numberOfAttempt = 0;
     while (numberOfAttempt < MAX_NUMBER_OF_ATTEMPT_RANDOM_UUID) {
       UUID uuid = UUID.randomUUID();
-      if(!minioService.isFileWithPrefixExists(bucketName, uuid.toString())) {
+      if (!minioService.isFileWithPrefixExists(bucketName, uuid.toString())) {
         return uuid;
       }
       numberOfAttempt++;

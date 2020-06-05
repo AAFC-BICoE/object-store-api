@@ -32,7 +32,8 @@ public class ObjectStoreMetadataFactory implements TestableEntityFactory<ObjectS
         .dcType(DcType.IMAGE)
         .xmpRightsWebStatement("https://open.canada.ca/en/open-government-licence-canada")
         .dcRights("Copyright Government of Canada")
-        .xmpRightsOwner("Government of Canada");
+        .xmpRightsOwner("Government of Canada")
+        .xmpRightsUsageTerms("Government of Canada Usage Terms");
    }  
     
   /**
