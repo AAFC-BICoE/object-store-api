@@ -25,6 +25,7 @@ import ca.gc.aafc.dina.repository.GoneException;
 import ca.gc.aafc.dina.repository.JpaDtoRepository;
 import ca.gc.aafc.dina.repository.JpaResourceRepository;
 import ca.gc.aafc.dina.repository.meta.JpaMetaInformationProvider;
+import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.objectstore.api.ObjectStoreConfiguration;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
@@ -34,6 +35,8 @@ import ca.gc.aafc.objectstore.api.file.FileMetaEntry;
 import ca.gc.aafc.objectstore.api.file.ThumbnailService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataDefaultValueSetterService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataReadService;
+import io.crnk.core.exception.UnauthorizedException;
+import io.crnk.core.queryspec.FilterOperator;
 import io.crnk.core.queryspec.PathSpec;
 import io.crnk.core.queryspec.QuerySpec;
 import io.crnk.core.resource.list.ResourceList;
@@ -53,7 +56,8 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
     ObjectStoreConfiguration config,
     BaseDAO dao,
     FileInformationService fileInformationService,
-    ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService
+    ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService,
+    Optional<DinaAuthenticatedUser> authenticatedUser
   ) {
     super(
       ObjectStoreMetadataDto.class,
@@ -64,11 +68,13 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
     this.dao = dao;
     this.fileInformationService = fileInformationService;
     this.defaultValueSetterService = defaultValueSetterService;
+    this.authenticatedUser = authenticatedUser;
   }
 
   private final BaseDAO dao;
   private final FileInformationService fileInformationService;
   private final ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService;
+  private Optional<DinaAuthenticatedUser> authenticatedUser;
 
   private static PathSpec DELETED_PATH_SPEC = PathSpec.of("softDeleted");
 
@@ -110,6 +116,16 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
     QuerySpec jpaFriendlyQuerySpec = querySpec.clone();
     jpaFriendlyQuerySpec.getIncludedRelations()
       .removeIf(include -> include.getPath().toString().equals("managedAttributeMap"));
+
+    /**
+     * Currently matches a DinaAuthenticatedUser first keycloak group to a bucket.
+     * This will be changed.
+     */
+    if (authenticatedUser.isPresent()) {
+      String firstGroup = authenticatedUser.get().getGroups().stream().findFirst()
+          .orElseThrow(() -> new UnauthorizedException("You must belong to a group"));
+      jpaFriendlyQuerySpec.addFilter(PathSpec.of("bucket").filter(FilterOperator.EQ, firstGroup));
+    }
 
     return super.findAll(jpaFriendlyQuerySpec);
   }
