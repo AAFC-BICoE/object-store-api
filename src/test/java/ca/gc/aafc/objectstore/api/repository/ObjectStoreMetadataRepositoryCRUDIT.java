@@ -1,17 +1,23 @@
 package ca.gc.aafc.objectstore.api.repository;
 
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.TestConfiguration;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectSubtypeDto;
@@ -154,6 +160,30 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
 
     //Can break Relationships
     assertRelationshipsRemoved();
+  }
+
+  @Test
+  public void findAll_FiltersByGroup() {
+    int expectedSize = 10;
+    String expectedBucket = DinaAuthenticatedUserConfig.GROUPS.stream().findFirst().get();
+    Set<UUID> expectedUUIDs = new HashSet<>();
+
+    // Persist 20 metadata, only half should be found
+    for (int i = 0; i < expectedSize; i++) {
+      ObjectStoreMetadata toPersist = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
+      toPersist.setBucket(expectedBucket);
+      persist(toPersist);
+      expectedUUIDs.add(toPersist.getUuid());
+      ObjectStoreMetadata extra = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
+      extra.setBucket("wrong bucket!!!");
+      persist(extra);
+    }
+
+    Set<UUID> resultUuids = objectStoreResourceRepository
+      .findAll(new QuerySpec(ObjectStoreMetadataDto.class)).stream()
+      .map(ObjectStoreMetadataDto::getUuid)
+      .collect(Collectors.toSet());
+    assertThat(resultUuids, CoreMatchers.is(expectedUUIDs));
   }
 
   private void assertRelationshipsRemoved() {
