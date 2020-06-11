@@ -124,6 +124,8 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
     if (authenticatedUser.isPresent()) {
       String firstGroup = authenticatedUser.get().getGroups().stream().findFirst()
           .orElseThrow(() -> new UnauthorizedException("You must belong to a group"));
+      //Key cloak is returning groups with forward prefixed with forward slashes
+      firstGroup = firstGroup.charAt(0) == '/' ? firstGroup.substring(1): firstGroup;
       jpaFriendlyQuerySpec.addFilter(PathSpec.of("bucket").filter(FilterOperator.EQ, firstGroup));
     }
 
