@@ -23,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 
+import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.minio.MinioFileService;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
@@ -43,6 +44,9 @@ public class FileControllerIT {
   @Inject
   private MinioFileService minioFileService;
 
+  private final static String bucketUnderTest = DinaAuthenticatedUserConfig.GROUPS.stream()
+    .findFirst().get();
+
   @Transactional
   @Test
   public void fileUpload_whenImageIsUploaded_generateThumbnail() throws Exception {
@@ -51,7 +55,7 @@ public class FileControllerIT {
 
     MockMultipartFile mockFile = new MockMultipartFile("file", "testfile", MediaType.IMAGE_PNG_VALUE, bytes);
 
-    FileMetaEntry uploadResponse = fileController.handleFileUpload(mockFile, "mybucket");
+    FileMetaEntry uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
 
     UUID thumbnailIdentifier = uploadResponse.getThumbnailIdentifier();
 
@@ -62,7 +66,7 @@ public class FileControllerIT {
     entityManager.persist(thumbMetaData);
     
     ResponseEntity<InputStreamResource> thumbnailDownloadResponse = fileController.downloadObject(
-      "mybucket",
+      bucketUnderTest,
       thumbnailIdentifier + ".thumbnail"
     );
 
@@ -77,11 +81,11 @@ public class FileControllerIT {
 
     MockMultipartFile mockFile = new MockMultipartFile("file", "testfile", MediaType.IMAGE_PNG_VALUE, bytes);
 
-    FileMetaEntry uploadResponse = fileController.handleFileUpload(mockFile, "mybucket");
+    FileMetaEntry uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
 
     Optional<InputStream> response = minioFileService.getFile(
       uploadResponse.getFileMetaEntryFilename(),
-      "mybucket"
+      bucketUnderTest
     );
 
     assertTrue(response.isPresent());

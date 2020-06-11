@@ -15,7 +15,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.util.NestedServletException;
 
-import ca.gc.aafc.objectstore.api.TestConfiguration;
+import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
+import io.crnk.core.exception.UnauthorizedException;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -24,6 +25,9 @@ public class FileUploadIT {
   @Autowired
   protected WebApplicationContext wac;
 
+  private final static String bucketUnderTest = DinaAuthenticatedUserConfig.GROUPS.stream()
+    .findFirst().get();
+
   @Test
   public void fileUpload_onMultipartRequest_acceptFile() throws Exception {
 
@@ -31,25 +35,24 @@ public class FileUploadIT {
         "Test Content".getBytes());
 
     webAppContextSetup(this.wac).build()
-        .perform(MockMvcRequestBuilders.multipart("/api/v1/file/mybucket").file(file))
+        .perform(MockMvcRequestBuilders.multipart("/api/v1/file/" + bucketUnderTest).file(file))
         .andExpect(status().is(200));
   }
 
   @Test
-  public void fileUpload_onInvalidBucket_returnError() throws Exception {
+  public void fileUpload_onInvalidBucket_UnauthorizedException() throws Exception {
 
     MockMultipartFile file = new MockMultipartFile("file", "testfile", MediaType.TEXT_PLAIN_VALUE,
         "Test Content".getBytes());
     
     try {
       webAppContextSetup(this.wac).build()
-      .perform(MockMvcRequestBuilders
-          .multipart("/api/v1/file/a" + TestConfiguration.ILLEGAL_BUCKET_CHAR + "b").file(file));
+          .perform(MockMvcRequestBuilders.multipart("/api/v1/file/a").file(file));
       fail("Expected NestedServletException");
     }
     // NestedServletException is a generic exception so we want to do the assertion on the cause
     catch (NestedServletException nsEx) {
-      assertEquals(IllegalStateException.class, nsEx.getCause().getClass());
+      assertEquals(UnauthorizedException.class, nsEx.getCause().getClass());
     }
      
   }
