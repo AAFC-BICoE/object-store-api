@@ -1,6 +1,7 @@
 package ca.gc.aafc.objectstore.api.file;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.InputStream;
@@ -27,6 +28,7 @@ import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.minio.MinioFileService;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
+import io.crnk.core.exception.UnauthorizedException;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -89,6 +91,13 @@ public class FileControllerIT {
     );
 
     assertTrue(response.isPresent());
+  }
+
+  @Test
+  public void download_UnAuthorizedBucket_ThrowsUnauthorizedException() {
+    assertThrows(
+      UnauthorizedException.class,
+      () -> fileController.downloadObject("invalid-bucket", "324234"));
   }
 
 }
