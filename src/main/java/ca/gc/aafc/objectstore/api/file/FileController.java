@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MimeTypeException;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -35,9 +36,11 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import org.xmlpull.v1.XmlPullParserException;
 
+import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.minio.MinioFileService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataReadService;
+import io.crnk.core.exception.UnauthorizedException;
 import io.minio.errors.ErrorResponseException;
 import io.minio.errors.InsufficientDataException;
 import io.minio.errors.InternalException;
@@ -63,16 +66,20 @@ public class FileController {
   private final MediaTypeDetectionStrategy mediaTypeDetectionStrategy;
   private final ObjectMapper objectMapper;
   private final ThumbnailService thumbnailService;
+  private Optional<DinaAuthenticatedUser> authenticatedUser;
 
   @Inject
   public FileController(MinioFileService minioService, ObjectStoreMetadataReadService objectStoreMetadataReadService, 
       MediaTypeDetectionStrategy mediaTypeDetectionStrategy,
       Jackson2ObjectMapperBuilder jackson2ObjectMapperBuilder,
-      ThumbnailService thumbnailService) {
+      ThumbnailService thumbnailService,
+      Optional<DinaAuthenticatedUser> authenticatedUser
+  ) {
     this.minioService = minioService;
     this.objectStoreMetadataReadService = objectStoreMetadataReadService;
     this.mediaTypeDetectionStrategy = mediaTypeDetectionStrategy;
     this.thumbnailService = thumbnailService;
+    this.authenticatedUser = authenticatedUser;
     this.objectMapper = jackson2ObjectMapperBuilder.build();
     objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
   }
@@ -87,6 +94,7 @@ public class FileController {
     
     // Temporary, we will need to check if the user is an admin
     minioService.ensureBucketExists(bucket);
+    authenticateBucket(bucket);
     
     MediaTypeDetectionStrategy.MediaTypeDetectionResult mtdr = mediaTypeDetectionStrategy
         .detectMediaType(file.getInputStream(), file.getContentType(), file.getOriginalFilename());
@@ -189,6 +197,8 @@ public class FileController {
   public ResponseEntity<InputStreamResource> downloadObject(@PathVariable String bucket,
       @PathVariable String fileId) throws IOException {
 
+    authenticateBucket(bucket);
+
     boolean thumbnailRequested = fileId.endsWith(".thumbnail");
     String fileUuidString = thumbnailRequested ? fileId.replaceAll(".thumbnail$", "") : fileId;
     UUID fileUuid = UUID.fromString(fileUuidString);
@@ -243,6 +253,23 @@ public class FileController {
       numberOfAttempt++;
     }
     throw new IllegalStateException("Can't assign unique UUID. Giving up.");
+  }
+
+  /**
+   * Authenticates the DinaAuthenticatedUser for a given bucket.
+   * 
+   * @param bucket
+   *                 - bucket to validate.
+   * @throws UnauthorizedException
+   *                                 If the DinaAuthenticatedUser does not have
+   *                                 access to the given bucket
+   */
+  private void authenticateBucket(String bucket) {
+    if (authenticatedUser.isPresent() && !authenticatedUser.get().getGroups().contains(bucket)) {
+      throw new UnauthorizedException(
+          "You are not authorized for bucket: " + bucket
+          + ". Expected buckets: " + StringUtils.join(authenticatedUser.get().getGroups(), ", "));
+    }
   }
 
 }
