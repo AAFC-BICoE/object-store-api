@@ -3,7 +3,7 @@
 ./checkDatabaseReadiness.sh
 if [ $? != 0 ]; then
    export PGPASSWORD="$POSTGRES_PASSWORD"
-   echo "CREATE DATABASE $POSTGRES_DB;" | psql  -h $POSTGRES_HOST -d postgres -U $POSTGRES_USER
+   echo "CREATE DATABASE $POSTGRES_DB;" | psql  -h $POSTGRES_HOST -d $POSTGRES_USER -U $POSTGRES_USER
    envsubst <createUsers.sql | psql  -h $POSTGRES_HOST -d $POSTGRES_DB -U $POSTGRES_USER
    
    export PGPASSWORD="$spring_liquibase_password"
