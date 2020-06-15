@@ -91,16 +91,16 @@ public class FileController {
       InvalidArgumentException, InsufficientDataException, InvalidResponseException,
       RegionConflictException, InvalidEndpointException, InvalidPortException, IOException,
       XmlPullParserException, URISyntaxException, MimeTypeException {
-    
+
+    // Check that the UUID is not already assigned.
+    UUID uuid = getNewUUID(bucket);
+
     // Temporary, we will need to check if the user is an admin
     minioService.ensureBucketExists(bucket);
     authenticateBucket(bucket);
     
     MediaTypeDetectionStrategy.MediaTypeDetectionResult mtdr = mediaTypeDetectionStrategy
         .detectMediaType(file.getInputStream(), file.getContentType(), file.getOriginalFilename());
-    
-    // Check that the UUID is not already assigned. It is very unlikely but not impossible
-    UUID uuid = getNewUUID(bucket);
 
     FileMetaEntry fileMetaEntry = new FileMetaEntry(uuid);
     fileMetaEntry.setOriginalFilename(file.getOriginalFilename());
