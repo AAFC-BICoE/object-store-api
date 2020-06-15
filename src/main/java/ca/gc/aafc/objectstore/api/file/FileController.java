@@ -250,6 +250,7 @@ public class FileController {
       if (!minioService.isFileWithPrefixExists(bucketName, uuid.toString())) {
         return uuid;
       }
+      log.warn("Could not get a uuid for file in bucket :{}", () -> bucketName);
       numberOfAttempt++;
     }
     throw new IllegalStateException("Can't assign unique UUID. Giving up.");

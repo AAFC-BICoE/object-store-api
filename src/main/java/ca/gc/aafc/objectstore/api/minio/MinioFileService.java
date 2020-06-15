@@ -205,15 +205,19 @@ public class MinioFileService implements FileInformationService {
   public boolean isFileWithPrefixExists(String bucketName, String prefix)
       throws IllegalStateException, IOException {
     try {
+      log.debug("Checking file with prefix.  bucket: {}, prefix: {}", () -> bucketName, () -> prefix);
       Iterator<Result<Item>> result = minioClient.listObjects(bucketName, getFileLocation(prefix))
           .iterator();
       if (result.hasNext()) {
+        log.error("File with existing prefix found. bucket: {}, prefix: {}, file location: {}", () -> bucketName, 
+          () -> prefix, () -> getFileLocation(prefix));
         return true;
       }
 
       // when hasNext returns false it could also mean an error
       Result<Item> nextResult = result.next();
       if (nextResult != null) {
+        log.warn("Minio client iterator hasNext() is false but next item is not null.");
         // get will throw an exception if one occurred in the call to Minio
         nextResult.get();
       }
