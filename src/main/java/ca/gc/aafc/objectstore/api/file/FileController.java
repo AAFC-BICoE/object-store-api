@@ -94,11 +94,11 @@ public class FileController {
 
     // Check that the UUID is not already assigned.
     UUID uuid = getNewUUID(bucket);
+    authenticateBucket(bucket);
 
     // Temporary, we will need to check if the user is an admin
     minioService.ensureBucketExists(bucket);
-    authenticateBucket(bucket);
-    
+
     MediaTypeDetectionStrategy.MediaTypeDetectionResult mtdr = mediaTypeDetectionStrategy
         .detectMediaType(file.getInputStream(), file.getContentType(), file.getOriginalFilename());
 
