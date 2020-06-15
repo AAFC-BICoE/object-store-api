@@ -53,10 +53,7 @@ public class FileControllerIT {
   @Transactional
   @Test
   public void fileUpload_whenImageIsUploaded_generateThumbnail() throws Exception {
-    Resource imageFile = resourceLoader.getResource("classpath:drawing.png");
-    byte[] bytes = IOUtils.toByteArray(imageFile.getInputStream());
-
-    MockMultipartFile mockFile = new MockMultipartFile("file", "testfile", MediaType.IMAGE_PNG_VALUE, bytes);
+    MockMultipartFile mockFile = getFileUnderTest();
 
     FileMetaEntry uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
 
@@ -79,10 +76,7 @@ public class FileControllerIT {
   @Transactional
   @Test
   public void fileUpload_OnValidUpload_FileMetaEntryGenerated() throws Exception {
-    Resource imageFile = resourceLoader.getResource("classpath:drawing.png");
-    byte[] bytes = IOUtils.toByteArray(imageFile.getInputStream());
-
-    MockMultipartFile mockFile = new MockMultipartFile("file", "testfile", MediaType.IMAGE_PNG_VALUE, bytes);
+    MockMultipartFile mockFile = getFileUnderTest();
 
     FileMetaEntry uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
 
@@ -103,14 +97,18 @@ public class FileControllerIT {
 
   @Test
   public void upload_UnAuthorizedBucket_ThrowsUnauthorizedException() throws IOException {
+    MockMultipartFile mockFile = getFileUnderTest();
+
+    assertThrows(
+      UnauthorizedException.class,
+      () -> fileController.handleFileUpload(mockFile, "ivalid-bucket"));
+  }
+
+  private MockMultipartFile getFileUnderTest() throws IOException {
     Resource imageFile = resourceLoader.getResource("classpath:drawing.png");
     byte[] bytes = IOUtils.toByteArray(imageFile.getInputStream());
 
-    MockMultipartFile mockFile =
-        new MockMultipartFile("file", "testfile", MediaType.IMAGE_PNG_VALUE, bytes);
-
-    assertThrows(UnauthorizedException.class,
-        () -> fileController.handleFileUpload(mockFile, "ivalid-bucket"));
+    return new MockMultipartFile("file", "testfile", MediaType.IMAGE_PNG_VALUE, bytes);
   }
 
 }
