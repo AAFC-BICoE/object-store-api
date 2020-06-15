@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
 import java.util.UUID;
@@ -98,6 +99,18 @@ public class FileControllerIT {
     assertThrows(
       UnauthorizedException.class,
       () -> fileController.downloadObject("invalid-bucket", "324234"));
+  }
+
+  @Test
+  public void upload_UnAuthorizedBucket_ThrowsUnauthorizedException() throws IOException {
+    Resource imageFile = resourceLoader.getResource("classpath:drawing.png");
+    byte[] bytes = IOUtils.toByteArray(imageFile.getInputStream());
+
+    MockMultipartFile mockFile =
+        new MockMultipartFile("file", "testfile", MediaType.IMAGE_PNG_VALUE, bytes);
+
+    assertThrows(UnauthorizedException.class,
+        () -> fileController.handleFileUpload(mockFile, "ivalid-bucket"));
   }
 
 }
