@@ -140,6 +140,18 @@ public class FileController {
     return fileMetaEntry;
   }
 
+  /**
+   * Stores a generated thumbnail and returns the Identifier or Null if a
+   * thumbnail could not be generated.
+   * 
+   * @param in
+   *                        - image input stream
+   * @param bucket
+   *                        - bucket to store thumbnail
+   * @param fileExtension
+   *                        - file extension of the image
+   * @return - UUID of the stored thumbnail, or null
+   */
   @SneakyThrows
   private UUID generateThumbNail(InputStream in, String bucket, String fileExtension) {
     if (thumbnailService.isSupported(fileExtension)) {
