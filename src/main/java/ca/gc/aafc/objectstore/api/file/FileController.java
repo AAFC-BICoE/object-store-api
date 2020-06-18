@@ -149,7 +149,7 @@ public class FileController {
         minioService.storeFile(fileName, thumbnail, "image/jpeg", bucket, null);
         return thumbUuid;
       } catch (IOException e) {
-        log.info("A thumbnail could not be generated due to: ", e);
+        log.warn("A thumbnail could not be generated due to: ", e);
       }
     }
     return null;
