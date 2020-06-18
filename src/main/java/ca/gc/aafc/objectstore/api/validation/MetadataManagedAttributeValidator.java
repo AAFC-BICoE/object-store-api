@@ -1,6 +1,7 @@
 package ca.gc.aafc.objectstore.api.validation;
 
 import java.util.Arrays;
+import java.util.stream.Stream;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -18,13 +19,10 @@ import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
 
 public class MetadataManagedAttributeValidator implements Validator {
-
+ 
     @Inject
-    private MessageSource messageSource;
+    private final MessageSource messageSource;
 
-    @Autowired
-    public MetadataManagedAttributeValidator(MessageSource messageSource){
-        this.messageSource = messageSource;
     }
 
     @Override
@@ -35,23 +33,20 @@ public class MetadataManagedAttributeValidator implements Validator {
     @Override
     public void validate(Object target, Errors errors) {
 
-        //Is this required? Already has an @NotNull annotation
-        ValidationUtils.rejectIfEmpty(errors, "managedAttribute", "managedAttribute.empty", errorArgs);
-        
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "assignedValue", errorCode, errorArgs);
-        
         MetadataManagedAttribute mma = (MetadataManagedAttribute) target;
         
         String[] acceptedValues = mma.getManagedAttribute().getAcceptedValues();
-        // check that assignedValue is contained in acceptedValues
-        //could combine if and else if decide to keep the same error message
+        
         if (acceptedValues.equals(null)) {
             errors.rejectValue("assignedValue", "assignedValue.invalid"/*, arg2*/);
         } else {
-            if (!Arrays.stream(acceptedValues).anyMatch(mma.getAssignedValue()::equals)){
+            if(Stream.of(acceptedValues).map(x -> x.toUpperCase()).anyMatch(mma.getAssignedValue()::equals)){
                 errors.rejectValue("assignedValue", "assignedValue.invalid"/*, arg2*/);
             }
+            //if (!Arrays.stream(acceptedValues).anyMatch(mma.getAssignedValue()::equals)){
+            
         }
+        
         // check that assignedValue type is of type contained in ManagedAttributeType
 
     }
