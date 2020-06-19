@@ -50,6 +50,7 @@ import io.minio.errors.InvalidPortException;
 import io.minio.errors.InvalidResponseException;
 import io.minio.errors.RegionConflictException;
 import io.minio.errors.XmlParserException;
+import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 
 @RestController
@@ -129,26 +130,50 @@ public class FileController {
     String sha1Hex = DigestUtils.sha1Hex(md.digest());
     fileMetaEntry.setSha1Hex(sha1Hex);
 
-    // Generate thumbnail if the file format can be thumbnailed:
-    if (thumbnailService.isSupported(mtdr.getEvaluatedMediatype())) {
-      UUID thumbUuid = getNewUUID(bucket);
-      try (InputStream thumbnail = thumbnailService.generateThumbnail(file.getInputStream())) {
-        minioService.storeFile(
-          thumbUuid.toString() + ".thumbnail" + ThumbnailService.THUMBNAIL_EXTENSION,
-          thumbnail,
-          "image/jpeg",
-          bucket,
-          null
-        );
-      }
-      fileMetaEntry.setThumbnailIdentifier(thumbUuid);
-    }
+    UUID thumbUuid = generateThumbNail(
+      uuid,
+      file.getInputStream(),
+      bucket,
+      mtdr.getEvaluatedMediatype());
+    fileMetaEntry.setThumbnailIdentifier(thumbUuid);
 
     storeFileMetaEntry(fileMetaEntry, bucket);
 
     return fileMetaEntry;
   }
-  
+
+  /**
+   * Stores a generated thumbnail and returns the Identifier or Null if a
+   * thumbnail could not be generated.
+   * 
+   * @param fileID
+   *                        - UUID of the original file the thumbnail uses.
+   * 
+   * @param in
+   *                        - image input stream
+   * @param bucket
+   *                        - bucket to store thumbnail
+   * @param fileExtension
+   *                        - file extension of the image
+   * @return - UUID of the stored thumbnail, or null
+   */
+  @SneakyThrows
+  private UUID generateThumbNail(UUID fileID, InputStream in, String bucket, String fileExtension) {
+    if (thumbnailService.isSupported(fileExtension)) {
+      log.info("Generating a thumbnail for file with UUID of: {}", () -> fileID);
+
+      try (InputStream thumbnail = thumbnailService.generateThumbnail(in)) {
+        UUID thumbID = getNewUUID(bucket);
+        String fileName = thumbID.toString() + ".thumbnail" + ThumbnailService.THUMBNAIL_EXTENSION;
+        minioService.storeFile(fileName, thumbnail, "image/jpeg", bucket, null);
+        return thumbID;
+      } catch (IOException e) {
+        log.warn(() -> "A thumbnail could not be generated for file " + fileID, e);
+      }
+    }
+    return null;
+  }
+
   /**
    * Store a {@link FileMetaEntry} in Minio as a json file.
    * 
