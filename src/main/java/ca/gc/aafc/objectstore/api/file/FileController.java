@@ -131,8 +131,11 @@ public class FileController {
     String sha1Hex = DigestUtils.sha1Hex(md.digest());
     fileMetaEntry.setSha1Hex(sha1Hex);
 
-    log.info("Generating a thumbnail for file: {}", ()-> file.getOriginalFilename());
-    UUID thumbUuid = generateThumbNail(file.getInputStream(), bucket, mtdr.getEvaluatedMediatype());
+    UUID thumbUuid = generateThumbNail(
+      uuid,
+      file.getInputStream(),
+      bucket,
+      mtdr.getEvaluatedMediatype());
     fileMetaEntry.setThumbnailIdentifier(thumbUuid);
 
     storeFileMetaEntry(fileMetaEntry, bucket);
@@ -144,6 +147,9 @@ public class FileController {
    * Stores a generated thumbnail and returns the Identifier or Null if a
    * thumbnail could not be generated.
    * 
+   * @param fileID
+   *                        - UUID of the original file the thumbnail uses.
+   * 
    * @param in
    *                        - image input stream
    * @param bucket
@@ -153,15 +159,17 @@ public class FileController {
    * @return - UUID of the stored thumbnail, or null
    */
   @SneakyThrows
-  private UUID generateThumbNail(InputStream in, String bucket, String fileExtension) {
+  private UUID generateThumbNail(UUID fileID, InputStream in, String bucket, String fileExtension) {
     if (thumbnailService.isSupported(fileExtension)) {
+      log.info("Generating a thumbnail for file with UUID of: {}", () -> fileID);
+
       try (InputStream thumbnail = thumbnailService.generateThumbnail(in)) {
-        UUID thumbUuid = getNewUUID(bucket);
-        String fileName = thumbUuid.toString() + ".thumbnail" + ThumbnailService.THUMBNAIL_EXTENSION;
+        UUID thumbID = getNewUUID(bucket);
+        String fileName = thumbID.toString() + ".thumbnail" + ThumbnailService.THUMBNAIL_EXTENSION;
         minioService.storeFile(fileName, thumbnail, "image/jpeg", bucket, null);
-        return thumbUuid;
+        return thumbID;
       } catch (IOException e) {
-        log.warn("A thumbnail could not be generated due to: ", e);
+        log.warn(() -> "A thumbnail could not be generated for file" + fileID, e);
       }
     }
     return null;
