@@ -126,7 +126,7 @@ public class MinioFileService implements FileInformationService {
 
     if (partSize > PutObjectOptions.MAX_MULTIPART_COUNT) {
       partSize = PutObjectOptions.MAX_MULTIPART_COUNT;
-    } else if (availableBytes < PutObjectOptions.MIN_MULTIPART_SIZE) {
+    } else if (partSize < PutObjectOptions.MIN_MULTIPART_SIZE) {
       partSize = PutObjectOptions.MIN_MULTIPART_SIZE;
     }
 
