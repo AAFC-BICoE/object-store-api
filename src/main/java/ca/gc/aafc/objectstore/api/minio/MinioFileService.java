@@ -138,15 +138,15 @@ public class MinioFileService implements FileInformationService {
   }
 
   public void ensureBucketExists(String bucketName) throws IOException {
-    if (!bucketExists(bucketName)) {
-      try {
+    try {
+      if (!minioClient.bucketExists(bucketName)) {
         minioClient.makeBucket(bucketName);
-      } catch (InvalidKeyException | ErrorResponseException | IllegalArgumentException
-          | InsufficientDataException | InternalException | InvalidBucketNameException
-          | InvalidResponseException | NoSuchAlgorithmException | RegionConflictException
-          | XmlParserException e) {
-        throw new IOException(e);
       }
+    } catch (InvalidKeyException | ErrorResponseException | IllegalArgumentException
+        | InsufficientDataException | InternalException | InvalidBucketNameException
+        | InvalidResponseException | NoSuchAlgorithmException | RegionConflictException
+        | XmlParserException e) {
+      throw new IOException(e);
     }
   }
 
