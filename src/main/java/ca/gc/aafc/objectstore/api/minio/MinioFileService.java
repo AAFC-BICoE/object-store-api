@@ -113,13 +113,27 @@ public class MinioFileService implements FileInformationService {
       InsufficientDataException, InternalException, InvalidBucketNameException,
       InvalidResponseException, NoSuchAlgorithmException, XmlParserException, IOException {
 
-    long partSize = iStream.available() < PutObjectOptions.MIN_MULTIPART_SIZE
-        ? PutObjectOptions.MIN_MULTIPART_SIZE
-        : iStream.available();
+    PutObjectOptions putObjectOptions = createPutOptions(iStream.available(), contentType, headersMap);
+    minioClient.putObject(bucket, getFileLocation(fileName), iStream, putObjectOptions);
+  }
+
+  private PutObjectOptions createPutOptions(
+    int availableBytes,
+    String contentType,
+    Map<String, String> headersMap
+  ) {
+    long partSize = availableBytes;
+
+    if (partSize > PutObjectOptions.MAX_MULTIPART_COUNT) {
+      partSize = PutObjectOptions.MAX_MULTIPART_COUNT;
+    } else if (availableBytes < PutObjectOptions.MIN_MULTIPART_SIZE) {
+      partSize = PutObjectOptions.MIN_MULTIPART_SIZE;
+    }
+
     PutObjectOptions putObjectOptions = new PutObjectOptions(-1, partSize);
     putObjectOptions.setContentType(contentType);
     putObjectOptions.setHeaders(headersMap);
-    minioClient.putObject(bucket, getFileLocation(fileName), iStream, putObjectOptions);
+    return putObjectOptions;
   }
 
   public void ensureBucketExists(String bucketName) throws IOException {
