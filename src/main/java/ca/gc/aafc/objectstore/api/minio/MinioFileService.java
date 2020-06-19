@@ -122,10 +122,10 @@ public class MinioFileService implements FileInformationService {
     String contentType,
     Map<String, String> headersMap
   ) {
-    long partSize = availableBytes;
+    long partSize = availableBytes * 1L;
 
-    if (partSize > PutObjectOptions.MAX_MULTIPART_COUNT) {
-      partSize = PutObjectOptions.MAX_MULTIPART_COUNT;
+    if (partSize > PutObjectOptions.MAX_PART_SIZE) {
+      partSize = PutObjectOptions.MAX_PART_SIZE;
     } else if (partSize < PutObjectOptions.MIN_MULTIPART_SIZE) {
       partSize = PutObjectOptions.MIN_MULTIPART_SIZE;
     }
