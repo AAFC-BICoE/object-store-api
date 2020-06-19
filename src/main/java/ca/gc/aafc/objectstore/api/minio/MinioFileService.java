@@ -42,6 +42,7 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class MinioFileService implements FileInformationService {
 
+  private static final int UNKNOWN_OBJECT_SIZE = -1;
   private final MinioClient minioClient;
   private final FolderStructureStrategy folderStructureStrategy;
   private final ObjectMapper objectMapper;
@@ -130,7 +131,7 @@ public class MinioFileService implements FileInformationService {
       partSize = PutObjectOptions.MIN_MULTIPART_SIZE;
     }
 
-    PutObjectOptions putObjectOptions = new PutObjectOptions(-1, partSize);
+    PutObjectOptions putObjectOptions = new PutObjectOptions(UNKNOWN_OBJECT_SIZE, partSize);
     putObjectOptions.setContentType(contentType);
     putObjectOptions.setHeaders(headersMap);
     return putObjectOptions;
