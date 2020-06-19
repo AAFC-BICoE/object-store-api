@@ -215,7 +215,8 @@ public class TestConfiguration {
         Headers head = Headers.of(
           ImmutableMap.of(
             "Content-Type", MediaType.TEXT_PLAIN_VALUE,
-            "Last-Modified", "Tue, 15 Nov 1994 12:45:26 GMT"));
+            "Last-Modified", "Tue, 15 Nov 1994 12:45:26 GMT",
+            "Content-Length","1234"));
         return new ObjectStat(bucketName, objectName, head);
       }
     }

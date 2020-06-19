@@ -119,7 +119,7 @@ public class MinioFileService implements FileInformationService {
     PutObjectOptions putObjectOptions = new PutObjectOptions(-1, partSize);
     putObjectOptions.setContentType(contentType);
     putObjectOptions.setHeaders(headersMap);
-    minioClient.putObject(bucket, fileName, iStream, putObjectOptions);
+    minioClient.putObject(bucket, getFileLocation(fileName), iStream, putObjectOptions);
   }
 
   public void ensureBucketExists(String bucketName) throws IOException {
