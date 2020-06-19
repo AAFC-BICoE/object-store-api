@@ -44,13 +44,12 @@ import io.crnk.core.exception.UnauthorizedException;
 import io.minio.errors.ErrorResponseException;
 import io.minio.errors.InsufficientDataException;
 import io.minio.errors.InternalException;
-import io.minio.errors.InvalidArgumentException;
 import io.minio.errors.InvalidBucketNameException;
 import io.minio.errors.InvalidEndpointException;
 import io.minio.errors.InvalidPortException;
 import io.minio.errors.InvalidResponseException;
-import io.minio.errors.NoResponseException;
 import io.minio.errors.RegionConflictException;
+import io.minio.errors.XmlParserException;
 import lombok.extern.log4j.Log4j2;
 
 @RestController
@@ -87,10 +86,10 @@ public class FileController {
   @PostMapping("/file/{bucket}")
   public FileMetaEntry handleFileUpload(@RequestParam("file") MultipartFile file,
       @PathVariable String bucket) throws InvalidKeyException, NoSuchAlgorithmException,
-      InvalidBucketNameException, NoResponseException, ErrorResponseException, InternalException,
-      InvalidArgumentException, InsufficientDataException, InvalidResponseException,
-      RegionConflictException, InvalidEndpointException, InvalidPortException, IOException,
-      XmlPullParserException, URISyntaxException, MimeTypeException {
+      InvalidBucketNameException, ErrorResponseException, InternalException,
+      InsufficientDataException, InvalidResponseException, RegionConflictException,
+      InvalidEndpointException, InvalidPortException, IOException, XmlPullParserException,
+      URISyntaxException, MimeTypeException, IllegalArgumentException, XmlParserException {
 
     // Temporary, we will need to check if the user is an admin
     minioService.ensureBucketExists(bucket);
@@ -170,14 +169,16 @@ public class FileController {
    * @throws IOException
    * @throws XmlPullParserException
    * @throws URISyntaxException
+   * @throws XmlParserException
+   * @throws IllegalArgumentException
    */
   private void storeFileMetaEntry(FileMetaEntry fileMetaEntry, String bucket)
       throws InvalidKeyException, NoSuchAlgorithmException, InvalidBucketNameException,
-      NoResponseException, ErrorResponseException, InternalException, InvalidArgumentException,
-      InsufficientDataException, InvalidResponseException, RegionConflictException,
-      InvalidEndpointException, InvalidPortException, IOException, XmlPullParserException,
-      URISyntaxException {
-    
+      ErrorResponseException, InternalException, InsufficientDataException,
+      InvalidResponseException, RegionConflictException, InvalidEndpointException,
+      InvalidPortException, IOException, XmlPullParserException, URISyntaxException,
+      IllegalArgumentException, XmlParserException {
+
     String jsonContent = objectMapper.writeValueAsString(fileMetaEntry);
     InputStream inputStream = new ByteArrayInputStream(
         jsonContent.getBytes(StandardCharsets.UTF_8));
