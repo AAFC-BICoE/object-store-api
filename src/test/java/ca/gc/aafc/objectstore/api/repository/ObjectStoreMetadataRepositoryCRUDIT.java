@@ -162,30 +162,6 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
     assertRelationshipsRemoved();
   }
 
-  @Test
-  public void findAll_FiltersByGroup() {
-    int expectedSize = 10;
-    String expectedBucket = DinaAuthenticatedUserConfig.GROUPS.stream().findFirst().get();
-    Set<UUID> expectedUUIDs = new HashSet<>();
-
-    // Persist 20 metadata, only half should be found
-    for (int i = 0; i < expectedSize; i++) {
-      ObjectStoreMetadata toPersist = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
-      toPersist.setBucket(expectedBucket);
-      persist(toPersist);
-      expectedUUIDs.add(toPersist.getUuid());
-      ObjectStoreMetadata extra = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
-      extra.setBucket("wrong bucket!!!");
-      persist(extra);
-    }
-
-    Set<UUID> resultUuids = objectStoreResourceRepository
-      .findAll(new QuerySpec(ObjectStoreMetadataDto.class)).stream()
-      .map(ObjectStoreMetadataDto::getUuid)
-      .collect(Collectors.toSet());
-    assertThat(resultUuids, CoreMatchers.is(expectedUUIDs));
-  }
-
   private void assertRelationshipsRemoved() {
     ObjectStoreMetadataDto updateMetadataDto = getDtoUnderTest();
     assertNotNull(updateMetadataDto.getAcDerivedFrom());

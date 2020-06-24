@@ -117,16 +117,6 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
     jpaFriendlyQuerySpec.getIncludedRelations()
       .removeIf(include -> include.getPath().toString().equals("managedAttributeMap"));
 
-    /**
-     * Currently matches a DinaAuthenticatedUser first keycloak group to a bucket.
-     * This will be changed.
-     */
-    if (authenticatedUser.isPresent()) {
-      String firstGroup = authenticatedUser.get().getGroups().stream().findFirst()
-          .orElseThrow(() -> new UnauthorizedException("You must belong to a group"));
-      jpaFriendlyQuerySpec.addFilter(PathSpec.of("bucket").filter(FilterOperator.EQ, firstGroup));
-    }
-
     return super.findAll(jpaFriendlyQuerySpec);
   }
 
