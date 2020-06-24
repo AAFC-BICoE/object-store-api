@@ -10,8 +10,8 @@ ENV jboss.http.port=8080
 RUN mkdir /data
 RUN /opt/jboss/keycloak/bin/add-user-keycloak.sh -u ${KEYCLOAK_ADMIN_USER} -p ${KEYCLOAK_ADMIN_PASSWORD}
 
-ADD dina-realm.* /opt/jboss/keycloak/
-ADD dina-keycloak-theme/ /opt/jboss/keycloak/themes/dina
+ADD local/keycloak/dina-realm.* /opt/jboss/keycloak/
+ADD local/keycloak/dina-keycloak-theme/ /opt/jboss/keycloak/themes/dina
 
 EXPOSE 8080
 ENTRYPOINT [ "/opt/jboss/tools/docker-entrypoint.sh" ]
