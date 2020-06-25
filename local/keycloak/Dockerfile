@@ -12,6 +12,11 @@ RUN /opt/jboss/keycloak/bin/add-user-keycloak.sh -u ${KEYCLOAK_ADMIN_USER} -p ${
 
 ADD local/keycloak/dina-realm.* /opt/jboss/keycloak/
 ADD local/keycloak/dina-keycloak-theme/ /opt/jboss/keycloak/themes/dina
+RUN chmod 775 /opt/jboss/keycloak/themes/dina
+RUN chmod 775 /opt/jboss/keycloak/themes/dina/login
+RUN chmod 775 /opt/jboss/keycloak/themes/dina/login/resources
+RUN chmod 775 /opt/jboss/keycloak/themes/dina/login/resources/css
+RUN chmod 775 /opt/jboss/keycloak/themes/dina/login/resources/img
 
 EXPOSE 8080
 ENTRYPOINT [ "/opt/jboss/tools/docker-entrypoint.sh" ]
