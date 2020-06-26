@@ -238,19 +238,20 @@ public class FileController {
     try {
       Optional<ObjectStoreMetadata> loadedMetadata = objectStoreMetadataReadService
           .loadObjectStoreMetadataByFileId(fileUuid);
-      String errorMsg = messageSource.getMessage("downLoadFileMetaNotFound", new Object[]{fileUuid,bucket}, new Locale(lang));
+
       ObjectStoreMetadata metadata = loadedMetadata
-          .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, errorMsg, null));
+          .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+              "No metadata found for FileIdentifier " + fileUuid + " or bucket " + bucket, null));
 
       String filename = thumbnailRequested ? 
           metadata.getFileIdentifier() + ".thumbnail" + ThumbnailService.THUMBNAIL_EXTENSION
         : metadata.getFilename();
-    
+      
+      String errorMsg = messageSource.getMessage("minioFileOrBucketNotFound", new Object[]{fileUuid,bucket}, new Locale(lang));
+      
       FileObjectInfo foi = minioService.getFileInfo(filename, bucket)
         .orElseThrow(() -> new ResponseStatusException(
-          HttpStatus.NOT_FOUND,
-          fileUuid + " or bucket " + bucket + " Not Found",
-          null
+            HttpStatus.NOT_FOUND, errorMsg, null
         ));
       
       HttpHeaders respHeaders = new HttpHeaders();
