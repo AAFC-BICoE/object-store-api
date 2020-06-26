@@ -23,6 +23,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MimeTypeException;
 import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -227,7 +228,7 @@ public class FileController {
    */
   @GetMapping("/file/{bucket}/{fileId}")
   public ResponseEntity<InputStreamResource> downloadObject(@PathVariable String bucket,
-      @PathVariable String fileId, @RequestParam (defaultValue = "en") String lang) throws IOException {
+      @PathVariable String fileId) throws IOException {
 
     authenticateBucket(bucket);
 
@@ -247,7 +248,8 @@ public class FileController {
           metadata.getFileIdentifier() + ".thumbnail" + ThumbnailService.THUMBNAIL_EXTENSION
         : metadata.getFilename();
       
-      String errorMsg = messageSource.getMessage("minioFileOrBucketNotFound", new Object[]{fileUuid,bucket}, new Locale(lang));
+      String errorMsg = messageSource.getMessage("minioFileOrBucketNotFound",
+          new Object[] { fileUuid, bucket }, LocaleContextHolder.getLocale());
       
       FileObjectInfo foi = minioService.getFileInfo(filename, bucket)
         .orElseThrow(() -> new ResponseStatusException(
