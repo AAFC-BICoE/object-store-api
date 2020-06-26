@@ -9,6 +9,7 @@ import java.security.DigestInputStream;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -21,6 +22,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MimeTypeException;
+import org.springframework.context.MessageSource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -67,6 +69,9 @@ public class FileController {
   private final ObjectMapper objectMapper;
   private final ThumbnailService thumbnailService;
   private Optional<DinaAuthenticatedUser> authenticatedUser;
+  
+  @Inject
+  private MessageSource messageSource;
 
   @Inject
   public FileController(MinioFileService minioService, ObjectStoreMetadataReadService objectStoreMetadataReadService, 
@@ -222,7 +227,7 @@ public class FileController {
    */
   @GetMapping("/file/{bucket}/{fileId}")
   public ResponseEntity<InputStreamResource> downloadObject(@PathVariable String bucket,
-      @PathVariable String fileId) throws IOException {
+      @PathVariable String fileId, @RequestParam (defaultValue = "en") String lang) throws IOException {
 
     authenticateBucket(bucket);
 
@@ -233,9 +238,9 @@ public class FileController {
     try {
       Optional<ObjectStoreMetadata> loadedMetadata = objectStoreMetadataReadService
           .loadObjectStoreMetadataByFileId(fileUuid);
+      String errorMsg = messageSource.getMessage("downLoadFileMetaNotFound", new Object[]{fileUuid,bucket}, new Locale(lang));
       ObjectStoreMetadata metadata = loadedMetadata
-          .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-              "No metadata found for FileIdentifier " + fileUuid + " or bucket " + bucket, null));
+          .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, errorMsg, null));
 
       String filename = thumbnailRequested ? 
           metadata.getFileIdentifier() + ".thumbnail" + ThumbnailService.THUMBNAIL_EXTENSION
