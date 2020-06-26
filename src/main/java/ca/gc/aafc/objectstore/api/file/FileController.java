@@ -9,15 +9,11 @@ import java.security.DigestInputStream;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
 import javax.inject.Inject;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -38,6 +34,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import org.xmlpull.v1.XmlPullParserException;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
@@ -253,7 +252,7 @@ public class FileController {
       
       FileObjectInfo foi = minioService.getFileInfo(filename, bucket)
         .orElseThrow(() -> new ResponseStatusException(
-            HttpStatus.NOT_FOUND, errorMsg, null
+            HttpStatus.NOT_FOUND, errorMsg, null            
         ));
       
       HttpHeaders respHeaders = new HttpHeaders();
