@@ -5,5 +5,3 @@
 docker-compose.yml
 /*.env
 
-/minio-data/
-/.factorypath

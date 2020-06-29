@@ -247,7 +247,7 @@ public class FileController {
           metadata.getFileIdentifier() + ".thumbnail" + ThumbnailService.THUMBNAIL_EXTENSION
         : metadata.getFilename();
       
-      String errorMsg = messageSource.getMessage("minio.file_or_bucket_not_found",
+      String errorMsg = messageSource.getMessage("minioFileOrBucketNotFound",
           new Object[] { fileUuid, bucket }, LocaleContextHolder.getLocale());
       
       FileObjectInfo foi = minioService.getFileInfo(filename, bucket)
