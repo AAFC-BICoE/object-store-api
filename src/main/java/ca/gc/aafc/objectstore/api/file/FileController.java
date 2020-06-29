@@ -245,16 +245,14 @@ public class FileController {
 
       String filename = thumbnailRequested ? 
           metadata.getFileIdentifier() + ".thumbnail" + ThumbnailService.THUMBNAIL_EXTENSION
-        : metadata.getFilename();
-      
-      String errorMsg = messageSource.getMessage("minio.file_or_bucket_not_found",
-          new Object[] { fileUuid, bucket }, LocaleContextHolder.getLocale());
-      
-      FileObjectInfo foi = minioService.getFileInfo(filename, bucket)
-        .orElseThrow(() -> new ResponseStatusException(
-            HttpStatus.NOT_FOUND, errorMsg, null            
-        ));
-      
+        : metadata.getFilename();      
+     
+      FileObjectInfo foi = minioService.getFileInfo(filename, bucket).orElseThrow(() -> {
+        String errorMsg = messageSource.getMessage("minio.file_or_bucket_not_found",
+            new Object[] { fileUuid, bucket }, LocaleContextHolder.getLocale());
+        return new ResponseStatusException(HttpStatus.NOT_FOUND, errorMsg, null);
+      });
+
       HttpHeaders respHeaders = new HttpHeaders();
       respHeaders.setContentType(
         org.springframework.http.MediaType.parseMediaType(
