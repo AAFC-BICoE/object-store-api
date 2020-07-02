@@ -4,6 +4,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.UUID;
 
@@ -172,9 +173,11 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
   }
 
   private ObjectStoreMetadataDto getDtoUnderTest() {
+    QuerySpec querySpec = new QuerySpec(ObjectStoreMetadataDto.class);
+    querySpec.includeRelation(Arrays.asList("acDerivedFrom"));
     ObjectStoreMetadataDto updateMetadataDto = objectStoreResourceRepository.findOne(
       testObjectStoreMetadata.getUuid(),
-      new QuerySpec(ObjectStoreMetadataDto.class));
+      querySpec);
     return updateMetadataDto;
   }
 

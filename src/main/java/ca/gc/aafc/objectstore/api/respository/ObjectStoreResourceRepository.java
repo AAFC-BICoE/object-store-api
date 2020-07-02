@@ -3,12 +3,12 @@ package ca.gc.aafc.objectstore.api.respository;
 import java.io.IOException;
 import java.io.Serializable;
 import java.time.OffsetDateTime;
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 
+import javax.persistence.criteria.Predicate;
 import javax.transaction.Transactional;
 import javax.validation.ValidationException;
 import javax.ws.rs.BadRequestException;
@@ -18,62 +18,52 @@ import org.springframework.stereotype.Repository;
 
 import ca.gc.aafc.dina.entity.SoftDeletable;
 import ca.gc.aafc.dina.filter.FilterHandler;
-import ca.gc.aafc.dina.filter.RsqlFilterHandler;
-import ca.gc.aafc.dina.filter.SimpleFilterHandler;
-import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.dina.repository.GoneException;
-import ca.gc.aafc.dina.repository.JpaDtoRepository;
-import ca.gc.aafc.dina.repository.JpaResourceRepository;
-import ca.gc.aafc.dina.repository.meta.JpaMetaInformationProvider;
-import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
-import ca.gc.aafc.objectstore.api.ObjectStoreConfiguration;
+import ca.gc.aafc.dina.service.DinaService;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.file.FileController;
 import ca.gc.aafc.objectstore.api.file.FileInformationService;
 import ca.gc.aafc.objectstore.api.file.FileMetaEntry;
 import ca.gc.aafc.objectstore.api.file.ThumbnailService;
+import ca.gc.aafc.objectstore.api.filter.DinaFilterResolverr;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataDefaultValueSetterService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataReadService;
+import io.crnk.core.queryspec.FilterOperator;
 import io.crnk.core.queryspec.PathSpec;
 import io.crnk.core.queryspec.QuerySpec;
 import io.crnk.core.resource.list.ResourceList;
+import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 @Repository
 @Transactional
-public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectStoreMetadataDto>
+public class ObjectStoreResourceRepository
+    extends DinaRepository<ObjectStoreMetadataDto, ObjectStoreMetadata>
     implements ObjectStoreMetadataReadService {
 
+
   public ObjectStoreResourceRepository(
-    JpaDtoRepository dtoRepository,
-    SimpleFilterHandler simpleFilterHandler,
-    RsqlFilterHandler rsqlFilterHandler,
-    JpaMetaInformationProvider metaInformationProvider,
-    ObjectStoreConfiguration config,
-    BaseDAO dao,
+    @NonNull DinaService<ObjectStoreMetadata> dinaService,
+    @NonNull DinaFilterResolverr filterResolver,
     FileInformationService fileInformationService,
-    ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService,
-    Optional<DinaAuthenticatedUser> authenticatedUser
+    ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService
   ) {
     super(
+      dinaService,
+      new DinaMapper<>(ObjectStoreMetadataDto.class),
       ObjectStoreMetadataDto.class,
-      dtoRepository,
-      Arrays.asList(simpleFilterHandler, rsqlFilterHandler, softDeletedFilterHandler),
-      metaInformationProvider
-    );
-    this.dao = dao;
+      ObjectStoreMetadata.class,
+      filterResolver);
+    this.dinaService = dinaService;
     this.fileInformationService = fileInformationService;
     this.defaultValueSetterService = defaultValueSetterService;
-    this.authenticatedUser = authenticatedUser;
   }
 
-  private final BaseDAO dao;
+  private final DinaService<ObjectStoreMetadata> dinaService;
   private final FileInformationService fileInformationService;
   private final ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService;
-  private Optional<DinaAuthenticatedUser> authenticatedUser;
-
   private static PathSpec DELETED_PATH_SPEC = PathSpec.of("softDeleted");
 
   /**
@@ -115,17 +105,30 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
     jpaFriendlyQuerySpec.getIncludedRelations()
       .removeIf(include -> include.getPath().toString().equals("managedAttributeMap"));
 
+    if (jpaFriendlyQuerySpec.findFilter(DELETED_PATH_SPEC).isPresent()) {
+      jpaFriendlyQuerySpec.addFilter(
+          PathSpec.of(SoftDeletable.DELETED_DATE_FIELD_NAME).filter(FilterOperator.NEQ, null));
+    } else {
+      jpaFriendlyQuerySpec.addFilter(
+          PathSpec.of(SoftDeletable.DELETED_DATE_FIELD_NAME).filter(FilterOperator.EQ, null));
+    }
+    jpaFriendlyQuerySpec.getFilters().removeIf(f->f.getAttributePath().contains("softDeleted"));
+
     return super.findAll(jpaFriendlyQuerySpec);
   }
 
   @Override
   public Optional<ObjectStoreMetadata> loadObjectStoreMetadata(UUID id) {
-    return Optional.ofNullable(dao.findOneByNaturalId(id, ObjectStoreMetadata.class));
+    return Optional.ofNullable(dinaService.findOne(id, ObjectStoreMetadata.class));
   }
 
   @Override
   public Optional<ObjectStoreMetadata> loadObjectStoreMetadataByFileId(UUID fileId) {
-    return Optional.ofNullable(dao.findOneByProperty(ObjectStoreMetadata.class, "fileIdentifier", fileId));
+    return dinaService.findAll(
+        ObjectStoreMetadata.class,
+        (cb, root) -> new Predicate[] { cb.equal(root.get("fileIdentifier"), fileId) }
+        , null, 0, 1)
+      .stream().findFirst();
   }
 
   @SuppressWarnings("unchecked")
@@ -151,7 +154,7 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
    */
   @Override
   public void delete(Serializable id) {
-    ObjectStoreMetadata objectStoreMetadata = dao.findOneByNaturalId(id, ObjectStoreMetadata.class);
+    ObjectStoreMetadata objectStoreMetadata = dinaService.findOne(id, ObjectStoreMetadata.class);
     if (objectStoreMetadata != null) {
       objectStoreMetadata.setDeletedDate(OffsetDateTime.now());
     }

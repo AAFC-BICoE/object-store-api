@@ -1,0 +1,55 @@
+package ca.gc.aafc.objectstore.api.service;
+
+import javax.inject.Inject;
+
+import org.springframework.stereotype.Service;
+
+import ca.gc.aafc.dina.jpa.BaseDAO;
+import ca.gc.aafc.dina.service.DinaService;
+import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
+import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
+import ca.gc.aafc.objectstore.api.resolvers.ObjectStoreMetaDataFieldResolvers;
+import lombok.NonNull;
+
+@Service
+public class ObectStoreMetaDataService extends DinaService<ObjectStoreMetadata> {
+
+  @Inject
+  private ObjectStoreMetaDataFieldResolvers metaDataFieldResolver;
+
+  private final BaseDAO baseDAO;
+
+  public ObectStoreMetaDataService(@NonNull BaseDAO baseDAO) {
+    super(baseDAO);
+    this.baseDAO = baseDAO;
+  }
+
+  @Override
+  protected ObjectStoreMetadata preCreate(ObjectStoreMetadata entity) {
+    if (entity.getAcSubType() != null) {
+      ObjectSubtype fetchedType = metaDataFieldResolver.acSubTypeToEntity(
+          entity.getAcSubType().getDcType(), entity.getAcSubType().getAcSubtype());
+      entity.setAcSubType(fetchedType);
+    }
+    return entity;
+  }
+
+  @Override
+  protected void preDelete(ObjectStoreMetadata entity) {
+
+  }
+
+  @Override
+  protected ObjectStoreMetadata preUpdate(ObjectStoreMetadata entity) {
+    ObjectSubtype temp = entity.getAcSubType();
+    if (temp != null) {
+      entity.setAcSubType(null);
+      baseDAO.update(entity);
+      ObjectSubtype fetchedType =
+          metaDataFieldResolver.acSubTypeToEntity(temp.getDcType(), temp.getAcSubtype());
+      entity.setAcSubType(fetchedType);
+    }
+    return entity;
+  }
+
+}

@@ -3,6 +3,7 @@ package ca.gc.aafc.objectstore.api.dto;
 import java.util.HashMap;
 import java.util.Map;
 
+import ca.gc.aafc.dina.dto.RelatedEntity;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.crnk.core.resource.annotations.JsonApiId;
 import io.crnk.core.resource.annotations.JsonApiRelation;
@@ -18,6 +19,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@RelatedEntity(ManagedAttributeMapDto.class)
 public class ManagedAttributeMapDto {
 
   @JsonApiId

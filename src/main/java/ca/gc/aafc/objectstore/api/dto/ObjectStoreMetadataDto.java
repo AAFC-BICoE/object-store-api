@@ -7,9 +7,13 @@ import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
+import org.apache.commons.lang3.StringUtils;
+
 import ca.gc.aafc.dina.dto.RelatedEntity;
+import ca.gc.aafc.dina.mapper.CustomFieldResolver;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
+import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.crnk.core.resource.annotations.JsonApiId;
 import io.crnk.core.resource.annotations.JsonApiRelation;
@@ -77,5 +81,19 @@ public class ObjectStoreMetadataDto {
 
   @JsonInclude(Include.NON_EMPTY)
   private String acSubType;
+
+  @CustomFieldResolver(fieldName = "acSubType")
+  public static String acSubTypeToDTO(ObjectStoreMetadata entity) {
+    return entity.getAcSubType() == null ? null : entity.getAcSubType().getAcSubtype();
+  }
+
+  @CustomFieldResolver(fieldName = "acSubType")
+  public static ObjectSubtype acSubTypeToEntity(ObjectStoreMetadataDto dto) {
+    if (dto.getDcType() == null || StringUtils.isBlank(dto.getAcSubType())) {
+      return null;
+    }
+    return ObjectSubtype.builder().acSubtype(dto.getAcSubType().toUpperCase())
+        .dcType(dto.getDcType()).build();
+  }
 
 }
