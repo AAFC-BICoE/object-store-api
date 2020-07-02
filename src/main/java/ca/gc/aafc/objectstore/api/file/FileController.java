@@ -224,8 +224,6 @@ public class FileController {
   public ResponseEntity<InputStreamResource> downloadObject(@PathVariable String bucket,
       @PathVariable String fileId) throws IOException {
 
-    authenticateBucket(bucket);
-
     boolean thumbnailRequested = fileId.endsWith(".thumbnail");
     String fileUuidString = thumbnailRequested ? fileId.replaceAll(".thumbnail$", "") : fileId;
     UUID fileUuid = UUID.fromString(fileUuidString);
