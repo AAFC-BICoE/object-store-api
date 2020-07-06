@@ -68,17 +68,16 @@ public class FileController {
   private final MediaTypeDetectionStrategy mediaTypeDetectionStrategy;
   private final ObjectMapper objectMapper;
   private final ThumbnailService thumbnailService;
-  private Optional<DinaAuthenticatedUser> authenticatedUser;
-  
-  @Inject
-  private MessageSource messageSource;
+  private Optional<DinaAuthenticatedUser> authenticatedUser;  
+  private final MessageSource messageSource;
 
   @Inject
   public FileController(MinioFileService minioService, ObjectStoreMetadataReadService objectStoreMetadataReadService, 
-      MediaTypeDetectionStrategy mediaTypeDetectionStrategy,
+      MediaTypeDetectionStrategy mediaTypeDetectionStrategy, 
       Jackson2ObjectMapperBuilder jackson2ObjectMapperBuilder,
       ThumbnailService thumbnailService,
-      Optional<DinaAuthenticatedUser> authenticatedUser
+      Optional<DinaAuthenticatedUser> authenticatedUser,
+      MessageSource messageSource
   ) {
     this.minioService = minioService;
     this.objectStoreMetadataReadService = objectStoreMetadataReadService;
@@ -87,6 +86,7 @@ public class FileController {
     this.authenticatedUser = authenticatedUser;
     this.objectMapper = jackson2ObjectMapperBuilder.build();
     objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+    this.messageSource = messageSource;
   }
 
   @PostMapping("/file/{bucket}")
