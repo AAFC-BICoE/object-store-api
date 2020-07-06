@@ -1,4 +1,4 @@
-FROM maven:ibmjava-alpine
+FROM maven:3.6.3-jdk-11
 
 WORKDIR /project
 
@@ -13,9 +13,9 @@ RUN mvn test
 RUN mvn clean install -Dmaven.test.skip=true
 
 # Stage 2: extract jar and set entrypoint
-FROM openjdk:8-jre-slim
+FROM openjdk:11-jre-slim
 RUN useradd -s /bin/bash user
 USER user
 COPY --from=0 --chown=644 /project/target/object-store.api-*.jar /object-store-api.jar
 EXPOSE 8080
-ENTRYPOINT ["java","-XX:+UnlockExperimentalVMOptions","-XX:+UseCGroupMemoryLimitForHeap","-jar","/object-store-api.jar"]
+ENTRYPOINT ["java","-jar","/object-store-api.jar"]
