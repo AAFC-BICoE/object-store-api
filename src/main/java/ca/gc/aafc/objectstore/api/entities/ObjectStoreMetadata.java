@@ -402,5 +402,13 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
   public void setXmpRightsUsageTerms(String xmpRightsUsageTerms) {
     this.xmpRightsUsageTerms = xmpRightsUsageTerms;
   }
-
+  
+  /** Transient field until base implementation is ready **/ 
+  @Transient  
+  public String getGroup() {
+    return bucket;
+  }
+  
+  public void setGroup(String group) {    
+  }  
 }
