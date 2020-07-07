@@ -89,13 +89,6 @@ public class FileControllerIT {
   }
 
   @Test
-  public void download_UnAuthorizedBucket_ThrowsUnauthorizedException() {
-    assertThrows(
-      UnauthorizedException.class,
-      () -> fileController.downloadObject("invalid-bucket", "324234"));
-  }
-
-  @Test
   public void upload_UnAuthorizedBucket_ThrowsUnauthorizedException() throws IOException {
     MockMultipartFile mockFile = getFileUnderTest();
 

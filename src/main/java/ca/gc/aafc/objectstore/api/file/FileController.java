@@ -15,12 +15,11 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MimeTypeException;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -35,6 +34,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import org.xmlpull.v1.XmlPullParserException;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
@@ -66,14 +68,16 @@ public class FileController {
   private final MediaTypeDetectionStrategy mediaTypeDetectionStrategy;
   private final ObjectMapper objectMapper;
   private final ThumbnailService thumbnailService;
-  private Optional<DinaAuthenticatedUser> authenticatedUser;
+  private Optional<DinaAuthenticatedUser> authenticatedUser;  
+  private final MessageSource messageSource;
 
   @Inject
   public FileController(MinioFileService minioService, ObjectStoreMetadataReadService objectStoreMetadataReadService, 
-      MediaTypeDetectionStrategy mediaTypeDetectionStrategy,
+      MediaTypeDetectionStrategy mediaTypeDetectionStrategy, 
       Jackson2ObjectMapperBuilder jackson2ObjectMapperBuilder,
       ThumbnailService thumbnailService,
-      Optional<DinaAuthenticatedUser> authenticatedUser
+      Optional<DinaAuthenticatedUser> authenticatedUser,
+      MessageSource messageSource
   ) {
     this.minioService = minioService;
     this.objectStoreMetadataReadService = objectStoreMetadataReadService;
@@ -82,6 +86,7 @@ public class FileController {
     this.authenticatedUser = authenticatedUser;
     this.objectMapper = jackson2ObjectMapperBuilder.build();
     objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+    this.messageSource = messageSource;
   }
 
   @PostMapping("/file/{bucket}")
@@ -224,8 +229,6 @@ public class FileController {
   public ResponseEntity<InputStreamResource> downloadObject(@PathVariable String bucket,
       @PathVariable String fileId) throws IOException {
 
-    authenticateBucket(bucket);
-
     boolean thumbnailRequested = fileId.endsWith(".thumbnail");
     String fileUuidString = thumbnailRequested ? fileId.replaceAll(".thumbnail$", "") : fileId;
     UUID fileUuid = UUID.fromString(fileUuidString);
@@ -233,21 +236,21 @@ public class FileController {
     try {
       Optional<ObjectStoreMetadata> loadedMetadata = objectStoreMetadataReadService
           .loadObjectStoreMetadataByFileId(fileUuid);
+
       ObjectStoreMetadata metadata = loadedMetadata
           .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
               "No metadata found for FileIdentifier " + fileUuid + " or bucket " + bucket, null));
 
       String filename = thumbnailRequested ? 
           metadata.getFileIdentifier() + ".thumbnail" + ThumbnailService.THUMBNAIL_EXTENSION
-        : metadata.getFilename();
-    
-      FileObjectInfo foi = minioService.getFileInfo(filename, bucket)
-        .orElseThrow(() -> new ResponseStatusException(
-          HttpStatus.NOT_FOUND,
-          fileUuid + " or bucket " + bucket + " Not Found",
-          null
-        ));
-      
+        : metadata.getFilename();      
+     
+      FileObjectInfo foi = minioService.getFileInfo(filename, bucket).orElseThrow(() -> {
+        String errorMsg = messageSource.getMessage("minio.file_or_bucket_not_found",
+            new Object[] { fileUuid, bucket }, LocaleContextHolder.getLocale());
+        return new ResponseStatusException(HttpStatus.NOT_FOUND, errorMsg, null);
+      });
+
       HttpHeaders respHeaders = new HttpHeaders();
       respHeaders.setContentType(
         org.springframework.http.MediaType.parseMediaType(
