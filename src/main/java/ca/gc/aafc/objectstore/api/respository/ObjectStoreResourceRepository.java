@@ -112,7 +112,7 @@ public class ObjectStoreResourceRepository
     } else {
       jpaFriendlyQuerySpec.addFilter(NOT_DELETED_FILTER);
     }
-    jpaFriendlyQuerySpec.getFilters().removeIf(f->f.getAttributePath().contains("softDeleted"));
+    jpaFriendlyQuerySpec.getFilters().removeIf(f -> f.getPath().equals(DELETED_PATH_SPEC));
 
     return super.findAll(jpaFriendlyQuerySpec);
   }
