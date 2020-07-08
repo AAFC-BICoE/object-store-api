@@ -82,6 +82,8 @@ public class ObjectStoreMetadataDto {
 
   @JsonInclude(Include.NON_EMPTY)
   private String acSubType;
+  
+  private String group;
 
   @CustomFieldResolver(fieldName = "acSubType")
   public static String acSubTypeToDTO(@NonNull ObjectStoreMetadata entity) {
