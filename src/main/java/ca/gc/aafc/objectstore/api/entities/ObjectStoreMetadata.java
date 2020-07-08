@@ -409,6 +409,9 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
     return bucket;
   }
   
+  /** Empty setter method to avoid resource method error: missing accessor method until 
+   *  multiple custom field resolvers can be associated with single resource
+   */
   public void setGroup(String group) {    
   }  
 }
