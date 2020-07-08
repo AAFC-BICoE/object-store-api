@@ -17,7 +17,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Repository;
 
 import ca.gc.aafc.dina.entity.SoftDeletable;
+import ca.gc.aafc.dina.filter.DinaFilterResolver;
 import ca.gc.aafc.dina.filter.FilterHandler;
+import ca.gc.aafc.dina.mapper.DinaMapper;
+import ca.gc.aafc.dina.repository.DinaRepository;
 import ca.gc.aafc.dina.repository.GoneException;
 import ca.gc.aafc.dina.service.DinaService;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
@@ -26,7 +29,6 @@ import ca.gc.aafc.objectstore.api.file.FileController;
 import ca.gc.aafc.objectstore.api.file.FileInformationService;
 import ca.gc.aafc.objectstore.api.file.FileMetaEntry;
 import ca.gc.aafc.objectstore.api.file.ThumbnailService;
-import ca.gc.aafc.objectstore.api.filter.DinaFilterResolverr;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataDefaultValueSetterService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataReadService;
 import io.crnk.core.queryspec.FilterOperator;
@@ -46,7 +48,7 @@ public class ObjectStoreResourceRepository
 
   public ObjectStoreResourceRepository(
     @NonNull DinaService<ObjectStoreMetadata> dinaService,
-    @NonNull DinaFilterResolverr filterResolver,
+    @NonNull DinaFilterResolver filterResolver,
     FileInformationService fileInformationService,
     ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService
   ) {

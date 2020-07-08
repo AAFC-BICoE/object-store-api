@@ -39,7 +39,7 @@
 		<asciidoctorj.diagram.version>2.0.2</asciidoctorj.diagram.version>
 		<javax.json.version>1.1.4</javax.json.version>
 		<hibernate-types-52.version>2.9.3</hibernate-types-52.version>
-		<dina-base-api.version>0.30</dina-base-api.version>
+		<dina-base-api.version>0.31-SNAPSHOT</dina-base-api.version>
 
 		<spring-boot-maven-plugin.fork>false</spring-boot-maven-plugin.fork>
 	</properties>
