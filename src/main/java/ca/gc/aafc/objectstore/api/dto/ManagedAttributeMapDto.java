@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@RelatedEntity(ManagedAttributeMapDto.class)
+@RelatedEntity(ManagedAttributeMapDto.class) // Needed for Dina Mapper
 public class ManagedAttributeMapDto {
 
   @JsonApiId
