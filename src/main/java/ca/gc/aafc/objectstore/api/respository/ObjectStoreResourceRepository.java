@@ -18,7 +18,6 @@ import org.springframework.stereotype.Repository;
 
 import ca.gc.aafc.dina.entity.SoftDeletable;
 import ca.gc.aafc.dina.filter.DinaFilterResolver;
-import ca.gc.aafc.dina.filter.FilterHandler;
 import ca.gc.aafc.dina.mapper.DinaMapper;
 import ca.gc.aafc.dina.repository.DinaRepository;
 import ca.gc.aafc.dina.repository.GoneException;
@@ -32,6 +31,7 @@ import ca.gc.aafc.objectstore.api.file.ThumbnailService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataDefaultValueSetterService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataReadService;
 import io.crnk.core.queryspec.FilterOperator;
+import io.crnk.core.queryspec.FilterSpec;
 import io.crnk.core.queryspec.PathSpec;
 import io.crnk.core.queryspec.QuerySpec;
 import io.crnk.core.resource.list.ResourceList;
@@ -44,7 +44,6 @@ import lombok.extern.log4j.Log4j2;
 public class ObjectStoreResourceRepository
     extends DinaRepository<ObjectStoreMetadataDto, ObjectStoreMetadata>
     implements ObjectStoreMetadataReadService {
-
 
   public ObjectStoreResourceRepository(
     @NonNull DinaService<ObjectStoreMetadata> dinaService,
@@ -67,6 +66,10 @@ public class ObjectStoreResourceRepository
   private final FileInformationService fileInformationService;
   private final ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService;
   private static PathSpec DELETED_PATH_SPEC = PathSpec.of("softDeleted");
+
+  private static final PathSpec DELETED_DATE = PathSpec.of(SoftDeletable.DELETED_DATE_FIELD_NAME);
+  private static final FilterSpec SOFT_DELETED_FILTER = DELETED_DATE.filter(FilterOperator.NEQ, null);
+  private static final FilterSpec NOT_DELETED_FILTER = DELETED_DATE.filter(FilterOperator.EQ, null);
 
   /**
    * @param resource to save
@@ -108,11 +111,9 @@ public class ObjectStoreResourceRepository
       .removeIf(include -> include.getPath().toString().equals("managedAttributeMap"));
 
     if (jpaFriendlyQuerySpec.findFilter(DELETED_PATH_SPEC).isPresent()) {
-      jpaFriendlyQuerySpec.addFilter(
-          PathSpec.of(SoftDeletable.DELETED_DATE_FIELD_NAME).filter(FilterOperator.NEQ, null));
+      jpaFriendlyQuerySpec.addFilter(SOFT_DELETED_FILTER);
     } else {
-      jpaFriendlyQuerySpec.addFilter(
-          PathSpec.of(SoftDeletable.DELETED_DATE_FIELD_NAME).filter(FilterOperator.EQ, null));
+      jpaFriendlyQuerySpec.addFilter(NOT_DELETED_FILTER);
     }
     jpaFriendlyQuerySpec.getFilters().removeIf(f->f.getAttributePath().contains("softDeleted"));
 
@@ -209,15 +210,6 @@ public class ObjectStoreResourceRepository
       throw new BadRequestException("Can't process " + objectMetadata.getFileIdentifier());
     }
   }
-
-  /**
-   * Shows only non-soft-deleted records by default.
-   * Shows only soft-deleted records if DELETED_PATH_SPEC is present.
-   */
-  private static FilterHandler softDeletedFilterHandler = (querySpec, root, 
-      cb) -> !querySpec.findFilter(DELETED_PATH_SPEC).isPresent()
-          ? cb.isNull(root.get(SoftDeletable.DELETED_DATE_FIELD_NAME))
-          : cb.isNotNull(root.get(SoftDeletable.DELETED_DATE_FIELD_NAME));
 
   /**
    * Persists a thumbnail Metadata based off a given resource if the resource has
