@@ -3,10 +3,13 @@ package ca.gc.aafc.objectstore.api.rest;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.isNotNull;
+import static org.mockito.ArgumentMatchers.notNull;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -17,6 +20,8 @@ import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.Root;
 
 import org.apache.http.client.utils.URIBuilder;
+import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openapi4j.core.exception.ResolutionException;
@@ -363,6 +368,11 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
       //uuid is used as id in the response, so should not verify
       if("uuid".equals(attributeKey))
         continue;
+      // Rounding error for acDigitizationDate
+      if ("acDigitizationDate".equals(attributeKey)) {
+        responseUpdate.body("data.attributes." + attributeKey, Matchers.notNullValue());
+        continue;
+      }
       responseUpdate.body("data.attributes." + attributeKey,
           equalTo(updatedAttributeMap.get(attributeKey)));
     }
