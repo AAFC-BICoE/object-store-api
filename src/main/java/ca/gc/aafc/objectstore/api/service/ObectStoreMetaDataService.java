@@ -28,7 +28,8 @@ public class ObectStoreMetaDataService extends DinaService<ObjectStoreMetadata> 
   protected ObjectStoreMetadata preCreate(ObjectStoreMetadata entity) {
     if (entity.getAcSubType() != null) {
       ObjectSubtype fetchedType = metaDataFieldResolver.acSubTypeToEntity(
-          entity.getAcSubType().getDcType(), entity.getAcSubType().getAcSubtype());
+          entity.getAcSubType().getDcType(),
+          entity.getAcSubType().getAcSubtype());
       entity.setAcSubType(fetchedType);
     }
     return entity;
@@ -36,17 +37,24 @@ public class ObectStoreMetaDataService extends DinaService<ObjectStoreMetadata> 
 
   @Override
   protected void preDelete(ObjectStoreMetadata entity) {
-
+    // Do Nothing
   }
 
   @Override
   protected ObjectStoreMetadata preUpdate(ObjectStoreMetadata entity) {
     ObjectSubtype temp = entity.getAcSubType();
+
     if (temp != null) {
+      /*
+       * Need to flush the entities current state here to allow further JPA
+       * transactions
+       */
       entity.setAcSubType(null);
       baseDAO.update(entity);
-      ObjectSubtype fetchedType =
-          metaDataFieldResolver.acSubTypeToEntity(temp.getDcType(), temp.getAcSubtype());
+
+      ObjectSubtype fetchedType = metaDataFieldResolver.acSubTypeToEntity(
+        temp.getDcType(),
+        temp.getAcSubtype());
       entity.setAcSubType(fetchedType);
     }
     return entity;
