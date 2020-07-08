@@ -20,6 +20,7 @@ import io.crnk.core.resource.annotations.JsonApiRelation;
 import io.crnk.core.resource.annotations.JsonApiResource;
 import io.crnk.core.resource.annotations.LookupIncludeBehavior;
 import lombok.Data;
+import lombok.NonNull;
 
 @SuppressFBWarnings({ "EI_EXPOSE_REP", "EI_EXPOSE_REP2" })
 @RelatedEntity(ObjectStoreMetadata.class)
@@ -83,17 +84,19 @@ public class ObjectStoreMetadataDto {
   private String acSubType;
 
   @CustomFieldResolver(fieldName = "acSubType")
-  public static String acSubTypeToDTO(ObjectStoreMetadata entity) {
+  public static String acSubTypeToDTO(@NonNull ObjectStoreMetadata entity) {
     return entity.getAcSubType() == null ? null : entity.getAcSubType().getAcSubtype();
   }
 
   @CustomFieldResolver(fieldName = "acSubType")
-  public static ObjectSubtype acSubTypeToEntity(ObjectStoreMetadataDto dto) {
+  public static ObjectSubtype acSubTypeToEntity(@NonNull ObjectStoreMetadataDto dto) {
     if (dto.getDcType() == null || StringUtils.isBlank(dto.getAcSubType())) {
       return null;
     }
-    return ObjectSubtype.builder().acSubtype(dto.getAcSubType().toUpperCase())
-        .dcType(dto.getDcType()).build();
+    return ObjectSubtype.builder()
+      .acSubtype(dto.getAcSubType().toUpperCase())
+      .dcType(dto.getDcType())
+      .build();
   }
 
 }
