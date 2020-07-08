@@ -76,14 +76,11 @@ public class ObjectStoreResourceRepository
    * @return saved resource
    */
   @Override
+  @SuppressWarnings("unchecked")
   public <S extends ObjectStoreMetadataDto> S save(S resource) {
     handleFileRelatedData(resource);
     S dto = super.save(resource);
-
-    return (S) this.findOne(
-      dto.getUuid(),
-      new QuerySpec(ObjectStoreMetadataDto.class)
-    );
+    return (S) this.findOne(dto.getUuid(), new QuerySpec(ObjectStoreMetadataDto.class));
   }
 
   @Override
