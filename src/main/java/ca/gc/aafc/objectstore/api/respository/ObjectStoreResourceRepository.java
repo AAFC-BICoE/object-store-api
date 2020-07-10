@@ -45,6 +45,15 @@ public class ObjectStoreResourceRepository
     extends DinaRepository<ObjectStoreMetadataDto, ObjectStoreMetadata>
     implements ObjectStoreMetadataReadService {
 
+  private final DinaService<ObjectStoreMetadata> dinaService;
+  private final FileInformationService fileInformationService;
+  private final ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService;
+
+  private static final PathSpec DELETED_PATH_SPEC = PathSpec.of("softDeleted");
+  private static final PathSpec DELETED_DATE = PathSpec.of(SoftDeletable.DELETED_DATE_FIELD_NAME);
+  private static final FilterSpec SOFT_DELETED_FILTER = DELETED_DATE.filter(FilterOperator.NEQ, null);
+  private static final FilterSpec NOT_DELETED_FILTER = DELETED_DATE.filter(FilterOperator.EQ, null);
+
   public ObjectStoreResourceRepository(
     @NonNull DinaService<ObjectStoreMetadata> dinaService,
     @NonNull DinaFilterResolver filterResolver,
@@ -61,15 +70,6 @@ public class ObjectStoreResourceRepository
     this.fileInformationService = fileInformationService;
     this.defaultValueSetterService = defaultValueSetterService;
   }
-
-  private final DinaService<ObjectStoreMetadata> dinaService;
-  private final FileInformationService fileInformationService;
-  private final ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService;
-  private static PathSpec DELETED_PATH_SPEC = PathSpec.of("softDeleted");
-
-  private static final PathSpec DELETED_DATE = PathSpec.of(SoftDeletable.DELETED_DATE_FIELD_NAME);
-  private static final FilterSpec SOFT_DELETED_FILTER = DELETED_DATE.filter(FilterOperator.NEQ, null);
-  private static final FilterSpec NOT_DELETED_FILTER = DELETED_DATE.filter(FilterOperator.EQ, null);
 
   /**
    * @param resource to save
