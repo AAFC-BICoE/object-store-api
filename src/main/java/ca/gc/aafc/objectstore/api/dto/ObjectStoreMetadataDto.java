@@ -77,5 +77,7 @@ public class ObjectStoreMetadataDto {
 
   @JsonInclude(Include.NON_EMPTY)
   private String acSubType;
+  
+  private String group;
 
 }

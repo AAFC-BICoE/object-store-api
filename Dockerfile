@@ -1,4 +1,4 @@
-FROM maven:ibmjava-alpine AS build-stage
+FROM maven:3.6.3-jdk-11
 
 RUN mkdir /project
 WORKDIR /project
@@ -15,7 +15,7 @@ RUN mvn test
 RUN mvn clean install -Dmaven.test.skip=true
 
 # Stage 2: extract jar and set entrypoint
-FROM openjdk:8-jre-slim
+FROM openjdk:11-jre-slim
 RUN useradd -s /bin/bash user
 USER root
 
@@ -33,6 +33,7 @@ RUN apt-get install gettext-base
 
 USER user
 EXPOSE 8080
+
 WORKDIR /app
 
 ENV spring.datasource.username=springuser

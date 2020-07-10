@@ -25,7 +25,7 @@ public class FileUploadIT {
   @Autowired
   protected WebApplicationContext wac;
 
-  private final static String bucketUnderTest = DinaAuthenticatedUserConfig.GROUPS.stream()
+  private final static String bucketUnderTest = DinaAuthenticatedUserConfig.ROLES_PER_GROUPS.keySet().stream()
     .findFirst().get();
 
   @Test

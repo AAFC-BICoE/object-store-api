@@ -47,7 +47,7 @@ public class FileControllerIT {
   @Inject
   private MinioFileService minioFileService;
 
-  private final static String bucketUnderTest = DinaAuthenticatedUserConfig.GROUPS.stream()
+  private final static String bucketUnderTest = DinaAuthenticatedUserConfig.ROLES_PER_GROUPS.keySet().stream()
     .findFirst().get();
 
   @Transactional
