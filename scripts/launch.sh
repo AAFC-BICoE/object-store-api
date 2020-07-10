@@ -22,5 +22,5 @@ VERSION=$(cat ./pom.xml | grep -m 1 '<version>' | awk -F"[><]" '{print $3}')
 echo "Version: '$VERSION'"
 
 echo "executing java"
-echo "java -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap $ARGS -Dspring.datasource.url=$URL -jar $1-$VERSION.jar"
-exec  java -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap $ARGS -Dspring.datasource.url=$URL -jar $1-$VERSION.jar
+echo "java $ARGS -Dspring.datasource.url=$URL -jar $1-$VERSION.jar"
+exec  java $ARGS -Dspring.datasource.url=$URL -jar $1-$VERSION.jar
