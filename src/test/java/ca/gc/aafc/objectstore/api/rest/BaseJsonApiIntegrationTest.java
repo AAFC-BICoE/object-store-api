@@ -16,20 +16,19 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.Root;
 
+import org.apache.http.client.utils.URIBuilder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.openapi4j.core.exception.ResolutionException;
+import org.openapi4j.core.validation.ValidationException;
+import org.springframework.http.HttpStatus;
+
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.collect.ImmutableMap;
-
-import org.apache.http.client.utils.URIBuilder;
-import org.hamcrest.Matchers;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.openapi4j.core.exception.ResolutionException;
-import org.openapi4j.core.validation.ValidationException;
-import org.springframework.http.HttpStatus;
 
 import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.dina.testsupport.specs.OpenAPI3Assertions;
@@ -339,11 +338,6 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
       //uuid is used as id in the response, so should not verify
       if("uuid".equals(attributeKey))
         continue;
-      // Rounding error for acDigitizationDate
-      if ("acDigitizationDate".equals(attributeKey)) {
-        responseUpdate.body("data.attributes." + attributeKey, Matchers.notNullValue());
-        continue;
-      }
       responseUpdate.body("data.attributes." + attributeKey,
           equalTo(updatedAttributeMap.get(attributeKey)));
     }
