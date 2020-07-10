@@ -5,7 +5,7 @@
 
 	<groupId>ca.gc.aafc</groupId>
 	<artifactId>object-store.api</artifactId>
-	<version>0.6-SNAPSHOT</version>
+	<version>0.7-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>Object-Store API</name>
@@ -139,27 +139,6 @@
 			<artifactId>dina-test-support</artifactId>
 			<version>${dina-base-api.version}</version>
 			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>io.rest-assured</groupId>
-			<artifactId>rest-assured</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>io.rest-assured</groupId>
-			<artifactId>json-path</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>io.rest-assured</groupId>
-			<artifactId>json-schema-validator</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>io.rest-assured</groupId>
-			<artifactId>rest-assured-all</artifactId>
-			<scope>test</scope>
-			<version>${rest-assured.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.glassfish</groupId>
