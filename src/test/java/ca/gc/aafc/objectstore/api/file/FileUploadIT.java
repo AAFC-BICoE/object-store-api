@@ -25,8 +25,10 @@ public class FileUploadIT {
   @Autowired
   protected WebApplicationContext wac;
 
-  private final static String bucketUnderTest = DinaAuthenticatedUserConfig.GROUPS.stream()
-    .findFirst().get();
+  private final static String bucketUnderTest = DinaAuthenticatedUserConfig.ROLES_PER_GROUP.keySet()
+    .stream()
+    .findFirst()
+    .get();
 
   @Test
   public void fileUpload_onMultipartRequest_acceptFile() throws Exception {
