@@ -1,4 +1,4 @@
-FROM maven:3.6.3-jdk-11-slim as build-stage
+FROM maven:3.6.3-jdk-11 as build-stage
 
 RUN mkdir /project
 WORKDIR /project
