@@ -31,6 +31,7 @@ import org.openapi4j.core.exception.ResolutionException;
 import org.openapi4j.core.validation.ValidationException;
 import org.springframework.http.HttpStatus;
 
+import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.dina.testsupport.specs.OpenAPI3Assertions;
 import ca.gc.aafc.objectstore.api.BaseHttpIntegrationTest;
 import ca.gc.aafc.objectstore.api.respository.DcTypeJsonSerDe;
@@ -180,33 +181,7 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
    * @return
    */
   protected Map<String, Object> toJsonAPIMap(Map<String, Object> attributeMap, Map<String, Object> relationshipMap) {
-    return toJsonAPIMap(getResourceUnderTest(), attributeMap, relationshipMap, null);
-  }
-
-  /**
-   * Creates a JSON API Map from the provided type name, attributes and id.
-   * 
-   * @param typeName
-   *          "type" in JSON API
-   * @param attributeMap
-   *          key/value representing the "attributes" in JSON API
-   * @param id
-   *          id of the resource or null if there is none
-   * @return
-   */
-  public static Map<String, Object> toJsonAPIMap(String typeName,
-      Map<String, Object> attributeMap, Map<String, Object> relationshipMap, String id) {
-    ImmutableMap.Builder<String, Object> bldr = new ImmutableMap.Builder<>();
-    bldr.put("type", typeName);
-    if (id != null) {
-      bldr.put("id", id);
-    }
-
-    bldr.put("attributes", attributeMap);
-    if(relationshipMap != null) {
-      bldr.put("relationships", relationshipMap);
-    }
-    return ImmutableMap.of("data", bldr.build());
+    return JsonAPITestHelper.toJsonAPIMap(getResourceUnderTest(), attributeMap, relationshipMap, null);
   }
   
   protected static Map<String, Object> toRelationshipMap(List<Relationship> relationship) {
@@ -356,7 +331,7 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
     Map<String, Object> updatedAttributeMap = buildUpdateAttributeMap();
     
     // update the resource
-    sendPatch(id, toJsonAPIMap(getResourceUnderTest(), updatedAttributeMap, toRelationshipMap(buildRelationshipList()), id));
+    sendPatch(id, JsonAPITestHelper.toJsonAPIMap(getResourceUnderTest(), updatedAttributeMap, toRelationshipMap(buildRelationshipList()), id));
 
     ValidatableResponse responseUpdate = sendGet(id);
     // verify
