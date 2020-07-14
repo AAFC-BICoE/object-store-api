@@ -13,6 +13,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import ca.gc.aafc.dina.DinaBaseApiAutoConfiguration;
 import ca.gc.aafc.dina.jpa.BaseDAO;
@@ -20,6 +22,7 @@ import ca.gc.aafc.dina.mapper.CustomFieldResolverSpec;
 import ca.gc.aafc.dina.mapper.JpaDtoMapper;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
+import ca.gc.aafc.objectstore.api.interceptor.TzInterceptor;
 import ca.gc.aafc.objectstore.api.resolvers.ObjectStoreMetaDataFieldResolvers;
 import ca.gc.aafc.objectstore.api.respository.DtoEntityMapping;
 import io.minio.MinioClient;
@@ -67,4 +70,15 @@ public class MainConfiguration {
     );
   }
 
+  @Bean
+  public WebMvcConfigurer configurer() {
+    return new WebMvcConfigurer() {
+      @Override
+      public void addInterceptors(InterceptorRegistry registry) {
+        TzInterceptor interceptor = new TzInterceptor();
+        registry.addInterceptor(interceptor);        
+      }
+    };
+  }  
+  
 }
