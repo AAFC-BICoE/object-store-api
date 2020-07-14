@@ -10,6 +10,7 @@ import java.time.ZonedDateTime;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Value;
 
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
@@ -21,16 +22,22 @@ import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFacto
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
 
 public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
-
+  
   private static final ZoneId MTL_TZ = ZoneId.of("America/Montreal");
+  private static final ZoneId DEFAULT_TZ = ZoneId.of("UTC");
+  
   private final ZonedDateTime TEST_ZONED_DT = ZonedDateTime.of(2019, 1, 2, 3, 4, 5, 0, MTL_TZ);
   private final OffsetDateTime TEST_OFFSET_DT = TEST_ZONED_DT.toOffsetDateTime();
 
+  private final ZonedDateTime TEST_DELETED_ZONED_DT = ZonedDateTime.of(3019, 1, 2, 3, 4, 5, 0, DEFAULT_TZ);
+  private final OffsetDateTime TEST_DELETED_OFFSET_DT = TEST_ZONED_DT.toOffsetDateTime();
+  
   private ObjectStoreMetadata objectStoreMetaUnderTest = ObjectStoreMetadataFactory
       .newObjectStoreMetadata()
       .acMetadataCreator(UUID.randomUUID())
       .dcCreator(UUID.randomUUID())
       .acDigitizationDate(TEST_OFFSET_DT)
+      .deletedDate(TEST_DELETED_OFFSET_DT)
       .build();
 
   @Override
@@ -57,6 +64,10 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
         fetchedObjectStoreMeta.getAcDigitizationDate()
         .atZoneSameInstant(MTL_TZ)
         .toOffsetDateTime());
+    
+   // The returned acDeletedDate will use the default time zone
+    assertEquals(objectStoreMetaUnderTest.getDeletedDate(),
+        fetchedObjectStoreMeta.getDeletedDate());
     
     //should be auto-generated
     assertNotNull(fetchedObjectStoreMeta.getCreatedDate());

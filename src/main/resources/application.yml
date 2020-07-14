@@ -13,6 +13,10 @@ spring:
     liquibase-schema: object_store
   jpa:
     open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
 minio:
   scheme:  http
   host:  localhost
