@@ -202,7 +202,6 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
     this.acDigitizationDate = acDigitizationDate;
   }
 
-  //@UpdateTimestamp
   @Column(name = "xmp_metadata_date")
   public OffsetDateTime getXmpMetadataDate() {
     return this.xmpMetadataDate;    
@@ -210,7 +209,6 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
 
   public void setXmpMetadataDate(OffsetDateTime xmpMetadataDate) {
     ZoneId zoneId = ZoneId.of(LocaleContextHolder.getTimeZone().getID());
-    //ZoneId zoneId = ZoneId.of("America/Los_Angeles");
     ZonedDateTime zonedDT = ZonedDateTime.of(LocalDateTime.now(), zoneId);       
     this.xmpMetadataDate = zonedDT.toOffsetDateTime();
   }
