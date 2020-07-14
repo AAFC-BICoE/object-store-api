@@ -1,6 +1,10 @@
 package ca.gc.aafc.objectstore.api.entities;
 
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,6 +33,7 @@ import org.hibernate.annotations.NaturalIdCache;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.context.i18n.LocaleContextHolder;
 
 import ca.gc.aafc.dina.entity.DinaEntity;
 import ca.gc.aafc.dina.entity.SoftDeletable;
@@ -197,14 +202,17 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
     this.acDigitizationDate = acDigitizationDate;
   }
 
-  @UpdateTimestamp
+  //@UpdateTimestamp
   @Column(name = "xmp_metadata_date")
   public OffsetDateTime getXmpMetadataDate() {
-    return xmpMetadataDate;
+    return this.xmpMetadataDate;    
   }
 
   public void setXmpMetadataDate(OffsetDateTime xmpMetadataDate) {
-    this.xmpMetadataDate = xmpMetadataDate;
+    ZoneId zoneId = ZoneId.of(LocaleContextHolder.getTimeZone().getID());
+    //ZoneId zoneId = ZoneId.of("America/Los_Angeles");
+    ZonedDateTime zonedDT = ZonedDateTime.of(LocalDateTime.now(), zoneId);       
+    this.xmpMetadataDate = zonedDT.toOffsetDateTime();
   }
 
   @Column(name = "original_filename")
