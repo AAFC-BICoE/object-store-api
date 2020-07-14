@@ -204,7 +204,7 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
 
   @Column(name = "xmp_metadata_date")
   public OffsetDateTime getXmpMetadataDate() {
-    return this.xmpMetadataDate;    
+    return xmpMetadataDate;    
   }
 
   public void setXmpMetadataDate(OffsetDateTime xmpMetadataDate) {
