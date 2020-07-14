@@ -25,6 +25,7 @@ import ca.gc.aafc.dina.repository.GoneException;
 import ca.gc.aafc.dina.repository.JpaDtoRepository;
 import ca.gc.aafc.dina.repository.JpaResourceRepository;
 import ca.gc.aafc.dina.repository.meta.JpaMetaInformationProvider;
+import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.objectstore.api.ObjectStoreConfiguration;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
@@ -53,7 +54,8 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
     ObjectStoreConfiguration config,
     BaseDAO dao,
     FileInformationService fileInformationService,
-    ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService
+    ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService,
+    Optional<DinaAuthenticatedUser> authenticatedUser
   ) {
     super(
       ObjectStoreMetadataDto.class,
@@ -64,11 +66,13 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
     this.dao = dao;
     this.fileInformationService = fileInformationService;
     this.defaultValueSetterService = defaultValueSetterService;
+    this.authenticatedUser = authenticatedUser;
   }
 
   private final BaseDAO dao;
   private final FileInformationService fileInformationService;
   private final ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService;
+  private Optional<DinaAuthenticatedUser> authenticatedUser;
 
   private static PathSpec DELETED_PATH_SPEC = PathSpec.of("softDeleted");
 
@@ -96,7 +100,7 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
 
     ObjectStoreMetadataDto dto = super.findOne(id, jpaFriendlyQuerySpec);
 
-    if( dto.getDeletedDate() != null &&
+    if ( dto.getDeletedDate() != null &&
         !jpaFriendlyQuerySpec.findFilter(DELETED_PATH_SPEC).isPresent() ) {
       throw new GoneException("Deleted", "ID " + id + " deleted");
     }
@@ -148,7 +152,7 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
   @Override
   public void delete(Serializable id) {
     ObjectStoreMetadata objectStoreMetadata = dao.findOneByNaturalId(id, ObjectStoreMetadata.class);
-    if(objectStoreMetadata != null) {
+    if (objectStoreMetadata != null) {
       objectStoreMetadata.setDeletedDate(OffsetDateTime.now());
     }
   }
@@ -205,7 +209,7 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
    * Shows only non-soft-deleted records by default.
    * Shows only soft-deleted records if DELETED_PATH_SPEC is present.
    */
-  private static FilterHandler softDeletedFilterHandler = (querySpec, root, query,
+  private static FilterHandler softDeletedFilterHandler = (querySpec, root, 
       cb) -> !querySpec.findFilter(DELETED_PATH_SPEC).isPresent()
           ? cb.isNull(root.get(SoftDeletable.DELETED_DATE_FIELD_NAME))
           : cb.isNotNull(root.get(SoftDeletable.DELETED_DATE_FIELD_NAME));

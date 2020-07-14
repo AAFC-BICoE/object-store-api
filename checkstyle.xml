@@ -323,9 +323,9 @@ limitations under the License.
       
       <module name="WhitespaceAround">
         <!-- Intentionally excludes RCURLY (default) since it trips on anonymous
-             inner class declarations when chained with a method call.
-        -->
-        <property name="severity" value="ignore"/>
+             inner class declarations when chained with a method call.              
+         -->
+        <property name="severity" value="error"/>
         <property name="tokens" value="ASSIGN,BAND,BAND_ASSIGN,BOR,BOR_ASSIGN,BSR,BSR_ASSIGN,
                                        BXOR,BXOR_ASSIGN,COLON,DIV,DIV_ASSIGN,EQUAL,GE,GT,LAND,
                                        LCURLY,LE,LITERAL_ASSERT,LITERAL_CATCH,LITERAL_DO,
@@ -333,8 +333,7 @@ limitations under the License.
                                        LITERAL_RETURN,LITERAL_SYNCHRONIZED,LITERAL_TRY,
                                        LITERAL_WHILE,LOR,LT,MINUS,MINUS_ASSIGN,MOD,MOD_ASSIGN,
                                        NOT_EQUAL,PLUS,PLUS_ASSIGN,QUESTION,SL,SLIST,SL_ASSIGN,
-                                       SR,SR_ASSIGN,STAR,STAR_ASSIGN,TYPE_EXTENSION_AND"/>
-        
+                                       SR,SR_ASSIGN,STAR,STAR_ASSIGN,TYPE_EXTENSION_AND"/>   
       </module>
 
       <!-- Modifier Checks                                    -->

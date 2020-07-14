@@ -7,5 +7,8 @@
   <include file="db/changelog/migrations/4-Add_object_subtype_table.xml"/>
   <include file="db/changelog/migrations/5-Add_acSubType_for_metadata.xml"/>
   <include file="db/changelog/migrations/6-Insert_ThumbNail_ObjectType.xml" />
-  <include file="db/changelog/migrations/7-Add_Javers_audit_tables.xml"/>  
+  <include file="db/changelog/migrations/7-alter_metadata_acCreator_dcCreator.xml" />
+  <include file="db/changelog/migrations/8-drop_agent_table.xml" />
+  <include file="db/changelog/migrations/9-Add_xmpRightsUsageTerms_to_metadata.xml" />  
+  <include file="db/changelog/migrations/10-Add_Javers_audit_tables.xml"/>  
 </databaseChangeLog>

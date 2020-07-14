@@ -33,6 +33,7 @@ objectstore:
   defaultLicenceURL: https://open.canada.ca/en/open-government-licence-canada
   defaultCopyright: Copyright Government of Canada
   defaultCopyrightOwner: Government of Canada
+  defaultUsageTerms: Government of Canada Usage Term
 logging:
   level:
     Root: INFO

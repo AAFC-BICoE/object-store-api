@@ -18,7 +18,7 @@ import ca.gc.aafc.objectstore.api.entities.DcType;
 public final class DcTypeJsonSerDe {
   
   // hidden constructor, utility class
-  private DcTypeJsonSerDe() {}
+  private DcTypeJsonSerDe() { }
 
   @JsonComponent
   public static class DcTypeDeserializer extends JsonDeserializer<DcType> {

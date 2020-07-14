@@ -1,5 +1,6 @@
 package ca.gc.aafc.objectstore.api.rest;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
@@ -9,20 +10,24 @@ import ca.gc.aafc.objectstore.api.entities.ManagedAttribute.ManagedAttributeType
 public class ManagedAttributeJsonApiIT extends BaseJsonApiIntegrationTest {
 
   private ManagedAttributeDto managedAttribute;
+  
+  private static final String SCHEMA_NAME = "ManagedAttribute";
+  private static final String RESOURCE_UNDER_TEST = "managed-attribute";
+  private static final String SCHEMA_PATH = "DINA-Web/object-store-specs/master/schema/managedAttribute.yaml";  
 
+  @Override
+  protected String getSchemaName() {
+    return SCHEMA_NAME;
+  }
+  
+  @Override
+  protected String getSchemaPath() {
+    return SCHEMA_PATH;
+  }
+     
   @Override
   protected String getResourceUnderTest() {
-    return "managed-attribute";
-  }
-
-  @Override
-  protected String getGetOneSchemaFilename() {
-    return "getOneManagedAttributeSchema.json";
-  }
-
-  @Override
-  protected String getGetManySchemaFilename() {
-    return null;
+    return RESOURCE_UNDER_TEST;
   }
 
   @Override
@@ -33,6 +38,10 @@ public class ManagedAttributeJsonApiIT extends BaseJsonApiIntegrationTest {
     managedAttribute.setAcceptedValues(acceptedValues);
     managedAttribute.setName(TestableEntityFactory.generateRandomNameLettersOnly(12));
     managedAttribute.setManagedAttributeType(ManagedAttributeType.STRING);
+    Map<String, String> desc = new HashMap<String, String>();
+    desc.put("fr", "fr_desc");
+    desc.put("en", "en_desc");
+    managedAttribute.setDescription(desc);
     
     return toAttributeMap(managedAttribute);
   }

@@ -43,6 +43,8 @@ public class ObjectStoreMetadataDto {
   private String fileExtension;
 
   private String dcFormat;
+
+  @ShallowReference
   private DcType dcType;
 
   @JsonInclude(Include.NON_EMPTY)
@@ -56,7 +58,8 @@ public class ObjectStoreMetadataDto {
   private String xmpRightsWebStatement;
   private String dcRights;
   private String xmpRightsOwner;
-
+  private String xmpRightsUsageTerms;
+  
   @JsonInclude(Include.NON_EMPTY)
   private String originalFilename;
 
@@ -67,11 +70,12 @@ public class ObjectStoreMetadataDto {
   private OffsetDateTime createdDate;
   @JsonInclude(Include.NON_EMPTY)
   private OffsetDateTime deletedDate;
-
+  
   @JsonInclude(Include.NON_EMPTY)
   private String[] acTags;
-
+  
   @JsonApiRelation
+  @DiffIgnore
   private List<MetadataManagedAttributeDto> managedAttribute;
 
   // AUTOMATICALLY_ALWAYS because it should be fetched using a call to
@@ -79,19 +83,13 @@ public class ObjectStoreMetadataDto {
   @JsonApiRelation(lookUp = LookupIncludeBehavior.AUTOMATICALLY_ALWAYS)
   private ManagedAttributeMapDto managedAttributeMap;
 
-  @JsonApiRelation
-  @DiffIgnore // Agent fields will be replaced with references to external data, so don't
-              // audit them yet.
-  private AgentDto acMetadataCreator;
+  private UUID acMetadataCreator;
 
   @JsonApiRelation
   @ShallowReference
   private ObjectStoreMetadataDto acDerivedFrom;
 
-  @JsonApiRelation
-  @DiffIgnore // Agent fields will be replaced with references to external data, so don't
-              // audit them yet.
-  private AgentDto dcCreator;
+  private UUID dcCreator;
 
   private boolean publiclyReleasable;
 
@@ -100,4 +98,7 @@ public class ObjectStoreMetadataDto {
 
   @JsonInclude(Include.NON_EMPTY)
   private String acSubType;
+  
+  private String group;
+
 }

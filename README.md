@@ -4,6 +4,11 @@ AAFC DINA object-store implementation.
 
 See DINA object-store [specification](https://github.com/DINA-Web/object-store-specs).
 
+## Required
+
+* Java 11
+* Maven 3.6 (tested)
+
 ## Database
 This project requires a PostgreSQL database to run and to run integration tests.
 

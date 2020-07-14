@@ -1,8 +1,8 @@
 package ca.gc.aafc.objectstore.api.repository;
 
+import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.Collections;
 import java.util.UUID;
@@ -96,6 +96,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
     dto.setAcDerivedFrom(derived);
     dto.setAcSubType(acSubType.getAcSubtype());
     dto.setDcType(acSubType.getDcType());
+    dto.setXmpRightsUsageTerms(TestConfiguration.TEST_USAGE_TERMS);
 
     UUID dtoUuid = objectStoreResourceRepository.create(dto).getUuid();
 
@@ -105,6 +106,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
     assertEquals(TestConfiguration.TEST_FILE_IDENTIFIER, result.getFileIdentifier());
     assertEquals(derived.getUuid(), result.getAcDerivedFrom().getUuid());
     assertEquals(acSubType.getUuid(), result.getAcSubType().getUuid());
+    assertEquals(TestConfiguration.TEST_USAGE_TERMS, result.getXmpRightsUsageTerms());
   }
 
   @Test
@@ -114,6 +116,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
     parentDTO.setBucket(TestConfiguration.TEST_BUCKET);
     parentDTO.setFileIdentifier(TestConfiguration.TEST_FILE_IDENTIFIER);
     parentDTO.setDcType(acSubType.getDcType());
+    parentDTO.setXmpRightsUsageTerms(TestConfiguration.TEST_USAGE_TERMS);
 
     UUID parentUuid = objectStoreResourceRepository.create(parentDTO).getUuid();
 
@@ -127,6 +130,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
     assertEquals(parentUuid, thumbNailMetaResult.getAcDerivedFrom().getUuid());
     assertEquals(ThumbnailService.THUMBNAIL_AC_SUB_TYPE, thumbNailMetaResult.getAcSubType().getAcSubtype());
     assertEquals(ThumbnailService.THUMBNAIL_DC_TYPE, thumbNailMetaResult.getAcSubType().getDcType());
+    assertEquals(TestConfiguration.TEST_USAGE_TERMS, thumbNailMetaResult.getXmpRightsUsageTerms());    
   }
 
   @Test
@@ -137,6 +141,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
     updateMetadataDto.setFileIdentifier(TestConfiguration.TEST_FILE_IDENTIFIER);
     updateMetadataDto.setAcDerivedFrom(derived);
     updateMetadataDto.setAcSubType(acSubType.getAcSubtype());
+    updateMetadataDto.setXmpRightsUsageTerms(TestConfiguration.TEST_USAGE_TERMS);
 
     objectStoreResourceRepository.save(updateMetadataDto);
 
@@ -145,6 +150,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
     assertEquals(TestConfiguration.TEST_FILE_IDENTIFIER, result.getFileIdentifier());
     assertEquals(derived.getUuid(), result.getAcDerivedFrom().getUuid());
     assertEquals(acSubType.getUuid(), result.getAcSubType().getUuid());
+    assertEquals(TestConfiguration.TEST_USAGE_TERMS, result.getXmpRightsUsageTerms());
 
     //Can break Relationships
     assertRelationshipsRemoved();

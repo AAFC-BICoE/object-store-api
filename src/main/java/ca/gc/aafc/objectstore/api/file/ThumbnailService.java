@@ -61,6 +61,7 @@ public class ThumbnailService {
     thumbnailMetadataDto.setDcRights(parent.getDcRights());
     thumbnailMetadataDto.setXmpRightsOwner(parent.getXmpRightsOwner());
     thumbnailMetadataDto.setXmpRightsWebStatement(parent.getXmpRightsWebStatement());
+    thumbnailMetadataDto.setXmpRightsUsageTerms(parent.getXmpRightsUsageTerms());
     return thumbnailMetadataDto;
   }
 

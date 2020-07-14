@@ -8,7 +8,7 @@ more complex filter queries.
 Example:
 
 ```
-localhost:8080/api/managed-attribute?filter[rsql]=( name=='attr1' or name=='attr2' )
+localhost:8080/api/v1/managed-attribute?filter[rsql]=( name=='attr1' or name=='attr2' )
 ```
 
 This would return all managed-attributes with the name "attr1" or "attr2".
