@@ -4,13 +4,20 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd" objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
 
-  <!-- Add Column app managed to subtype table -->
   <changeSet id="10-subtype_add_app_managed" context="schema-change" author="keyuk">
+
+    <!-- Add Column app managed to subtype table -->
     <addColumn tableName="object_subtype">
       <column name="app_managed" type="boolean" defaultValueBoolean="false">
         <constraints nullable="false" />
       </column>
     </addColumn>
+
+    <!-- Update thumbnail subtype to app managed is true -->
+    <update tableName="object_subtype">
+      <column name="app_managed" valueBoolean="true"/>
+      <where>ac_subtype='THUMBNAIL' and dc_type='IMAGE'</where>
+    </update>
   </changeSet>
 
 </databaseChangeLog>
