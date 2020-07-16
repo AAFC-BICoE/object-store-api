@@ -10,4 +10,5 @@
   <include file="db/changelog/migrations/7-alter_metadata_acCreator_dcCreator.xml" />
   <include file="db/changelog/migrations/8-drop_agent_table.xml" />
   <include file="db/changelog/migrations/9-Add_xmpRightsUsageTerms_to_metadata.xml" />  
+  <include file="db/changelog/migrations/10-subtype_add_app_managed.xml" />  
 </databaseChangeLog>
