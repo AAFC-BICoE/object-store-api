@@ -364,14 +364,20 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
   }
 
   /**
-   * Sends a DELETE to the resource under test for the provided id. Asserts that it returns HTTP NO
-   * CONTENT 204.
+   * Sends a DELETE to the resource under test for the provided id. Asserts that
+   * it returns HTTP NO CONTENT 204.
    * 
    * @param id
    */
   protected void sendDelete(String id) {
-    Response response = given().contentType(JSON_API_CONTENT_TYPE).when().delete(getResourceUnderTest() + "/" + id);
-    response.then().statusCode(HttpStatus.NO_CONTENT.value());
+    sendDelete(id, HttpStatus.NO_CONTENT.value());
+  }
+
+  protected void sendDelete(String id, int code) {
+    given().contentType(JSON_API_CONTENT_TYPE)
+      .when()
+      .delete(getResourceUnderTest() + "/" + id)
+      .then().statusCode(code);
   }
 
   /**
