@@ -1,6 +1,7 @@
 package ca.gc.aafc.objectstore.api.entities;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -79,7 +80,9 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
   private OffsetDateTime createdDate;
   private OffsetDateTime deletedDate;
 
-  private List<MetadataManagedAttribute> managedAttribute;
+  @Builder.Default
+  private List<MetadataManagedAttribute> managedAttribute = new ArrayList<>();
+
   private UUID acMetadataCreator;
   private UUID dcCreator;
 
@@ -369,11 +372,6 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
   public void setManagedAttributeMap(Object object) {
   }
 
-  @PrePersist
-  public void initUuid() {
-    this.uuid = UUID.randomUUID();
-  }
-
   @Column(name = "ac_metadata_creator_id")
   public UUID getAcMetadataCreator() {
     return acMetadataCreator;
@@ -402,5 +400,21 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
   public void setXmpRightsUsageTerms(String xmpRightsUsageTerms) {
     this.xmpRightsUsageTerms = xmpRightsUsageTerms;
   }
+  
+  /** Transient field until base implementation is ready **/ 
+  @Transient  
+  public String getGroup() {
+    return bucket;
+  }
+  
+  /** Empty setter method to avoid resource method error: missing accessor method until 
+   *  multiple custom field resolvers can be associated with single resource
+   */
+  public void setGroup(String group) {    
+  }  
 
+  @PrePersist
+  public void initUuid() {
+    this.uuid = UUID.randomUUID();
+  }
 }

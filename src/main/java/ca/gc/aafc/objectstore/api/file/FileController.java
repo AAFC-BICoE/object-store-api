@@ -15,11 +15,11 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MimeTypeException;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -35,19 +35,24 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import org.xmlpull.v1.XmlPullParserException;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
+import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.minio.MinioFileService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataReadService;
+import io.crnk.core.exception.UnauthorizedException;
 import io.minio.errors.ErrorResponseException;
 import io.minio.errors.InsufficientDataException;
 import io.minio.errors.InternalException;
-import io.minio.errors.InvalidArgumentException;
 import io.minio.errors.InvalidBucketNameException;
 import io.minio.errors.InvalidEndpointException;
 import io.minio.errors.InvalidPortException;
 import io.minio.errors.InvalidResponseException;
-import io.minio.errors.NoResponseException;
 import io.minio.errors.RegionConflictException;
+import io.minio.errors.XmlParserException;
+import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 
 @RestController
@@ -63,36 +68,45 @@ public class FileController {
   private final MediaTypeDetectionStrategy mediaTypeDetectionStrategy;
   private final ObjectMapper objectMapper;
   private final ThumbnailService thumbnailService;
+  private Optional<DinaAuthenticatedUser> authenticatedUser;  
+  private final MessageSource messageSource;
 
   @Inject
   public FileController(MinioFileService minioService, ObjectStoreMetadataReadService objectStoreMetadataReadService, 
-      MediaTypeDetectionStrategy mediaTypeDetectionStrategy,
+      MediaTypeDetectionStrategy mediaTypeDetectionStrategy, 
       Jackson2ObjectMapperBuilder jackson2ObjectMapperBuilder,
-      ThumbnailService thumbnailService) {
+      ThumbnailService thumbnailService,
+      Optional<DinaAuthenticatedUser> authenticatedUser,
+      MessageSource messageSource
+  ) {
     this.minioService = minioService;
     this.objectStoreMetadataReadService = objectStoreMetadataReadService;
     this.mediaTypeDetectionStrategy = mediaTypeDetectionStrategy;
     this.thumbnailService = thumbnailService;
+    this.authenticatedUser = authenticatedUser;
     this.objectMapper = jackson2ObjectMapperBuilder.build();
     objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+    this.messageSource = messageSource;
   }
 
   @PostMapping("/file/{bucket}")
   public FileMetaEntry handleFileUpload(@RequestParam("file") MultipartFile file,
       @PathVariable String bucket) throws InvalidKeyException, NoSuchAlgorithmException,
-      InvalidBucketNameException, NoResponseException, ErrorResponseException, InternalException,
-      InvalidArgumentException, InsufficientDataException, InvalidResponseException,
-      RegionConflictException, InvalidEndpointException, InvalidPortException, IOException,
-      XmlPullParserException, URISyntaxException, MimeTypeException {
-    
+      InvalidBucketNameException, ErrorResponseException, InternalException,
+      InsufficientDataException, InvalidResponseException, RegionConflictException,
+      InvalidEndpointException, InvalidPortException, IOException, XmlPullParserException,
+      URISyntaxException, MimeTypeException, IllegalArgumentException, XmlParserException {
+
     // Temporary, we will need to check if the user is an admin
     minioService.ensureBucketExists(bucket);
-    
+
+    // Check that the UUID is not already assigned.
+    UUID uuid = getNewUUID(bucket);
+
+    authenticateBucket(bucket);
+
     MediaTypeDetectionStrategy.MediaTypeDetectionResult mtdr = mediaTypeDetectionStrategy
         .detectMediaType(file.getInputStream(), file.getContentType(), file.getOriginalFilename());
-    
-    // Check that the UUID is not already assigned. It is very unlikely but not impossible
-    UUID uuid = getNewUUID(bucket);
 
     FileMetaEntry fileMetaEntry = new FileMetaEntry(uuid);
     fileMetaEntry.setOriginalFilename(file.getOriginalFilename());
@@ -121,26 +135,50 @@ public class FileController {
     String sha1Hex = DigestUtils.sha1Hex(md.digest());
     fileMetaEntry.setSha1Hex(sha1Hex);
 
-    // Generate thumbnail if the file format can be thumbnailed:
-    if (thumbnailService.isSupported(mtdr.getEvaluatedMediatype())) {
-      UUID thumbUuid = getNewUUID(bucket);
-      try (InputStream thumbnail = thumbnailService.generateThumbnail(file.getInputStream())) {
-        minioService.storeFile(
-          thumbUuid.toString() + ".thumbnail" + ThumbnailService.THUMBNAIL_EXTENSION,
-          thumbnail,
-          "image/jpeg",
-          bucket,
-          null
-        );
-      }
-      fileMetaEntry.setThumbnailIdentifier(thumbUuid);
-    }
+    UUID thumbUuid = generateThumbNail(
+      uuid,
+      file.getInputStream(),
+      bucket,
+      mtdr.getEvaluatedMediatype());
+    fileMetaEntry.setThumbnailIdentifier(thumbUuid);
 
     storeFileMetaEntry(fileMetaEntry, bucket);
 
     return fileMetaEntry;
   }
-  
+
+  /**
+   * Stores a generated thumbnail and returns the Identifier or Null if a
+   * thumbnail could not be generated.
+   * 
+   * @param fileID
+   *                        - UUID of the original file the thumbnail uses.
+   * 
+   * @param in
+   *                        - image input stream
+   * @param bucket
+   *                        - bucket to store thumbnail
+   * @param fileExtension
+   *                        - file extension of the image
+   * @return - UUID of the stored thumbnail, or null
+   */
+  @SneakyThrows
+  private UUID generateThumbNail(UUID fileID, InputStream in, String bucket, String fileExtension) {
+    if (thumbnailService.isSupported(fileExtension)) {
+      log.info("Generating a thumbnail for file with UUID of: {}", () -> fileID);
+
+      try (InputStream thumbnail = thumbnailService.generateThumbnail(in)) {
+        UUID thumbID = getNewUUID(bucket);
+        String fileName = thumbID.toString() + ".thumbnail" + ThumbnailService.THUMBNAIL_EXTENSION;
+        minioService.storeFile(fileName, thumbnail, "image/jpeg", bucket, null);
+        return thumbID;
+      } catch (IOException e) {
+        log.warn(() -> "A thumbnail could not be generated for file " + fileID, e);
+      }
+    }
+    return null;
+  }
+
   /**
    * Store a {@link FileMetaEntry} in Minio as a json file.
    * 
@@ -161,14 +199,16 @@ public class FileController {
    * @throws IOException
    * @throws XmlPullParserException
    * @throws URISyntaxException
+   * @throws XmlParserException
+   * @throws IllegalArgumentException
    */
   private void storeFileMetaEntry(FileMetaEntry fileMetaEntry, String bucket)
       throws InvalidKeyException, NoSuchAlgorithmException, InvalidBucketNameException,
-      NoResponseException, ErrorResponseException, InternalException, InvalidArgumentException,
-      InsufficientDataException, InvalidResponseException, RegionConflictException,
-      InvalidEndpointException, InvalidPortException, IOException, XmlPullParserException,
-      URISyntaxException {
-    
+      ErrorResponseException, InternalException, InsufficientDataException,
+      InvalidResponseException, RegionConflictException, InvalidEndpointException,
+      InvalidPortException, IOException, XmlPullParserException, URISyntaxException,
+      IllegalArgumentException, XmlParserException {
+
     String jsonContent = objectMapper.writeValueAsString(fileMetaEntry);
     InputStream inputStream = new ByteArrayInputStream(
         jsonContent.getBytes(StandardCharsets.UTF_8));
@@ -196,21 +236,21 @@ public class FileController {
     try {
       Optional<ObjectStoreMetadata> loadedMetadata = objectStoreMetadataReadService
           .loadObjectStoreMetadataByFileId(fileUuid);
+
       ObjectStoreMetadata metadata = loadedMetadata
           .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
               "No metadata found for FileIdentifier " + fileUuid + " or bucket " + bucket, null));
 
       String filename = thumbnailRequested ? 
           metadata.getFileIdentifier() + ".thumbnail" + ThumbnailService.THUMBNAIL_EXTENSION
-        : metadata.getFilename();
-    
-      FileObjectInfo foi = minioService.getFileInfo(filename, bucket)
-        .orElseThrow(() -> new ResponseStatusException(
-          HttpStatus.NOT_FOUND,
-          fileUuid + " or bucket " + bucket + " Not Found",
-          null
-        ));
-      
+        : metadata.getFilename();      
+     
+      FileObjectInfo foi = minioService.getFileInfo(filename, bucket).orElseThrow(() -> {
+        String errorMsg = messageSource.getMessage("minio.file_or_bucket_not_found",
+            new Object[] { fileUuid, bucket }, LocaleContextHolder.getLocale());
+        return new ResponseStatusException(HttpStatus.NOT_FOUND, errorMsg, null);
+      });
+
       HttpHeaders respHeaders = new HttpHeaders();
       respHeaders.setContentType(
         org.springframework.http.MediaType.parseMediaType(
@@ -240,9 +280,27 @@ public class FileController {
       if (!minioService.isFileWithPrefixExists(bucketName, uuid.toString())) {
         return uuid;
       }
+      log.warn("Could not get a uuid for file in bucket :{}", () -> bucketName);
       numberOfAttempt++;
     }
     throw new IllegalStateException("Can't assign unique UUID. Giving up.");
+  }
+
+  /**
+   * Authenticates the DinaAuthenticatedUser for a given bucket.
+   * 
+   * @param bucket
+   *                 - bucket to validate.
+   * @throws UnauthorizedException
+   *                                 If the DinaAuthenticatedUser does not have
+   *                                 access to the given bucket
+   */
+  private void authenticateBucket(String bucket) {
+    if (authenticatedUser.isPresent() && !authenticatedUser.get().getGroups().contains(bucket)) {
+      throw new UnauthorizedException(
+          "You are not authorized for bucket: " + bucket
+          + ". Expected buckets: " + StringUtils.join(authenticatedUser.get().getGroups(), ", "));
+    }
   }
 
 }

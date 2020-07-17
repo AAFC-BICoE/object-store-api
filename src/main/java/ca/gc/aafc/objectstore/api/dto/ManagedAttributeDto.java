@@ -4,6 +4,9 @@ import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.UUID;
 
+import org.javers.core.metamodel.annotation.Id;
+import org.javers.core.metamodel.annotation.PropertyName;
+
 import ca.gc.aafc.dina.dto.RelatedEntity;
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute.ManagedAttributeType;
@@ -17,15 +20,17 @@ import lombok.Data;
 @Data
 @JsonApiResource(type = "managed-attribute")
 public class ManagedAttributeDto {
-  
-  @JsonApiId 
+
+  @JsonApiId
+  @Id
+  @PropertyName("id")
   private UUID uuid;
-  
+
   private String name;
   private ManagedAttributeType managedAttributeType;
   private String[] acceptedValues;
   private OffsetDateTime createdDate;
-  
+
   private Map<String, String> description;
-  
+
 }

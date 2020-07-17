@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.util.NestedServletException;
 
+import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.TestConfiguration;
 
 @SpringBootTest
@@ -24,6 +25,9 @@ public class FileUploadIT {
   @Autowired
   protected WebApplicationContext wac;
 
+  private final static String bucketUnderTest = DinaAuthenticatedUserConfig.ROLES_PER_GROUPS.keySet().stream()
+    .findFirst().get();
+
   @Test
   public void fileUpload_onMultipartRequest_acceptFile() throws Exception {
 
@@ -31,7 +35,7 @@ public class FileUploadIT {
         "Test Content".getBytes());
 
     webAppContextSetup(this.wac).build()
-        .perform(MockMvcRequestBuilders.multipart("/api/v1/file/mybucket").file(file))
+        .perform(MockMvcRequestBuilders.multipart("/api/v1/file/" + bucketUnderTest).file(file))
         .andExpect(status().is(200));
   }
 

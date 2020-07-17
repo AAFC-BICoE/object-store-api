@@ -2,8 +2,11 @@ package ca.gc.aafc.objectstore.api.dto;
 
 import java.util.UUID;
 
+import org.javers.core.metamodel.annotation.PropertyName;
+
 import ca.gc.aafc.dina.dto.RelatedEntity;
 import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
+
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.crnk.core.resource.annotations.JsonApiId;
 import io.crnk.core.resource.annotations.JsonApiRelation;
@@ -17,12 +20,13 @@ import lombok.Data;
 public class MetadataManagedAttributeDto {
 
   @JsonApiId
+  @PropertyName("id")
   private UUID uuid;
   private String assignedValue;
 
   @JsonApiRelation
   private ObjectStoreMetadataDto objectStoreMetadata;
-  
+
   @JsonApiRelation
   private ManagedAttributeDto managedAttribute;
 }

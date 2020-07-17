@@ -5,7 +5,7 @@
 
 	<groupId>ca.gc.aafc</groupId>
 	<artifactId>object-store.api</artifactId>
-	<version>0.4-SNAPSHOT</version>
+	<version>0.7-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>Object-Store API</name>
@@ -14,55 +14,39 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.2.7.RELEASE</version>
+		<version>2.3.1.RELEASE</version>
 	</parent>
 
 	<properties>
-		<java.version>1.8</java.version>
+		<java.version>11</java.version>
 
-		<javax.inject.version>1</javax.inject.version>
-		<!-- Different from SpringBoot javax-jaxb.version since they don't manage 
-			jaxb-core and jaxb-impl -->
-		<local-javax-jaxb.version>2.3.0.1</local-javax-jaxb.version>
-		<javax.activation.version>1.1.1</javax.activation.version>
 		<javax.interceptor-api>1.2.2</javax.interceptor-api>
-		<minio.version>6.0.13</minio.version>
+		<minio.version>7.0.2</minio.version>
 		<tika.version>1.24.1</tika.version>
 		<thumbnailator.version>0.4.11</thumbnailator.version>
 		<imageio.version>3.5</imageio.version>
-		<spotbugs-maven-plugin.version>3.1.12.2</spotbugs-maven-plugin.version>
-		<spotbugs.version>3.1.12</spotbugs.version>
+
+		<spotbugs-maven-plugin.version>4.0.4</spotbugs-maven-plugin.version>
+		<spotbugs.version>4.0.4</spotbugs.version>
 		<jcip-annotations.version>1.0</jcip-annotations.version>
 		<!-- Override SpringBoot version (3.6) to avoid NoClassDefFoundError: org/apache/maven/doxia/siterenderer/DocumentContent -->
 		<maven-site-plugin.version>3.7.1</maven-site-plugin.version>
-		<dependency-check-maven.version>5.3.0</dependency-check-maven.version>
+		<dependency-check-maven.version>5.3.2</dependency-check-maven.version>
 		<jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
 		<maven-checkstyle-plugin.version>3.1.0</maven-checkstyle-plugin.version>
 		<checkstyle.version>8.29</checkstyle.version>
-		<asciidoctor-maven-plugin.version>1.6.0</asciidoctor-maven-plugin.version>
-		<asciidoctorj.diagram.version>2.0.1</asciidoctorj.diagram.version>
-		<justify.version>2.0.0</justify.version>
+		<asciidoctor-maven-plugin.version>2.0.0</asciidoctor-maven-plugin.version>
+		<asciidoctorj.diagram.version>2.0.2</asciidoctorj.diagram.version>
 		<javax.json.version>1.1.4</javax.json.version>
-		<junit-platform-launcher.version>1.4.0</junit-platform-launcher.version>
 		<hibernate-types-52.version>2.9.3</hibernate-types-52.version>
+		<javers.version>5.10.4</javers.version>
+		<keycloak-starter.version>9.0.3</keycloak-starter.version>
 		<crnk.version>3.2.20200419165537</crnk.version>
-		<dina-base-api.version>0.29</dina-base-api.version>
+		<dina-base-api.version>0.31</dina-base-api.version>
 
 		<spring-boot-maven-plugin.fork>false</spring-boot-maven-plugin.fork>
 	</properties>
 	<repositories>
-	    <!-- Required for Crnk 3.0 -->
-	    <repository>
-	      <id>spring-libs-release</id>
-	      <url>https://repo.spring.io/libs-release</url>
-	    </repository>
-	    
-	    <!-- Crnk has the latest maven artifacts stored in bintray. -->
-	    <repository>
-	        <id>bintray-crnk-project-mavenLatest</id>
-	        <name>bintray</name>
-	        <url>https://dl.bintray.com/crnk-project/mavenLatest</url>
-	    </repository>
 		<!-- dina-base-api bintray repository -->
 		<repository>
 			<id>bintray-aafc-bice</id>
@@ -72,6 +56,11 @@
 	</repositories>
 
 	<dependencies>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+		  </dependency>
 
 		<dependency>
 			<groupId>ca.gc.aafc</groupId>
@@ -89,26 +78,11 @@
 			<artifactId>liquibase-core</artifactId>
 		</dependency>
 
-		<!-- crnk -->
+		<!-- JaVers auditing -->
     <dependency>
-      <groupId>io.crnk</groupId>
-      <artifactId>crnk-setup-spring-boot2</artifactId>
-      <version>${crnk.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.crnk</groupId>
-      <artifactId>crnk-home</artifactId>
-      <version>${crnk.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.crnk</groupId>
-      <artifactId>crnk-meta</artifactId>
-      <version>${crnk.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.crnk</groupId>
-      <artifactId>crnk-operations</artifactId>
-      <version>${crnk.version}</version>
+      <groupId>org.javers</groupId>
+      <artifactId>javers-spring-boot-starter-sql</artifactId>
+      <version>${javers.version}</version>
     </dependency>
 
 		<!--  Added for compatability with new liquibase update, ticket: #18663 -->
@@ -140,12 +114,6 @@
 			<version>${spotbugs.version}</version>
 			<scope>provided</scope>
 		</dependency>
-
-		<!-- Required for Java >= 9 -->
-		<dependency>
-			<groupId>javax.xml.bind</groupId>
-			<artifactId>jaxb-api</artifactId>
-		</dependency>
 		
 		<dependency>
 		    <groupId>io.minio</groupId>
@@ -155,19 +123,19 @@
 
     <!-- Required for thumbnail generation: -->
 		<dependency>
-				<groupId>net.coobird</groupId>
-				<artifactId>thumbnailator</artifactId>
-				<version>${thumbnailator.version}</version>
+			<groupId>net.coobird</groupId>
+			<artifactId>thumbnailator</artifactId>
+			<version>${thumbnailator.version}</version>
 		</dependency>
 		<dependency>
-				<groupId>com.twelvemonkeys.imageio</groupId>
-				<artifactId>imageio-jpeg</artifactId>
-				<version>${imageio.version}</version>
+			<groupId>com.twelvemonkeys.imageio</groupId>
+			<artifactId>imageio-jpeg</artifactId>
+			<version>${imageio.version}</version>
 		</dependency>
 		<dependency>
-				<groupId>com.twelvemonkeys.imageio</groupId>
-				<artifactId>imageio-tiff</artifactId>
-				<version>${imageio.version}</version>
+			<groupId>com.twelvemonkeys.imageio</groupId>
+			<artifactId>imageio-tiff</artifactId>
+			<version>${imageio.version}</version>
 		</dependency>
 
 		<!-- TEST Scope -->
@@ -180,33 +148,6 @@
 			<groupId>ca.gc.aafc</groupId>
 			<artifactId>dina-test-support</artifactId>
 			<version>${dina-base-api.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>io.rest-assured</groupId>
-			<artifactId>rest-assured</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>io.rest-assured</groupId>
-			<artifactId>json-path</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>io.rest-assured</groupId>
-			<artifactId>json-schema-validator</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>io.rest-assured</groupId>
-			<artifactId>rest-assured-all</artifactId>
-			<scope>test</scope>
-			<version>${rest-assured.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.leadpony.justify</groupId>
-			<artifactId>justify</artifactId>
-			<version>${justify.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
