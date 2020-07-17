@@ -1,7 +1,6 @@
 package ca.gc.aafc.objectstore.api.rest;
 
 import java.util.Map;
-import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
