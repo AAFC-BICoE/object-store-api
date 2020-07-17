@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.dina.service.DinaService;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
+import io.crnk.core.exception.UnauthorizedException;
 import lombok.NonNull;
 
 @Service
@@ -21,7 +22,9 @@ public class ObjectSubTypeService extends DinaService<ObjectSubtype> {
 
   @Override
   protected void preDelete(ObjectSubtype entity) {
-    // Do nothing
+    if (entity.isAppManaged()) {
+      throw new UnauthorizedException("This sub type is app managed and cannot be deleted");
+    }
   }
 
   @Override
