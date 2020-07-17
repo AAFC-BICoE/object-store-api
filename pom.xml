@@ -39,6 +39,9 @@
 		<asciidoctorj.diagram.version>2.0.2</asciidoctorj.diagram.version>
 		<javax.json.version>1.1.4</javax.json.version>
 		<hibernate-types-52.version>2.9.3</hibernate-types-52.version>
+		<javers.version>5.10.4</javers.version>
+		<keycloak-starter.version>9.0.3</keycloak-starter.version>
+		<crnk.version>3.2.20200419165537</crnk.version>
 		<dina-base-api.version>0.31</dina-base-api.version>
 
 		<spring-boot-maven-plugin.fork>false</spring-boot-maven-plugin.fork>
@@ -74,6 +77,13 @@
 			<groupId>org.liquibase</groupId>
 			<artifactId>liquibase-core</artifactId>
 		</dependency>
+
+		<!-- JaVers auditing -->
+    <dependency>
+      <groupId>org.javers</groupId>
+      <artifactId>javers-spring-boot-starter-sql</artifactId>
+      <version>${javers.version}</version>
+    </dependency>
 
 		<!--  Added for compatability with new liquibase update, ticket: #18663 -->
 		<dependency>
