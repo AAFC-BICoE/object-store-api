@@ -416,9 +416,17 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
    * @return
    */
   protected ValidatableResponse sendPatch(String id, Map<String, Object> dataMap) {
-    Response response = given().header("crnk-compact", "true").contentType(JSON_API_CONTENT_TYPE).body(dataMap).when()
-        .patch(getResourceUnderTest() + "/" + id);
-    return response.then().statusCode(HttpStatus.OK.value());
+    return sendPatch(id, HttpStatus.OK.value(), dataMap);
+  }
+
+  protected ValidatableResponse sendPatch(String id, int code, Map<String, Object> dataMap) {
+    return given().header("crnk-compact", "true")
+      .contentType(JSON_API_CONTENT_TYPE)
+      .body(dataMap)
+      .when()
+      .patch(getResourceUnderTest() + "/" + id)
+      .then()
+      .statusCode(code);
   }
 
   /**

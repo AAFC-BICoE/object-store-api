@@ -1,9 +1,11 @@
 package ca.gc.aafc.objectstore.api.rest;
 
 import java.util.Map;
+import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
+import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.objectstore.api.dto.ObjectSubtypeDto;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import io.crnk.core.engine.http.HttpStatus;
@@ -53,6 +55,20 @@ public class ObjectSubTypeJsonApiIT extends BaseJsonApiIntegrationTest {
   @Test
   public void delete_appManaged_ReturnsUnAuthorized() {
     sendDelete(THUMB_TYPE_UUID, HttpStatus.UNAUTHORIZED_401);
+  }
+
+  @Test
+  public void update_appManaged_ReturnsUnAuthorized() {
+    ObjectSubtypeDto thumbnail = new ObjectSubtypeDto();
+    thumbnail.setAppManaged(true);
+    sendPatch(
+      THUMB_TYPE_UUID,
+      HttpStatus.UNAUTHORIZED_401,
+      JsonAPITestHelper.toJsonAPIMap(
+        getResourceUnderTest(),
+        toAttributeMap(thumbnail),
+        toRelationshipMap(buildRelationshipList()),
+        THUMB_TYPE_UUID));
   }
 
 }
