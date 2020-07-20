@@ -46,8 +46,6 @@ public class ObjectStoreResourceRepository
   private final DinaService<ObjectStoreMetadata> dinaService;
   private final FileInformationService fileInformationService;
   private final ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService;
-  public static final String TYPENAME = "metadata";
-
   private static final PathSpec DELETED_PATH_SPEC = PathSpec.of("softDeleted");
   private static final PathSpec DELETED_DATE = PathSpec.of(SoftDeletable.DELETED_DATE_FIELD_NAME);
   private static final FilterSpec SOFT_DELETED_FILTER = DELETED_DATE.filter(FilterOperator.NEQ, null);

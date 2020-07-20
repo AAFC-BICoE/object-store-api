@@ -20,7 +20,6 @@ import ca.gc.aafc.dina.mapper.CustomFieldResolver;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
-import ca.gc.aafc.objectstore.api.respository.ObjectStoreResourceRepository;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.crnk.core.resource.annotations.JsonApiId;
 import io.crnk.core.resource.annotations.JsonApiRelation;
@@ -32,9 +31,11 @@ import lombok.NonNull;
 @SuppressFBWarnings({ "EI_EXPOSE_REP", "EI_EXPOSE_REP2" })
 @RelatedEntity(ObjectStoreMetadata.class)
 @Data
-@JsonApiResource(type = ObjectStoreResourceRepository.TYPENAME)
-@TypeName(ObjectStoreResourceRepository.TYPENAME)
+@JsonApiResource(type = ObjectStoreMetadataDto.TYPENAME)
+@TypeName(ObjectStoreMetadataDto.TYPENAME)
 public class ObjectStoreMetadataDto {
+
+  public static final String TYPENAME = "metadata";
 
   @JsonApiId
   @Id

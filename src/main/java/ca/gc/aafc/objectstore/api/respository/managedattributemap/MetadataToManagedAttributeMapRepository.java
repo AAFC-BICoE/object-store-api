@@ -17,7 +17,6 @@ import ca.gc.aafc.objectstore.api.dto.ManagedAttributeMapDto.ManagedAttributeMap
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
-import ca.gc.aafc.objectstore.api.respository.ObjectStoreResourceRepository;
 import io.crnk.core.queryspec.QuerySpec;
 import io.crnk.core.repository.OneRelationshipRepositoryBase;
 import io.crnk.core.repository.RelationshipMatcher;
@@ -78,7 +77,7 @@ public class MetadataToManagedAttributeMapRepository
   }
     ManagedAttributeMapDto attrMap = ManagedAttributeMapDto.builder()
       // This is a generated/derived object, so it doesn't have its own ID:
-      .id(ObjectStoreResourceRepository.TYPENAME + "/" + metadata.getUuid() + "/" + ManagedAttributeMapDto.TYPENAME)
+      .id(ObjectStoreMetadataDto.TYPENAME + "/" + metadata.getUuid() + "/" + ManagedAttributeMapDto.TYPENAME)
       .values(attrValuesMap)
       .build();
       
