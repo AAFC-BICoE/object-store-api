@@ -1,5 +1,7 @@
 package ca.gc.aafc.objectstore.api.respository;
 
+import java.util.Optional;
+
 import javax.transaction.Transactional;
 
 import org.springframework.stereotype.Repository;
@@ -23,6 +25,7 @@ public class ObjectSubtypeResourceRepository
   ) {
     super(
       dinaService,
+      Optional.ofNullable(null),
       new DinaMapper<>(ObjectSubtypeDto.class),
       ObjectSubtypeDto.class,
       ObjectSubtype.class,

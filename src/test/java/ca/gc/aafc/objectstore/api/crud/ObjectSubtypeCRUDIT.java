@@ -15,13 +15,13 @@ public class ObjectSubtypeCRUDIT extends BaseEntityCRUDIT {
   @Override
   public void testSave() {
     assertNull(objectSubtypeUnderTest.getId());
-    save(objectSubtypeUnderTest);
+    service.save(objectSubtypeUnderTest);
     assertNotNull(objectSubtypeUnderTest.getId());
   }
 
   @Override
   public void testFind() {
-    ObjectSubtype fetchedAcSubtype = find(ObjectSubtype.class,
+    ObjectSubtype fetchedAcSubtype = service.find(ObjectSubtype.class,
         objectSubtypeUnderTest.getId());
     assertEquals(objectSubtypeUnderTest.getId(), fetchedAcSubtype.getId());
     assertEquals(objectSubtypeUnderTest.getAcSubtype(), fetchedAcSubtype.getAcSubtype());
@@ -30,7 +30,7 @@ public class ObjectSubtypeCRUDIT extends BaseEntityCRUDIT {
   @Override
   public void testRemove() {
     Integer id = objectSubtypeUnderTest.getId();
-    deleteById(ObjectSubtype.class, id);
-    assertNull(find(ObjectSubtype.class, id));
+    service.deleteById(ObjectSubtype.class, id);
+    assertNull(service.find(ObjectSubtype.class, id));
   }
 }
