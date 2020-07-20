@@ -25,14 +25,13 @@ public class ObectStoreMetaDataService extends DinaService<ObjectStoreMetadata> 
   }
 
   @Override
-  protected ObjectStoreMetadata preCreate(ObjectStoreMetadata entity) {
+  protected void preCreate(ObjectStoreMetadata entity) {
     if (entity.getAcSubType() != null) {
       ObjectSubtype fetchedType = metaDataFieldResolver.acSubTypeToEntity(
           entity.getAcSubType().getDcType(),
           entity.getAcSubType().getAcSubtype());
       entity.setAcSubType(fetchedType);
     }
-    return entity;
   }
 
   @Override
@@ -41,7 +40,7 @@ public class ObectStoreMetaDataService extends DinaService<ObjectStoreMetadata> 
   }
 
   @Override
-  protected ObjectStoreMetadata preUpdate(ObjectStoreMetadata entity) {
+  protected void preUpdate(ObjectStoreMetadata entity) {
     ObjectSubtype temp = entity.getAcSubType();
 
     if (temp != null) {
@@ -57,7 +56,6 @@ public class ObectStoreMetaDataService extends DinaService<ObjectStoreMetadata> 
         temp.getAcSubtype());
       entity.setAcSubType(fetchedType);
     }
-    return entity;
   }
 
 }
