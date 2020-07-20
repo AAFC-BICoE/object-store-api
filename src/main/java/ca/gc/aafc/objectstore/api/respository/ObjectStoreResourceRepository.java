@@ -18,8 +18,6 @@ import org.springframework.stereotype.Repository;
 
 import ca.gc.aafc.dina.entity.SoftDeletable;
 import ca.gc.aafc.dina.filter.DinaFilterResolver;
-import ca.gc.aafc.dina.mapper.DinaMapper;
-import ca.gc.aafc.dina.repository.DinaRepository;
 import ca.gc.aafc.dina.repository.GoneException;
 import ca.gc.aafc.dina.service.DinaService;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
@@ -48,6 +46,7 @@ public class ObjectStoreResourceRepository
   private final DinaService<ObjectStoreMetadata> dinaService;
   private final FileInformationService fileInformationService;
   private final ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService;
+  public static final String TYPENAME = "metadata";
 
   private static final PathSpec DELETED_PATH_SPEC = PathSpec.of("softDeleted");
   private static final PathSpec DELETED_DATE = PathSpec.of(SoftDeletable.DELETED_DATE_FIELD_NAME);
@@ -62,7 +61,8 @@ public class ObjectStoreResourceRepository
   ) {
     super(
       dinaService,
-      new DinaMapper<>(ObjectStoreMetadataDto.class),
+      Optional.empty(),
+      new DinaMapper<ObjectStoreMetadataDto, ObjectStoreMetadata>(ObjectStoreMetadataDto.class),
       ObjectStoreMetadataDto.class,
       ObjectStoreMetadata.class,
       filterResolver);
