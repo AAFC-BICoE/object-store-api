@@ -1,7 +1,9 @@
 package ca.gc.aafc.objectstore.api.validation;
 
+import javax.inject.Inject;
+
 import org.junit.jupiter.api.Test;
-import org.springframework.validation.ValidationUtils;
+import org.springframework.validation.Validator;
 
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
@@ -14,13 +16,14 @@ public class MetadataManagedAttributeValidatorTest {
 
     private MetadataManagedAttribute metadataManagedAttribute;
 
+    @Inject 
+    private MetadataManagedAttributeValidator validator;
+
     @Test
     public void assignedValueContainedInAcceptedValues_validationPasses() {
         metadataManagedAttribute = MetadataManagedAttributeFactory
             .newMetadataManagedAttribute()
             .build();
-        //..
-        ValidationUtils.invokeValidator(new MetadataManagedAttributeValidator(), metadataManagedAttribute, errors);
     }
 
     @Test
