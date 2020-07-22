@@ -10,8 +10,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.javers.core.Javers;
 import org.javers.core.metamodel.object.CdoSnapshot;
-import org.javers.repository.jql.JqlQuery;
-import org.javers.repository.jql.QueryBuilder;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -19,6 +17,7 @@ import org.springframework.stereotype.Repository;
 
 import ca.gc.aafc.dina.repository.NoLinkInformation;
 import ca.gc.aafc.objectstore.api.dto.AuditSnapshotDto;
+import ca.gc.aafc.objectstore.api.service.AuditService;
 import io.crnk.core.exception.MethodNotAllowedException;
 import io.crnk.core.queryspec.QuerySpec;
 import io.crnk.core.repository.ReadOnlyResourceRepositoryBase;
@@ -41,7 +40,8 @@ public class AuditSnapshotRepository extends ReadOnlyResourceRepositoryBase<Audi
 
   @Override
   public ResourceList<AuditSnapshotDto> findAll(QuerySpec qs) {
-    QueryBuilder queryBuilder;
+    int limit = Optional.ofNullable(qs.getLimit()).orElse(100L).intValue();
+    int skip = Optional.ofNullable(qs.getOffset()).orElse(0L).intValue();
 
     Map<String, String> filters = getFilterMap(qs);
     String authorFilter = filters.get("author");
@@ -51,33 +51,13 @@ public class AuditSnapshotRepository extends ReadOnlyResourceRepositoryBase<Audi
     String type = null;
     
     if (StringUtils.isNotBlank(instanceFilter)) {
-      // Filter by audits of a specific record:
       String[] idAndType = getIdAndType(instanceFilter);
       id = idAndType[0];
       type = idAndType[1];
+    } 
 
-      queryBuilder = QueryBuilder.byInstanceId(id, type);
-    } else {
-      // Filter by audits of any object:
-      queryBuilder = QueryBuilder.anyDomainObject();
-    }
-
-    // Allow filter by author:
-    if (StringUtils.isNotBlank(authorFilter)) {
-      queryBuilder.byAuthor(authorFilter);
-    }
-
-    // Set paging limit and offset:
-    queryBuilder.limit(Optional.ofNullable(qs.getLimit()).orElse(100L).intValue());
-    queryBuilder.skip(Optional.ofNullable(qs.getOffset()).orElse(0L).intValue());
-    
-    JqlQuery query = queryBuilder.build();
-
-    // Execute the query:
-    List<CdoSnapshot> javersSnapshots = javers.findSnapshots(query);
-
-    // Convert to DTOs:
-    List<AuditSnapshotDto> dtos = javersSnapshots.stream().map(this::toDto).collect(Collectors.toList());
+    List<AuditSnapshotDto> dtos = AuditService.findAll(javers, type, id, authorFilter, limit, skip)
+      .stream().map(this::toDto).collect(Collectors.toList());
 
     PagedMetaInformation meta = getMetadata(authorFilter, id, type);
 
