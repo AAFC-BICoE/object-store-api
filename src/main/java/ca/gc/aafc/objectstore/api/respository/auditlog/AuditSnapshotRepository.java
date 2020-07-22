@@ -8,9 +8,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.javers.core.Javers;
 import org.javers.core.metamodel.object.CdoSnapshot;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import ca.gc.aafc.dina.repository.NoLinkInformation;
@@ -26,13 +24,12 @@ import lombok.NonNull;
 
 @Repository
 public class AuditSnapshotRepository extends ReadOnlyResourceRepositoryBase<AuditSnapshotDto, Long> {
-  private final Javers javers;
-  private final NamedParameterJdbcTemplate jdbcTemplate;
 
-  public AuditSnapshotRepository(Javers javers, NamedParameterJdbcTemplate jdbcTemplate) {
+  private final AuditService service;
+
+  public AuditSnapshotRepository(AuditService service) {
     super(AuditSnapshotDto.class);
-    this.javers = javers;
-    this.jdbcTemplate = jdbcTemplate;
+    this.service = service;
   }
 
   @Override
@@ -46,17 +43,17 @@ public class AuditSnapshotRepository extends ReadOnlyResourceRepositoryBase<Audi
 
     String id = null;
     String type = null;
-    
+
     if (StringUtils.isNotBlank(instanceFilter)) {
       String[] idAndType = getIdAndType(instanceFilter);
       id = idAndType[0];
       type = idAndType[1];
-    } 
+    }
 
-    List<AuditSnapshotDto> dtos = AuditService.findAll(javers, type, id, authorFilter, limit, skip)
+    List<AuditSnapshotDto> dtos = service.findAll(type, id, authorFilter, limit, skip)
       .stream().map(AuditSnapshotRepository::toDto).collect(Collectors.toList());
-    
-    Long count =  AuditService.getResouceCount(jdbcTemplate, authorFilter, id, type);
+
+    Long count = service.getResouceCount(authorFilter, id, type);
     DefaultPagedMetaInformation meta = new DefaultPagedMetaInformation();
     meta.setTotalResourceCount(count);
 

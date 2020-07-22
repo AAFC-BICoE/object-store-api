@@ -9,8 +9,24 @@ import org.javers.repository.jql.QueryBuilder;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.stereotype.Service;
 
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
 public class AuditService {
+
+  private final Javers javers;
+  private final NamedParameterJdbcTemplate jdbcTemplate;
+
+  public List<CdoSnapshot> findAll(String type, String id, String author, int limit, int skip) {
+    return AuditService.findAll(this.javers, type, id, author, limit, skip);
+  }
+
+  public Long getResouceCount(String authorFilter, String id, String type) {
+    return AuditService.getResouceCount(this.jdbcTemplate, authorFilter, id, type);
+  }
 
   public static List<CdoSnapshot> findAll(Javers javers, String type, String id, String author, int limit, int skip) {
     QueryBuilder queryBuilder;
@@ -40,8 +56,8 @@ public class AuditService {
    * @param type
    * @return
    */
-  public static Long getResouceCount(NamedParameterJdbcTemplate jdbcTemplate, String authorFilter,
-      String id, String type) {
+  public static Long getResouceCount(NamedParameterJdbcTemplate jdbcTemplate, String authorFilter, String id,
+      String type) {
     // Use sql to get the count because Javers does not provide a counting method:
     SqlParameterSource parameters = new MapSqlParameterSource().addValue("author", authorFilter)
         .addValue("id", "\"" + id + "\"") // Javers puts double-quotes around the id in the database.
