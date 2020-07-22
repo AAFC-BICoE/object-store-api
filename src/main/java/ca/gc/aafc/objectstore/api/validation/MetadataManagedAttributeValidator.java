@@ -1,7 +1,7 @@
 package ca.gc.aafc.objectstore.api.validation;
 
+import java.util.Arrays;
 import java.util.regex.Pattern;
-//import java.util.Arrays;
 import java.util.stream.Stream;
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -18,9 +18,8 @@ import ca.gc.aafc.objectstore.api.entities.ManagedAttribute.ManagedAttributeType
 
 public class MetadataManagedAttributeValidator implements Validator {
  
-    @Inject
-    private final MessageSource messageSource;
-
+    //@Inject
+    //private final MessageSource messageSource;
 
     @Override
     public boolean supports(Class<?> clazz) {
@@ -36,7 +35,7 @@ public class MetadataManagedAttributeValidator implements Validator {
         String[] acceptedValues = ma.getAcceptedValues();
         ManagedAttributeType maType = ma.getManagedAttributeType();
         
-        if (acceptedValues.equals(null)) {
+        if (acceptedValues == null || acceptedValues.length == 0) {
             if (maType == ManagedAttributeType.INTEGER) {
                 Pattern pattern = Pattern.compile("\\d+");
                 if (!pattern.matcher(assignedValue).matches()) {
@@ -44,8 +43,8 @@ public class MetadataManagedAttributeValidator implements Validator {
                 }   
             }
         } else {
-            if(!Stream.of(acceptedValues).map(x -> x.toUpperCase()).anyMatch(mma.getAssignedValue()::equals)){
-                errors.rejectValue("assignedValue", "assignedValue.invalid", new String[] {assignedValue}, null);
+            if(!Stream.of(acceptedValues).map(x -> x.toUpperCase()).anyMatch(assignedValue.toUpperCase()::equals)){
+                errors.rejectValue("assignedValue", "assignedValue.invalid", new String[] {assignedValue, acceptedValues.toString()}, null);
             }
         }        
 
