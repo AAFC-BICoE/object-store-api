@@ -21,7 +21,7 @@ import io.crnk.core.queryspec.QuerySpec;
 import io.crnk.core.repository.ReadOnlyResourceRepositoryBase;
 import io.crnk.core.resource.list.DefaultResourceList;
 import io.crnk.core.resource.list.ResourceList;
-import io.crnk.core.resource.meta.PagedMetaInformation;
+import io.crnk.core.resource.meta.DefaultPagedMetaInformation;
 import lombok.NonNull;
 
 @Repository
@@ -55,8 +55,10 @@ public class AuditSnapshotRepository extends ReadOnlyResourceRepositoryBase<Audi
 
     List<AuditSnapshotDto> dtos = AuditService.findAll(javers, type, id, authorFilter, limit, skip)
       .stream().map(AuditSnapshotRepository::toDto).collect(Collectors.toList());
-
-    PagedMetaInformation meta = AuditService.getMetadata(jdbcTemplate, authorFilter, id, type);
+    
+    Long count =  AuditService.getResouceCount(jdbcTemplate, authorFilter, id, type);
+    DefaultPagedMetaInformation meta = new DefaultPagedMetaInformation();
+    meta.setTotalResourceCount(count);
 
     return new DefaultResourceList<>(dtos, meta, new NoLinkInformation());
   }

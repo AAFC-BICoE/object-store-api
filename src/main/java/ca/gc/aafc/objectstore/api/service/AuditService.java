@@ -10,9 +10,6 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
-import io.crnk.core.resource.meta.DefaultPagedMetaInformation;
-import io.crnk.core.resource.meta.PagedMetaInformation;
-
 public class AuditService {
 
   public static List<CdoSnapshot> findAll(Javers javers, String type, String id, String author, int limit, int skip) {
@@ -43,7 +40,7 @@ public class AuditService {
    * @param type
    * @return
    */
-  public static PagedMetaInformation getMetadata(NamedParameterJdbcTemplate jdbcTemplate, String authorFilter,
+  public static Long getResouceCount(NamedParameterJdbcTemplate jdbcTemplate, String authorFilter,
       String id, String type) {
     // Use sql to get the count because Javers does not provide a counting method:
     SqlParameterSource parameters = new MapSqlParameterSource().addValue("author", authorFilter)
@@ -60,10 +57,7 @@ public class AuditService {
             ? "and global_id_fk = (select global_id_pk from jv_global_id where local_id = :id and type_name = :type)"
             : "");
 
-    Long count = jdbcTemplate.queryForObject(sql, parameters, Long.class);
-    DefaultPagedMetaInformation meta = new DefaultPagedMetaInformation();
-    meta.setTotalResourceCount(count);
-    return meta;
+    return jdbcTemplate.queryForObject(sql, parameters, Long.class);
   }
 
 }
