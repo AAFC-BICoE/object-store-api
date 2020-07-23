@@ -53,7 +53,7 @@ public class ObjectSubTypeJsonApiIT extends BaseJsonApiIntegrationTest {
  
   @Test
   public void delete_appManaged_ReturnsUnAuthorized() {
-    sendDelete(THUMB_TYPE_UUID, HttpStatus.UNAUTHORIZED_401);
+    sendDelete(THUMB_TYPE_UUID, HttpStatus.FORBIDDEN_403);
   }
 
   @Test
@@ -62,7 +62,7 @@ public class ObjectSubTypeJsonApiIT extends BaseJsonApiIntegrationTest {
     thumbnail.setAppManaged(true);
     sendPatch(
       THUMB_TYPE_UUID,
-      HttpStatus.UNAUTHORIZED_401,
+      HttpStatus.FORBIDDEN_403,
       JsonAPITestHelper.toJsonAPIMap(
         getResourceUnderTest(),
         toAttributeMap(thumbnail),
