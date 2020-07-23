@@ -18,8 +18,7 @@ public class ObjectSubTypeService extends DinaService<ObjectSubtype> {
   }
 
   @Override
-  protected ObjectSubtype preCreate(ObjectSubtype entity) {
-    return entity;
+  protected void preCreate(ObjectSubtype entity) {
   }
 
   @Override
@@ -30,11 +29,10 @@ public class ObjectSubTypeService extends DinaService<ObjectSubtype> {
   }
 
   @Override
-  protected ObjectSubtype preUpdate(ObjectSubtype entity) {
+  protected void preUpdate(ObjectSubtype entity) {
     if (entity.isAppManaged()) {
       throw new UnauthorizedException(APP_MANAGED);
     }
-    return entity;
   }
 
 }

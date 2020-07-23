@@ -45,7 +45,7 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
 
     // we need to run the setup in another transaction and commit it otherwise it can't be visible
     // to the test web server.
-    runInNewTransaction(em -> {
+    service.runInNewTransaction(em -> {
       em.persist(metadata);
       em.persist(oSubtype);
     });

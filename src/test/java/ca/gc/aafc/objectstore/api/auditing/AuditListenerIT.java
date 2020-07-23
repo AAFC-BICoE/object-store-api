@@ -20,7 +20,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import ca.gc.aafc.dina.jpa.BaseDAO;
-import ca.gc.aafc.dina.testsupport.DBBackedIntegrationTest;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
@@ -28,7 +27,7 @@ import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFacto
 @Transactional
 @SpringBootTest
 @ActiveProfiles("test")
-public class AuditListenerIT extends DBBackedIntegrationTest {
+public class AuditListenerIT {
 
   @Inject
   private Javers javers;

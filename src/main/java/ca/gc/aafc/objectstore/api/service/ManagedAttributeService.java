@@ -15,8 +15,7 @@ public class ManagedAttributeService extends DinaService<ManagedAttribute> {
   }
 
   @Override
-  protected ManagedAttribute preCreate(ManagedAttribute entity) {
-    return entity;
+  protected void preCreate(ManagedAttribute entity) {
   }
 
   @Override
@@ -25,8 +24,7 @@ public class ManagedAttributeService extends DinaService<ManagedAttribute> {
   }
 
   @Override
-  protected ManagedAttribute preUpdate(ManagedAttribute entity) {
-    return entity;
+  protected void preUpdate(ManagedAttribute entity) {
   }
 
 }

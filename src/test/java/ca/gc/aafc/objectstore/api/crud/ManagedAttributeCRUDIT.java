@@ -22,13 +22,13 @@ public class ManagedAttributeCRUDIT extends BaseEntityCRUDIT {
   @Override
   public void testSave() {
     assertNull(managedAttributeUnderTest.getId());
-    save(managedAttributeUnderTest);
+    service.save(managedAttributeUnderTest);
     assertNotNull(managedAttributeUnderTest.getId());
   }
 
   @Override
   public void testFind() {
-    ManagedAttribute fetchedObjectStoreMeta = find(ManagedAttribute.class,
+    ManagedAttribute fetchedObjectStoreMeta = service.find(ManagedAttribute.class,
         managedAttributeUnderTest.getId());
     assertEquals(managedAttributeUnderTest.getId(), fetchedObjectStoreMeta.getId());
 
@@ -41,7 +41,7 @@ public class ManagedAttributeCRUDIT extends BaseEntityCRUDIT {
   @Override
   public void testRemove() {
     Integer id = managedAttributeUnderTest.getId();
-    deleteById(ManagedAttribute.class, id);
-    assertNull(find(ManagedAttribute.class, id));
+    service.deleteById(ManagedAttribute.class, id);
+    assertNull(service.find(ManagedAttribute.class, id));
   }
 }

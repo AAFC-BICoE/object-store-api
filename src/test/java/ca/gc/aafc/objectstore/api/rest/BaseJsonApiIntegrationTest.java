@@ -439,7 +439,7 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
    * @param entityClass      - Class representing the entity to delete.
    */
   protected <T> void deleteEntityByUUID(String uuidPropertyName, UUID uuid, Class<T> entityClass) {
-    runInNewTransaction(em -> {
+    service.runInNewTransaction(em -> {
       CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
       CriteriaDelete<T> query = criteriaBuilder.createCriteriaDelete(entityClass);
       Root<T> root = query.from(entityClass);
