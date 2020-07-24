@@ -27,7 +27,7 @@ public class AuditServiceIT extends BaseIntegrationTest {
   @Inject
   private AuditService serviceUnderTest;
 
-  private static final String author = "dina_user";
+  private static final String AUTHOR = "dina_user";
   private static final String TYPE = ObjectStoreMetadataDto.TYPENAME;
   private static final UUID INSTANCE_ID = UUID.randomUUID();
 
@@ -38,9 +38,9 @@ public class AuditServiceIT extends BaseIntegrationTest {
   public void beforeEachTest() {
     // Has Author 2 Commits
     ObjectStoreMetadataDto hasAuthor = createDto();
-    javers.commit(author, hasAuthor);
+    javers.commit(AUTHOR, hasAuthor);
     hasAuthor.setAcCaption("update");
-    javers.commit(author, hasAuthor);
+    javers.commit(AUTHOR, hasAuthor);
 
     // Anonymous Author 2 Commits
     ObjectStoreMetadataDto noAuthor = createDto();
@@ -51,9 +51,9 @@ public class AuditServiceIT extends BaseIntegrationTest {
     // Has Author With specific instance id 2 commits
     ObjectStoreMetadataDto withInstanceID = createDto();
     withInstanceID.setUuid(INSTANCE_ID);
-    javers.commit(author, withInstanceID);
+    javers.commit(AUTHOR, withInstanceID);
     withInstanceID.setAcCaption("update");
-    javers.commit(author, withInstanceID);
+    javers.commit(AUTHOR, withInstanceID);
   }
 
   @Test
@@ -66,12 +66,29 @@ public class AuditServiceIT extends BaseIntegrationTest {
   public void findAll_whenFilteredByInstance_snapshotsFiltered() {
     List<CdoSnapshot> results = serviceUnderTest.findAll(TYPE, INSTANCE_ID.toString(), null, 10, 0);
     assertEquals(2, results.size());
+    results.forEach(shot -> 
+      assertEquals(
+        String.join("/", TYPE, INSTANCE_ID.toString()),
+        shot.getGlobalId().toString()));
   }
 
   @Test
   public void findAll_whenFilteredByAuthor_snapshotsFiltered() {
-    List<CdoSnapshot> results = serviceUnderTest.findAll(TYPE, null, author, 10, 0);
+    List<CdoSnapshot> results = serviceUnderTest.findAll(TYPE, null, AUTHOR, 10, 0);
     assertEquals(4, results.size());
+    results.forEach(shot -> assertEquals(AUTHOR, shot.getCommitMetadata().getAuthor()));
+  }
+
+  @Test
+  public void findAll_WithLimit_LimitsResults() {
+    List<CdoSnapshot> results = serviceUnderTest.findAll(null, null, null, 1, 0);
+    assertEquals(1, results.size());
+  }
+
+  @Test
+  public void findAll_WithOffset_ResultsOffset() {
+    List<CdoSnapshot> results = serviceUnderTest.findAll(null, null, null, 10, 5);
+    assertEquals(1, results.size());
   }
 
   private static ObjectStoreMetadataDto createDto() {
