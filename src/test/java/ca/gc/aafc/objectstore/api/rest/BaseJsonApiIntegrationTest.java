@@ -388,7 +388,7 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
    * @return id of the newly created resource
    */
   protected String sendPost(Map<String, Object> dataMap) {
-    return sendPost(getResourceUnderTest(), dataMap);
+    return sendPost(getResourceUnderTest(), dataMap, HttpStatus.CREATED.value());
   }
   
   /**
@@ -399,11 +399,11 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
    * @param dataMap body of the POST as Map
    * @return id of the newly created resource
    */
-  protected String sendPost(String resourceName, Map<String, Object> dataMap) {
+  protected String sendPost(String resourceName, Map<String, Object> dataMap, int code) {
     log.info("Posting to resourceName: {}", () -> dataMap);
     Response response = given().header("crnk-compact", "true").contentType(JSON_API_CONTENT_TYPE).body(dataMap).when()
         .post(resourceName);
-    response.then().statusCode(HttpStatus.CREATED.value());
+    response.then().statusCode(code);
     String id = (String) response.body().jsonPath().get("data.id");
     return id;
   }
