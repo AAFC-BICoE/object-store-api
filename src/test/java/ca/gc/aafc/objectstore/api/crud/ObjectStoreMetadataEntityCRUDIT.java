@@ -37,13 +37,13 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
   @Override
   public void testSave() {
     assertNull(objectStoreMetaUnderTest.getId());
-    save(objectStoreMetaUnderTest);
+    service.save(objectStoreMetaUnderTest);
     assertNotNull(objectStoreMetaUnderTest.getId());
   }
 
   @Override
   public void testFind() {
-    ObjectStoreMetadata fetchedObjectStoreMeta = find(ObjectStoreMetadata.class,
+    ObjectStoreMetadata fetchedObjectStoreMeta = service.find(ObjectStoreMetadata.class,
         objectStoreMetaUnderTest.getId());
 
     assertEquals(objectStoreMetaUnderTest.getId(), fetchedObjectStoreMeta.getId());
@@ -67,22 +67,22 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
   @Override
   public void testRemove() {
     Integer id = objectStoreMetaUnderTest.getId();
-    deleteById(ObjectStoreMetadata.class, id);
-    assertNull(find(ObjectStoreMetadata.class, id));
+    service.deleteById(ObjectStoreMetadata.class, id);
+    assertNull(service.find(ObjectStoreMetadata.class, id));
   }
   
   @Test
   public void testRelationships() {
     ManagedAttribute ma = ManagedAttributeFactory.newManagedAttribute().build();
-    save(ma, false);
+    service.save(ma, false);
 
     ObjectStoreMetadata derivedFrom = ObjectStoreMetadataFactory.newObjectStoreMetadata()
         .fileIdentifier(UUID.randomUUID())
         .build();
-    save(derivedFrom);
+    service.save(derivedFrom);
 
     ObjectSubtype ost = ObjectSubtypeFactory.newObjectSubtype().build();
-    save(ost, false);
+    service.save(ost, false);
    
     ObjectStoreMetadata osm = ObjectStoreMetadataFactory
         .newObjectStoreMetadata()
@@ -93,10 +93,10 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
 
     // Use "true" here to detach the Metadata,
     // which will make sure the getAcSubTypeId read-only field is populated when the Metadata is restored. 
-    save(osm, true);
+    service.save(osm, true);
     
     
-    ObjectStoreMetadata restoredOsm = find(ObjectStoreMetadata.class, osm.getId());
+    ObjectStoreMetadata restoredOsm = service.find(ObjectStoreMetadata.class, osm.getId());
     assertNotNull(restoredOsm.getId());
 
     OffsetDateTime initialTimestamp = restoredOsm.getXmpMetadataDate();
@@ -108,14 +108,14 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
     .assignedValue("test value")
     .build();
     
-    save(mma);
+    service.save(mma);
   
     OffsetDateTime newTimestamp = restoredOsm.getXmpMetadataDate();
 
     // Adding a MetadataManagedAttribute should update the parent ObjectStoreMetadata:
     assertNotEquals(newTimestamp, initialTimestamp);
     
-    MetadataManagedAttribute restoredMma = find(MetadataManagedAttribute.class, mma.getId());
+    MetadataManagedAttribute restoredMma = service.find(MetadataManagedAttribute.class, mma.getId());
     assertEquals(restoredOsm.getId(), restoredMma.getObjectStoreMetadata().getId());
 
     // Test read-only getAcSubTypeId Formula field:

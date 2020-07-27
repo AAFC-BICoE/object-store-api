@@ -36,7 +36,7 @@ public class DcTypeJsonSerializationIT extends BaseHttpIntegrationTest {
 
   @AfterEach
   public void tearDown() {
-    runInNewTransaction(em -> {
+    service.runInNewTransaction(em -> {
       CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
       CriteriaDelete<ObjectSubtype> query = criteriaBuilder.createCriteriaDelete(ObjectSubtype.class);
       Root<ObjectSubtype> root = query.from(ObjectSubtype.class);

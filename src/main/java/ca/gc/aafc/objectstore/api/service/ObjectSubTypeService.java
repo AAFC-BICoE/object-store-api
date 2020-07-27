@@ -15,8 +15,7 @@ public class ObjectSubTypeService extends DinaService<ObjectSubtype> {
   }
 
   @Override
-  protected ObjectSubtype preCreate(ObjectSubtype entity) {
-    return entity;
+  protected void preCreate(ObjectSubtype entity) {
   }
 
   @Override
@@ -25,8 +24,7 @@ public class ObjectSubTypeService extends DinaService<ObjectSubtype> {
   }
 
   @Override
-  protected ObjectSubtype preUpdate(ObjectSubtype entity) {
-    return entity;
+  protected void preUpdate(ObjectSubtype entity) {
   }
 
 }

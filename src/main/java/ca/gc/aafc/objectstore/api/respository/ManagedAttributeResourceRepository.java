@@ -1,5 +1,7 @@
 package ca.gc.aafc.objectstore.api.respository;
 
+import java.util.Optional;
+
 import org.springframework.stereotype.Repository;
 
 import ca.gc.aafc.dina.filter.DinaFilterResolver;
@@ -20,6 +22,7 @@ public class ManagedAttributeResourceRepository
   ) {
     super(
       dinaService,
+      Optional.ofNullable(null),
       new DinaMapper<>(ManagedAttributeDto.class),
       ManagedAttributeDto.class,
       ManagedAttribute.class, filterResolver);
