@@ -46,7 +46,7 @@ public class MetadataManagedAttributeValidator implements Validator {
         } else {
             if (!Stream.of(acceptedValues).map(x -> x.toUpperCase()).anyMatch(assignedValue.toUpperCase()::equals)) {
                 String errorMessage = messageSource.getMessage("assignedValue.invalid", new String[] {assignedValue}, LocaleContextHolder.getLocale());
-                errors.rejectValue("assignedValue", "assignedValue.invalid", new String[] {assignedValue, acceptedValues.toString()}, errorMessage);
+                errors.rejectValue("assignedValue", "assignedValue.invalid", new String[] {assignedValue}, errorMessage);
             }
         }        
 
