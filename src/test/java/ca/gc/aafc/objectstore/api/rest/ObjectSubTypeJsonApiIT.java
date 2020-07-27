@@ -50,16 +50,41 @@ public class ObjectSubTypeJsonApiIT extends BaseJsonApiIntegrationTest {
     objectSubtype.setDcType(DcType.MOVING_IMAGE);
     return toAttributeMap(objectSubtype);
   }
- 
+
+  @Test
+  public void create_AsAppManaged_ReturnsUnAuthorized() {
+    ObjectSubtypeDto dto = new ObjectSubtypeDto();
+    dto.setDcType(DcType.SOUND);
+    dto.setAcSubtype("MusicalNotation");
+    dto.setAppManaged(true);
+
+    sendPost(getResourceUnderTest(), toJsonAPIMap(toAttributeMap(dto), null), HttpStatus.FORBIDDEN_403);
+    sendDelete(THUMB_TYPE_UUID, HttpStatus.FORBIDDEN_403);
+  }
+
   @Test
   public void delete_appManaged_ReturnsUnAuthorized() {
     sendDelete(THUMB_TYPE_UUID, HttpStatus.FORBIDDEN_403);
   }
 
   @Test
-  public void update_appManaged_ReturnsUnAuthorized() {
+  public void update_ToAppManaged_ReturnsUnAuthorized() {
     ObjectSubtypeDto thumbnail = new ObjectSubtypeDto();
     thumbnail.setAppManaged(true);
+    sendPatch(
+      THUMB_TYPE_UUID,
+      HttpStatus.FORBIDDEN_403,
+      JsonAPITestHelper.toJsonAPIMap(
+        getResourceUnderTest(),
+        toAttributeMap(thumbnail),
+        toRelationshipMap(buildRelationshipList()),
+        THUMB_TYPE_UUID));
+  }
+
+  @Test
+  public void update_FromAppManaged_ReturnsUnAuthorized() {
+    ObjectSubtypeDto thumbnail = new ObjectSubtypeDto();
+    thumbnail.setAppManaged(false);
     sendPatch(
       THUMB_TYPE_UUID,
       HttpStatus.FORBIDDEN_403,
