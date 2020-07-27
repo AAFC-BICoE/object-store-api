@@ -54,11 +54,8 @@ public class ObjectSubTypeJsonApiIT extends BaseJsonApiIntegrationTest {
 
   @Test
   public void create_AsAppManaged_ReturnsUnAuthorized() {
-    ObjectSubtypeDto dto = new ObjectSubtypeDto();
-    dto.setDcType(DcType.SOUND);
-    dto.setAcSubtype(RandomStringUtils.random(5));
+    ObjectSubtypeDto dto = createRandomType();
     dto.setAppManaged(true);
-
     sendPost(getResourceUnderTest(), toJsonAPIMap(toAttributeMap(dto), null), HttpStatus.FORBIDDEN_403);
   }
 
@@ -69,9 +66,7 @@ public class ObjectSubTypeJsonApiIT extends BaseJsonApiIntegrationTest {
 
   @Test
   public void update_ToAppManaged_ReturnsUnAuthorized() {
-    ObjectSubtypeDto dto = new ObjectSubtypeDto();
-    dto.setDcType(DcType.SOUND);
-    dto.setAcSubtype(RandomStringUtils.random(5));
+    ObjectSubtypeDto dto = createRandomType();
     dto.setAppManaged(false);
     String id = sendPost(toJsonAPIMap(toAttributeMap(dto), null));
 
@@ -92,6 +87,13 @@ public class ObjectSubTypeJsonApiIT extends BaseJsonApiIntegrationTest {
         toAttributeMap(thumbnail),
         toRelationshipMap(buildRelationshipList()),
         THUMB_TYPE_UUID));
+  }
+
+  private static ObjectSubtypeDto createRandomType() {
+    ObjectSubtypeDto dto = new ObjectSubtypeDto();
+    dto.setDcType(DcType.SOUND);
+    dto.setAcSubtype(RandomStringUtils.random(5));
+    return dto;
   }
 
 }
