@@ -1,15 +1,11 @@
 package ca.gc.aafc.objectstore.api.validation;
 
-import java.util.Arrays;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-import javax.annotation.Resource;
-import javax.inject.Inject;
 
-import org.springframework.context.MessageSource;
-import org.springframework.context.annotation.Bean;
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.validation.Errors;
-import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
 
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
@@ -18,8 +14,12 @@ import ca.gc.aafc.objectstore.api.entities.ManagedAttribute.ManagedAttributeType
 
 public class MetadataManagedAttributeValidator implements Validator {
  
-    //@Inject
-    //private final MessageSource messageSource;
+    private ReloadableResourceBundleMessageSource messageSource;
+
+    public MetadataManagedAttributeValidator(ReloadableResourceBundleMessageSource messageSource){
+        this.messageSource = messageSource;
+    }
+
 
     @Override
     public boolean supports(Class<?> clazz) {
@@ -39,12 +39,14 @@ public class MetadataManagedAttributeValidator implements Validator {
             if (maType == ManagedAttributeType.INTEGER) {
                 Pattern pattern = Pattern.compile("\\d+");
                 if (!pattern.matcher(assignedValue).matches()) {
-                    errors.rejectValue("assignedValue", "assignedValueType.invalid", new String[] {assignedValue}, "defaultMessage");
+                    String error_message = messageSource.getMessage("assignedValueType.invalid", new String[] {assignedValue}, LocaleContextHolder.getLocale());
+                    errors.rejectValue("assignedValue", "assignedValueType.invalid", new String[] {assignedValue}, error_message);
                 }   
             }
         } else {
             if(!Stream.of(acceptedValues).map(x -> x.toUpperCase()).anyMatch(assignedValue.toUpperCase()::equals)){
-                errors.rejectValue("assignedValue", "assignedValue.invalid", new String[] {assignedValue, acceptedValues.toString()}, null);
+                String error_message = messageSource.getMessage("assignedValue.invalid", new String[] {assignedValue}, LocaleContextHolder.getLocale());
+                errors.rejectValue("assignedValue", "assignedValue.invalid", new String[] {assignedValue, acceptedValues.toString()}, error_message);
             }
         }        
 
