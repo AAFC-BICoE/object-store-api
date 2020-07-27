@@ -16,7 +16,7 @@ public class MetadataManagedAttributeValidator implements Validator {
  
     private ReloadableResourceBundleMessageSource messageSource;
 
-    public MetadataManagedAttributeValidator(ReloadableResourceBundleMessageSource messageSource){
+    public MetadataManagedAttributeValidator(ReloadableResourceBundleMessageSource messageSource) {
         this.messageSource = messageSource;
     }
 
@@ -39,14 +39,14 @@ public class MetadataManagedAttributeValidator implements Validator {
             if (maType == ManagedAttributeType.INTEGER) {
                 Pattern pattern = Pattern.compile("\\d+");
                 if (!pattern.matcher(assignedValue).matches()) {
-                    String error_message = messageSource.getMessage("assignedValueType.invalid", new String[] {assignedValue}, LocaleContextHolder.getLocale());
-                    errors.rejectValue("assignedValue", "assignedValueType.invalid", new String[] {assignedValue}, error_message);
+                    String errorMessage = messageSource.getMessage("assignedValueType.invalid", new String[] {assignedValue}, LocaleContextHolder.getLocale());
+                    errors.rejectValue("assignedValue", "assignedValueType.invalid", new String[] {assignedValue}, errorMessage);
                 }   
             }
         } else {
-            if(!Stream.of(acceptedValues).map(x -> x.toUpperCase()).anyMatch(assignedValue.toUpperCase()::equals)){
-                String error_message = messageSource.getMessage("assignedValue.invalid", new String[] {assignedValue}, LocaleContextHolder.getLocale());
-                errors.rejectValue("assignedValue", "assignedValue.invalid", new String[] {assignedValue, acceptedValues.toString()}, error_message);
+            if(!Stream.of(acceptedValues).map(x -> x.toUpperCase()).anyMatch(assignedValue.toUpperCase()::equals)) {
+                String errorMessage = messageSource.getMessage("assignedValue.invalid", new String[] {assignedValue}, LocaleContextHolder.getLocale());
+                errors.rejectValue("assignedValue", "assignedValue.invalid", new String[] {assignedValue, acceptedValues.toString()}, errorMessage);
             }
         }        
 
