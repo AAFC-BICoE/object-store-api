@@ -23,31 +23,26 @@ public class ObjectSubTypeService extends DinaService<ObjectSubtype> {
   @Override
   protected void preCreate(ObjectSubtype entity) {
     if (entity.isAppManaged()) {
-      throw new AccessDeniedException(
-        messageSource.getMessage("error.appManaged.create_unsupported",
-        null,
-        LocaleContextHolder.getLocale()));
+      throw new AccessDeniedException(getMessage("error.appManaged.create_unsupported"));
     }
   }
 
   @Override
   protected void preDelete(ObjectSubtype entity) {
     if (entity.isAppManaged()) {
-      throw new AccessDeniedException(
-        messageSource.getMessage("error.appManaged.read_only",
-        null,
-        LocaleContextHolder.getLocale()));
+      throw new AccessDeniedException(getMessage("error.appManaged.read_only"));
     }
   }
 
   @Override
   protected void preUpdate(ObjectSubtype entity) {
     if (entity.isAppManaged()) {
-      throw new AccessDeniedException(
-        messageSource.getMessage("error.appManaged.update_unsupported",
-        null,
-        LocaleContextHolder.getLocale()));
+      throw new AccessDeniedException(getMessage("error.appManaged.update_unsupported"));
     }
+  }
+
+  private String getMessage(String key) {
+    return messageSource.getMessage(key, null, LocaleContextHolder.getLocale());
   }
 
 }

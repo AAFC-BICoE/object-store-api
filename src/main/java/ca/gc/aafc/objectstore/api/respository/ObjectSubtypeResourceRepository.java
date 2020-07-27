@@ -45,9 +45,8 @@ public class ObjectSubtypeResourceRepository
   public <S extends ObjectSubtypeDto> S save(S resource) {
     ObjectSubtype entity = dinaService.findOne(resource.getUuid(), ObjectSubtype.class);
     if (entity.isAppManaged()) {
-      throw new ForbiddenException(messageSource.getMessage("error.appManaged.read_only",
-      null,
-      LocaleContextHolder.getLocale()));
+      throw new ForbiddenException(
+          messageSource.getMessage("error.appManaged.read_only", null, LocaleContextHolder.getLocale()));
     }
     return super.save(resource);
   }
