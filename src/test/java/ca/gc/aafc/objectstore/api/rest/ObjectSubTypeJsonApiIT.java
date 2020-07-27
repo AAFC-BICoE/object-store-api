@@ -2,6 +2,7 @@ package ca.gc.aafc.objectstore.api.rest;
 
 import java.util.Map;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;
 
 import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
@@ -55,11 +56,10 @@ public class ObjectSubTypeJsonApiIT extends BaseJsonApiIntegrationTest {
   public void create_AsAppManaged_ReturnsUnAuthorized() {
     ObjectSubtypeDto dto = new ObjectSubtypeDto();
     dto.setDcType(DcType.SOUND);
-    dto.setAcSubtype("MusicalNotation");
+    dto.setAcSubtype(RandomStringUtils.random(5));
     dto.setAppManaged(true);
 
     sendPost(getResourceUnderTest(), toJsonAPIMap(toAttributeMap(dto), null), HttpStatus.FORBIDDEN_403);
-    sendDelete(THUMB_TYPE_UUID, HttpStatus.FORBIDDEN_403);
   }
 
   @Test
@@ -69,16 +69,15 @@ public class ObjectSubTypeJsonApiIT extends BaseJsonApiIntegrationTest {
 
   @Test
   public void update_ToAppManaged_ReturnsUnAuthorized() {
-    ObjectSubtypeDto thumbnail = new ObjectSubtypeDto();
-    thumbnail.setAppManaged(true);
-    sendPatch(
-      THUMB_TYPE_UUID,
-      HttpStatus.FORBIDDEN_403,
-      JsonAPITestHelper.toJsonAPIMap(
-        getResourceUnderTest(),
-        toAttributeMap(thumbnail),
-        toRelationshipMap(buildRelationshipList()),
-        THUMB_TYPE_UUID));
+    ObjectSubtypeDto dto = new ObjectSubtypeDto();
+    dto.setDcType(DcType.SOUND);
+    dto.setAcSubtype(RandomStringUtils.random(5));
+    dto.setAppManaged(false);
+    String id = sendPost(toJsonAPIMap(toAttributeMap(dto), null));
+
+    dto.setAppManaged(true);
+    sendPatch(id, HttpStatus.FORBIDDEN_403, toJsonAPIMap(toAttributeMap(dto), null));
+    sendDelete(id);
   }
 
   @Test
