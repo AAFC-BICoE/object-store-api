@@ -19,6 +19,9 @@ public class ObjectSubTypeService extends DinaService<ObjectSubtype> {
 
   @Override
   protected void preCreate(ObjectSubtype entity) {
+    if (entity.isAppManaged()) {
+      throw new AccessDeniedException("Cannot create a subtype as app managed, set app managed to false");
+    }
   }
 
   @Override
