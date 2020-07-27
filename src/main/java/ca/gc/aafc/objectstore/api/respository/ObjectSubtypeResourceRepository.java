@@ -4,6 +4,8 @@ import java.util.Optional;
 
 import javax.transaction.Transactional;
 
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Repository;
 
 import ca.gc.aafc.dina.filter.DinaFilterResolver;
@@ -21,10 +23,12 @@ public class ObjectSubtypeResourceRepository
     extends DinaRepository<ObjectSubtypeDto, ObjectSubtype> {
 
   private final DinaService<ObjectSubtype> dinaService;
+  private final MessageSource messageSource;
 
   public ObjectSubtypeResourceRepository(
     @NonNull DinaService<ObjectSubtype> dinaService,
-    @NonNull DinaFilterResolver filterResolver
+    @NonNull DinaFilterResolver filterResolver,
+    MessageSource messageSource
   ) {
     super(
       dinaService,
@@ -34,13 +38,16 @@ public class ObjectSubtypeResourceRepository
       ObjectSubtype.class,
       filterResolver);
     this.dinaService = dinaService;
+    this.messageSource = messageSource;
   }
 
   @Override
   public <S extends ObjectSubtypeDto> S save(S resource) {
     ObjectSubtype entity = dinaService.findOne(resource.getUuid(), ObjectSubtype.class);
     if (entity.isAppManaged()) {
-      throw new ForbiddenException("This sub type is app managed and cannot be updated/deleted");
+      throw new ForbiddenException(messageSource.getMessage("error.appManaged.read_only",
+      null,
+      LocaleContextHolder.getLocale()));
     }
     return super.save(resource);
   }
