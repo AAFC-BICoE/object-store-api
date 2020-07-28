@@ -1,10 +1,11 @@
 package ca.gc.aafc.objectstore.api.validation;
 
+import java.util.Arrays;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.context.support.ReloadableResourceBundleMessageSource;
+import org.springframework.context.MessageSource;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
@@ -14,9 +15,10 @@ import ca.gc.aafc.objectstore.api.entities.ManagedAttribute.ManagedAttributeType
 
 public class MetadataManagedAttributeValidator implements Validator {
  
-    private ReloadableResourceBundleMessageSource messageSource;
+    private final MessageSource messageSource;
+    private static final Pattern INTEGER_PATTERN = Pattern.compile("\\d+");
 
-    public MetadataManagedAttributeValidator(ReloadableResourceBundleMessageSource messageSource) {
+    public MetadataManagedAttributeValidator(MessageSource messageSource) {
         this.messageSource = messageSource;
     }
 
@@ -32,13 +34,13 @@ public class MetadataManagedAttributeValidator implements Validator {
         MetadataManagedAttribute mma = (MetadataManagedAttribute) target;
         String assignedValue = mma.getAssignedValue();
         ManagedAttribute ma = mma.getManagedAttribute();
-        String[] acceptedValues = ma.getAcceptedValues();
+        String[] acceptedValues = ma.getAcceptedValues() != null ? ma.getAcceptedValues() : new String[] {};
         ManagedAttributeType maType = ma.getManagedAttributeType();
         
-        if (acceptedValues == null || acceptedValues.length == 0) {
+        if (Arrays.asList(acceptedValues).isEmpty()) {
+
             if (maType == ManagedAttributeType.INTEGER) {
-                Pattern pattern = Pattern.compile("\\d+");
-                if (!pattern.matcher(assignedValue).matches()) {
+                if (!INTEGER_PATTERN.matcher(assignedValue).matches()) {
                     String errorMessage = messageSource.getMessage("assignedValueType.invalid", new String[] {assignedValue}, LocaleContextHolder.getLocale());
                     errors.rejectValue("assignedValue", "assignedValueType.invalid", new String[] {assignedValue}, errorMessage);
                 }   
