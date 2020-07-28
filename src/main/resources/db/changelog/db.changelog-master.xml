@@ -11,4 +11,5 @@
   <include file="db/changelog/migrations/8-drop_agent_table.xml" />
   <include file="db/changelog/migrations/9-Add_xmpRightsUsageTerms_to_metadata.xml" />  
   <include file="db/changelog/migrations/10-Add_Javers_audit_tables.xml"/>  
+  <include file="db/changelog/migrations/11-MakeManagedAttribute-description-mandatory.xml"/>  
 </databaseChangeLog>
