@@ -1,6 +1,7 @@
 package ca.gc.aafc.objectstore.api.entities;
 
 import java.time.OffsetDateTime;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -12,20 +13,22 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 import com.vladmihalcea.hibernate.type.array.StringArrayType;
 import com.vladmihalcea.hibernate.type.basic.PostgreSQLEnumType;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 
-import ca.gc.aafc.dina.entity.DinaEntity;
-
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.NaturalIdCache;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 
+import ca.gc.aafc.dina.entity.DinaEntity;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -60,6 +63,7 @@ public class ManagedAttribute implements DinaEntity {
 
   @Type(type = "jsonb")
   @Column(name = "description", columnDefinition = "jsonb")
+  @NotEmpty
   public Map<String, String> getDescription() {
     return description;
   }
@@ -130,8 +134,22 @@ public class ManagedAttribute implements DinaEntity {
   }
 
   @PrePersist
-  public void initUuid() {
+  public void prePersist() {
     this.uuid = UUID.randomUUID();
+    this.cleanDescription();
+  }
+
+  @PreUpdate
+  public void preUpdate() {
+    this.cleanDescription();
+  }
+
+  /** Cleans empty strings out of the description. */
+  private void cleanDescription() {
+    if (this.description != null) {
+      this.description = new HashMap<>(this.description);
+      this.description.entrySet().removeIf(entry -> StringUtils.isBlank(entry.getValue()));
+    }
   }
 
 }
