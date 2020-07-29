@@ -1,6 +1,7 @@
 package ca.gc.aafc.objectstore.api.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.javers.core.Javers;
@@ -27,8 +28,8 @@ public class AuditService {
     return AuditService.findAll(this.javers, instance, author, limit, skip);
   }
 
-  public Long getResouceCount(String authorFilter, String id, String type) {
-    return AuditService.getResouceCount(this.jdbcTemplate, authorFilter, id, type);
+  public Long getResouceCount(String authorFilter, AuditInstance instance) {
+    return AuditService.getResouceCount(this.jdbcTemplate, authorFilter, instance);
   }
 
   public static List<CdoSnapshot> findAll(Javers javers, AuditInstance instance, String author, int limit, int skip) {
@@ -53,30 +54,42 @@ public class AuditService {
   /**
    * Get the meta information with the total resource count.
    * 
-   * @param jdbcTemplate
-   * @param authorFilter
+   * @param jdbc
+   * @param author
    * @param id
    * @param type
    * @return
    */
-  public static Long getResouceCount(NamedParameterJdbcTemplate jdbcTemplate, String authorFilter, String id,
-      String type) {
+  public static Long getResouceCount(NamedParameterJdbcTemplate jdbc, String author, AuditInstance instance) {
+
+    String id = null;
+    String type = null;
+
+    if (instance != null) {
+      id = instance.getId();
+      type = instance.getType();
+    }
+
     // Use sql to get the count because Javers does not provide a counting method:
-    SqlParameterSource parameters = new MapSqlParameterSource().addValue("author", authorFilter)
-        .addValue("id", "\"" + id + "\"") // Javers puts double-quotes around the id in the database.
-        .addValue("type", type);
+    SqlParameterSource parameters = new MapSqlParameterSource()
+      .addValue("author", author)
+      .addValue("id", "\"" + id + "\"") // Javers puts double-quotes around the id in the database.
+      .addValue("type", type);
 
-    // Apply filters:
+    String sql = getResouceCountSql(author, id);
+
+    return jdbc.queryForObject(sql, parameters, Long.class);
+  }
+
+  private static String getResouceCountSql(String author, String id) {
     String baseSql = "select count(*) from jv_snapshot s join jv_commit c on s.commit_fk = c.commit_pk where 1=1 %s %s ;";
-    String sql = 
-      String.format(
-        baseSql,
-        StringUtils.isNotBlank(authorFilter) ? "and c.author = :author" : "",
-        StringUtils.isNotBlank(id)
-            ? "and global_id_fk = (select global_id_pk from jv_global_id where local_id = :id and type_name = :type)"
-            : "");
-
-    return jdbcTemplate.queryForObject(sql, parameters, Long.class);
+    String sql = String.format(
+      baseSql,
+      StringUtils.isNotBlank(author) ? "and c.author = :author" : "",
+      StringUtils.isNotBlank(id)
+        ? "and global_id_fk = (select global_id_pk from jv_global_id where local_id = :id and type_name = :type)"
+        : "");
+    return sql;
   }
 
   @Builder
@@ -88,13 +101,17 @@ public class AuditService {
     @NonNull
     private final String id;
 
-    public static AuditInstance fromString(@NonNull String instanceString) {
+    public static Optional<AuditInstance> fromString(String instanceString) {
+      if (StringUtils.isBlank(instanceString)) {
+        return Optional.empty();
+      }
+
       String[] split = instanceString.split("/");
       if (split.length != 2) {
         throw new IllegalArgumentException(
           "Invalid ID must be formatted as {type}/{id}: " + instanceString);
       }
-      return AuditInstance.builder().type(split[0]).id(split[1]).build();
+      return Optional.of(AuditInstance.builder().type(split[0]).id(split[1]).build());
     }
 
   }

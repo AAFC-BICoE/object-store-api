@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.StringUtils;
 import org.javers.core.metamodel.object.CdoSnapshot;
 import org.springframework.stereotype.Repository;
 
@@ -21,7 +20,6 @@ import io.crnk.core.repository.ReadOnlyResourceRepositoryBase;
 import io.crnk.core.resource.list.DefaultResourceList;
 import io.crnk.core.resource.list.ResourceList;
 import io.crnk.core.resource.meta.DefaultPagedMetaInformation;
-import lombok.NonNull;
 
 @Repository
 public class AuditSnapshotRepository extends ReadOnlyResourceRepositoryBase<AuditSnapshotDto, Long> {
@@ -42,21 +40,12 @@ public class AuditSnapshotRepository extends ReadOnlyResourceRepositoryBase<Audi
     String authorFilter = filters.get("author");
     String instanceFilter = filters.get("instanceId");
 
-    String id = null;
-    String type = null;
-    AuditInstance instance = null;
-
-    if (StringUtils.isNotBlank(instanceFilter)) {
-      String[] idAndType = getIdAndType(instanceFilter);
-      id = idAndType[0];
-      type = idAndType[1];
-      instance = AuditInstance.fromString(instanceFilter);
-    }
+    AuditInstance instance = AuditInstance.fromString(instanceFilter).orElse(null);
 
     List<AuditSnapshotDto> dtos = service.findAll(instance, authorFilter, limit, skip)
       .stream().map(AuditSnapshotRepository::toDto).collect(Collectors.toList());
 
-    Long count = service.getResouceCount(authorFilter, id, type);
+    Long count = service.getResouceCount(authorFilter, instance);
     DefaultPagedMetaInformation meta = new DefaultPagedMetaInformation();
     meta.setTotalResourceCount(count);
 
@@ -88,20 +77,6 @@ public class AuditSnapshotRepository extends ReadOnlyResourceRepositoryBase<Audi
         .author(original.getCommitMetadata().getAuthor())
         .commitDateTime(commitDateTime)
         .build();
-  }
-
-  /**
-   * Parses the id and type from the instanceFilter format.
-   * e.g. metadata/42f1d751-f3ec-4c3b-9247-750f4e48ae04
-   */
-  private static String[] getIdAndType(@NonNull String instanceFilter) {
-    String[] split = instanceFilter.split("/");
-    if (split.length != 2) {
-      throw new IllegalArgumentException("Invalid ID must be formatted as {type}/{id}: " + instanceFilter);
-    }
-    String type = split[0];
-    String id = split[1];
-    return new String[]{ id, type };
   }
 
   /**
