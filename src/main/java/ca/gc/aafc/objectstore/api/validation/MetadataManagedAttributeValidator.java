@@ -1,17 +1,19 @@
 package ca.gc.aafc.objectstore.api.validation;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
-import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute.ManagedAttributeType;
+import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
 
 public class MetadataManagedAttributeValidator implements Validator {
 
@@ -32,7 +34,10 @@ public class MetadataManagedAttributeValidator implements Validator {
     MetadataManagedAttribute mma = (MetadataManagedAttribute) target;
     String assignedValue = mma.getAssignedValue();
     ManagedAttribute ma = mma.getManagedAttribute();
-    ArrayList<String> acceptedValues = getAcceptedValuesList(ma.getAcceptedValues());
+
+    List<String> acceptedValues = ma.getAcceptedValues() == null ? Collections.emptyList()
+        : Arrays.stream(ma.getAcceptedValues()).map(String::toUpperCase).collect(Collectors.toList());
+
     ManagedAttributeType maType = ma.getManagedAttributeType();
     boolean assignedValueIsValid = true;
 
@@ -51,14 +56,5 @@ public class MetadataManagedAttributeValidator implements Validator {
       errors.rejectValue("assignedValue", "assignedValue.invalid", new String[] { assignedValue }, errorMessage);
     }
   }
-  
-  private ArrayList<String> getAcceptedValuesList(String[] acceptedValues) {
-    if (acceptedValues != null) {
-      ArrayList<String> result = new ArrayList<String>(Arrays.asList(acceptedValues));
-      result.replaceAll(x -> x.toUpperCase());
-      return result;
-    } else {
-      return new ArrayList<String>();
-    }
-  }
+
 }
