@@ -29,7 +29,8 @@ public class AuditServiceIT extends BaseIntegrationTest {
   private static final UUID INSTANCE_ID = UUID.randomUUID();
 
   /**
-   * Persists 6 snap shots in total for each test.
+   * Persists 6 snap shots in total for each test. Total expected commits for
+   * Author = 4, Instance = 2, No Filter = 6
    */
   @BeforeEach
   public void beforeEachTest() {
