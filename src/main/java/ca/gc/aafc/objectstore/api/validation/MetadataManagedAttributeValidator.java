@@ -1,8 +1,8 @@
 package ca.gc.aafc.objectstore.api.validation;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.context.MessageSource;
@@ -32,22 +32,33 @@ public class MetadataManagedAttributeValidator implements Validator {
 		MetadataManagedAttribute mma = (MetadataManagedAttribute) target;
 		String assignedValue = mma.getAssignedValue();
 		ManagedAttribute ma = mma.getManagedAttribute();
-		String[] acceptedValues = ma.getAcceptedValues() != null ? ma.getAcceptedValues() : new String[] {};
+		ArrayList<String> acceptedValues = getAcceptedValuesList(ma.getAcceptedValues());
 		ManagedAttributeType maType = ma.getManagedAttributeType();
+		boolean assignedValueIsValid = true;
 
-		if (Arrays.asList(acceptedValues).isEmpty()) {
-
-			if (maType == ManagedAttributeType.INTEGER) {
-				if (!INTEGER_PATTERN.matcher(assignedValue).matches()) {
-					String errorMessage = messageSource.getMessage("assignedValueType.invalid", new String[] {assignedValue}, LocaleContextHolder.getLocale());
-					errors.rejectValue("assignedValue", "assignedValueType.invalid", new String[] {assignedValue}, errorMessage);
-				}
+		if (acceptedValues.isEmpty()) {
+			if (maType == ManagedAttributeType.INTEGER && !INTEGER_PATTERN.matcher(assignedValue).matches()) {
+				assignedValueIsValid = false;
 			}
 		} else {
-			if (!Stream.of(acceptedValues).map(x -> x.toUpperCase()).anyMatch(assignedValue.toUpperCase()::equals)) {
-				String errorMessage = messageSource.getMessage("assignedValue.invalid", new String[] {assignedValue}, LocaleContextHolder.getLocale());
-				errors.rejectValue("assignedValue", "assignedValue.invalid", new String[] {assignedValue}, errorMessage);
+			if (!acceptedValues.contains(assignedValue.toUpperCase())) {
+				assignedValueIsValid = false;
 			}
+		}
+		if (!assignedValueIsValid) {
+			String errorMessage = messageSource.getMessage("assignedValue.invalid", new String[] { assignedValue },
+					LocaleContextHolder.getLocale());
+			errors.rejectValue("assignedValue", "assignedValue.invalid", new String[] { assignedValue }, errorMessage);
+		}
+	}
+	
+	private ArrayList<String> getAcceptedValuesList(String[] acceptedValues) {
+		if (acceptedValues != null) {
+			ArrayList<String> result = new ArrayList<String>(Arrays.asList(acceptedValues));
+			result.replaceAll(x -> x.toUpperCase());
+			return result;
+		} else {
+			return new ArrayList<String>();
 		}
 	}
 }

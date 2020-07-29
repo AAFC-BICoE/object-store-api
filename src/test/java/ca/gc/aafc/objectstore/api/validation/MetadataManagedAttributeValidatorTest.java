@@ -98,8 +98,8 @@ public class MetadataManagedAttributeValidatorTest {
     assertEquals(1, errors.getErrorCount());
     assertTrue(errors.hasFieldErrors("assignedValue"));
     FieldError field_error = errors.getFieldError("assignedValue");
-    assertTrue(field_error.getCode().equals("assignedValueType.invalid"));
-    assertTrue(field_error.getDefaultMessage().matches(".*abcd.*INTEGER"));
+    assertTrue(field_error.getCode().equals("assignedValue.invalid"));
+    assertTrue(field_error.getDefaultMessage().contains("abcd"));
   }
 
   public static ReloadableResourceBundleMessageSource messageSource() {
