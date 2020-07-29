@@ -11,7 +11,6 @@ import org.javers.core.Javers;
 import org.javers.core.metamodel.object.CdoSnapshot;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
@@ -21,9 +20,6 @@ public class AuditServiceIT extends BaseIntegrationTest {
 
   @Inject
   private Javers javers;
-
-  @Inject
-  private NamedParameterJdbcTemplate jdbcTemplate;
 
   @Inject
   private AuditService serviceUnderTest;
@@ -91,6 +87,25 @@ public class AuditServiceIT extends BaseIntegrationTest {
   public void findAll_WithOffset_ResultsOffset() {
     List<CdoSnapshot> results = serviceUnderTest.findAll(null, null, 10, 5);
     assertEquals(1, results.size());
+  }
+
+  @Test
+  public void getResouceCount_NoFilter_ReturnsAllCount() {
+    Long expected = serviceUnderTest.getResouceCount(null, null);
+    assertEquals(Long.valueOf(6), expected);
+  }
+
+  @Test
+  public void getResouceCount_AuthorFilter_ReturnsFilteredCount() {
+    Long expected = serviceUnderTest.getResouceCount(AUTHOR, null);
+    assertEquals(Long.valueOf(4), expected);
+  }
+
+  @Test
+  public void getResouceCount_InstanceFilter_ReturnsFilteredCount() {
+    AuditInstance instance = AuditInstance.builder().type(TYPE).id(INSTANCE_ID.toString()).build();
+    Long expected = serviceUnderTest.getResouceCount(null, instance);
+    assertEquals(Long.valueOf(2), expected);
   }
 
   private static ObjectStoreMetadataDto createDto() {
