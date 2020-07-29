@@ -24,14 +24,44 @@ public class AuditService {
   private final Javers javers;
   private final NamedParameterJdbcTemplate jdbcTemplate;
 
+  /**
+   * Returns a list of Audit snapshots filtered by a given instance and author.
+   * Author and instance can be null for un-filtered results.
+   * 
+   * @param instance - instance to filter may be null
+   * @param author   - author to filter may be null
+   * @param limit    - limit of results
+   * @param skip     - amount of results to skip
+   * @return list of Audit snapshots
+   */
   public List<CdoSnapshot> findAll(AuditInstance instance, String author, int limit, int skip) {
     return AuditService.findAll(this.javers, instance, author, limit, skip);
   }
 
-  public Long getResouceCount(String authorFilter, AuditInstance instance) {
-    return AuditService.getResouceCount(this.jdbcTemplate, authorFilter, instance);
+  /**
+   * Get the total resource count by a given Author and Audit Instance. Author and
+   * instance can be null for un-filtered counts.
+   * 
+   * @param author   - author to filter
+   * @param instance - instance to filter
+   * @return the total resource count
+   */
+  public Long getResouceCount(String author, AuditInstance instance) {
+    return AuditService.getResouceCount(this.jdbcTemplate, author, instance);
   }
 
+  /**
+   * Returns a list of Audit snapshots using a given Javers Facade filtered by a
+   * given instance and author. Author and instance can be null for un-filtered
+   * results.
+   * 
+   * @param javers   - Facade to query
+   * @param instance - instance to filter may be null
+   * @param author   - author to filter may be null
+   * @param limit    - limit of results
+   * @param skip     - amount of results to skip
+   * @return list of Audit snapshots
+   */
   public static List<CdoSnapshot> findAll(Javers javers, AuditInstance instance, String author, int limit, int skip) {
     QueryBuilder queryBuilder;
 
@@ -52,15 +82,15 @@ public class AuditService {
   }
 
   /**
-   * Get the meta information with the total resource count.
+   * Get the total resource count by a given Author and/or Audit Instance. Author
+   * and instance can be null for un-filtered counts.
    * 
-   * @param jdbc
-   * @param author
-   * @param id
-   * @param type
-   * @return
+   * @param jdbc     - NamedParameterJdbcTemplate for the query
+   * @param author   - author to filter
+   * @param instance - instance filter to apply
+   * @return the total resource count
    */
-  public static Long getResouceCount(NamedParameterJdbcTemplate jdbc, String author, AuditInstance instance) {
+  public static Long getResouceCount(@NonNull NamedParameterJdbcTemplate jdbc, String author, AuditInstance instance) {
 
     String id = null;
     String type = null;
@@ -70,17 +100,23 @@ public class AuditService {
       type = instance.getType();
     }
 
-    // Use sql to get the count because Javers does not provide a counting method:
     SqlParameterSource parameters = new MapSqlParameterSource()
       .addValue("author", author)
       .addValue("id", "\"" + id + "\"") // Javers puts double-quotes around the id in the database.
       .addValue("type", type);
 
     String sql = getResouceCountSql(author, id);
-
     return jdbc.queryForObject(sql, parameters, Long.class);
   }
 
+  /**
+   * Returns the needed SQL String to return a resouce count for a specific author
+   * and id. Author and id can be null for un-filtered counts.
+   * 
+   * @param author - author filter to apply
+   * @param id     - id filter to apply
+   * @return SQL String to return a resouce count
+   */
   private static String getResouceCountSql(String author, String id) {
     String baseSql = "select count(*) from jv_snapshot s join jv_commit c on s.commit_fk = c.commit_pk where 1=1 %s %s ;";
     String sql = String.format(
@@ -101,6 +137,14 @@ public class AuditService {
     @NonNull
     private final String id;
 
+    /**
+     * Returns an Optional AuditInstance from a string representation or empty if the
+     * string is blank. Expected string format is {type}/{id}.
+     * 
+     * @param instanceString - string to parse
+     * @throws IllegalArgumentException if the string has an invalid format.
+     * @return Optional AuditInstance or empty for blank strings
+     */
     public static Optional<AuditInstance> fromString(String instanceString) {
       if (StringUtils.isBlank(instanceString)) {
         return Optional.empty();
