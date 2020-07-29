@@ -11,6 +11,9 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Service;
 
+import lombok.Builder;
+import lombok.Data;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -20,19 +23,19 @@ public class AuditService {
   private final Javers javers;
   private final NamedParameterJdbcTemplate jdbcTemplate;
 
-  public List<CdoSnapshot> findAll(String type, String id, String author, int limit, int skip) {
-    return AuditService.findAll(this.javers, type, id, author, limit, skip);
+  public List<CdoSnapshot> findAll(AuditInstance instance, String author, int limit, int skip) {
+    return AuditService.findAll(this.javers, instance, author, limit, skip);
   }
 
   public Long getResouceCount(String authorFilter, String id, String type) {
     return AuditService.getResouceCount(this.jdbcTemplate, authorFilter, id, type);
   }
 
-  public static List<CdoSnapshot> findAll(Javers javers, String type, String id, String author, int limit, int skip) {
+  public static List<CdoSnapshot> findAll(Javers javers, AuditInstance instance, String author, int limit, int skip) {
     QueryBuilder queryBuilder;
 
-    if (StringUtils.isNotBlank(type) && StringUtils.isNotBlank(id)) {
-      queryBuilder = QueryBuilder.byInstanceId(id, type);
+    if (instance != null) {
+      queryBuilder = QueryBuilder.byInstanceId(instance.getId(), instance.getType());
     } else {
       queryBuilder = QueryBuilder.anyDomainObject();
     }
@@ -74,6 +77,26 @@ public class AuditService {
             : "");
 
     return jdbcTemplate.queryForObject(sql, parameters, Long.class);
+  }
+
+  @Builder
+  @Data
+  public static final class AuditInstance {
+
+    @NonNull
+    private final String type;
+    @NonNull
+    private final String id;
+
+    public static AuditInstance fromString(@NonNull String instanceString) {
+      String[] split = instanceString.split("/");
+      if (split.length != 2) {
+        throw new IllegalArgumentException(
+          "Invalid ID must be formatted as {type}/{id}: " + instanceString);
+      }
+      return AuditInstance.builder().type(split[0]).id(split[1]).build();
+    }
+
   }
 
 }

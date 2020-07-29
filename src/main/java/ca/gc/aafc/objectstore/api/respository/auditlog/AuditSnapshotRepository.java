@@ -14,6 +14,7 @@ import org.springframework.stereotype.Repository;
 import ca.gc.aafc.dina.repository.NoLinkInformation;
 import ca.gc.aafc.objectstore.api.dto.AuditSnapshotDto;
 import ca.gc.aafc.objectstore.api.service.AuditService;
+import ca.gc.aafc.objectstore.api.service.AuditService.AuditInstance;
 import io.crnk.core.exception.MethodNotAllowedException;
 import io.crnk.core.queryspec.QuerySpec;
 import io.crnk.core.repository.ReadOnlyResourceRepositoryBase;
@@ -43,14 +44,16 @@ public class AuditSnapshotRepository extends ReadOnlyResourceRepositoryBase<Audi
 
     String id = null;
     String type = null;
+    AuditInstance instance = null;
 
     if (StringUtils.isNotBlank(instanceFilter)) {
       String[] idAndType = getIdAndType(instanceFilter);
       id = idAndType[0];
       type = idAndType[1];
+      instance = AuditInstance.fromString(instanceFilter);
     }
 
-    List<AuditSnapshotDto> dtos = service.findAll(type, id, authorFilter, limit, skip)
+    List<AuditSnapshotDto> dtos = service.findAll(instance, authorFilter, limit, skip)
       .stream().map(AuditSnapshotRepository::toDto).collect(Collectors.toList());
 
     Long count = service.getResouceCount(authorFilter, id, type);

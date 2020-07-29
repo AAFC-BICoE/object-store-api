@@ -15,6 +15,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
+import ca.gc.aafc.objectstore.api.service.AuditService.AuditInstance;
 
 public class AuditServiceIT extends BaseIntegrationTest {
 
@@ -58,13 +59,14 @@ public class AuditServiceIT extends BaseIntegrationTest {
 
   @Test
   public void findAll_whenNoFilter_AllSnapShotsReturned() {
-    List<CdoSnapshot> results = serviceUnderTest.findAll(null, null, null, 10, 0);
+    List<CdoSnapshot> results = serviceUnderTest.findAll(null, null, 10, 0);
     assertEquals(6, results.size());
   }
 
   @Test
   public void findAll_whenFilteredByInstance_snapshotsFiltered() {
-    List<CdoSnapshot> results = serviceUnderTest.findAll(TYPE, INSTANCE_ID.toString(), null, 10, 0);
+    AuditInstance instance = AuditInstance.builder().type(TYPE).id(INSTANCE_ID.toString()).build();
+    List<CdoSnapshot> results = serviceUnderTest.findAll(instance, null, 10, 0);
     assertEquals(2, results.size());
     results.forEach(shot -> 
       assertEquals(
@@ -74,20 +76,20 @@ public class AuditServiceIT extends BaseIntegrationTest {
 
   @Test
   public void findAll_whenFilteredByAuthor_snapshotsFiltered() {
-    List<CdoSnapshot> results = serviceUnderTest.findAll(TYPE, null, AUTHOR, 10, 0);
+    List<CdoSnapshot> results = serviceUnderTest.findAll(null, AUTHOR, 10, 0);
     assertEquals(4, results.size());
     results.forEach(shot -> assertEquals(AUTHOR, shot.getCommitMetadata().getAuthor()));
   }
 
   @Test
   public void findAll_WithLimit_LimitsResults() {
-    List<CdoSnapshot> results = serviceUnderTest.findAll(null, null, null, 1, 0);
+    List<CdoSnapshot> results = serviceUnderTest.findAll(null, null, 1, 0);
     assertEquals(1, results.size());
   }
 
   @Test
   public void findAll_WithOffset_ResultsOffset() {
-    List<CdoSnapshot> results = serviceUnderTest.findAll(null, null, null, 10, 5);
+    List<CdoSnapshot> results = serviceUnderTest.findAll(null, null, 10, 5);
     assertEquals(1, results.size());
   }
 
