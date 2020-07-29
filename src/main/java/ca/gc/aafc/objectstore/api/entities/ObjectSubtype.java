@@ -43,7 +43,7 @@ public class ObjectSubtype implements DinaEntity {
   private Integer id;
   private DcType dcType;
   private String acSubtype;
-
+  private boolean appManaged;
   private UUID uuid;
 
   @NaturalId
@@ -94,6 +94,16 @@ public class ObjectSubtype implements DinaEntity {
   @PrePersist
   public void initUuid() {
     this.uuid = UUID.randomUUID();
+  }
+
+  @NotNull
+  @Column(name = "app_managed")
+  public boolean isAppManaged() {
+    return appManaged;
+  }
+
+  public void setAppManaged(boolean appManaged) {
+    this.appManaged = appManaged;
   }
 
 }
