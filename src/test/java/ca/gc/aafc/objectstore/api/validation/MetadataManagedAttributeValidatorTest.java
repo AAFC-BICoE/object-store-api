@@ -21,99 +21,94 @@ import ca.gc.aafc.objectstore.api.testsupport.factories.MetadataManagedAttribute
 
 
 public class MetadataManagedAttributeValidatorTest {
+  
+  private ManagedAttribute testManagedAttribute;
+  private MetadataManagedAttribute testMetadataManagedAttribute;
+  private static final ReloadableResourceBundleMessageSource messageSource = messageSource();
+  private static final MetadataManagedAttributeValidator validatorUnderTest = new MetadataManagedAttributeValidator(messageSource);
 
-    
-    private ManagedAttribute testManagedAttribute;
-    private MetadataManagedAttribute testMetadataManagedAttribute;
-    private static final ReloadableResourceBundleMessageSource messageSource = messageSource();
-    private static final MetadataManagedAttributeValidator validatorUnderTest = new MetadataManagedAttributeValidator(messageSource);
+  @Test
+  public void assignedValueContainedInAcceptedValues_validationPasses() throws Exception {
+    testManagedAttribute = ManagedAttributeFactory.newManagedAttribute()
+      .name("test_attribute")
+      .acceptedValues(new String[] {"val1", "val2"})
+      .build();
+    testMetadataManagedAttribute = MetadataManagedAttributeFactory
+      .newMetadataManagedAttribute()
+      .managedAttribute(testManagedAttribute)
+      .assignedValue("val1")
+      .build();
+    Errors errors = new BeanPropertyBindingResult(testMetadataManagedAttribute, "mma");
+    ValidationUtils.invokeValidator(validatorUnderTest, testMetadataManagedAttribute, errors);
+    assertFalse(errors.hasFieldErrors());
+    assertFalse(errors.hasErrors());
+  }
 
+  @Test
+  public void assignedValueNotContainedInAcceptedValues_validationFails() throws Exception {
+    testManagedAttribute = ManagedAttributeFactory.newManagedAttribute()
+    .name("test_attribute")
+    .acceptedValues(new String[] {"val1", "val2"})
+    .build();
+    testMetadataManagedAttribute = MetadataManagedAttributeFactory
+      .newMetadataManagedAttribute()
+      .managedAttribute(testManagedAttribute)
+      .assignedValue("val3")
+      .build();
+    Errors errors = new BeanPropertyBindingResult(testMetadataManagedAttribute, "mma");
+    ValidationUtils.invokeValidator(validatorUnderTest, testMetadataManagedAttribute, errors);
+    assertEquals(1, errors.getErrorCount());
+    assertTrue(errors.hasFieldErrors("assignedValue"));
+    FieldError field_error = errors.getFieldError("assignedValue");
+    assertTrue(field_error.getCode().equals("assignedValue.invalid"));
+    assertTrue(field_error.getDefaultMessage().contains("val3"));
+  }
 
-    @Test
-    public void assignedValueContainedInAcceptedValues_validationPasses() throws Exception {
-        testManagedAttribute = ManagedAttributeFactory.newManagedAttribute()
-            .name("test_attribute")
-            .acceptedValues(new String[] {"val1", "val2"})
-            .build();
-        testMetadataManagedAttribute = MetadataManagedAttributeFactory
-            .newMetadataManagedAttribute()
-            .managedAttribute(testManagedAttribute)
-            .assignedValue("val1")
-            .build();
-        Errors errors = new BeanPropertyBindingResult(testMetadataManagedAttribute, "mma");
-        ValidationUtils.invokeValidator(validatorUnderTest, testMetadataManagedAttribute, errors);
-        assertFalse(errors.hasFieldErrors());
-        assertFalse(errors.hasErrors());
-    }
+  @Test
+  public void acceptedValuesEmpty_assignedValueIsManagedAttributeType_validationPasses() throws Exception {
+    testManagedAttribute = ManagedAttributeFactory.newManagedAttribute()
+      .name("test_attribute")
+      .build();
 
-    @Test
-    public void assignedValueNotContainedInAcceptedValues_validationFails() throws Exception {
-        testManagedAttribute = ManagedAttributeFactory.newManagedAttribute()
-            .name("test_attribute")
-            .acceptedValues(new String[] {"val1", "val2"})
-            .build();
-        testMetadataManagedAttribute = MetadataManagedAttributeFactory
-            .newMetadataManagedAttribute()
-            .managedAttribute(testManagedAttribute)
-            .assignedValue("val3")
-            .build();
-        Errors errors = new BeanPropertyBindingResult(testMetadataManagedAttribute, "mma");
-        ValidationUtils.invokeValidator(validatorUnderTest, testMetadataManagedAttribute, errors);
-        assertEquals(1, errors.getErrorCount());
-        assertTrue(errors.hasFieldErrors("assignedValue"));
-        FieldError field_error = errors.getFieldError("assignedValue");
-        assertTrue(field_error.getCode().equals("assignedValue.invalid"));
-        assertTrue(field_error.getDefaultMessage().contains("val3"));
-    }
-    
-    @Test
-    public void acceptedValuesEmpty_assignedValueIsManagedAttributeType_validationPasses() throws Exception {
-        testManagedAttribute = ManagedAttributeFactory.newManagedAttribute()
-            .name("test_attribute")
-            .build();
+    testMetadataManagedAttribute = MetadataManagedAttributeFactory
+      .newMetadataManagedAttribute()
+      .managedAttribute(testManagedAttribute)
+      .assignedValue("1234")
+      .build();
+    Errors errors = new BeanPropertyBindingResult(testMetadataManagedAttribute, "mma");
+    ValidationUtils.invokeValidator(validatorUnderTest, testMetadataManagedAttribute, errors);
+    assertFalse(errors.hasErrors());  
+  }
 
-        testMetadataManagedAttribute = MetadataManagedAttributeFactory
-            .newMetadataManagedAttribute()
-            .managedAttribute(testManagedAttribute)
-            .assignedValue("1234")
-            .build();
-        Errors errors = new BeanPropertyBindingResult(testMetadataManagedAttribute, "mma");
-        ValidationUtils.invokeValidator(validatorUnderTest, testMetadataManagedAttribute, errors);
-        assertFalse(errors.hasErrors());
-        
-    }
+  @Test
+  public void acceptedValuesEmpty_assignedValueNotManagedAttributeType_validationFails() {
+    testManagedAttribute = ManagedAttributeFactory.newManagedAttribute()
+      .name("test_attribute")
+      .managedAttributeType(ManagedAttributeType.INTEGER)
+      .build();
 
-    @Test
-    public void acceptedValuesEmpty_assignedValueNotManagedAttributeType_validationFails() {
-        testManagedAttribute = ManagedAttributeFactory.newManagedAttribute()
-            .name("test_attribute")
-            .managedAttributeType(ManagedAttributeType.INTEGER)
-            .build();
+    testMetadataManagedAttribute = MetadataManagedAttributeFactory
+      .newMetadataManagedAttribute()
+      .managedAttribute(testManagedAttribute)
+      .assignedValue("abcd")
+      .build();
 
-        testMetadataManagedAttribute = MetadataManagedAttributeFactory
-            .newMetadataManagedAttribute()
-            .managedAttribute(testManagedAttribute)
-            .assignedValue("abcd")
-            .build();
+    Errors errors = new BeanPropertyBindingResult(testMetadataManagedAttribute, "mma");
+    ValidationUtils.invokeValidator(validatorUnderTest, testMetadataManagedAttribute, errors);
+    assertEquals(1, errors.getErrorCount());
+    assertTrue(errors.hasFieldErrors("assignedValue"));
+    FieldError field_error = errors.getFieldError("assignedValue");
+    assertTrue(field_error.getCode().equals("assignedValueType.invalid"));
+    assertTrue(field_error.getDefaultMessage().matches(".*abcd.*INTEGER"));
+  }
 
-        Errors errors = new BeanPropertyBindingResult(testMetadataManagedAttribute, "mma");
-        ValidationUtils.invokeValidator(validatorUnderTest, testMetadataManagedAttribute, errors);
-        assertEquals(1, errors.getErrorCount());
-        assertTrue(errors.hasFieldErrors("assignedValue"));
-        FieldError field_error = errors.getFieldError("assignedValue");
-        assertTrue(field_error.getCode().equals("assignedValueType.invalid"));
-        assertTrue(field_error.getDefaultMessage().matches(".*abcd.*INTEGER"));
-
-    }
-
-    public static ReloadableResourceBundleMessageSource messageSource() {
-        ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
-        messageSource.setDefaultLocale(LocaleContextHolder.getLocale());
-        messageSource.setBasename("classpath:messages");
-        messageSource.setDefaultEncoding("UTF-8");
-        return messageSource;
-    }
-
+  public static ReloadableResourceBundleMessageSource messageSource() {
+    ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
+    messageSource.setDefaultLocale(LocaleContextHolder.getLocale());
+    messageSource.setBasename("classpath:messages");
+    messageSource.setDefaultEncoding("UTF-8");
+    return messageSource;
+  }
 }
 
 
