@@ -2,6 +2,7 @@ package ca.gc.aafc.objectstore.api.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -11,6 +12,7 @@ import org.javers.core.Javers;
 import org.javers.core.metamodel.object.CdoSnapshot;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
@@ -24,6 +26,9 @@ public class AuditServiceIT extends BaseIntegrationTest {
   @Inject
   private AuditService serviceUnderTest;
 
+  @Inject
+  private NamedParameterJdbcTemplate jdbcTemplate;
+
   private static final String AUTHOR = "dina_user";
   private static final String TYPE = ObjectStoreMetadataDto.TYPENAME;
   private static final UUID INSTANCE_ID = UUID.randomUUID();
@@ -34,6 +39,8 @@ public class AuditServiceIT extends BaseIntegrationTest {
    */
   @BeforeEach
   public void beforeEachTest() {
+    cleanSnapShotRepo();
+
     // Has Author 2 Commits
     ObjectStoreMetadataDto hasAuthor = createDto();
     javers.commit(AUTHOR, hasAuthor);
@@ -114,4 +121,10 @@ public class AuditServiceIT extends BaseIntegrationTest {
     dto.setUuid(UUID.randomUUID());
     return dto;
   }
+
+  private void cleanSnapShotRepo() {
+    jdbcTemplate.update("DELETE FROM jv_snapshot where commit_fk IS NOT null", Collections.emptyMap());
+    jdbcTemplate.update("DELETE FROM jv_commit where commit_pk IS NOT null", Collections.emptyMap());
+  }
+
 }
