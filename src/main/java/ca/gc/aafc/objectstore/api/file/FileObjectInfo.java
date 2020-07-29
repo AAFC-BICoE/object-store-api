@@ -24,7 +24,7 @@ public class FileObjectInfo {
     
     for (Map.Entry<String, List<String>> entry: headerMap.entrySet()) {
       if (entry.getKey().equalsIgnoreCase(header)) {
-         return entry.getValue();
+        return entry.getValue();
       }
     }
     return Collections.emptyList();
