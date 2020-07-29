@@ -1,5 +1,6 @@
 package ca.gc.aafc.objectstore.api.entities;
 
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -45,6 +46,8 @@ public class ObjectSubtype implements DinaEntity {
   private String acSubtype;
   private boolean appManaged;
   private UUID uuid;
+  private String createdBy;
+  private OffsetDateTime createdOn;
 
   @NaturalId
   @NotNull
@@ -104,6 +107,24 @@ public class ObjectSubtype implements DinaEntity {
 
   public void setAppManaged(boolean appManaged) {
     this.appManaged = appManaged;
+  }
+
+  public void setCreatedBy(String createdBy) {
+    this.createdBy = createdBy;
+  }
+
+  @Column(name = "created_by")
+  public String getCreatedBy() {
+    return this.createdBy;
+  }
+
+  public void setCreatedOn(OffsetDateTime createdOn) {
+    this.createdOn = createdOn;
+  }
+
+  @Column(name = "created_on", insertable = false, updatable = false)
+  public OffsetDateTime getCreatedOn() {
+    return this.createdOn;
   }
 
 }
