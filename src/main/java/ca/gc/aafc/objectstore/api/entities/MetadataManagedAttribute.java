@@ -1,5 +1,6 @@
 package ca.gc.aafc.objectstore.api.entities;
 
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -10,6 +11,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
+import javax.persistence.PreRemove;
+import javax.persistence.PreUpdate;
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -93,8 +96,21 @@ public class MetadataManagedAttribute implements DinaEntity {
   }
 
   @PrePersist
-  public void initUuid() {
+  public void init() {
     this.uuid = UUID.randomUUID();
+    this.updateParentMetadata();
+  }
+  
+  /**
+   * MetadataManagedAttribute is considered a child value of ObjectStoreMetadata,
+   * so update the parent whenever this is modified.
+   * 
+   * This helps for auditing.
+   */
+  @PreUpdate
+  @PreRemove
+  public void updateParentMetadata() {
+    this.objectStoreMetadata.setXmpMetadataDate(OffsetDateTime.now());
   }
 
 }

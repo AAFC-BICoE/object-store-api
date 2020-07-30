@@ -100,7 +100,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
 
     UUID dtoUuid = objectStoreResourceRepository.create(dto).getUuid();
 
-    ObjectStoreMetadata result = findUnique(ObjectStoreMetadata.class, "uuid", dtoUuid);
+    ObjectStoreMetadata result = service.findUnique(ObjectStoreMetadata.class, "uuid", dtoUuid);
     assertEquals(dtoUuid, result.getUuid());
     assertEquals(TestConfiguration.TEST_BUCKET, result.getBucket());
     assertEquals(TestConfiguration.TEST_FILE_IDENTIFIER, result.getFileIdentifier());
@@ -120,7 +120,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
 
     UUID parentUuid = objectStoreResourceRepository.create(parentDTO).getUuid();
 
-    ObjectStoreMetadata thumbNailMetaResult = findUnique(
+    ObjectStoreMetadata thumbNailMetaResult = service.findUnique(
       ObjectStoreMetadata.class,
       "fileIdentifier",
       TestConfiguration.TEST_THUMBNAIL_IDENTIFIER);
@@ -145,7 +145,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
 
     objectStoreResourceRepository.save(updateMetadataDto);
 
-    ObjectStoreMetadata result = findUnique(ObjectStoreMetadata.class, "uuid", updateMetadataDto.getUuid());
+    ObjectStoreMetadata result = service.findUnique(ObjectStoreMetadata.class, "uuid", updateMetadataDto.getUuid());
     assertEquals(TestConfiguration.TEST_BUCKET, result.getBucket());
     assertEquals(TestConfiguration.TEST_FILE_IDENTIFIER, result.getFileIdentifier());
     assertEquals(derived.getUuid(), result.getAcDerivedFrom().getUuid());
@@ -166,7 +166,8 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
 
     objectStoreResourceRepository.save(updateMetadataDto);
 
-    ObjectStoreMetadata result = findUnique(ObjectStoreMetadata.class, "uuid", updateMetadataDto.getUuid());
+    ObjectStoreMetadata result = service.findUnique(
+      ObjectStoreMetadata.class, "uuid", updateMetadataDto.getUuid());
     assertNull(result.getAcDerivedFrom());
     assertNull(result.getAcSubType());
   }

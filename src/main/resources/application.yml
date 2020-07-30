@@ -39,6 +39,11 @@ logging:
     Root: INFO
     # Reduce the logging from the rsql-jpa library, which is otherwise too excessive:
     com.github.tennaito.rsql: ERROR
+#JaVers audit framework config:
+javers:
+  packagesToScan: ca.gc.aafc.objectstore.api
+  # Don't let Javers create its tables; let Liquibase create them:
+  sqlSchemaManagementEnabled: false
 keycloak:
   enabled: false
   realm: dina
@@ -56,4 +61,3 @@ keycloak:
       security-collections:
         - patterns:
           - /*
-  

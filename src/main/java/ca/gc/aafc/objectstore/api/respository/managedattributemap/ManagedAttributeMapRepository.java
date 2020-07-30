@@ -77,7 +77,7 @@ public class ManagedAttributeMapRepository extends ResourceRepositoryBase<Manage
       .orElseThrow(() -> new ValidationException("Metadata relationship required to add managed attributes map."));
     final ObjectStoreMetadata metadata = dao.findOneByNaturalId(metadataUuid, ObjectStoreMetadata.class);
 
-    final List<MetadataManagedAttribute> existingAttributes = metadata.getManagedAttribute();
+    final List<MetadataManagedAttribute> managedAttributeValues = metadata.getManagedAttribute();
     
     // Loop through the changed attribute values:
     for (final Entry<String, ManagedAttributeMapValue> entry : resource.getValues().entrySet()) {
@@ -85,7 +85,7 @@ public class ManagedAttributeMapRepository extends ResourceRepositoryBase<Manage
       final ManagedAttribute changedAttribute = dao.findOneByNaturalId(changedAttributeUuid, ManagedAttribute.class);
       final String newValue = entry.getValue().getValue();
 
-      final Optional<MetadataManagedAttribute> existingAttributeValue = existingAttributes.stream()
+      final Optional<MetadataManagedAttribute> existingAttributeValue = managedAttributeValues.stream()
           .filter(existingAttr -> existingAttr.getManagedAttribute() == changedAttribute)
           .findFirst();
 
@@ -93,6 +93,7 @@ public class ManagedAttributeMapRepository extends ResourceRepositoryBase<Manage
       existingAttributeValue.ifPresent(val -> {
         if (StringUtils.isBlank(newValue)) {
           dao.delete(val);
+          managedAttributeValues.remove(val);
         } else {
           val.setAssignedValue(newValue);
         }
@@ -107,6 +108,7 @@ public class ManagedAttributeMapRepository extends ResourceRepositoryBase<Manage
           .uuid(UUID.randomUUID())
           .build();
         dao.create(newAttributeValue);
+        managedAttributeValues.add(newAttributeValue);
       }
     }
 

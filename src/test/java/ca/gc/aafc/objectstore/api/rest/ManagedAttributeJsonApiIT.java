@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
+import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.dto.ManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute.ManagedAttributeType;
 
@@ -14,6 +15,7 @@ public class ManagedAttributeJsonApiIT extends BaseJsonApiIntegrationTest {
   private static final String SCHEMA_NAME = "ManagedAttribute";
   private static final String RESOURCE_UNDER_TEST = "managed-attribute";
   private static final String SCHEMA_PATH = "DINA-Web/object-store-specs/master/schema/managedAttribute.yaml";  
+  private final static String DINA_USER_NAME = DinaAuthenticatedUserConfig.USER_NAME;
 
   @Override
   protected String getSchemaName() {
@@ -38,6 +40,7 @@ public class ManagedAttributeJsonApiIT extends BaseJsonApiIntegrationTest {
     managedAttribute.setAcceptedValues(acceptedValues);
     managedAttribute.setName(TestableEntityFactory.generateRandomNameLettersOnly(12));
     managedAttribute.setManagedAttributeType(ManagedAttributeType.STRING);
+    managedAttribute.setCreatedBy(DINA_USER_NAME);
     Map<String, String> desc = new HashMap<String, String>();
     desc.put("fr", "fr_desc");
     desc.put("en", "en_desc");

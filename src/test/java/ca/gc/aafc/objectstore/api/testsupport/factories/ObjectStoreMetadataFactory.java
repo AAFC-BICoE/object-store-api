@@ -24,7 +24,6 @@ public class ObjectStoreMetadataFactory implements TestableEntityFactory<ObjectS
   public static ObjectStoreMetadata.ObjectStoreMetadataBuilder newObjectStoreMetadata() {
     
     return  ObjectStoreMetadata.builder()
-        .uuid(UUID.randomUUID())
         .fileIdentifier(UUID.randomUUID())
         .fileExtension(".jpg")
         .bucket("mybucket")

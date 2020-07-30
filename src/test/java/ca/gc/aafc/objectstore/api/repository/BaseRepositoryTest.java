@@ -11,11 +11,7 @@ public abstract class BaseRepositoryTest extends BaseIntegrationTest {
    * @param the entity to persist
    */
   protected void persist(Object objectToPersist) {
-    save(objectToPersist);
-  }
-  
-  protected void delete(Object objectToPersist) {
-    delete(objectToPersist);
+    service.save(objectToPersist);
   }
 
 }
