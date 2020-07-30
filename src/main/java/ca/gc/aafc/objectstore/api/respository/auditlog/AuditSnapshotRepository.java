@@ -7,79 +7,47 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.StringUtils;
-import org.javers.core.Javers;
 import org.javers.core.metamodel.object.CdoSnapshot;
-import org.javers.repository.jql.JqlQuery;
-import org.javers.repository.jql.QueryBuilder;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
 
 import ca.gc.aafc.dina.repository.NoLinkInformation;
 import ca.gc.aafc.objectstore.api.dto.AuditSnapshotDto;
+import ca.gc.aafc.objectstore.api.service.AuditService;
+import ca.gc.aafc.objectstore.api.service.AuditService.AuditInstance;
 import io.crnk.core.exception.MethodNotAllowedException;
 import io.crnk.core.queryspec.QuerySpec;
 import io.crnk.core.repository.ReadOnlyResourceRepositoryBase;
 import io.crnk.core.resource.list.DefaultResourceList;
 import io.crnk.core.resource.list.ResourceList;
 import io.crnk.core.resource.meta.DefaultPagedMetaInformation;
-import io.crnk.core.resource.meta.PagedMetaInformation;
-import lombok.NonNull;
 
 @Repository
 public class AuditSnapshotRepository extends ReadOnlyResourceRepositoryBase<AuditSnapshotDto, Long> {
-  private final Javers javers;
-  private final NamedParameterJdbcTemplate jdbcTemplate;
 
-  public AuditSnapshotRepository(Javers javers, NamedParameterJdbcTemplate jdbcTemplate) {
+  private final AuditService service;
+
+  public AuditSnapshotRepository(AuditService service) {
     super(AuditSnapshotDto.class);
-    this.javers = javers;
-    this.jdbcTemplate = jdbcTemplate;
+    this.service = service;
   }
 
   @Override
   public ResourceList<AuditSnapshotDto> findAll(QuerySpec qs) {
-    QueryBuilder queryBuilder;
+    int limit = Optional.ofNullable(qs.getLimit()).orElse(100L).intValue();
+    int skip = Optional.ofNullable(qs.getOffset()).orElse(0L).intValue();
 
     Map<String, String> filters = getFilterMap(qs);
     String authorFilter = filters.get("author");
     String instanceFilter = filters.get("instanceId");
 
-    String id = null;
-    String type = null;
-    
-    if (StringUtils.isNotBlank(instanceFilter)) {
-      // Filter by audits of a specific record:
-      String[] idAndType = getIdAndType(instanceFilter);
-      id = idAndType[0];
-      type = idAndType[1];
+    AuditInstance instance = AuditInstance.fromString(instanceFilter).orElse(null);
 
-      queryBuilder = QueryBuilder.byInstanceId(id, type);
-    } else {
-      // Filter by audits of any object:
-      queryBuilder = QueryBuilder.anyDomainObject();
-    }
+    List<AuditSnapshotDto> dtos = service.findAll(instance, authorFilter, limit, skip)
+      .stream().map(AuditSnapshotRepository::toDto).collect(Collectors.toList());
 
-    // Allow filter by author:
-    if (StringUtils.isNotBlank(authorFilter)) {
-      queryBuilder.byAuthor(authorFilter);
-    }
-
-    // Set paging limit and offset:
-    queryBuilder.limit(Optional.ofNullable(qs.getLimit()).orElse(100L).intValue());
-    queryBuilder.skip(Optional.ofNullable(qs.getOffset()).orElse(0L).intValue());
-    
-    JqlQuery query = queryBuilder.build();
-
-    // Execute the query:
-    List<CdoSnapshot> javersSnapshots = javers.findSnapshots(query);
-
-    // Convert to DTOs:
-    List<AuditSnapshotDto> dtos = javersSnapshots.stream().map(this::toDto).collect(Collectors.toList());
-
-    PagedMetaInformation meta = getMetadata(authorFilter, id, type);
+    Long count = service.getResouceCount(authorFilter, instance);
+    DefaultPagedMetaInformation meta = new DefaultPagedMetaInformation();
+    meta.setTotalResourceCount(count);
 
     return new DefaultResourceList<>(dtos, meta, new NoLinkInformation());
   }
@@ -91,7 +59,7 @@ public class AuditSnapshotRepository extends ReadOnlyResourceRepositoryBase<Audi
   }
 
   /** Converts Javers snapshot to our DTO format. */
-  private AuditSnapshotDto toDto(CdoSnapshot original) {
+  private static AuditSnapshotDto toDto(CdoSnapshot original) {
     // Get the snapshot state as a map:
     Map<String, Object> state = new HashMap<>();
     original.getState().forEachProperty((key, val) -> state.put(key, val));
@@ -111,48 +79,10 @@ public class AuditSnapshotRepository extends ReadOnlyResourceRepositoryBase<Audi
         .build();
   }
 
-  /** Get the meta information with the total resource count. */
-  private PagedMetaInformation getMetadata(String authorFilter, String id, String type) {
-    // Use sql to get the count because Javers does not provide a counting method:
-    SqlParameterSource parameters = new MapSqlParameterSource()
-      .addValue("author", authorFilter)
-      .addValue("id", "\"" + id + "\"") // Javers puts double-quotes around the id in the database.
-      .addValue("type", type);
-    
-    // Apply filters:
-    String baseSql = "select count(*) from jv_snapshot s join jv_commit c on s.commit_fk = c.commit_pk where 1=1 %s %s ;";
-    String sql = String.format(
-      baseSql,
-      StringUtils.isNotBlank(authorFilter) ? "and c.author = :author" : "",
-      StringUtils.isNotBlank(id) ? "and global_id_fk = (select global_id_pk from jv_global_id where local_id = :id and type_name = :type)" : ""
-    );
-
-    Long count = jdbcTemplate.queryForObject(sql, parameters, Long.class);
-
-    DefaultPagedMetaInformation meta = new DefaultPagedMetaInformation();
-    meta.setTotalResourceCount(count);
-
-    return meta;
-  }
-
-  /**
-   * Parses the id and type from the instanceFilter format.
-   * e.g. metadata/42f1d751-f3ec-4c3b-9247-750f4e48ae04
-   */
-  private String[] getIdAndType(@NonNull String instanceFilter) {
-    String[] split = instanceFilter.split("/");
-    if (split.length != 2) {
-      throw new IllegalArgumentException("Invalid ID must be formatted as {type}/{id}: " + instanceFilter);
-    }
-    String type = split[0];
-    String id = split[1];
-    return new String[]{ id, type };
-  }
-
   /**
    * Converts Crnk's filters into a String/String Map.
    */
-  private Map<String, String> getFilterMap(QuerySpec qs) {
+  private static Map<String, String> getFilterMap(QuerySpec qs) {
     Map<String, String> map = new HashMap<>();
     qs.getFilters().forEach(
       it -> map.put(

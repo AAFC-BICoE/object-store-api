@@ -4,8 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import javax.validation.ConstraintViolationException;
 
 import com.google.common.collect.ImmutableMap;
+
+import org.junit.jupiter.api.Test;
 
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ManagedAttributeFactory;
@@ -24,6 +29,18 @@ public class ManagedAttributeCRUDIT extends BaseEntityCRUDIT {
     assertNull(managedAttributeUnderTest.getId());
     service.save(managedAttributeUnderTest);
     assertNotNull(managedAttributeUnderTest.getId());
+  }
+
+  @Test
+  public void testSave_whenDescriptionIsBlank_throwConstraintError() {
+    ManagedAttribute blankDescription = ManagedAttributeFactory.newManagedAttribute()
+      .acceptedValues(new String[] { "a", "b" })
+      .description(ImmutableMap.of("en", ""))
+      .build();
+
+    assertThrows(
+      ConstraintViolationException.class,
+      () -> service.save(blankDescription));
   }
 
   @Override

@@ -22,5 +22,6 @@ public class ObjectSubtypeDto {
 
   private DcType dcType;
   private String acSubtype;
-  
+  private boolean appManaged;
+
 }
