@@ -73,8 +73,8 @@ public class MetadataToManagedAttributeMapRepository
             .value(attr.getAssignedValue())
             .build()
         );
+      }
     }
-  }
     ManagedAttributeMapDto attrMap = ManagedAttributeMapDto.builder()
       // This is a generated/derived object, so it doesn't have its own ID:
       .id(ObjectStoreMetadataDto.TYPENAME + "/" + metadata.getUuid() + "/" + ManagedAttributeMapDto.TYPENAME)
