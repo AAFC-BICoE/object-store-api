@@ -20,6 +20,7 @@ public class ManagedAttributeCRUDIT extends BaseEntityCRUDIT {
   private ManagedAttribute managedAttributeUnderTest = ManagedAttributeFactory.newManagedAttribute()
       .acceptedValues(new String[] { "a", "b" })
       .description(ImmutableMap.of("en", "attrEn", "fr", "attrFr"))
+      .createdBy("createdBy")
       .build();
   
 
@@ -52,7 +53,9 @@ public class ManagedAttributeCRUDIT extends BaseEntityCRUDIT {
     assertArrayEquals(new String[] { "a", "b" }, managedAttributeUnderTest.getAcceptedValues());
 
     assertEquals("attrFr", managedAttributeUnderTest.getDescription().get("fr"));
+    assertEquals(managedAttributeUnderTest.getCreatedBy(), fetchedObjectStoreMeta.getCreatedBy());
     assertNotNull(fetchedObjectStoreMeta.getCreatedDate());
+    assertNotNull(fetchedObjectStoreMeta.getCreatedOn());
   }
 
   @Override
