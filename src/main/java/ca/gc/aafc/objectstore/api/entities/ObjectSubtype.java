@@ -113,7 +113,8 @@ public class ObjectSubtype implements DinaEntity {
     this.createdBy = createdBy;
   }
 
-  @Column(name = "created_by")
+  @NotBlank
+  @Column(name = "created_by", updatable = false)
   public String getCreatedBy() {
     return this.createdBy;
   }
