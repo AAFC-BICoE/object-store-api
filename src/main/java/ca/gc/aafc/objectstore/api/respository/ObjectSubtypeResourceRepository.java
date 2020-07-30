@@ -48,14 +48,19 @@ public class ObjectSubtypeResourceRepository
   @Override
   public <S extends ObjectSubtypeDto> S save(S resource) {
     ObjectSubtype entity = dinaService.findOne(resource.getUuid(), ObjectSubtype.class);
-    if (authenticatedUser.isPresent()) {
-      resource.setCreatedBy(authenticatedUser.get().getUsername());
-    }
     if (entity.isAppManaged()) {
       throw new ForbiddenException(
           messageSource.getMessage("error.appManaged.read_only", null, LocaleContextHolder.getLocale()));
     }
     return super.save(resource);
+  }
+
+  @Override
+  public <S extends ObjectSubtypeDto> S create(S resource) {
+    if (authenticatedUser.isPresent()) {
+      resource.setCreatedBy(authenticatedUser.get().getUsername());
+    }
+    return super.create(resource);
   }
 
 }

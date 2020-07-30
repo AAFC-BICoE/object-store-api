@@ -1,0 +1,20 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no" ?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd" objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+
+  <changeSet id="14-Object_subtype_add_createdBy_createdOn" context="schema-change" author="belislem">
+  
+    <!-- Add created_by column -->
+    <addColumn tableName="object_subtype">
+      <column name="created_by" type="VARCHAR(250)" />
+    </addColumn>
+    <!-- Add created_on column -->
+    <addColumn tableName="object_subtype">
+        <column name="created_on" type="timestamptz" defaultValueComputed="current_timestamp" />
+    </addColumn>
+  </changeSet>
+
+
+</databaseChangeLog>
