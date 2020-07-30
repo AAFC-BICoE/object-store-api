@@ -30,6 +30,7 @@ public class ManagedAttributeDto {
   private ManagedAttributeType managedAttributeType;
   private String[] acceptedValues;
   private OffsetDateTime createdDate;
+  private OffsetDateTime createdOn;
 
   private Map<String, String> description;
 
