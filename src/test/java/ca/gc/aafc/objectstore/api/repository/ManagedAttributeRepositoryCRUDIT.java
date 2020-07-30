@@ -29,6 +29,7 @@ public class ManagedAttributeRepositoryCRUDIT extends BaseRepositoryTest {
     testManagedAttribute = ManagedAttributeFactory.newManagedAttribute()
         .acceptedValues(new String[] { "dosal" })
         .description(ImmutableMap.of("en", "attrEn", "fr", "attrFr"))
+        .createdBy("createdBy")
         .build();
 
     persist(testManagedAttribute);
@@ -53,6 +54,7 @@ public class ManagedAttributeRepositoryCRUDIT extends BaseRepositoryTest {
     assertEquals(testManagedAttribute.getName(), managedAttributeDto.getName());
     assertEquals(testManagedAttribute.getDescription().get("en"),
         managedAttributeDto.getDescription().get("en"));
+    assertEquals(testManagedAttribute.getCreatedBy(), managedAttributeDto.getCreatedBy());
   }
     
 }

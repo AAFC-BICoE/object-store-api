@@ -38,6 +38,7 @@ public class ManagedAttributeJsonApiIT extends BaseJsonApiIntegrationTest {
     managedAttribute.setAcceptedValues(acceptedValues);
     managedAttribute.setName(TestableEntityFactory.generateRandomNameLettersOnly(12));
     managedAttribute.setManagedAttributeType(ManagedAttributeType.STRING);
+    managedAttribute.setCreatedBy("createdBy");
     Map<String, String> desc = new HashMap<String, String>();
     desc.put("fr", "fr_desc");
     desc.put("en", "en_desc");

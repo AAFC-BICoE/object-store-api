@@ -56,6 +56,7 @@ public class ManagedAttribute implements DinaEntity {
   private ManagedAttributeType managedAttributeType;
   private String[] acceptedValues;
   private OffsetDateTime createdOn;
+  private String createdBy;
   private Map<String, String> description;
 
   @Type(type = "jsonb")
@@ -137,6 +138,15 @@ public class ManagedAttribute implements DinaEntity {
 
   public void setCreatedOn(OffsetDateTime createdOn) {
     this.createdOn = createdOn;
+  }
+
+  @Column(name = "created_by")
+  public String getCreatedBy() {
+    return createdBy;
+  }
+
+  public void setCreatedBy(String createdBy) {
+    this.createdBy = createdBy;
   }
 
   @PrePersist
