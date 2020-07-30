@@ -123,10 +123,12 @@ public class ManagedAttribute implements DinaEntity {
   }
 
   @Transient
+  @Deprecated
   public OffsetDateTime getCreatedDate() {
     return createdOn;
   }
 
+  @Deprecated
   public void setCreatedDate(OffsetDateTime createdOn) {
     this.createdOn = createdOn;
   }
