@@ -53,6 +53,7 @@ public class ManagedAttributeCRUDIT extends BaseEntityCRUDIT {
 
     assertEquals("attrFr", managedAttributeUnderTest.getDescription().get("fr"));
     assertNotNull(fetchedObjectStoreMeta.getCreatedDate());
+    assertNotNull(fetchedObjectStoreMeta.getCreatedOn());
   }
 
   @Override
