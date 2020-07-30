@@ -28,6 +28,7 @@ public class ManagedAttributeFactory implements TestableEntityFactory<ManagedAtt
         .uuid(UUID.randomUUID())
         .name(TestableEntityFactory.generateRandomNameLettersOnly(12))
         .description(ImmutableMap.of("en", "test description"))
+        .createdBy("createdBy")
         .managedAttributeType(ManagedAttributeType.STRING);
    } 
   

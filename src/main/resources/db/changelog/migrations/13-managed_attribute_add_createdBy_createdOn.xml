@@ -13,7 +13,9 @@
 
     <!-- Add created by column -->
     <addColumn tableName="managed_attribute">
-      <column name="created_by" type="VARCHAR(250)" />
+      <column name="created_by" type="VARCHAR(250)">
+        <constraints nullable="false" />
+      </column>
     </addColumn>
 
   </changeSet>

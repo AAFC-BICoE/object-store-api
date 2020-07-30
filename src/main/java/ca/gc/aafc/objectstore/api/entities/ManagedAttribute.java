@@ -15,6 +15,7 @@ import javax.persistence.Id;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Transient;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
@@ -142,7 +143,8 @@ public class ManagedAttribute implements DinaEntity {
     this.createdOn = createdOn;
   }
 
-  @Column(name = "created_by")
+  @NotBlank
+  @Column(name = "created_by", updatable = false)
   public String getCreatedBy() {
     return createdBy;
   }
