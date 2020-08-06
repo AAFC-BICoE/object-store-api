@@ -51,16 +51,15 @@ public class ObjectSubtypeRepositoryCRUDIT extends BaseRepositoryTest {
     assertEquals(testObjectSubtype.getCreatedBy(), objectSubtypeDto.getCreatedBy());
   }
   
-  /*
   @Test
   public void create_WithAuthenticatedUser_SetsCreatedBy() {
     ObjectSubtypeDto os = new ObjectSubtypeDto();
     os.setUuid(UUID.randomUUID());
-    os.setAcSubtype("supporting specialzation".toUpperCase());
-    ObjectSubtypeDto result = objectSubtypeRepository.findOne(
-      objectSubtypeRepository.create(os).getUuid(),
-      new QuerySpec(ObjectSubtypeDto.class));
+    os.setAcSubtype("test subtype".toUpperCase());
+    os.setDcType(DcType.IMAGE);
+    ObjectSubtypeDto result = objectSubtypeRepository.findOne(objectSubtypeRepository.create(os).getUuid(),
+        new QuerySpec(ObjectSubtypeDto.class));
     assertEquals(DINA_USER_NAME, result.getCreatedBy());
   }
-  */ 
+    
 }

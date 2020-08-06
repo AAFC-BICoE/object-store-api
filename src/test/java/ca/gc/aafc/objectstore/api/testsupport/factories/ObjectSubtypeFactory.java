@@ -26,7 +26,7 @@ public class ObjectSubtypeFactory implements TestableEntityFactory<ObjectSubtype
         .uuid(UUID.randomUUID())
         .createdBy("createdBy")
         .dcType(DcType.IMAGE)
-        .acSubtype("supporting specilzation".toUpperCase());
+        .acSubtype(TestableEntityFactory.generateRandomNameLettersOnly(12).toUpperCase());
    } 
   
   /**
