@@ -52,6 +52,7 @@ public class ObjectSubTypeJsonApiIT extends BaseJsonApiIntegrationTest {
 
     objectSubtype.setAcSubtype("MultimediaLearningObject".toUpperCase());
     objectSubtype.setDcType(DcType.MOVING_IMAGE);
+    objectSubtype.setCreatedBy(DINA_USER_NAME);
     return toAttributeMap(objectSubtype);
   }
 
@@ -96,6 +97,7 @@ public class ObjectSubTypeJsonApiIT extends BaseJsonApiIntegrationTest {
     ObjectSubtypeDto dto = new ObjectSubtypeDto();
     dto.setDcType(DcType.SOUND);
     dto.setAcSubtype(RandomStringUtils.random(5));
+    dto.setCreatedBy(DINA_USER_NAME);
     return dto;
   }
 
