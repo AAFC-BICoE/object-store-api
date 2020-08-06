@@ -8,7 +8,9 @@
   
     <!-- Add created_by column -->
     <addColumn tableName="object_subtype">
-      <column name="created_by" type="VARCHAR(250)" />
+      <column name="created_by" type="VARCHAR(250)">
+        <constraints nullable="false" />
+      </column>
     </addColumn>
     <!-- Add created_on column -->
     <addColumn tableName="object_subtype">
