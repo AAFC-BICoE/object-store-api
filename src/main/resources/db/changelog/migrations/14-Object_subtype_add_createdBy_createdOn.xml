@@ -6,17 +6,25 @@
 
   <changeSet id="14-Object_subtype_add_createdBy_createdOn" context="schema-change" author="belislem">
   
-    <!-- Add created_by column -->
-    <addColumn tableName="object_subtype">
-      <column name="created_by" type="VARCHAR(250)">
-        <constraints nullable="false" />
-      </column>
-    </addColumn>
     <!-- Add created_on column -->
     <addColumn tableName="object_subtype">
         <column name="created_on" type="timestamptz" defaultValueComputed="current_timestamp" />
     </addColumn>
-  </changeSet>
 
+    <!-- Add created_by column -->
+    <addColumn tableName="object_subtype">
+      <column name="created_by" type="VARCHAR(250)" />
+    </addColumn>
+    
+    <!-- Add value for created_on field to existing thumbnail object subtype-->
+    <update tableName="object_subtype">
+      <column name="created_by" value= "default" />
+      <where>uuid='34e4e0d8-91d8-4d52-99ae-ec42d6b0e66e'</where>
+    </update>
+
+    <!--Add not null constraint to created_by column-->
+    <addNotNullConstraint tableName="object_subtype" columnName="created_by" />
+    
+  </changeSet>
 
 </databaseChangeLog>
