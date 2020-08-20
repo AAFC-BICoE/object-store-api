@@ -22,29 +22,10 @@ import ca.gc.aafc.objectstore.api.entities.License;
 @PropertySource(value = "classpath:SupportedLicenses.yml", factory = YamlPropertyLoaderFactory.class)
 @ConfigurationProperties
 public class SupportedLicensesConfiguration {
-	
-	private String url;
-	private List<String> titles;
-	
-	private ArrayList<License> licenses = new ArrayList<>();
 
-	public String getUrl() {
-		return this.url;
-	}
+	private List<License> licenses = new ArrayList<>();
 
-	public void setUrl(String url) {
-		this.url = url;
-	}
-
-	public List<String> getTitles() {
-		return this.titles;
-	}
-
-	public void setTitles(List<String> titles) {
-		this.titles = titles;
-	}
-
-	public ArrayList<License> getLicenses() {
+	public List<License> getLicenses() {
 		return this.licenses;
 	}
 	
