@@ -14,7 +14,8 @@ import org.springframework.context.annotation.PropertySource;
 import ca.gc.aafc.objectstore.api.entities.License;
 
 /**
- * Maps entries in SupportedLicenses.yml to License objects for use in repository
+ * Maps entries in SupportedLicenses.yml to License objects for use in
+ * repository
  * 
  * @author chinniahs
  */
@@ -23,43 +24,45 @@ import ca.gc.aafc.objectstore.api.entities.License;
 @ConfigurationProperties
 public class SupportedLicensesConfiguration {
 
-	private List<License> licenses = new ArrayList<>();
+  private List<License> licenses = new ArrayList<>();
 
-	public List<License> getLicenses() {
-		return this.licenses;
-	}
-	
-	public void setLicenses(LinkedHashMap<String, LinkedList<String>> licenses) {
-		computeLicenses(licenses);
-	}
-	
-	/**
-	 * Helper method for parsing name, "url", and "titles" attributes from yml and storing them in License objects
-	 * @param toLicenses
-	 */
-	private void computeLicenses(LinkedHashMap<String, LinkedList<String>> toLicenses) {
-		licenses.clear();
-		License currentLicense = new License();
-		String previousLicenseName = "";
-		for(Entry<String, LinkedList<String>> entry: toLicenses.entrySet()) {
-			String currentLicenseName = entry.getKey().split("\\.")[0];
-			// check if the current entry belongs to the same license as the last entry
-			if(!Objects.equals(previousLicenseName, currentLicenseName)) {
-				// add last license object to list
-				if(currentLicense.getName() != null) {
-				  licenses.add(currentLicense);
-				}
-				currentLicense = new License();
-				currentLicense.setName(currentLicenseName);
-			}
-			if(entry.getKey().contains("url")) {
-					currentLicense.setUrl(entry.getValue().get(0));
-			} else if(entry.getKey().contains("titles")) {
-					currentLicense.setTitles(entry.getValue());
-			}
-			previousLicenseName = currentLicenseName;
-		}
-		// add the last-parsed license
-		licenses.add(currentLicense);
-	}
+  public List<License> getLicenses() {
+    return this.licenses;
+  }
+
+  public void setLicenses(LinkedHashMap<String, LinkedList<String>> licenses) {
+    computeLicenses(licenses);
+  }
+
+  /**
+   * Helper method for parsing name, "url", and "titles" attributes from yml and
+   * storing them in License objects
+   * 
+   * @param toLicenses
+   */
+  private void computeLicenses(LinkedHashMap<String, LinkedList<String>> toLicenses) {
+    licenses.clear();
+    License currentLicense = new License();
+    String previousLicenseName = "";
+    for (Entry<String, LinkedList<String>> entry : toLicenses.entrySet()) {
+      String currentLicenseName = entry.getKey().split("\\.")[0];
+      // check if the current entry belongs to the same license as the last entry
+      if (!Objects.equals(previousLicenseName, currentLicenseName)) {
+        // add last license object to list
+        if (currentLicense.getName() != null) {
+          licenses.add(currentLicense);
+        }
+        currentLicense = new License();
+        currentLicense.setName(currentLicenseName);
+      }
+      if (entry.getKey().contains("url")) {
+        currentLicense.setUrl(entry.getValue().get(0));
+      } else if (entry.getKey().contains("titles")) {
+        currentLicense.setTitles(entry.getValue());
+      }
+      previousLicenseName = currentLicenseName;
+    }
+    // add the last-parsed license
+    licenses.add(currentLicense);
+  }
 }
