@@ -1,42 +1,25 @@
 package ca.gc.aafc.objectstore.api.entities;
 
-import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.PrePersist;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-
-import com.vladmihalcea.hibernate.type.array.StringArrayType;
-import com.vladmihalcea.hibernate.type.basic.PostgreSQLEnumType;
-
-import org.hibernate.annotations.NaturalId;
-import org.hibernate.annotations.NaturalIdCache;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
-import org.hibernate.annotations.UpdateTimestamp;
-
 import ca.gc.aafc.dina.entity.DinaEntity;
 import ca.gc.aafc.dina.entity.SoftDeletable;
+import com.vladmihalcea.hibernate.type.array.StringArrayType;
+import com.vladmihalcea.hibernate.type.basic.PostgreSQLEnumType;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.annotations.*;
+
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * The Class ObjectStoreMetadata.
@@ -77,7 +60,8 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
   private String acHashValue;
   private String[] acTags;
 
-  private OffsetDateTime createdDate;
+  private String createdBy;
+  private OffsetDateTime createdOn;
   private OffsetDateTime deletedDate;
 
   @Builder.Default
@@ -247,13 +231,15 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
     this.acTags = acTags;
   }
 
-  @Column(name = "created_date", insertable = false, updatable = false)
+  @Transient
+  @Deprecated
   public OffsetDateTime getCreatedDate() {
-    return createdDate;
+    return createdOn;
   }
 
+  @Deprecated
   public void setCreatedDate(OffsetDateTime createdDate) {
-    this.createdDate = createdDate;
+    this.createdOn = createdDate;
   }
 
   @OneToMany
@@ -411,7 +397,28 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
    *  multiple custom field resolvers can be associated with single resource
    */
   public void setGroup(String group) {    
-  }  
+  }
+
+  @Override
+  @NotBlank
+  @Column(name = "created_by", updatable = false)
+  public String getCreatedBy() {
+    return createdBy;
+  }
+
+  public void setCreatedBy(String createdBy) {
+    this.createdBy = createdBy;
+  }
+
+  @Override
+  @Column(name = "created_on", insertable = false, updatable = false)
+  public OffsetDateTime getCreatedOn() {
+    return createdOn;
+  }
+
+  public void setCreatedOn(OffsetDateTime createdOn) {
+    this.createdOn = createdOn;
+  }
 
   @PrePersist
   public void initUuid() {
