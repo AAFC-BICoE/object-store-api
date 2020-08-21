@@ -42,7 +42,7 @@
 		<javers.version>5.10.4</javers.version>
 		<keycloak-starter.version>9.0.3</keycloak-starter.version>
 		<crnk.version>3.2.20200419165537</crnk.version>
-		<dina-base-api.version>0.32</dina-base-api.version>
+		<dina-base-api.version>0.33</dina-base-api.version>
 
 		<spring-boot-maven-plugin.fork>false</spring-boot-maven-plugin.fork>
 	</properties>
