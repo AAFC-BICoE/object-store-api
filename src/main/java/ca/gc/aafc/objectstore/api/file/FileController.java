@@ -14,7 +14,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 
+import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
+import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MimeTypeException;
@@ -63,6 +66,7 @@ public class FileController {
   public static final String DIGEST_ALGORITHM = "SHA-1";
   private static final int MAX_NUMBER_OF_ATTEMPT_RANDOM_UUID = 5;
 
+  private final ObjectUploadService objectUploadService;
   private final MinioFileService minioService;
   private final ObjectStoreMetadataReadService objectStoreMetadataReadService;
   private final MediaTypeDetectionStrategy mediaTypeDetectionStrategy;
@@ -72,7 +76,9 @@ public class FileController {
   private final MessageSource messageSource;
 
   @Inject
-  public FileController(MinioFileService minioService, ObjectStoreMetadataReadService objectStoreMetadataReadService, 
+  public FileController(MinioFileService minioService,
+      ObjectUploadService objectUploadService,
+      ObjectStoreMetadataReadService objectStoreMetadataReadService,
       MediaTypeDetectionStrategy mediaTypeDetectionStrategy, 
       Jackson2ObjectMapperBuilder jackson2ObjectMapperBuilder,
       ThumbnailService thumbnailService,
@@ -80,6 +86,7 @@ public class FileController {
       MessageSource messageSource
   ) {
     this.minioService = minioService;
+    this.objectUploadService = objectUploadService;
     this.objectStoreMetadataReadService = objectStoreMetadataReadService;
     this.mediaTypeDetectionStrategy = mediaTypeDetectionStrategy;
     this.thumbnailService = thumbnailService;
@@ -90,6 +97,7 @@ public class FileController {
   }
 
   @PostMapping("/file/{bucket}")
+  @Transactional
   public FileMetaEntry handleFileUpload(@RequestParam("file") MultipartFile file,
       @PathVariable String bucket) throws InvalidKeyException, NoSuchAlgorithmException,
       InvalidBucketNameException, ErrorResponseException, InternalException,
@@ -131,6 +139,12 @@ public class FileController {
       bucket,
       null
     );
+
+    // record the uploaded object to ensure we eventually get the metadata for it
+    objectUploadService.create(ObjectUpload.builder()
+        .fileIdentifier(uuid)
+        .createdBy(authenticatedUser.map(DinaAuthenticatedUser::getUsername).orElse("?"))
+        .build());
     
     String sha1Hex = DigestUtils.sha1Hex(md.digest());
     fileMetaEntry.setSha1Hex(sha1Hex);

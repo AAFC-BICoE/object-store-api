@@ -12,7 +12,9 @@
       <column name="file_identifier" type="uuid">
         <constraints nullable="false" unique="true" />
       </column>
-      <column name="created_on" type="timestamptz" defaultValueComputed="current_timestamp" />
+      <column name="created_on" type="timestamptz" defaultValueComputed="current_timestamp" >
+        <constraints nullable="false" />
+      </column>
       <column name="created_by" type="VARCHAR(250)">
         <constraints nullable="false" />
       </column>
