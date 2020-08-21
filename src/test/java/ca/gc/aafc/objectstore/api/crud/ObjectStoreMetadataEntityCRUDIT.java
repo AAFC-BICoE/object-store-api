@@ -10,6 +10,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;
 
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
@@ -48,6 +49,7 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
 
     assertEquals(objectStoreMetaUnderTest.getId(), fetchedObjectStoreMeta.getId());
     assertEquals(objectStoreMetaUnderTest.getDcCreator(), fetchedObjectStoreMeta.getDcCreator());
+    assertEquals(objectStoreMetaUnderTest.getCreatedBy(), fetchedObjectStoreMeta.getCreatedBy());
     assertEquals(objectStoreMetaUnderTest.getId(), fetchedObjectStoreMeta.getId());
     assertEquals(
       objectStoreMetaUnderTest.getAcMetadataCreator(),
@@ -60,7 +62,7 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
         .toOffsetDateTime());
     
     //should be auto-generated
-    assertNotNull(fetchedObjectStoreMeta.getCreatedDate());
+    assertNotNull(fetchedObjectStoreMeta.getCreatedOn());
     assertNotNull(fetchedObjectStoreMeta.getXmpMetadataDate());
   }
 
