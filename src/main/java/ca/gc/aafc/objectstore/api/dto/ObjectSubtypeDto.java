@@ -1,5 +1,6 @@
 package ca.gc.aafc.objectstore.api.dto;
 
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import ca.gc.aafc.dina.dto.RelatedEntity;
@@ -23,5 +24,6 @@ public class ObjectSubtypeDto {
   private DcType dcType;
   private String acSubtype;
   private boolean appManaged;
-
+  private String createdBy;
+  private OffsetDateTime createdOn;
 }

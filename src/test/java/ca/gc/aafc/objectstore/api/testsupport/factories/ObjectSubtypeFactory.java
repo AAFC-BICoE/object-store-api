@@ -24,8 +24,9 @@ public class ObjectSubtypeFactory implements TestableEntityFactory<ObjectSubtype
   public static ObjectSubtype.ObjectSubtypeBuilder newObjectSubtype() {
     return ObjectSubtype.builder()
         .uuid(UUID.randomUUID())
+        .createdBy("createdBy")
         .dcType(DcType.IMAGE)
-        .acSubtype("supporting specilzation".toUpperCase());
+        .acSubtype(TestableEntityFactory.generateRandomNameLettersOnly(12).toUpperCase());
    } 
   
   /**
