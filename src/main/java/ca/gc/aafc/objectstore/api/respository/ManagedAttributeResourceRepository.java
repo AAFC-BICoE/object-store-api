@@ -26,7 +26,8 @@ public class ManagedAttributeResourceRepository
   ) {
     super(
       dinaService,
-      Optional.ofNullable(null),
+      Optional.empty(),
+      Optional.empty(),
       new DinaMapper<>(ManagedAttributeDto.class),
       ManagedAttributeDto.class,
       ManagedAttribute.class, filterResolver);
