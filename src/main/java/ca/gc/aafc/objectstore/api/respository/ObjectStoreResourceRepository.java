@@ -55,7 +55,7 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
     BaseDAO dao,
     FileInformationService fileInformationService,
     ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService,
-    Optional<DinaAuthenticatedUser> authenticatedUser
+    DinaAuthenticatedUser authenticatedUser
   ) {
     super(
       ObjectStoreMetadataDto.class,
@@ -72,7 +72,7 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
   private final BaseDAO dao;
   private final FileInformationService fileInformationService;
   private final ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService;
-  private Optional<DinaAuthenticatedUser> authenticatedUser;
+  private final DinaAuthenticatedUser authenticatedUser;
 
   private static PathSpec DELETED_PATH_SPEC = PathSpec.of("softDeleted");
 
@@ -136,6 +136,7 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
     // same as assignDefaultValues(handleFileRelatedData(handleDefaultValues)) but easier to follow in my option (C.G.)
     handleFileDataFct.andThen(defaultValueSetterService::assignDefaultValues).apply(resource);
 
+    resource.setCreatedBy(authenticatedUser.getUsername());
     ObjectStoreMetadataDto created = super.create(resource);
 
     handleThumbNailMetaEntry(created);

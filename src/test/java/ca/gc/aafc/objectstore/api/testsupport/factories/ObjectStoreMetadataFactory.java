@@ -1,12 +1,13 @@
 package ca.gc.aafc.objectstore.api.testsupport.factories;
 
+import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
+import ca.gc.aafc.objectstore.api.entities.DcType;
+import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
+import org.apache.commons.lang3.RandomStringUtils;
+
 import java.util.List;
 import java.util.UUID;
 import java.util.function.BiFunction;
-
-import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
-import ca.gc.aafc.objectstore.api.entities.DcType;
-import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
 
 public class ObjectStoreMetadataFactory implements TestableEntityFactory<ObjectStoreMetadata> {
 
@@ -32,8 +33,9 @@ public class ObjectStoreMetadataFactory implements TestableEntityFactory<ObjectS
         .xmpRightsWebStatement("https://open.canada.ca/en/open-government-licence-canada")
         .dcRights("Copyright Government of Canada")
         .xmpRightsOwner("Government of Canada")
-        .xmpRightsUsageTerms("Government of Canada Usage Terms");
-   }  
+        .xmpRightsUsageTerms("Government of Canada Usage Terms")
+        .createdBy(RandomStringUtils.random(4));
+  }
     
   /**
    * A utility method to create a list of qty number of Chains with no configuration.

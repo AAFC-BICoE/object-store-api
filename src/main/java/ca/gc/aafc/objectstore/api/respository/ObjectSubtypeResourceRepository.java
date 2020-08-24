@@ -35,7 +35,8 @@ public class ObjectSubtypeResourceRepository
   ) {
     super(
       dinaService,
-      Optional.ofNullable(null),
+      Optional.empty(),
+      Optional.empty(),
       new DinaMapper<>(ObjectSubtypeDto.class),
       ObjectSubtypeDto.class,
       ObjectSubtype.class,
