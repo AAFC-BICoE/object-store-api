@@ -22,6 +22,7 @@ public class ThumbnailService {
   public static final String THUMBNAIL_EXTENSION = ".jpg";
   public static final String THUMBNAIL_AC_SUB_TYPE = "THUMBNAIL";
   public static final DcType THUMBNAIL_DC_TYPE = DcType.IMAGE;
+  public static final String SYSTEM_GENERATED = "System Generated";
 
   public InputStream generateThumbnail(InputStream sourceImageStream) throws IOException {
 
@@ -62,7 +63,7 @@ public class ThumbnailService {
     thumbnailMetadataDto.setXmpRightsOwner(parent.getXmpRightsOwner());
     thumbnailMetadataDto.setXmpRightsWebStatement(parent.getXmpRightsWebStatement());
     thumbnailMetadataDto.setXmpRightsUsageTerms(parent.getXmpRightsUsageTerms());
-    thumbnailMetadataDto.setCreatedBy("System Generated");
+    thumbnailMetadataDto.setCreatedBy(SYSTEM_GENERATED);
     return thumbnailMetadataDto;
   }
 
