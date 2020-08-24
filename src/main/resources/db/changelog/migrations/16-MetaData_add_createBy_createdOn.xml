@@ -4,7 +4,7 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd"
                    objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
 
-    <changeSet id="15-MetaData_add_createBy_createdOn" context="schema-change" author="KeyukJ">
+    <changeSet id="16-MetaData_add_createBy_createdOn" context="schema-change" author="KeyukJ">
 
         <!-- Rename created_date to created_on -->
         <renameColumn tableName="metadata"
