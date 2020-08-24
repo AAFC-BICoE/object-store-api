@@ -16,4 +16,6 @@
   <include file="db/changelog/migrations/13-managed_attribute_add_createdBy_createdOn.xml"/>
   <include file="db/changelog/migrations/14-Object_subtype_add_createdBy_createdOn.xml"/>
   <include file="db/changelog/migrations/15-add_object_upload_table.xml"/>
+  <include file="db/changelog/migrations/16-MetaData_add_createBy_createdOn.xml"/>
+  <include file="db/changelog/migrations/17-MetaManagedAttrib_add_createdBy_createdOn.xml"/>
 </databaseChangeLog>
