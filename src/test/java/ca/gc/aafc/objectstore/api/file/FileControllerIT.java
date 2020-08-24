@@ -17,6 +17,7 @@ import javax.transaction.Transactional;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.InputStreamResource;
@@ -102,6 +103,7 @@ public class FileControllerIT {
     ObjectUpload objUploaded = objectUploadService.findOne(uploadResponse.getFileIdentifier(), ObjectUpload.class);
 
     assertNotNull(objUploaded);
+    assertTrue(StringUtils.isNotBlank(objUploaded.getCreatedBy()));
   }
 
   @Test
