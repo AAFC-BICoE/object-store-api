@@ -104,6 +104,7 @@ public class ManagedAttributeMapRepository extends ResourceRepositoryBase<Manage
         final MetadataManagedAttribute newAttributeValue = MetadataManagedAttribute.builder()
           .managedAttribute(changedAttribute)
           .objectStoreMetadata(metadata)
+          .createdBy(changedAttribute.getCreatedBy())
           .assignedValue(newValue)
           .uuid(UUID.randomUUID())
           .build();

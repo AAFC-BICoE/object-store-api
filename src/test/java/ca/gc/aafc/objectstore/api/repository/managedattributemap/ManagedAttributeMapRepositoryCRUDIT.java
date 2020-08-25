@@ -1,22 +1,5 @@
 package ca.gc.aafc.objectstore.api.repository.managedattributemap;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import java.util.Arrays;
-
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.validation.ValidationException;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
-
-import org.javers.core.Javers;
-import org.javers.core.metamodel.object.CdoSnapshot;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import ca.gc.aafc.objectstore.api.dto.ManagedAttributeMapDto;
 import ca.gc.aafc.objectstore.api.dto.ManagedAttributeMapDto.ManagedAttributeMapValue;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
@@ -29,7 +12,22 @@ import ca.gc.aafc.objectstore.api.respository.managedattributemap.ManagedAttribu
 import ca.gc.aafc.objectstore.api.testsupport.factories.ManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MetadataManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
 import io.crnk.core.queryspec.QuerySpec;
+import org.javers.core.Javers;
+import org.javers.core.metamodel.object.CdoSnapshot;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.validation.ValidationException;
+
+import java.util.Arrays;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ManagedAttributeMapRepositoryCRUDIT extends BaseRepositoryTest {
 
@@ -96,7 +94,7 @@ public class ManagedAttributeMapRepositoryCRUDIT extends BaseRepositoryTest {
     ).get();
     // Correct fields should be updated:
     assertEquals(
-      Arrays.asList("managedAttributeMap"),
+      Arrays.asList("managedAttributeMap", "createdOn"),
       latestSnapshot.getChanged()
     );
 

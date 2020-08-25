@@ -1,14 +1,15 @@
 package ca.gc.aafc.objectstore.api.testsupport.factories;
 
+import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
+import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
+import org.apache.commons.lang3.RandomStringUtils;
+
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.BiFunction;
-
-import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
-import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
 
 public class MetadataManagedAttributeFactory implements TestableEntityFactory<MetadataManagedAttribute> {
   
@@ -28,12 +29,13 @@ public class MetadataManagedAttributeFactory implements TestableEntityFactory<Me
    */
   public static MetadataManagedAttribute.MetadataManagedAttributeBuilder newMetadataManagedAttribute() {
     return MetadataManagedAttribute.builder()
-        .uuid(UUID.randomUUID())
-        .objectStoreMetadata(ObjectStoreMetadataFactory.newObjectStoreMetadata()
-            .acDigitizationDate(TEST_OFFSET_DT).build())
-        .managedAttribute(ManagedAttributeFactory.newManagedAttribute()
-            .acceptedValues(new String[] { "a", "b" }).build())
-        .assignedValue("test value");
+      .uuid(UUID.randomUUID())
+      .objectStoreMetadata(ObjectStoreMetadataFactory.newObjectStoreMetadata()
+        .acDigitizationDate(TEST_OFFSET_DT).build())
+      .managedAttribute(ManagedAttributeFactory.newManagedAttribute()
+        .acceptedValues(new String[]{"a", "b"}).build())
+      .assignedValue("test value")
+      .createdBy(RandomStringUtils.random(4));
    } 
   
   /**

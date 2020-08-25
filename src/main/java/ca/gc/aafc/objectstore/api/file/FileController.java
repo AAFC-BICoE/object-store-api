@@ -14,7 +14,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 
+import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
+import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MimeTypeException;
@@ -25,6 +28,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -63,23 +67,29 @@ public class FileController {
   public static final String DIGEST_ALGORITHM = "SHA-1";
   private static final int MAX_NUMBER_OF_ATTEMPT_RANDOM_UUID = 5;
 
+  private final ObjectUploadService objectUploadService;
   private final MinioFileService minioService;
   private final ObjectStoreMetadataReadService objectStoreMetadataReadService;
   private final MediaTypeDetectionStrategy mediaTypeDetectionStrategy;
   private final ObjectMapper objectMapper;
   private final ThumbnailService thumbnailService;
-  private Optional<DinaAuthenticatedUser> authenticatedUser;  
   private final MessageSource messageSource;
 
+  // request scoped bean
+  private DinaAuthenticatedUser authenticatedUser;
+
   @Inject
-  public FileController(MinioFileService minioService, ObjectStoreMetadataReadService objectStoreMetadataReadService, 
+  public FileController(MinioFileService minioService,
+      ObjectUploadService objectUploadService,
+      ObjectStoreMetadataReadService objectStoreMetadataReadService,
       MediaTypeDetectionStrategy mediaTypeDetectionStrategy, 
       Jackson2ObjectMapperBuilder jackson2ObjectMapperBuilder,
       ThumbnailService thumbnailService,
-      Optional<DinaAuthenticatedUser> authenticatedUser,
+      DinaAuthenticatedUser authenticatedUser,
       MessageSource messageSource
   ) {
     this.minioService = minioService;
+    this.objectUploadService = objectUploadService;
     this.objectStoreMetadataReadService = objectStoreMetadataReadService;
     this.mediaTypeDetectionStrategy = mediaTypeDetectionStrategy;
     this.thumbnailService = thumbnailService;
@@ -90,12 +100,16 @@ public class FileController {
   }
 
   @PostMapping("/file/{bucket}")
+  @Transactional
   public FileMetaEntry handleFileUpload(@RequestParam("file") MultipartFile file,
       @PathVariable String bucket) throws InvalidKeyException, NoSuchAlgorithmException,
       InvalidBucketNameException, ErrorResponseException, InternalException,
       InsufficientDataException, InvalidResponseException, RegionConflictException,
       InvalidEndpointException, InvalidPortException, IOException, XmlPullParserException,
       URISyntaxException, MimeTypeException, IllegalArgumentException, XmlParserException {
+
+    // make sure we have an authenticatedUser
+    checkAuthenticatedUser();
 
     // Temporary, we will need to check if the user is an admin
     minioService.ensureBucketExists(bucket);
@@ -131,6 +145,12 @@ public class FileController {
       bucket,
       null
     );
+
+    // record the uploaded object to ensure we eventually get the metadata for it
+    objectUploadService.create(ObjectUpload.builder()
+        .fileIdentifier(uuid)
+        .createdBy(authenticatedUser.getUsername())
+        .build());
     
     String sha1Hex = DigestUtils.sha1Hex(md.digest());
     fileMetaEntry.setSha1Hex(sha1Hex);
@@ -287,6 +307,15 @@ public class FileController {
   }
 
   /**
+   * Checks that there is an authenticatedUser available or throw a {@link AccessDeniedException}.
+   */
+  private void checkAuthenticatedUser() {
+    if (authenticatedUser == null) {
+      throw new AccessDeniedException("no authenticatedUser found");
+    }
+  }
+
+  /**
    * Authenticates the DinaAuthenticatedUser for a given bucket.
    * 
    * @param bucket
@@ -296,10 +325,10 @@ public class FileController {
    *                                 access to the given bucket
    */
   private void authenticateBucket(String bucket) {
-    if (authenticatedUser.isPresent() && !authenticatedUser.get().getGroups().contains(bucket)) {
+    if (!authenticatedUser.getGroups().contains(bucket)) {
       throw new UnauthorizedException(
           "You are not authorized for bucket: " + bucket
-          + ". Expected buckets: " + StringUtils.join(authenticatedUser.get().getGroups(), ", "));
+          + ". Expected buckets: " + StringUtils.join(authenticatedUser.getGroups(), ", "));
     }
   }
 

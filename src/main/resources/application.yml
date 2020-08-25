@@ -13,6 +13,8 @@ spring:
     liquibase-schema: object_store
   jpa:
     open-in-view: false
+  # Allow grace timeout period for 20 seconds
+  lifecycle.timeout-per-shutdown-phase: 20s
 minio:
   scheme:  http
   host:  localhost
@@ -61,3 +63,5 @@ keycloak:
       security-collections:
         - patterns:
           - /*
+# Wait for requests to finish before shutting down:
+server.shutdown: graceful

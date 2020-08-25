@@ -3,6 +3,7 @@ package ca.gc.aafc.objectstore.api.file;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,7 +14,10 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 
+import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
+import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.InputStreamResource;
@@ -46,6 +50,9 @@ public class FileControllerIT {
 
   @Inject
   private MinioFileService minioFileService;
+
+  @Inject
+  private ObjectUploadService objectUploadService;
 
   private final static String bucketUnderTest = DinaAuthenticatedUserConfig.ROLES_PER_GROUPS.keySet().stream()
     .findFirst().get();
@@ -86,6 +93,17 @@ public class FileControllerIT {
     );
 
     assertTrue(response.isPresent());
+  }
+
+  @Transactional
+  @Test
+  public void fileUpload_OnValidUpload_ObjectUploadEntryCreated() throws Exception {
+    MockMultipartFile mockFile = getFileUnderTest();
+    FileMetaEntry uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
+    ObjectUpload objUploaded = objectUploadService.findOne(uploadResponse.getFileIdentifier(), ObjectUpload.class);
+
+    assertNotNull(objUploaded);
+    assertTrue(StringUtils.isNotBlank(objUploaded.getCreatedBy()));
   }
 
   @Test
