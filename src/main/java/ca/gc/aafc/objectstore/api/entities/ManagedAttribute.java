@@ -14,6 +14,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
+import javax.persistence.Transient;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
@@ -45,20 +47,17 @@ import lombok.RequiredArgsConstructor;
 @NaturalIdCache
 public class ManagedAttribute implements DinaEntity {
 
-  private Integer id;
-  private UUID uuid;
-
-  private String name;
-  private ManagedAttributeType managedAttributeType;
-
-  private String[] acceptedValues;
-
-  private OffsetDateTime createdDate;
-
   public enum ManagedAttributeType {
     INTEGER, STRING
   }
 
+  private Integer id;
+  private UUID uuid;
+  private String name;
+  private ManagedAttributeType managedAttributeType;
+  private String[] acceptedValues;
+  private OffsetDateTime createdOn;
+  private String createdBy;
   private Map<String, String> description;
 
   @Type(type = "jsonb")
@@ -124,13 +123,34 @@ public class ManagedAttribute implements DinaEntity {
     this.acceptedValues = acceptedValues;
   }
 
-  @Column(name = "created_date", insertable = false, updatable = false)
+  @Transient
+  @Deprecated
   public OffsetDateTime getCreatedDate() {
-    return createdDate;
+    return createdOn;
   }
 
-  public void setCreatedDate(OffsetDateTime createdDate) {
-    this.createdDate = createdDate;
+  @Deprecated
+  public void setCreatedDate(OffsetDateTime createdOn) {
+    this.createdOn = createdOn;
+  }
+
+  @Column(name = "created_on", insertable = false, updatable = false)
+  public OffsetDateTime getCreatedOn() {
+    return createdOn;
+  }
+
+  public void setCreatedOn(OffsetDateTime createdOn) {
+    this.createdOn = createdOn;
+  }
+
+  @NotBlank
+  @Column(name = "created_by", updatable = false)
+  public String getCreatedBy() {
+    return createdBy;
+  }
+
+  public void setCreatedBy(String createdBy) {
+    this.createdBy = createdBy;
   }
 
   @PrePersist

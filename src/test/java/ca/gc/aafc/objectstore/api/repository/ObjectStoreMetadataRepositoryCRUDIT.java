@@ -10,6 +10,7 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -98,6 +99,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
     dto.setAcSubType(acSubType.getAcSubtype());
     dto.setDcType(acSubType.getDcType());
     dto.setXmpRightsUsageTerms(TestConfiguration.TEST_USAGE_TERMS);
+    dto.setCreatedBy(RandomStringUtils.random(4));
 
     UUID dtoUuid = objectStoreResourceRepository.create(dto).getUuid();
 
@@ -118,6 +120,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
     parentDTO.setFileIdentifier(TestConfiguration.TEST_FILE_IDENTIFIER);
     parentDTO.setDcType(acSubType.getDcType());
     parentDTO.setXmpRightsUsageTerms(TestConfiguration.TEST_USAGE_TERMS);
+    parentDTO.setCreatedBy(RandomStringUtils.random(4));
 
     UUID parentUuid = objectStoreResourceRepository.create(parentDTO).getUuid();
 

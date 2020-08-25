@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import ca.gc.aafc.dina.filter.DinaFilterResolver;
 import ca.gc.aafc.dina.mapper.DinaMapper;
 import ca.gc.aafc.dina.repository.DinaRepository;
+import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.dina.service.DinaService;
 import ca.gc.aafc.objectstore.api.dto.ObjectSubtypeDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
@@ -24,21 +25,25 @@ public class ObjectSubtypeResourceRepository
 
   private final DinaService<ObjectSubtype> dinaService;
   private final MessageSource messageSource;
+  private Optional<DinaAuthenticatedUser> authenticatedUser;
 
   public ObjectSubtypeResourceRepository(
     @NonNull DinaService<ObjectSubtype> dinaService,
     @NonNull DinaFilterResolver filterResolver,
-    MessageSource messageSource
+    MessageSource messageSource,
+    Optional<DinaAuthenticatedUser> authenticatedUser
   ) {
     super(
       dinaService,
-      Optional.ofNullable(null),
+      Optional.empty(),
+      Optional.empty(),
       new DinaMapper<>(ObjectSubtypeDto.class),
       ObjectSubtypeDto.class,
       ObjectSubtype.class,
       filterResolver);
     this.dinaService = dinaService;
     this.messageSource = messageSource;
+    this.authenticatedUser = authenticatedUser;
   }
 
   @Override
@@ -49,6 +54,14 @@ public class ObjectSubtypeResourceRepository
           messageSource.getMessage("error.appManaged.read_only", null, LocaleContextHolder.getLocale()));
     }
     return super.save(resource);
+  }
+
+  @Override
+  public <S extends ObjectSubtypeDto> S create(S resource) {
+    if (authenticatedUser.isPresent()) {
+      resource.setCreatedBy(authenticatedUser.get().getUsername());
+    }
+    return super.create(resource);
   }
 
 }

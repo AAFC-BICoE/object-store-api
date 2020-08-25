@@ -58,6 +58,8 @@ public class ObjectStoreResourceRepository
     @NonNull DinaFilterResolver filterResolver,
     FileInformationService fileInformationService,
     ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService
+    ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService,
+    DinaAuthenticatedUser authenticatedUser
   ) {
     super(
       dinaService,
@@ -139,6 +141,7 @@ public class ObjectStoreResourceRepository
     // same as assignDefaultValues(handleFileRelatedData(handleDefaultValues)) but easier to follow in my option (C.G.)
     handleFileDataFct.andThen(defaultValueSetterService::assignDefaultValues).apply(resource);
 
+    resource.setCreatedBy(authenticatedUser.getUsername());
     ObjectStoreMetadataDto created = super.create(resource);
 
     handleThumbNailMetaEntry(created);
