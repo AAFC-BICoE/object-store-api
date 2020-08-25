@@ -1,26 +1,11 @@
 package ca.gc.aafc.objectstore.api.respository;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.time.OffsetDateTime;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.function.Function;
-
-import javax.persistence.criteria.Predicate;
-import javax.transaction.Transactional;
-import javax.validation.ValidationException;
-import javax.ws.rs.BadRequestException;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Repository;
-
 import ca.gc.aafc.dina.entity.SoftDeletable;
 import ca.gc.aafc.dina.filter.DinaFilterResolver;
 import ca.gc.aafc.dina.mapper.DinaMapper;
 import ca.gc.aafc.dina.repository.DinaRepository;
 import ca.gc.aafc.dina.repository.GoneException;
+import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.dina.service.DinaService;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
@@ -37,6 +22,20 @@ import io.crnk.core.queryspec.QuerySpec;
 import io.crnk.core.resource.list.ResourceList;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Repository;
+
+import javax.persistence.criteria.Predicate;
+import javax.transaction.Transactional;
+import javax.validation.ValidationException;
+import javax.ws.rs.BadRequestException;
+import java.io.IOException;
+import java.io.Serializable;
+import java.time.OffsetDateTime;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.function.Function;
 
 @Log4j2
 @Repository
@@ -47,6 +46,7 @@ public class ObjectStoreResourceRepository
 
   private final DinaService<ObjectStoreMetadata> dinaService;
   private final FileInformationService fileInformationService;
+  private final DinaAuthenticatedUser authenticatedUser;
   private final ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService;
   private static final PathSpec DELETED_PATH_SPEC = PathSpec.of("softDeleted");
   private static final PathSpec DELETED_DATE = PathSpec.of(SoftDeletable.DELETED_DATE_FIELD_NAME);
@@ -56,13 +56,13 @@ public class ObjectStoreResourceRepository
   public ObjectStoreResourceRepository(
     @NonNull DinaService<ObjectStoreMetadata> dinaService,
     @NonNull DinaFilterResolver filterResolver,
-    FileInformationService fileInformationService,
-    ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService
-    ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService,
-    DinaAuthenticatedUser authenticatedUser
+    @NonNull FileInformationService fileInformationService,
+    @NonNull ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService,
+    @NonNull DinaAuthenticatedUser authenticatedUser
   ) {
     super(
       dinaService,
+      Optional.empty(),
       Optional.empty(),
       new DinaMapper<>(ObjectStoreMetadataDto.class),
       ObjectStoreMetadataDto.class,
@@ -71,6 +71,7 @@ public class ObjectStoreResourceRepository
     this.dinaService = dinaService;
     this.fileInformationService = fileInformationService;
     this.defaultValueSetterService = defaultValueSetterService;
+    this.authenticatedUser = authenticatedUser;
   }
 
   /**
@@ -95,7 +96,7 @@ public class ObjectStoreResourceRepository
     ObjectStoreMetadataDto dto = super.findOne(id, jpaFriendlyQuerySpec);
 
     if ( dto.getDeletedDate() != null &&
-        !jpaFriendlyQuerySpec.findFilter(DELETED_PATH_SPEC).isPresent() ) {
+         jpaFriendlyQuerySpec.findFilter(DELETED_PATH_SPEC).isEmpty()) {
       throw new GoneException("Deleted", "ID " + id + " deleted");
     }
 
@@ -166,9 +167,9 @@ public class ObjectStoreResourceRepository
   /**
    * Method responsible for dealing with validation and setting of data related to 
    * files.
-   * 
-   * @param objectMetadata
-   * @throws ValidationException
+   *
+   * @param objectMetadata - Incoming MetaData
+   * @throws ValidationException if the file identifier or bucket is missing from the request body
    */
   private ObjectStoreMetadataDto handleFileRelatedData(ObjectStoreMetadataDto objectMetadata)
       throws ValidationException {
