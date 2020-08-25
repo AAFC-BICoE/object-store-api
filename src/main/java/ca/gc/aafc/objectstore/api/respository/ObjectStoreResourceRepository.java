@@ -128,9 +128,9 @@ public class ObjectStoreResourceRepository
   @Override
   public Optional<ObjectStoreMetadata> loadObjectStoreMetadataByFileId(UUID fileId) {
     return dinaService.findAll(
-        ObjectStoreMetadata.class,
-        (cb, root) -> new Predicate[] { cb.equal(root.get("fileIdentifier"), fileId) }
-        , null, 0, 1)
+      ObjectStoreMetadata.class,
+      (cb, root) -> new Predicate[]{cb.equal(root.get("fileIdentifier"), fileId)}
+      , null, 0, 1)
       .stream().findFirst();
   }
 
