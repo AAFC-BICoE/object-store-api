@@ -12,14 +12,14 @@ import ca.gc.aafc.objectstore.api.resolvers.ObjectStoreMetaDataFieldResolvers;
 import lombok.NonNull;
 
 @Service
-public class ObectStoreMetaDataService extends DinaService<ObjectStoreMetadata> {
+public class ObjectStoreMetaDataService extends DinaService<ObjectStoreMetadata> {
 
   @Inject
   private ObjectStoreMetaDataFieldResolvers metaDataFieldResolver;
 
   private final BaseDAO baseDAO;
 
-  public ObectStoreMetaDataService(@NonNull BaseDAO baseDAO) {
+  public ObjectStoreMetaDataService(@NonNull BaseDAO baseDAO) {
     super(baseDAO);
     this.baseDAO = baseDAO;
   }
