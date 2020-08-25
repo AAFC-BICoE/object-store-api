@@ -13,10 +13,16 @@
 
         <!-- Add created by column -->
         <addColumn tableName="metadata">
-            <column name="created_by" type="VARCHAR(250)">
-                <constraints nullable="false"/>
-            </column>
+            <column name="created_by" type="VARCHAR(250)"/>
         </addColumn>
+
+        <!-- Add value for created_on field to existing records-->
+        <update tableName="metadata">
+            <column name="created_by" value="user"/>
+        </update>
+
+        <!--Add not null constraint to created_by column-->
+        <addNotNullConstraint tableName="metadata" columnName="created_by"/>
 
     </changeSet>
 
