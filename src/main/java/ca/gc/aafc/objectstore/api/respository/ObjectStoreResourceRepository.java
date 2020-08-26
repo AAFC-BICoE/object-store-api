@@ -1,21 +1,5 @@
 package ca.gc.aafc.objectstore.api.respository;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.time.OffsetDateTime;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.function.Function;
-
-import javax.transaction.Transactional;
-import javax.validation.ValidationException;
-import javax.ws.rs.BadRequestException;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Repository;
-
 import ca.gc.aafc.dina.entity.SoftDeletable;
 import ca.gc.aafc.dina.filter.FilterHandler;
 import ca.gc.aafc.dina.filter.RsqlFilterHandler;
@@ -39,6 +23,20 @@ import io.crnk.core.queryspec.PathSpec;
 import io.crnk.core.queryspec.QuerySpec;
 import io.crnk.core.resource.list.ResourceList;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Repository;
+
+import javax.transaction.Transactional;
+import javax.validation.ValidationException;
+import javax.ws.rs.BadRequestException;
+import java.io.IOException;
+import java.io.Serializable;
+import java.time.OffsetDateTime;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.function.Function;
 
 @Log4j2
 @Repository
@@ -171,6 +169,11 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
     if (StringUtils.isBlank(objectMetadata.getBucket())
         || StringUtils.isBlank(Objects.toString(objectMetadata.getFileIdentifier(), ""))) {
       throw new ValidationException("fileIdentifier and bucket should be provided");
+    }
+    //Skip handling for thumbnail metadata as they do not have meta entries
+    if (StringUtils.isNotBlank(objectMetadata.getAcSubType()) &&
+        objectMetadata.getAcSubType().equalsIgnoreCase("thumbnail")) {
+      return objectMetadata;
     }
 
     FileMetaEntry fileMetaEntry = getFileMetaEntry(objectMetadata);
