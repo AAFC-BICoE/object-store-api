@@ -1,7 +1,10 @@
 package ca.gc.aafc.objectstore.api.respository;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -19,7 +22,12 @@ import ca.gc.aafc.dina.repository.SelectionHandler;
 import ca.gc.aafc.objectstore.api.dto.ObjectUploadDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
+import io.crnk.core.engine.internal.utils.PreconditionUtil;
+import io.crnk.core.engine.registry.RegistryEntry;
 import io.crnk.core.engine.registry.ResourceRegistry;
+import io.crnk.core.exception.ResourceNotFoundException;
+import io.crnk.core.queryspec.FilterOperator;
+import io.crnk.core.queryspec.FilterSpec;
 import io.crnk.core.queryspec.QuerySpec;
 import io.crnk.core.repository.ReadOnlyResourceRepositoryBase;
 import io.crnk.core.resource.list.DefaultResourceList;
@@ -87,5 +95,23 @@ public class ObjectUploadResourceRepository
     return new DefaultResourceList<>(dtos, metaInformation, NO_LINK_INFORMATION);
 
   }
+  
+  @Override
+  public ObjectUploadDto findOne(UUID id, QuerySpec querySpec) {
+    RegistryEntry entry = resourceRegistry.findEntry(ObjectUploadDto.class);
+    String idName = entry.getResourceInformation().getIdField().getUnderlyingName();
+
+    QuerySpec idQuerySpec = querySpec.clone();
+    idQuerySpec.addFilter(new FilterSpec(Arrays.asList(idName), FilterOperator.EQ, id));
+    Collection<ObjectUploadDto> collection = findAll(idQuerySpec);
+    Iterator<ObjectUploadDto> iterator = collection.iterator();
+    if (iterator.hasNext()) {
+      ObjectUploadDto resource = iterator.next();
+      PreconditionUtil.verify(!iterator.hasNext(), "expected unique result for id=%s, querySpec=%s", id, querySpec);
+      return resource;
+    } else {
+      throw new ResourceNotFoundException("resource not found: " + id);
+    }
+  }  
 
 }
