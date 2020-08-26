@@ -49,4 +49,4 @@ ENV spring.http.log-request-details=true
 ENV spring.servlet.multipart.max-file-size: 1GB
 ENV spring.servlet.multipart.max-request-size: 1GB
 
-ENTRYPOINT ["bash","/app/launch.sh","object-store.api", "object_store"]
+ENTRYPOINT ["java","-jar","/object-store-api.jar"]
