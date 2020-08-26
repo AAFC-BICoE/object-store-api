@@ -21,11 +21,6 @@ public class ObjectUploadService extends DinaService<ObjectUpload> {
   }
 
   @Override
-  protected void preCreate(ObjectUpload entity) {
-    throw new AccessDeniedException(getMessage("error.objectUpload.create_unsupported"));
-  }
-
-  @Override
   protected void preDelete(ObjectUpload entity) {
     throw new AccessDeniedException(getMessage("error.objectUpload.delete_unsupported"));
   }
