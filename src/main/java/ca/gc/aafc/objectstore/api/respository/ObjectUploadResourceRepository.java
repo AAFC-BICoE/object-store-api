@@ -11,18 +11,19 @@ import io.crnk.core.repository.ReadOnlyResourceRepositoryBase;
 import io.crnk.core.resource.list.ResourceList;
 
 @Repository
-public class ObjectUploadResourceRepository extends ReadOnlyResourceRepositoryBase<ObjectUploadDto, UUID> {
-    private final ObjectUploadService service;
+public class ObjectUploadResourceRepository
+    extends ReadOnlyResourceRepositoryBase<ObjectUploadDto, UUID> {
+  private final ObjectUploadService service;
 
-    protected ObjectUploadResourceRepository(ObjectUploadService service) {
-        super(ObjectUploadDto.class);
-        this.service = service;
-    }
+  protected ObjectUploadResourceRepository(ObjectUploadService service) {
+    super(ObjectUploadDto.class);
+    this.service = service;
+  }
 
-    @Override
-    public ResourceList<ObjectUploadDto> findAll(QuerySpec querySpec) {
-        //this.service.findAll(entityClass, where, orderBy, startIndex, maxResult)
-        return null;
-    }
-    
+  @Override
+  public ResourceList<ObjectUploadDto> findAll(QuerySpec querySpec) {
+    // this.service.findAll(entityClass, where, orderBy, startIndex, maxResult)
+    return null;
+  }
+
 }
