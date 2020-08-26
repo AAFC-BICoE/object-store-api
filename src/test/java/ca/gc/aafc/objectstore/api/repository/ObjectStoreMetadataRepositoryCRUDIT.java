@@ -1,18 +1,5 @@
 package ca.gc.aafc.objectstore.api.repository;
 
-import static org.junit.Assert.assertNull;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
-import java.util.Collections;
-import java.util.UUID;
-
-import javax.inject.Inject;
-
-import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import ca.gc.aafc.objectstore.api.TestConfiguration;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectSubtypeDto;
@@ -24,6 +11,17 @@ import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFacto
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
 import io.crnk.core.queryspec.QuerySpec;
 import io.crnk.core.resource.list.ResourceList;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import javax.inject.Inject;
+import java.util.Collections;
+import java.util.UUID;
+
+import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
   
@@ -36,10 +34,9 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
 
   private ObjectStoreMetadataDto derived;
   
-  private ObjectStoreMetadata createTestObjectStoreMetadata() {
+  private void createTestObjectStoreMetadata() {
     testObjectStoreMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
     persist(testObjectStoreMetadata);
-    return testObjectStoreMetadata;
   }
   
   @BeforeEach
@@ -74,6 +71,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
     assertEquals(testObjectStoreMetadata.getDcType(), objectStoreMetadataDto.getDcType());
     assertEquals(testObjectStoreMetadata.getAcDigitizationDate(), 
         objectStoreMetadataDto.getAcDigitizationDate());
+    assertEquals(testObjectStoreMetadata.getCreatedBy(), objectStoreMetadataDto.getCreatedBy());
   }
 
   @Test
@@ -176,10 +174,9 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
   }
 
   private ObjectStoreMetadataDto getDtoUnderTest() {
-    ObjectStoreMetadataDto updateMetadataDto = objectStoreResourceRepository.findOne(
-      testObjectStoreMetadata.getUuid(),
-      new QuerySpec(ObjectStoreMetadataDto.class));
-    return updateMetadataDto;
+    QuerySpec querySpec = new QuerySpec(ObjectStoreMetadataDto.class);
+    querySpec.includeRelation(Collections.singletonList("acDerivedFrom"));
+    return objectStoreResourceRepository.findOne(testObjectStoreMetadata.getUuid(), querySpec);
   }
 
 }

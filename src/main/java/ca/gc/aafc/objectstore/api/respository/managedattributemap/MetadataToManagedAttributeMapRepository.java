@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import javax.transaction.Transactional;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Repository;
 
 import ca.gc.aafc.dina.jpa.BaseDAO;
@@ -63,16 +64,17 @@ public class MetadataToManagedAttributeMapRepository
 
     // Build the attribute values map:
     Map<String, ManagedAttributeMapValue> attrValuesMap = new HashMap<>();
-    for (MetadataManagedAttribute attr : attrs) {
-      attrValuesMap.put(
-        attr.getManagedAttribute().getUuid().toString(),
-        ManagedAttributeMapValue.builder()
-          .name(attr.getManagedAttribute().getName())
-          .value(attr.getAssignedValue())
-          .build()
-      );
+    if (CollectionUtils.isNotEmpty(attrs)) {
+      for (MetadataManagedAttribute attr : attrs) {
+        attrValuesMap.put(
+          attr.getManagedAttribute().getUuid().toString(),
+          ManagedAttributeMapValue.builder()
+            .name(attr.getManagedAttribute().getName())
+            .value(attr.getAssignedValue())
+            .build()
+        );
+      }
     }
-
     ManagedAttributeMapDto attrMap = ManagedAttributeMapDto.builder()
       // This is a generated/derived object, so it doesn't have its own ID:
       .id(ObjectStoreMetadataDto.TYPENAME + "/" + metadata.getUuid() + "/" + ManagedAttributeMapDto.TYPENAME)
