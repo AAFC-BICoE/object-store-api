@@ -22,36 +22,31 @@ USER root
 WORKDIR /app
 COPY --from=build-stage --chown=user /project/target/object-store.api-*.jar /app/
 COPY --chown=user scripts/*.sh /app/
-COPY --chown=user scripts/*.sql /app/
 COPY --chown=user scripts/*.awk /app/
 COPY --chown=user pom.xml /app/
 RUN chmod +x *.sh
-
-RUN apt-get update && apt-get install -y postgresql-client-11
-RUN apt-get install -y curl
-RUN apt-get install gettext-base
 
 USER user
 EXPOSE 8080
 
 WORKDIR /app
 
-ENV spring.datasource.username=springuser
-ENV spring.datasource.password=springcreds
-ENV spring.liquibase.user=liquibaseuser
-ENV spring.liquibase.password=liquibasecreds
-ENV spring.liquibase.defaultSchema=objectstore
-ENV POSTGRES_DB=object_store
-ENV POSTGRES_USER=postgres
-ENV POSTGRES_PASSWORD=databasecreds
+ENV APPLICATION=dina
+ENV POSTGRES_DB=postgres
 ENV POSTGRES_HOST=localhost
-ENV minio.scheme=http
 ENV minio.host=localhost
 ENV minio.port=9000
+ENV POSTGRES_USER=postgres
+ENV POSTGRES_PASSWORD=databasecreds
+ENV spring.datasource.username=springuser
+ENV spring.datasource.password=springcreds
+ENV spring.datasource.database=object_store
+ENV spring.liquibase.user=liquibaseuser
+ENV spring.liquibase.password=liquibasecreds
 ENV minio.accessKey=minio
 ENV minio.secretKey=minio123
 ENV spring.http.log-request-details=true
 ENV spring.servlet.multipart.max-file-size: 1GB
 ENV spring.servlet.multipart.max-request-size: 1GB
 
-ENTRYPOINT ["bash","/app/launch.sh","object-store.api"]
+ENTRYPOINT ["bash","/app/launch.sh","object-store.api", "object_store"]
