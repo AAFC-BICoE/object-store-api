@@ -69,7 +69,7 @@ public class ObjectStoreMetaDataFieldResolvers {
    * @param aSubtype - {@link ObjectSubtype} to map.
    * @return AcSubType of the given {@link ObjectSubtype}
    */
-  public static String acSubTypeToDTO(ObjectSubtype aSubtype) {
+  private static String acSubTypeToDTO(ObjectSubtype aSubtype) {
     return aSubtype == null ? null : aSubtype.getAcSubtype();
   }
 
@@ -83,7 +83,7 @@ public class ObjectStoreMetaDataFieldResolvers {
    * @throws BadRequestException If a match is not found.
    * @return {@link ObjectSubtype} from the database
    */
-  public ObjectSubtype acSubTypeToEntity(DcType dcType, String acSubType) {
+  private ObjectSubtype acSubTypeToEntity(DcType dcType, String acSubType) {
     if (dcType == null || StringUtils.isBlank(acSubType)) {
       return null;
     }
