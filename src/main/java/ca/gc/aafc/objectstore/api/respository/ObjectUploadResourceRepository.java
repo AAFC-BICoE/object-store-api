@@ -60,8 +60,8 @@ public class ObjectUploadResourceRepository
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public ResourceList<ObjectUploadDto> findAll(QuerySpec querySpec) {
-
     String idName = SelectionHandler.getIdAttribute(ObjectUploadDto.class, resourceRegistry);
 
     List<ObjectUpload> returnedEntities = service.findAll(ObjectUpload.class,
@@ -78,7 +78,7 @@ public class ObjectUploadResourceRepository
     List<Field> attributeFields = FieldUtils.getAllFieldsList(ObjectUpload.class).stream()
         .collect(Collectors.toList());
 
-    Set<String> fieldsToInclude = attributeFields.stream().map(af -> af.getName())
+    Set<String> fieldsToInclude = attributeFields.stream().filter(af -> !af.getName().equals("id")).map(af -> af.getName())
         .collect(Collectors.toSet());
 
     entityFieldsPerClass.put(ObjectUpload.class, fieldsToInclude);
@@ -86,7 +86,7 @@ public class ObjectUploadResourceRepository
     List<ObjectUploadDto> dtos = returnedEntities.stream()
         .map(e -> dinaMapper.toDto(e, entityFieldsPerClass, includedRelations))
         .collect(Collectors.toList());
-
+    
     Long resourceCount = service.getResourceCount(ObjectUpload.class,
       (cb, root) -> filterResolver.buildPredicates(querySpec, cb, root, null, idName));
 

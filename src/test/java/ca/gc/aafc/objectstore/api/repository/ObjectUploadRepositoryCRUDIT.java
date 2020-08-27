@@ -28,27 +28,21 @@ public class ObjectUploadRepositoryCRUDIT extends BaseRepositoryTest {
   
   private ObjectUpload testObjectUpload;
 
-  private void createTestObjectUpload(ObjectUpload objectUpload) {
-    if(objectUpload == null) {
+  private ObjectUpload createTestObjectUpload() {
       testObjectUpload = ObjectUploadFactory.newObjectUpload()
         .build();
       persist(testObjectUpload);
-    }else {
-      persist(objectUpload); 
-    }    
+      return testObjectUpload;
   }
   
   @BeforeEach
   public void setup(){ 
-    createTestObjectUpload(null);    
+    createTestObjectUpload();    
   }  
 
   @Test
   public void findObjectUpload_whenNoIDSpecified_returnedWithAllRecords() {
-    ObjectUpload.ObjectUploadBuilder builder =  testObjectUpload.toBuilder();
-    ObjectUpload newTestObjectUpload = builder.createdBy("ee").build();
-    
-    createTestObjectUpload(newTestObjectUpload);
+    createTestObjectUpload();
     
     ResourceList<ObjectUploadDto> objectUploadDtos =  objectUploadRepository
         .findAll(new QuerySpec(ObjectUploadDto.class));
@@ -62,7 +56,7 @@ public class ObjectUploadRepositoryCRUDIT extends BaseRepositoryTest {
         .findOne(testObjectUpload.getFileIdentifier(), new QuerySpec(ObjectUploadDto.class));
     assertNotNull(objectUploadDto);
     assertEquals(testObjectUpload.getFileIdentifier(), objectUploadDto.getFileIdentifier());
-    assertEquals(testObjectUpload.getCreatedOn(), objectUploadDto.getCreatedOn());
+    assertNotNull(objectUploadDto.getCreatedOn());
     assertEquals(testObjectUpload.getCreatedBy(), objectUploadDto.getCreatedBy());
   }    
 }
