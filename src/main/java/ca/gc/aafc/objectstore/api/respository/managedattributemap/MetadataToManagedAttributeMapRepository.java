@@ -1,15 +1,5 @@
 package ca.gc.aafc.objectstore.api.respository.managedattributemap;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import javax.transaction.Transactional;
-
-import org.springframework.stereotype.Repository;
-
 import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.objectstore.api.dto.ManagedAttributeMapDto;
 import ca.gc.aafc.objectstore.api.dto.ManagedAttributeMapDto.ManagedAttributeMapValue;
@@ -20,6 +10,15 @@ import io.crnk.core.queryspec.QuerySpec;
 import io.crnk.core.repository.OneRelationshipRepositoryBase;
 import io.crnk.core.repository.RelationshipMatcher;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.stereotype.Repository;
+
+import javax.transaction.Transactional;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * Fetches the ManagedAttributeMap for a given Metadata.
@@ -63,14 +62,16 @@ public class MetadataToManagedAttributeMapRepository
 
     // Build the attribute values map:
     Map<String, ManagedAttributeMapValue> attrValuesMap = new HashMap<>();
-    for (MetadataManagedAttribute attr : attrs) {
-      attrValuesMap.put(
-        attr.getManagedAttribute().getUuid().toString(),
-        ManagedAttributeMapValue.builder()
-          .name(attr.getManagedAttribute().getName())
-          .value(attr.getAssignedValue())
-          .build()
-      );
+    if (CollectionUtils.isNotEmpty(attrs)) {
+      for (MetadataManagedAttribute attr : attrs) {
+        attrValuesMap.put(
+          attr.getManagedAttribute().getUuid().toString(),
+          ManagedAttributeMapValue.builder()
+            .name(attr.getManagedAttribute().getName())
+            .value(attr.getAssignedValue())
+            .build()
+        );
+      }
     }
 
     ManagedAttributeMapDto attrMap = ManagedAttributeMapDto.builder()
