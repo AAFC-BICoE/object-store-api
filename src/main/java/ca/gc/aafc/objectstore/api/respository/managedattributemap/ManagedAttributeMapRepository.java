@@ -1,5 +1,17 @@
 package ca.gc.aafc.objectstore.api.respository.managedattributemap;
 
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.UUID;
+
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+import javax.validation.ValidationException;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Repository;
+
 import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.objectstore.api.dto.ManagedAttributeMapDto;
 import ca.gc.aafc.objectstore.api.dto.ManagedAttributeMapDto.ManagedAttributeMapValue;
@@ -10,26 +22,15 @@ import io.crnk.core.exception.MethodNotAllowedException;
 import io.crnk.core.queryspec.QuerySpec;
 import io.crnk.core.repository.ResourceRepositoryBase;
 import io.crnk.core.resource.list.ResourceList;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Repository;
-
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-import javax.validation.ValidationException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.UUID;
 
 /**
  * Resource repository for adding Managed Attribute values in a more client-friendly way than
  * manually adding MetadataManagedAttributes.
- * 
+ *
  * ManagedAttributeMap is a derived object to conveniently/compactly get/set a Metadata's ManagedAttribute values.
- * 
+ *
  * Provides a POST endpoint for adding new ManagedAttribute values for a Metadata.
- * 
+ *
  * Example POST request body to /api/managed-attribute-map:
  * {
  *   "data": {
@@ -76,9 +77,8 @@ public class ManagedAttributeMapRepository extends ResourceRepositoryBase<Manage
       .orElseThrow(() -> new ValidationException("Metadata relationship required to add managed attributes map."));
     final ObjectStoreMetadata metadata = dao.findOneByNaturalId(metadataUuid, ObjectStoreMetadata.class);
 
-    final List<MetadataManagedAttribute> managedAttributeValues =
-      metadata.getManagedAttribute() == null ? Collections.emptyList() : metadata.getManagedAttribute();
-    
+    final List<MetadataManagedAttribute> managedAttributeValues = metadata.getManagedAttribute();
+
     // Loop through the changed attribute values:
     for (final Entry<String, ManagedAttributeMapValue> entry : resource.getValues().entrySet()) {
       final UUID changedAttributeUuid = UUID.fromString(entry.getKey());
