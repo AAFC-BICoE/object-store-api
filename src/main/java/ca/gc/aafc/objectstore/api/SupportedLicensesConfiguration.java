@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
@@ -26,6 +27,7 @@ public class SupportedLicensesConfiguration {
 
   private List<License> licenses = new ArrayList<>();
 
+  @Bean
   public List<License> getLicenses() {
     return this.licenses;
   }

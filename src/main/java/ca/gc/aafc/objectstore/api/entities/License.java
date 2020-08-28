@@ -3,10 +3,21 @@ package ca.gc.aafc.objectstore.api.entities;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import io.crnk.core.resource.annotations.JsonApiId;
+import io.crnk.core.resource.annotations.JsonApiResource;
+
+@JsonApiResource(type = "licenses")
 public class License {
 
+  @JsonApiId
   private String name;
+  
+  @JsonProperty
   private String url;
+  
+  @JsonProperty
   private List<String> titles = new ArrayList<>();
 
   /* index constants for titles */
