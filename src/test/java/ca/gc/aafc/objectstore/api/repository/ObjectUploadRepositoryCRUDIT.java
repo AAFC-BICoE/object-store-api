@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
@@ -35,9 +36,18 @@ public class ObjectUploadRepositoryCRUDIT extends BaseRepositoryTest {
       return testObjectUpload;
   }
   
+  private void removeTestObjectUpload() {
+      service.deleteById(ObjectUpload.class, testObjectUpload.getId());
+}
+  
   @BeforeEach
   public void setup(){ 
     createTestObjectUpload();    
+  }  
+  
+  @AfterEach
+  public void teardown(){ 
+    removeTestObjectUpload();    
   }  
 
   @Test
