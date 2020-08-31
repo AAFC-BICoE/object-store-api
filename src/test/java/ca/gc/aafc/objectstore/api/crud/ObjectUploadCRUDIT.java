@@ -9,7 +9,6 @@ import org.springframework.test.context.ActiveProfiles;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 
-@ActiveProfiles("test")
 public class ObjectUploadCRUDIT extends BaseEntityCRUDIT {
 
   private ObjectUpload objectUploadUnderTest = ObjectUploadFactory.newObjectUpload()
