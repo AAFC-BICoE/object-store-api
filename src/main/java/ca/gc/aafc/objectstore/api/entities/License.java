@@ -28,6 +28,7 @@ public class License {
   public License() {
   }
 
+<<<<<<< HEAD
   /**
    * Complete constructor.
    * 
@@ -35,6 +36,8 @@ public class License {
    * @param url    link to license
    * @param titles map of language to title pairs
    */
+=======
+>>>>>>> branch 'Feature_19668_Add_configuration_file_for_list_of_supported_licenses' of https://github.com/AAFC-BICoE/object-store-api.git
   public License(String name, String url, Map<String, String> titles) {
     this.setName(name);
     this.setUrl(url);
