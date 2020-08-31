@@ -1,13 +1,10 @@
 package ca.gc.aafc.objectstore.api.entities;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import io.crnk.core.resource.annotations.JsonApiId;
 import io.crnk.core.resource.annotations.JsonApiResource;
+import java.util.HashMap;
+import java.util.Map;
 
 @JsonApiResource(type = "licenses")
 public class License {
