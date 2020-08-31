@@ -58,9 +58,9 @@ public class SupportedLicensesConfiguration {
         currentLicense.setName(currentLicenseName);
       }
       if (entry.getKey().contains("url")) {
-        currentLicense.setUrl(entry.getValue().get(0));
+        currentLicense.setUrl(entry.getValue().getFirst());
       } else if (entry.getKey().contains("titles")) {
-        currentLicense.setTitles(entry.getValue());
+        currentLicense.addTitle(entry.getKey().split("\\.")[2], entry.getValue().getFirst());
       }
       previousLicenseName = currentLicenseName;
     }

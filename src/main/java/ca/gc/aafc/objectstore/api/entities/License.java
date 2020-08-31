@@ -1,7 +1,8 @@
 package ca.gc.aafc.objectstore.api.entities;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -18,7 +19,7 @@ public class License {
   private String url;
   
   @JsonProperty
-  private List<String> titles = new ArrayList<>();
+  private Map<String, String> titles = new HashMap<>();
 
   /* index constants for titles */
   public static int LANG = 0;
@@ -27,7 +28,7 @@ public class License {
   public License() {
   }
 
-  public License(String name, String url, List<String> titles) {
+  public License(String name, String url, Map<String, String> titles) {
     this.setName(name);
     this.setUrl(url);
     this.setTitles(titles);
@@ -49,15 +50,15 @@ public class License {
     this.url = url;
   }
 
-  public List<String> getTitles() {
+  public Map<String, String> getTitles() {
     return titles;
   }
 
-  public void setTitles(List<String> titles) {
+  public void setTitles(Map<String, String> titles) {
     this.titles = titles;
   }
 
-  public void addTitle(String title) {
-    titles.add(title);
+  public void addTitle(String lang, String title) {
+    titles.put(lang, title);
   }
 }

@@ -20,17 +20,19 @@ public class SupportedLicensesConfigurationTest {
   public void setup() {
     testToLicenses = new LinkedHashMap<>();
     LinkedList<String> testTitles = new LinkedList<>();
-    testTitles.add("en: test");
-    testTitles.add("fr: test");
+    testTitles.add("test");
     LinkedList<String> testURL = new LinkedList<>();
     testURL.add("test.url.com");
 
     testToLicenses.put("license-1.url", testURL);
-    testToLicenses.put("license-1.titles", testTitles);
+    testToLicenses.put("license-1.titles.en", testTitles);
+    testToLicenses.put("license-1.titles.fr", testTitles);
     testToLicenses.put("license-2.url", testURL);
-    testToLicenses.put("license-2.titles", testTitles);
+    testToLicenses.put("license-2.titles.en", testTitles);
+    testToLicenses.put("license-2.titles.fr", testTitles);
     testToLicenses.put("license-3.url", testURL);
-    testToLicenses.put("license-3.titles", testTitles);
+    testToLicenses.put("license-3.titles.en", testTitles);
+    testToLicenses.put("license-3.titles.fr", testTitles);
 
     config = new SupportedLicensesConfiguration();
   }
