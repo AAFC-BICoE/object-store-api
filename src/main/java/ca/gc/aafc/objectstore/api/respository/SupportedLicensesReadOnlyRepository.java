@@ -23,5 +23,4 @@ public class SupportedLicensesReadOnlyRepository
   public ResourceList<License> findAll(QuerySpec query) {
     return query.apply(licenses);
   }
-
 }
