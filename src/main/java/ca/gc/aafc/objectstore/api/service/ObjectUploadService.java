@@ -1,14 +1,13 @@
 package ca.gc.aafc.objectstore.api.service;
 
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.stereotype.Service;
+
 import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.dina.service.DinaService;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import lombok.NonNull;
-
-import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.stereotype.Service;
 
 @Service
 public class ObjectUploadService extends DinaService<ObjectUpload> {
@@ -22,12 +21,12 @@ public class ObjectUploadService extends DinaService<ObjectUpload> {
 
   @Override
   protected void preDelete(ObjectUpload entity) {
-    throw new AccessDeniedException(getMessage("error.objectUpload.delete_unsupported"));
+    throw new UnsupportedOperationException(getMessage("error.objectUpload.delete_unsupported"));
   }
 
   @Override
   protected void preUpdate(ObjectUpload entity) {
-    throw new AccessDeniedException(getMessage("error.objectUpload.update_unsupported"));
+    throw new UnsupportedOperationException(getMessage("error.objectUpload.update_unsupported"));
   }
 
   private String getMessage(String key) {
