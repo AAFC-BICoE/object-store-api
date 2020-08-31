@@ -47,7 +47,7 @@ For testing purposes use the same docker-compose.yml and .env file (from the sec
 
 Create an override file to expose the postgres port on your host:
 ```
-version: "3"
+version: "3.7"
 
 services:
   object-store-db:

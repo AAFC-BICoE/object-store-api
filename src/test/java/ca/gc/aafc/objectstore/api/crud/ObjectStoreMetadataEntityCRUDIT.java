@@ -1,17 +1,5 @@
 package ca.gc.aafc.objectstore.api.crud;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.UUID;
-
-import org.junit.jupiter.api.Test;
-
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
@@ -20,6 +8,14 @@ import ca.gc.aafc.objectstore.api.testsupport.factories.ManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MetadataManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
+import org.junit.jupiter.api.Test;
+
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
 
@@ -48,6 +44,7 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
 
     assertEquals(objectStoreMetaUnderTest.getId(), fetchedObjectStoreMeta.getId());
     assertEquals(objectStoreMetaUnderTest.getDcCreator(), fetchedObjectStoreMeta.getDcCreator());
+    assertEquals(objectStoreMetaUnderTest.getCreatedBy(), fetchedObjectStoreMeta.getCreatedBy());
     assertEquals(objectStoreMetaUnderTest.getId(), fetchedObjectStoreMeta.getId());
     assertEquals(
       objectStoreMetaUnderTest.getAcMetadataCreator(),
@@ -60,7 +57,7 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
         .toOffsetDateTime());
     
     //should be auto-generated
-    assertNotNull(fetchedObjectStoreMeta.getCreatedDate());
+    assertNotNull(fetchedObjectStoreMeta.getCreatedOn());
     assertNotNull(fetchedObjectStoreMeta.getXmpMetadataDate());
   }
 

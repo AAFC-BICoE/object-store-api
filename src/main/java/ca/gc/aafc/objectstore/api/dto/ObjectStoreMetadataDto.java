@@ -37,7 +37,8 @@ public class ObjectStoreMetadataDto {
   @Id
   @PropertyName("id")
   private UUID uuid;
-
+  private String createdBy;
+  private OffsetDateTime createdOn;
   private String bucket;
   private UUID fileIdentifier;
   private String fileExtension;
