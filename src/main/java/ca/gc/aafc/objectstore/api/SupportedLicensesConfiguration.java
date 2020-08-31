@@ -1,27 +1,25 @@
 package ca.gc.aafc.objectstore.api;
 
+import ca.gc.aafc.objectstore.api.entities.License;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Objects;
-
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
-import ca.gc.aafc.objectstore.api.entities.License;
-
 /**
- * Maps entries in SupportedLicenses.yml to License objects for use in
- * repository
+ * Maps entries in SupportedLicenses.yml to License objects for use in repository
  * 
  * @author chinniahs
  */
 @Configuration
-@PropertySource(value = "classpath:SupportedLicenses.yml", factory = YamlPropertyLoaderFactory.class)
+@PropertySource(value = "classpath:SupportedLicenses.yml", 
+    factory = YamlPropertyLoaderFactory.class)
 @ConfigurationProperties
 public class SupportedLicensesConfiguration {
 
@@ -37,10 +35,10 @@ public class SupportedLicensesConfiguration {
   }
 
   /**
-   * Helper method for parsing name, "url", and "titles" attributes from yml and
-   * storing them in License objects
+   * Helper method for parsing name, "url", and "titles" attributes from yml and storing them in
+   * License objects.
    * 
-   * @param toLicenses
+   * @param toLicenses set by Spring at runtime
    */
   private void computeLicenses(LinkedHashMap<String, LinkedList<String>> toLicenses) {
     licenses.clear();
@@ -58,9 +56,9 @@ public class SupportedLicensesConfiguration {
         currentLicense.setName(currentLicenseName);
       }
       if (entry.getKey().contains("url")) {
-        currentLicense.setUrl(entry.getValue().get(0));
+        currentLicense.setUrl(entry.getValue().getFirst());
       } else if (entry.getKey().contains("titles")) {
-        currentLicense.setTitles(entry.getValue());
+        currentLicense.addTitle(entry.getKey().split("\\.")[2], entry.getValue().getFirst());
       }
       previousLicenseName = currentLicenseName;
     }
