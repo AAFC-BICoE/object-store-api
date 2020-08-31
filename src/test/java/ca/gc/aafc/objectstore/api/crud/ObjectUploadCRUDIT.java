@@ -4,9 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import org.springframework.test.context.ActiveProfiles;
+
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 
+@ActiveProfiles("test")
 public class ObjectUploadCRUDIT extends BaseEntityCRUDIT {
 
   private ObjectUpload objectUploadUnderTest = ObjectUploadFactory.newObjectUpload()

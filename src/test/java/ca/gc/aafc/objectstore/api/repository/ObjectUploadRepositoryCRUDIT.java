@@ -3,8 +3,6 @@ package ca.gc.aafc.objectstore.api.repository;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.util.UUID;
-
 import javax.inject.Inject;
 
 import org.junit.jupiter.api.AfterEach;
@@ -12,9 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ActiveProfiles;
 
-import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.dto.ObjectUploadDto;
-import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.respository.ObjectUploadResourceRepository;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
@@ -30,23 +26,23 @@ public class ObjectUploadRepositoryCRUDIT extends BaseRepositoryTest {
   private ObjectUpload testObjectUpload;
 
   private ObjectUpload createTestObjectUpload() {
-      testObjectUpload = ObjectUploadFactory.newObjectUpload()
-        .build();
-      persist(testObjectUpload);
-      return testObjectUpload;
+    testObjectUpload = ObjectUploadFactory.newObjectUpload()
+      .build();
+    persist(testObjectUpload);
+    return testObjectUpload;
   }
   
   private void removeTestObjectUpload() {
-      service.deleteById(ObjectUpload.class, testObjectUpload.getId());
-}
+    service.deleteById(ObjectUpload.class, testObjectUpload.getId());
+  }
   
   @BeforeEach
-  public void setup(){ 
+  public void setup() { 
     createTestObjectUpload();    
   }  
   
   @AfterEach
-  public void teardown(){ 
+  public void teardown() { 
     removeTestObjectUpload();    
   }  
 
