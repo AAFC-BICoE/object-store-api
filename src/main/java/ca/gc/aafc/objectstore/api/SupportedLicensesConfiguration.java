@@ -18,14 +18,13 @@ import org.springframework.context.annotation.PropertySource;
 @ConfigurationProperties
 public class SupportedLicensesConfiguration {
 
-  private Map<String, LicenseDto> licenses;
+  private final Map<String, LicenseDto> licenses;
+
+  public SupportedLicensesConfiguration(Map<String, LicenseDto> licenses) {
+    this.licenses = licenses;
+  }
 
   public Map<String, LicenseDto> getLicenses() {
     return licenses;
   }
-
-  public void setLicenses(Map<String, LicenseDto> licenses) {
-    this.licenses = licenses;
-  }
-
 }

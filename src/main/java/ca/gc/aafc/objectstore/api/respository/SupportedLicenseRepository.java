@@ -9,13 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class SupportedLicensesReadOnlyRepository
+public class SupportedLicenseRepository
     extends ReadOnlyResourceRepositoryBase<LicenseDto, String> {
 
   @Autowired
   private SupportedLicensesConfiguration licenses;
 
-  protected SupportedLicensesReadOnlyRepository() {
+  protected SupportedLicenseRepository() {
     super(LicenseDto.class);
   }
 
