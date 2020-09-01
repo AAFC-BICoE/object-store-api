@@ -20,6 +20,9 @@ public class AppStartsIT {
   @Inject
   private MediaTypeToDcTypeConfiguration mediaTypeToDcTypeConfig;
 
+  @Inject
+  private SupportedLicensesConfiguration supportedLicensesConfiguration;
+
   /**
    * Tests that the application with embedded Tomcat starts up successfully.
    */
@@ -29,6 +32,7 @@ public class AppStartsIT {
     //Make sure we can load the configuration files
     assertNotNull(config.getDefaultCopyright());
     assertNotNull(mediaTypeToDcTypeConfig.getToDcType().get(DcType.IMAGE).get(0));
+    assertNotNull(supportedLicensesConfiguration.getLicenses().entrySet().iterator().next());
   }
 
 }

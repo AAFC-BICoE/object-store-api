@@ -1,26 +1,26 @@
 package ca.gc.aafc.objectstore.api.respository;
 
-import ca.gc.aafc.objectstore.api.entities.License;
+import ca.gc.aafc.objectstore.api.SupportedLicensesConfiguration;
+import ca.gc.aafc.objectstore.api.dto.LicenseDto;
 import io.crnk.core.queryspec.QuerySpec;
 import io.crnk.core.repository.ReadOnlyResourceRepositoryBase;
 import io.crnk.core.resource.list.ResourceList;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
-@Component
+@Repository
 public class SupportedLicensesReadOnlyRepository
-    extends ReadOnlyResourceRepositoryBase<License, String> {
+    extends ReadOnlyResourceRepositoryBase<LicenseDto, String> {
 
   @Autowired
-  private List<License> licenses;
+  private SupportedLicensesConfiguration licenses;
 
   protected SupportedLicensesReadOnlyRepository() {
-    super(License.class);
+    super(LicenseDto.class);
   }
 
   @Override
-  public ResourceList<License> findAll(QuerySpec query) {
-    return query.apply(licenses);
+  public ResourceList<LicenseDto> findAll(QuerySpec query) {
+    return query.apply(licenses.getLicenses().values());
   }
 }

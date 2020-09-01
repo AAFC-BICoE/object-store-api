@@ -1,20 +1,20 @@
 licenses:
-  open-government-license-canada:
+  - id: open-government-license-canada
     url: https://open.canada.ca/en/open-government-licence-canada
     titles:
       en: "Open Government Licence - Canada"
       fr: "Licence du gouvernement ouvert – Canada"
-  universal-public-domain-dedication-1:
+  - id: universal-public-domain-dedication-1
     url: https://creativecommons.org/publicdomain/zero/1.0
     titles:
       en: "CC0 1.0 Universal (CC0 1.0) Public Domain Dedication"
       fr: "CC0 1.0 universel (CC0 1.0) Transfert dans le Domaine Public"
-  attribution-international-4:
+  - id: attribution-international-4
     url: https://creativecommons.org/licenses/by/4.0
     titles:
       en: "Attribution 4.0 International (CC BY 4.0)"
       fr: "Attribution 4.0 International (CC BY 4.0)"
-  attribution-international-noncommercial-4:
+  - id: attribution-international-noncommercial-4
     url: https://creativecommons.org/licenses/by-nc/4.0
     titles:
       en: "Attribution - NonCommercial 4.0 International (CC BY-NC 4.0)"
