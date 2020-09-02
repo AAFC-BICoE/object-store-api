@@ -22,7 +22,7 @@ Use \<Cntl\>O \<Enter\> to save the Nano editor contents.
 
 Use \<Cntl\>X to exit Nano.
 
-* git push  // requires your AAFC Active Directory credentials
+* git push  // requires your GitHub Active Directory credentials
 
 Go to the OKD site.
 
