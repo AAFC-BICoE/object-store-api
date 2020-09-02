@@ -25,4 +25,14 @@ public class ObjectUploadDto {
   private String createdBy;
   private OffsetDateTime createdOn;
 
+  private String originalFilename;
+  private String sha1Hex;
+  private String receivedMediaType;
+  private String detectedMediaType;
+  private String detectedFileExtension;
+  private String evaluatedMediaType;
+  private String evaluatedFileExtension;
+  private long sizeInBytes;
+  private UUID thumbnailIdentifier;
+
 }
