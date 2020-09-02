@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.dina.security.DinaRole;
 
-@Configuration
+@org.springframework.boot.test.context.TestConfiguration
 public class DinaAuthenticatedUserConfig {
 
   public static final String USER_NAME = "test_user";
