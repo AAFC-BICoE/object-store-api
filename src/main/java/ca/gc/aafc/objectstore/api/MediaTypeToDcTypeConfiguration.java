@@ -20,7 +20,7 @@ import ca.gc.aafc.objectstore.api.entities.DcType;
 @ConfigurationProperties
 public class MediaTypeToDcTypeConfiguration {
 
-  private LinkedHashMap<DcType, LinkedList<Pattern>> toDcTypePatterns = new LinkedHashMap<>();
+  private final LinkedHashMap<DcType, LinkedList<Pattern>> toDcTypePatterns = new LinkedHashMap<>();
   
   public LinkedHashMap<DcType, LinkedList<Pattern>> getToDcType() {
     return toDcTypePatterns;
