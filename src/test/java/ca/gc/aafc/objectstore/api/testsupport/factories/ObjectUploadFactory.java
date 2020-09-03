@@ -23,6 +23,8 @@ public class ObjectUploadFactory implements TestableEntityFactory<ObjectUpload> 
   public static ObjectUpload.ObjectUploadBuilder newObjectUpload() {
     return ObjectUpload.builder()
         .fileIdentifier(UUID.randomUUID())
+        .originalFilename("testFile")
+        .sha1Hex("b52c98d49782a6ebb9c8e3bb1ad7aa2f03706481")
         .createdBy("createdBy");
   }
 

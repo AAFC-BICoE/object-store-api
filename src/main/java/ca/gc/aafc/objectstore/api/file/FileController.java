@@ -146,13 +146,16 @@ public class FileController {
       null
     );
 
+    String sha1Hex = DigestUtils.sha1Hex(md.digest());
+    
     // record the uploaded object to ensure we eventually get the metadata for it
     objectUploadService.create(ObjectUpload.builder()
         .fileIdentifier(uuid)
         .createdBy(authenticatedUser.getUsername())
+        .originalFilename(file.getOriginalFilename())
+        .sha1Hex(sha1Hex)
         .build());
-    
-    String sha1Hex = DigestUtils.sha1Hex(md.digest());
+
     fileMetaEntry.setSha1Hex(sha1Hex);
 
     UUID thumbUuid = generateThumbNail(

@@ -46,7 +46,7 @@
       
         <!-- Add sizeInBytes column -->
         <addColumn tableName="object_upload">
-            <column name="size_in_bytes" type="LONG" />
+            <column name="size_in_bytes" type="BIGINT" />
         </addColumn>
 
         <!-- Add thumbnailIdentifier column -->
