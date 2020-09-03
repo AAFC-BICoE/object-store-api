@@ -25,6 +25,7 @@ public class ObjectUploadFactory implements TestableEntityFactory<ObjectUpload> 
         .fileIdentifier(UUID.randomUUID())
         .originalFilename("testFile")
         .sha1Hex("b52c98d49782a6ebb9c8e3bb1ad7aa2f03706481")
+        .bucket("testBucket")
         .createdBy("createdBy");
   }
 

@@ -34,5 +34,6 @@ public class ObjectUploadDto {
   private String evaluatedFileExtension;
   private long sizeInBytes;
   private UUID thumbnailIdentifier;
+  private String bucket;
 
 }

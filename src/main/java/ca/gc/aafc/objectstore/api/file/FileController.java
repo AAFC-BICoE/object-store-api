@@ -147,15 +147,9 @@ public class FileController {
     );
 
     String sha1Hex = DigestUtils.sha1Hex(md.digest());
-    
-    UUID thumbUuid = generateThumbNail(
-        uuid,
-        file.getInputStream(),
-        bucket,
-        mtdr.getEvaluatedMediatype());    
-    
+   
     // record the uploaded object to ensure we eventually get the metadata for it
-    objectUploadService.create(ObjectUpload.builder()
+    ObjectUpload objectUpload =  objectUploadService.create(ObjectUpload.builder()
         .fileIdentifier(uuid)
         .createdBy(authenticatedUser.getUsername())
         .originalFilename(file.getOriginalFilename())
@@ -166,13 +160,19 @@ public class FileController {
         .evaluatedMediaType(mtdr.getEvaluatedMediatype())
         .evaluatedFileExtension(mtdr.getEvaluatedExtension())
         .sizeInBytes(file.getSize())
-        .thumbnailIdentifier(thumbUuid)          
+        .bucket(bucket)
         .build());
 
+    UUID thumbUuid = generateThumbNail(uuid, file.getInputStream(), bucket, mtdr.getEvaluatedMediatype());
     fileMetaEntry.setSha1Hex(sha1Hex);
     fileMetaEntry.setThumbnailIdentifier(thumbUuid);
 
     storeFileMetaEntry(fileMetaEntry, bucket);
+
+    if (thumbUuid != null) {
+      objectUpload.setThumbnailIdentifier(thumbUuid);
+      objectUploadService.update(objectUpload);
+    }
 
     return fileMetaEntry;
   }

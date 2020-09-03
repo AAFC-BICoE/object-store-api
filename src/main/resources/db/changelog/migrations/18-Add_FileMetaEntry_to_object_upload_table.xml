@@ -14,34 +14,34 @@
 
         <!-- Add sha1Hex column -->
         <addColumn tableName="object_upload">
-            <column name="sha1_hex" type="VARCHAR(250)" >
+            <column name="sha1_hex" type="VARCHAR(128)" >
                 <constraints nullable="false" />
             </column>
         </addColumn>
 
         <!-- Add receivedMediaType column -->
         <addColumn tableName="object_upload">
-            <column name="received_media_type" type="VARCHAR(250)" />
+            <column name="received_media_type" type="VARCHAR(127)" />
         </addColumn>
 
         <!-- Add detectedMediaType column -->
         <addColumn tableName="object_upload">
-            <column name="detected_media_type" type="VARCHAR(250)" />
+            <column name="detected_media_type" type="VARCHAR(127)" />
         </addColumn>
 
         <!-- Add detectedFileExtension column -->
         <addColumn tableName="object_upload">
-            <column name="detected_file_extension" type="VARCHAR(250)" />
+            <column name="detected_file_extension" type="VARCHAR(10)" />
         </addColumn>
 
         <!-- Add evaluatedMediaType column -->
         <addColumn tableName="object_upload">
-            <column name="evaluated_media_type" type="VARCHAR(250)" />
+            <column name="evaluated_media_type" type="VARCHAR(127)" />
         </addColumn>
 
         <!-- Add evaluatedFileExtension column -->
         <addColumn tableName="object_upload">
-            <column name="evaluated_file_extension" type="VARCHAR(250)" />
+            <column name="evaluated_file_extension" type="VARCHAR(10)" />
         </addColumn>
       
         <!-- Add sizeInBytes column -->
@@ -52,6 +52,13 @@
         <!-- Add thumbnailIdentifier column -->
         <addColumn tableName="object_upload">
             <column name="thumbnail_identifier" type="uuid" />
+        </addColumn>
+
+        <!-- Add bucket name column -->
+        <addColumn tableName="object_upload">
+            <column name="bucket" type="VARCHAR(50)" >
+                <constraints nullable="false" />
+            </column>
         </addColumn>
     </changeSet>
 </databaseChangeLog>

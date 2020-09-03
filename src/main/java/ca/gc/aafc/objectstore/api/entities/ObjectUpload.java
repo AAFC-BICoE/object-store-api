@@ -42,7 +42,8 @@ public class ObjectUpload implements DinaEntity {
   private String evaluatedMediaType;
   private String evaluatedFileExtension;
   private long sizeInBytes;
-  private UUID thumbnailIdentifier;  
+  private UUID thumbnailIdentifier;
+  private String bucket;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -98,7 +99,7 @@ public class ObjectUpload implements DinaEntity {
 
   @NotNull  
   @Column(name = "sha1_hex")
-  @Size(max = 250)  
+  @Size(max = 128)  
   public String getSha1Hex() {
     return sha1Hex;
   }
@@ -108,7 +109,7 @@ public class ObjectUpload implements DinaEntity {
   }
 
   @Column(name = "received_media_type")
-  @Size(max = 250)  
+  @Size(max = 127)  
   public String getReceivedMediaType() {
     return receivedMediaType;
   }
@@ -118,7 +119,7 @@ public class ObjectUpload implements DinaEntity {
   }
 
   @Column(name = "detected_media_type")
-  @Size(max = 250)
+  @Size(max = 127)
   public String getDetectedMediaType() {
     return detectedMediaType;
   }
@@ -128,7 +129,7 @@ public class ObjectUpload implements DinaEntity {
   }
 
   @Column(name = "detected_file_extension")
-  @Size(max = 250)
+  @Size(max = 10)
   public String getDetectedFileExtension() {
     return detectedFileExtension;
   }
@@ -138,7 +139,7 @@ public class ObjectUpload implements DinaEntity {
   }
 
   @Column(name = "evaluated_media_type")
-  @Size(max = 250)
+  @Size(max = 127)
   public String getEvaluatedMediaType() {
     return evaluatedMediaType;
   }
@@ -148,7 +149,7 @@ public class ObjectUpload implements DinaEntity {
   }
 
   @Column(name = "evaluated_file_extension")
-  @Size(max = 250)
+  @Size(max = 10)
   public String getEvaluatedFileExtension() {
     return evaluatedFileExtension;
   }
@@ -175,5 +176,15 @@ public class ObjectUpload implements DinaEntity {
   public void setThumbnailIdentifier(UUID thumbnailIdentifier) {
     this.thumbnailIdentifier = thumbnailIdentifier;
   }
+
+  @NotNull
+  @Size(max = 50)
+  public String getBucket() {
+    return bucket;
+  }
+
+  public void setBucket(String bucket) {
+    this.bucket = bucket;
+  }  
 
 }
