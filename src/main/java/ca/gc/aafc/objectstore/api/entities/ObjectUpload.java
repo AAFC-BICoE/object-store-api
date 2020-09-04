@@ -109,7 +109,7 @@ public class ObjectUpload implements DinaEntity {
   }
 
   @Column(name = "received_media_type")
-  @Size(max = 127)  
+  @Size(max = 150)
   public String getReceivedMediaType() {
     return receivedMediaType;
   }
@@ -119,7 +119,7 @@ public class ObjectUpload implements DinaEntity {
   }
 
   @Column(name = "detected_media_type")
-  @Size(max = 127)
+  @Size(max = 150)
   public String getDetectedMediaType() {
     return detectedMediaType;
   }
@@ -139,7 +139,7 @@ public class ObjectUpload implements DinaEntity {
   }
 
   @Column(name = "evaluated_media_type")
-  @Size(max = 127)
+  @Size(max = 150)
   public String getEvaluatedMediaType() {
     return evaluatedMediaType;
   }

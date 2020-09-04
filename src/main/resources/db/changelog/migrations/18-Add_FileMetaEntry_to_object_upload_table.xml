@@ -21,12 +21,12 @@
 
         <!-- Add receivedMediaType column -->
         <addColumn tableName="object_upload">
-            <column name="received_media_type" type="VARCHAR(127)" />
+            <column name="received_media_type" type="VARCHAR(150)" />
         </addColumn>
 
         <!-- Add detectedMediaType column -->
         <addColumn tableName="object_upload">
-            <column name="detected_media_type" type="VARCHAR(127)" />
+            <column name="detected_media_type" type="VARCHAR(150)" />
         </addColumn>
 
         <!-- Add detectedFileExtension column -->
@@ -36,7 +36,7 @@
 
         <!-- Add evaluatedMediaType column -->
         <addColumn tableName="object_upload">
-            <column name="evaluated_media_type" type="VARCHAR(127)" />
+            <column name="evaluated_media_type" type="VARCHAR(150)" />
         </addColumn>
 
         <!-- Add evaluatedFileExtension column -->
