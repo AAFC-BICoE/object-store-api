@@ -24,7 +24,6 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
 import org.xmlpull.v1.XmlPullParserException;
 
-import ca.gc.aafc.objectstore.api.file.FileMetaEntry;
 import ca.gc.aafc.objectstore.api.file.FolderStructureStrategy;
 import ca.gc.aafc.objectstore.api.minio.MinioFileService;
 import io.minio.MinioClient;
@@ -119,21 +118,6 @@ public class TestConfiguration {
       TEST_BUCKET,
       MinioFileService.toMinioObjectName(folderStructureStrategy.getPathFor(id + objExt)),
       objStream,
-      null);
-
-    FileMetaEntry fme = new FileMetaEntry(id);
-    fme.setEvaluatedFileExtension(objExt);
-    fme.setReceivedMediaType(mediaType);
-    fme.setDetectedMediaType(mediaType);
-    fme.setThumbnailIdentifier(TEST_THUMBNAIL_IDENTIFIER);
-    fme.setSha1Hex("123");
-    String jsonContent = OBJECT_MAPPER.writeValueAsString(fme);
-    InputStream metaStream = new ByteArrayInputStream(jsonContent.getBytes(StandardCharsets.UTF_8));
-    minioClient.putObject(
-      TEST_BUCKET,
-      MinioFileService.toMinioObjectName(
-        folderStructureStrategy.getPathFor(id + FileMetaEntry.SUFFIX)),
-      metaStream,
       null);
   }
   

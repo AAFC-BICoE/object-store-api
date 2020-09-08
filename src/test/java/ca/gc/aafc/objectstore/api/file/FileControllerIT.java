@@ -62,7 +62,7 @@ public class FileControllerIT {
   public void fileUpload_whenImageIsUploaded_generateThumbnail() throws Exception {
     MockMultipartFile mockFile = getFileUnderTest();
 
-    FileMetaEntry uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
+    ObjectUpload uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
 
     UUID thumbnailIdentifier = uploadResponse.getThumbnailIdentifier();
 
@@ -85,21 +85,15 @@ public class FileControllerIT {
   public void fileUpload_OnValidUpload_FileMetaEntryGenerated() throws Exception {
     MockMultipartFile mockFile = getFileUnderTest();
 
-    FileMetaEntry uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
-
-    Optional<InputStream> response = minioFileService.getFile(
-      uploadResponse.getFileMetaEntryFilename(),
-      bucketUnderTest
-    );
-
-    assertTrue(response.isPresent());
+    ObjectUpload uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
+    assertNotNull(uploadResponse);
   }
 
   @Transactional
   @Test
   public void fileUpload_OnValidUpload_ObjectUploadEntryCreated() throws Exception {
     MockMultipartFile mockFile = getFileUnderTest();
-    FileMetaEntry uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
+    ObjectUpload uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
     ObjectUpload objUploaded = objectUploadService.findOne(uploadResponse.getFileIdentifier(), ObjectUpload.class);
 
     assertNotNull(objUploaded);

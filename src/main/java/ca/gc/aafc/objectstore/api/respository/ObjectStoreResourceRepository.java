@@ -1,6 +1,5 @@
 package ca.gc.aafc.objectstore.api.respository;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
@@ -11,7 +10,6 @@ import java.util.function.Function;
 
 import javax.transaction.Transactional;
 import javax.validation.ValidationException;
-import javax.ws.rs.BadRequestException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Repository;
@@ -26,12 +24,12 @@ import ca.gc.aafc.dina.repository.JpaDtoRepository;
 import ca.gc.aafc.dina.repository.JpaResourceRepository;
 import ca.gc.aafc.dina.repository.meta.JpaMetaInformationProvider;
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
+import ca.gc.aafc.dina.service.DinaService;
 import ca.gc.aafc.objectstore.api.ObjectStoreConfiguration;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
+import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.file.FileController;
-import ca.gc.aafc.objectstore.api.file.FileInformationService;
-import ca.gc.aafc.objectstore.api.file.FileMetaEntry;
 import ca.gc.aafc.objectstore.api.file.ThumbnailService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataDefaultValueSetterService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataReadService;
@@ -53,7 +51,7 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
     JpaMetaInformationProvider metaInformationProvider,
     ObjectStoreConfiguration config,
     BaseDAO dao,
-    FileInformationService fileInformationService,
+    DinaService<ObjectUpload> dinaService,
     ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService,
     DinaAuthenticatedUser authenticatedUser
   ) {
@@ -64,13 +62,13 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
       metaInformationProvider
     );
     this.dao = dao;
-    this.fileInformationService = fileInformationService;
     this.defaultValueSetterService = defaultValueSetterService;
     this.authenticatedUser = authenticatedUser;
+    this.dinaService = dinaService;
   }
 
   private final BaseDAO dao;
-  private final FileInformationService fileInformationService;
+  private final DinaService<ObjectUpload> dinaService;
   private final ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService;
   private final DinaAuthenticatedUser authenticatedUser;
 
@@ -173,37 +171,15 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
       throw new ValidationException("fileIdentifier and bucket should be provided");
     }
 
-    FileMetaEntry fileMetaEntry = getFileMetaEntry(objectMetadata);
+    ObjectUpload objectUpload = dinaService.findOne(objectMetadata.getFileIdentifier(), ObjectUpload.class);
 
-    objectMetadata.setFileExtension(fileMetaEntry.getEvaluatedFileExtension());
-    objectMetadata.setOriginalFilename(fileMetaEntry.getOriginalFilename());
-    objectMetadata.setDcFormat(fileMetaEntry.getDetectedMediaType());
-    objectMetadata.setAcHashValue(fileMetaEntry.getSha1Hex());
+    objectMetadata.setFileExtension(objectUpload.getEvaluatedFileExtension());
+    objectMetadata.setOriginalFilename(objectUpload.getOriginalFilename());
+    objectMetadata.setDcFormat(objectUpload.getDetectedMediaType());
+    objectMetadata.setAcHashValue(objectUpload.getSha1Hex());
     objectMetadata.setAcHashFunction(FileController.DIGEST_ALGORITHM);
 
     return objectMetadata;
-  }
-
-  /**
-   * Returns the {@link FileMetaEntry} for the resource of the given
-   * {@link ObjectStoreMetadataDto}
-   * 
-   * @param objectMetadata - meta data for the resource
-   * @return {@link FileMetaEntry} for the resource
-   */
-  private FileMetaEntry getFileMetaEntry(ObjectStoreMetadataDto objectMetadata) {
-    try {
-      return fileInformationService
-          .getJsonFileContentAs(
-              objectMetadata.getBucket(),
-              objectMetadata.getFileIdentifier().toString() + FileMetaEntry.SUFFIX,
-              FileMetaEntry.class)
-          .orElseThrow(() -> new BadRequestException(
-              this.getClass().getSimpleName() + " with ID " + objectMetadata.getFileIdentifier() + " Not Found."));
-    } catch (IOException e) {
-      log.error(e.getMessage());
-      throw new BadRequestException("Can't process " + objectMetadata.getFileIdentifier());
-    }
   }
 
   /**
@@ -222,11 +198,11 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
    * @param resource - parent resource metadata of the thumbnail
    */
   private void handleThumbNailMetaEntry(ObjectStoreMetadataDto resource) {
-    FileMetaEntry fileMetaEntry = getFileMetaEntry(resource);
-    if (fileMetaEntry.getThumbnailIdentifier() != null) {
+    ObjectUpload objectUpload = dinaService.findOne(resource.getFileIdentifier(), ObjectUpload.class);
+    if (objectUpload.getThumbnailIdentifier() != null) {
       ObjectStoreMetadataDto thumbnailMetadataDto = ThumbnailService.generateThumbMetaData(
           resource,
-          fileMetaEntry.getThumbnailIdentifier());
+          objectUpload.getThumbnailIdentifier());
 
       super.create(thumbnailMetadataDto);
     }
