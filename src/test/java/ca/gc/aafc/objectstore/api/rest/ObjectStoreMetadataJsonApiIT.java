@@ -33,23 +33,16 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
   private ObjectUpload oUpload;
 
   private UUID metadataId;
-  private UUID fileId = UUID.randomUUID();
   
 
   @BeforeEach
   public void setup() {
-    fileId = UUID.randomUUID();
-    oUpload = ObjectUploadFactory.newObjectUpload().build();
-    oUpload.setEvaluatedFileExtension(TestConfiguration.TEST_FILE_EXT);
-    oUpload.setThumbnailIdentifier(TestConfiguration.TEST_THUMBNAIL_IDENTIFIER);
-    oUpload.setFileIdentifier(fileId);
-    
-    UUID metaFileIdentifier = UUID.randomUUID();
-  
+    oUpload = TestConfiguration.buildTestObjectUpload();
+
+    // used to test relationships
     ObjectStoreMetadata metadata = ObjectStoreMetadataFactory
       .newObjectStoreMetadata()
-      .uuid(metadataId)
-      .fileIdentifier(metaFileIdentifier)
+      .fileIdentifier(UUID.randomUUID())
       .build();
 
     oSubtype = ObjectSubtypeFactory
@@ -73,8 +66,9 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
   @AfterEach
   public void tearDown() {
     deleteEntityByUUID("fileIdentifier", TestConfiguration.TEST_THUMBNAIL_IDENTIFIER, ObjectStoreMetadata.class);
-    deleteEntityByUUID("fileIdentifier", fileId, ObjectStoreMetadata.class);
+    deleteEntityByUUID("fileIdentifier", TestConfiguration.TEST_FILE_IDENTIFIER, ObjectStoreMetadata.class);
     deleteEntityByUUID("uuid", oSubtype.getUuid(), ObjectSubtype.class);
+    deleteEntityByUUID("fileIdentifier", TestConfiguration.TEST_FILE_IDENTIFIER, ObjectUpload.class);
   }
   
   @Override
@@ -105,10 +99,9 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
     objectStoreMetadata.setDcRights(null); // default value from configuration should be used
     objectStoreMetadata.setXmpRightsOwner(null); // default value from configuration should be used
     objectStoreMetadata.setAcDigitizationDate(dateTime4Test);
-    objectStoreMetadata.setFileIdentifier(fileId);
+    objectStoreMetadata.setFileIdentifier(TestConfiguration.TEST_FILE_IDENTIFIER);
     objectStoreMetadata.setFileExtension(TestConfiguration.TEST_FILE_EXT);
     objectStoreMetadata.setBucket(TestConfiguration.TEST_BUCKET);
-    objectStoreMetadata.setAcHashValue("123");
     objectStoreMetadata.setAcMetadataCreator(UUID.randomUUID());
     objectStoreMetadata.setDcCreator(UUID.randomUUID());
     objectStoreMetadata.setPubliclyReleasable(true);

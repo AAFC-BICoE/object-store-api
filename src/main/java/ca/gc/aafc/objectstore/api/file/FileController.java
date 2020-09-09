@@ -223,7 +223,7 @@ public class FileController {
           "FileIdentifier " + fileUuid + " or bucket " + bucket + " Not Found", null));
 
       InputStreamResource isr = new InputStreamResource(is);
-      return new ResponseEntity<InputStreamResource>(isr, respHeaders, HttpStatus.OK);
+      return new ResponseEntity<>(isr, respHeaders, HttpStatus.OK);
     } catch (IOException e) {
       log.warn("Can't download object", e);
     }

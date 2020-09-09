@@ -25,7 +25,6 @@ import ca.gc.aafc.dina.repository.JpaResourceRepository;
 import ca.gc.aafc.dina.repository.meta.JpaMetaInformationProvider;
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.dina.service.DinaService;
-import ca.gc.aafc.objectstore.api.ObjectStoreConfiguration;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
@@ -49,7 +48,6 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
     SimpleFilterHandler simpleFilterHandler,
     RsqlFilterHandler rsqlFilterHandler,
     JpaMetaInformationProvider metaInformationProvider,
-    ObjectStoreConfiguration config,
     BaseDAO dao,
     DinaService<ObjectUpload> dinaService,
     ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService,
@@ -172,6 +170,10 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
     }
 
     ObjectUpload objectUpload = dinaService.findOne(objectMetadata.getFileIdentifier(), ObjectUpload.class);
+
+    if(objectUpload == null) {
+      throw new ValidationException("fileIdentifier not found");
+    }
 
     objectMetadata.setFileExtension(objectUpload.getEvaluatedFileExtension());
     objectMetadata.setOriginalFilename(objectUpload.getOriginalFilename());

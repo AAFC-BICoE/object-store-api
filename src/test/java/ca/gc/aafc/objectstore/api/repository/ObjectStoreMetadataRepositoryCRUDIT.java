@@ -10,6 +10,7 @@ import java.util.UUID;
 import javax.inject.Inject;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -50,7 +51,9 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
     objectUpload = ObjectUploadFactory.newObjectUpload().build();
     objectUpload.setFileIdentifier(TestConfiguration.TEST_FILE_IDENTIFIER);
     objectUpload.setEvaluatedFileExtension(TestConfiguration.TEST_FILE_EXT);
+    objectUpload.setDetectedFileExtension(TestConfiguration.TEST_FILE_EXT);
     objectUpload.setThumbnailIdentifier(TestConfiguration.TEST_THUMBNAIL_IDENTIFIER);
+    objectUpload.setDetectedMediaType(TestConfiguration.TEST_FILE_MEDIA_TYPE);
     persist(objectUpload);
     return objectUpload;
   }
@@ -61,6 +64,14 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
     createAcSubType();
     createDerivedFrom();
     createObjectUpload();
+  }
+
+  /**
+   * Clean up database after each test.
+   */
+  @AfterEach
+  public void tearDown() {
+    service.deleteById(ObjectUpload.class, objectUpload.getId());
   }
 
   private void createAcSubType() {

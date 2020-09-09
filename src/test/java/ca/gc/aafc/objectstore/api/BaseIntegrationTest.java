@@ -12,7 +12,7 @@ import ca.gc.aafc.objectstore.api.TestConfiguration;
 import ca.gc.aafc.dina.testsupport.DatabaseSupportService;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = {ObjectStoreApiLauncher.class , TestConfiguration.class})
+@SpringBootTest(classes = ObjectStoreApiLauncher.class)
 @Transactional
 @ActiveProfiles("test")
 public abstract class BaseIntegrationTest {
