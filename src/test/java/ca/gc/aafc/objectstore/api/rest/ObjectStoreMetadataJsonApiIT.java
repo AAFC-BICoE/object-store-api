@@ -15,8 +15,10 @@ import ca.gc.aafc.objectstore.api.TestConfiguration;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
+import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import io.restassured.response.ValidatableResponse;
 
 public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
@@ -28,26 +30,38 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
   
   private ObjectStoreMetadataDto objectStoreMetadata;
   private ObjectSubtype oSubtype;
+  private ObjectUpload oUpload;
 
   private UUID metadataId;
+  private UUID fileId = UUID.randomUUID();
+  
 
   @BeforeEach
   public void setup() {
+    fileId = UUID.randomUUID();
+    oUpload = ObjectUploadFactory.newObjectUpload().build();
+    oUpload.setEvaluatedFileExtension(TestConfiguration.TEST_FILE_EXT);
+    oUpload.setThumbnailIdentifier(TestConfiguration.TEST_THUMBNAIL_IDENTIFIER);
+    oUpload.setFileIdentifier(fileId);
+    
+    UUID metaFileIdentifier = UUID.randomUUID();
+  
     ObjectStoreMetadata metadata = ObjectStoreMetadataFactory
       .newObjectStoreMetadata()
       .uuid(metadataId)
-      .fileIdentifier(UUID.randomUUID())
+      .fileIdentifier(metaFileIdentifier)
       .build();
 
     oSubtype = ObjectSubtypeFactory
       .newObjectSubtype()
       .build();
-
+    
     // we need to run the setup in another transaction and commit it otherwise it can't be visible
     // to the test web server.
     service.runInNewTransaction(em -> {
       em.persist(metadata);
       em.persist(oSubtype);
+      em.persist(oUpload);
     });
 
     metadataId = metadata.getUuid();
@@ -59,7 +73,7 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
   @AfterEach
   public void tearDown() {
     deleteEntityByUUID("fileIdentifier", TestConfiguration.TEST_THUMBNAIL_IDENTIFIER, ObjectStoreMetadata.class);
-    deleteEntityByUUID("fileIdentifier", TestConfiguration.TEST_FILE_IDENTIFIER, ObjectStoreMetadata.class);
+    deleteEntityByUUID("fileIdentifier", fileId, ObjectStoreMetadata.class);
     deleteEntityByUUID("uuid", oSubtype.getUuid(), ObjectSubtype.class);
   }
   
@@ -91,7 +105,7 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
     objectStoreMetadata.setDcRights(null); // default value from configuration should be used
     objectStoreMetadata.setXmpRightsOwner(null); // default value from configuration should be used
     objectStoreMetadata.setAcDigitizationDate(dateTime4Test);
-    objectStoreMetadata.setFileIdentifier(TestConfiguration.TEST_FILE_IDENTIFIER);
+    objectStoreMetadata.setFileIdentifier(fileId);
     objectStoreMetadata.setFileExtension(TestConfiguration.TEST_FILE_EXT);
     objectStoreMetadata.setBucket(TestConfiguration.TEST_BUCKET);
     objectStoreMetadata.setAcHashValue("123");

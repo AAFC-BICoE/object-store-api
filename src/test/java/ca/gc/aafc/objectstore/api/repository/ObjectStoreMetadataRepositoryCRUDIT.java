@@ -18,10 +18,12 @@ import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectSubtypeDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
+import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.file.ThumbnailService;
 import ca.gc.aafc.objectstore.api.respository.ObjectStoreResourceRepository;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import io.crnk.core.queryspec.QuerySpec;
 import io.crnk.core.resource.list.ResourceList;
 
@@ -36,10 +38,21 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
 
   private ObjectStoreMetadataDto derived;
   
+  private ObjectUpload objectUpload;
+  
   private ObjectStoreMetadata createTestObjectStoreMetadata() {
     testObjectStoreMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
     persist(testObjectStoreMetadata);
     return testObjectStoreMetadata;
+  }
+  
+  private ObjectUpload createObjectUpload() {
+    objectUpload = ObjectUploadFactory.newObjectUpload().build();
+    objectUpload.setFileIdentifier(TestConfiguration.TEST_FILE_IDENTIFIER);
+    objectUpload.setEvaluatedFileExtension(TestConfiguration.TEST_FILE_EXT);
+    objectUpload.setThumbnailIdentifier(TestConfiguration.TEST_THUMBNAIL_IDENTIFIER);
+    persist(objectUpload);
+    return objectUpload;
   }
   
   @BeforeEach
@@ -47,6 +60,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
     createTestObjectStoreMetadata();
     createAcSubType();
     createDerivedFrom();
+    createObjectUpload();
   }
 
   private void createAcSubType() {

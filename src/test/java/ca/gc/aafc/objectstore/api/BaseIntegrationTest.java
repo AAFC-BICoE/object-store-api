@@ -7,11 +7,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
+import ca.gc.aafc.objectstore.api.TestConfiguration;
 
 import ca.gc.aafc.dina.testsupport.DatabaseSupportService;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = ObjectStoreApiLauncher.class)
+@SpringBootTest(classes = {ObjectStoreApiLauncher.class , TestConfiguration.class})
 @Transactional
 @ActiveProfiles("test")
 public abstract class BaseIntegrationTest {
