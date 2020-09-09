@@ -27,7 +27,7 @@ public class ManagedAttributePermissionServiceIT {
 
   @BeforeEach
   void setUp() {
-    List<String> expectedGroups = Collections.singletonList("group 1/COLLECTION_MANAGER");
+    List<String> expectedGroups = Collections.singletonList("group 1/STAFF");
     KeycloakAuthenticationToken mockToken = Mockito.mock(
       KeycloakAuthenticationToken.class,
       Answers.RETURNS_DEEP_STUBS
@@ -38,7 +38,7 @@ public class ManagedAttributePermissionServiceIT {
   }
 
   @Test
-  void name() {
+  void create_unauthorizedUser_ReturnsAccessDenied() {
     ManagedAttribute managedAttribute = ManagedAttributeFactory.newManagedAttribute().build();
     ManagedAttributeDto dto = new ManagedAttributeDto();
     dto.setUuid(managedAttribute.getUuid());
