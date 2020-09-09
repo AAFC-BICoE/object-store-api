@@ -15,7 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 
 import javax.inject.Inject;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @SpringBootTest(properties = "keycloak.enabled=true")
@@ -27,7 +27,7 @@ public class ManagedAttributePermissionServiceIT {
 
   @BeforeEach
   void setUp() {
-    List<String> expectedGroups = Arrays.asList("group 1/COLLECTION_MANAGER");
+    List<String> expectedGroups = Collections.singletonList("group 1/COLLECTION_MANAGER");
     KeycloakAuthenticationToken mockToken = Mockito.mock(
       KeycloakAuthenticationToken.class,
       Answers.RETURNS_DEEP_STUBS
@@ -52,8 +52,8 @@ public class ManagedAttributePermissionServiceIT {
 
   public static void mockToken(
     List<String> keycloakGroupClaim,
-    KeycloakAuthenticationToken mockToken) {
-    // Mock the needed fields on the keycloak token:
+    KeycloakAuthenticationToken mockToken
+  ) {
     Mockito.when(mockToken.getName()).thenReturn("test-user");
     mockClaim(mockToken, "agent-identifier", "a2cef694-10f1-42ec-b403-e0f8ae9d2ae6");
     mockClaim(mockToken, "groups", keycloakGroupClaim);
