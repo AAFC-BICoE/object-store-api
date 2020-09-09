@@ -18,7 +18,6 @@ import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
-import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import io.restassured.response.ValidatableResponse;
 
 public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
@@ -34,7 +33,6 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
 
   private UUID metadataId;
   
-
   @BeforeEach
   public void setup() {
     oUpload = TestConfiguration.buildTestObjectUpload();

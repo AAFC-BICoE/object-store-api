@@ -171,7 +171,7 @@ public class ObjectStoreResourceRepository extends JpaResourceRepository<ObjectS
 
     ObjectUpload objectUpload = dinaService.findOne(objectMetadata.getFileIdentifier(), ObjectUpload.class);
 
-    if(objectUpload == null) {
+    if (objectUpload == null) {
       throw new ValidationException("fileIdentifier not found");
     }
 
