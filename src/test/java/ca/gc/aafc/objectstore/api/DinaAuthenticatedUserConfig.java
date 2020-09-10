@@ -1,22 +1,22 @@
 package ca.gc.aafc.objectstore.api;
 
+import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
+import ca.gc.aafc.dina.security.DinaRole;
+import com.google.common.collect.ImmutableMap;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.common.collect.ImmutableMap;
-
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
-import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
-import ca.gc.aafc.dina.security.DinaRole;
-
-@org.springframework.boot.test.context.TestConfiguration
+@Configuration
+@ConditionalOnProperty(value = "keycloak.enabled", havingValue = "false")
 public class DinaAuthenticatedUserConfig {
 
   public static final String USER_NAME = "test_user";
-  public static final Map<String, Set<DinaRole>> ROLES_PER_GROUPS = 
+  public static final Map<String, Set<DinaRole>> ROLES_PER_GROUPS =
     ImmutableMap.of(
       TestConfiguration.TEST_BUCKET, Collections.singleton(DinaRole.STAFF),
       "Group 2", Collections.singleton(DinaRole.STAFF)
