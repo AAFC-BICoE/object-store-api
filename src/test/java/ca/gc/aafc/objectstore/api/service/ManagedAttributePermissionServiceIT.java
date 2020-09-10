@@ -42,8 +42,7 @@ public class ManagedAttributePermissionServiceIT {
     /* A valid authentication token is required in the security context,
     however it is the mocked current user which defines the current role
     of the user for the tests */
-    SecurityContextHolder.getContext()
-      .setAuthentication(createMockedUser());
+    SecurityContextHolder.getContext().setAuthentication(createMockedToken());
   }
 
   @Test
@@ -96,7 +95,7 @@ public class ManagedAttributePermissionServiceIT {
     Mockito.when(currentUser.getUsername()).thenReturn("test user");
   }
 
-  private static KeycloakAuthenticationToken createMockedUser() {
+  private static KeycloakAuthenticationToken createMockedToken() {
     List<String> expectedGroups = Collections.singletonList("group 1/COLLECTION_MANAGER");
     KeycloakAuthenticationToken mockToken = Mockito.mock(
       KeycloakAuthenticationToken.class,
