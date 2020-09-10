@@ -24,7 +24,6 @@ import ca.gc.aafc.objectstore.api.file.ThumbnailService;
 import ca.gc.aafc.objectstore.api.respository.ObjectStoreResourceRepository;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
-import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import io.crnk.core.queryspec.QuerySpec;
 import io.crnk.core.resource.list.ResourceList;
 
@@ -38,32 +37,21 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
   private ObjectSubtypeDto acSubType;
 
   private ObjectStoreMetadataDto derived;
-  
+
   private ObjectUpload objectUpload;
-  
+
   private ObjectStoreMetadata createTestObjectStoreMetadata() {
     testObjectStoreMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
     persist(testObjectStoreMetadata);
     return testObjectStoreMetadata;
   }
-  
-  private ObjectUpload createObjectUpload() {
-    objectUpload = ObjectUploadFactory.newObjectUpload().build();
-    objectUpload.setFileIdentifier(TestConfiguration.TEST_FILE_IDENTIFIER);
-    objectUpload.setEvaluatedFileExtension(TestConfiguration.TEST_FILE_EXT);
-    objectUpload.setDetectedFileExtension(TestConfiguration.TEST_FILE_EXT);
-    objectUpload.setThumbnailIdentifier(TestConfiguration.TEST_THUMBNAIL_IDENTIFIER);
-    objectUpload.setDetectedMediaType(TestConfiguration.TEST_FILE_MEDIA_TYPE);
-    persist(objectUpload);
-    return objectUpload;
-  }
-  
+
   @BeforeEach
   public void setup() {
     createTestObjectStoreMetadata();
     createAcSubType();
     createDerivedFrom();
-    createObjectUpload();
+    objectUpload = createObjectUpload();
   }
 
   /**
@@ -81,7 +69,6 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
     acSubType.setUuid(oSubtype.getUuid());
     acSubType.setAcSubtype(oSubtype.getAcSubtype());
     acSubType.setDcType(oSubtype.getDcType());
-
   }
 
   private void createDerivedFrom() {
@@ -198,6 +185,12 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
       ObjectStoreMetadata.class, "uuid", updateMetadataDto.getUuid());
     assertNull(result.getAcDerivedFrom());
     assertNull(result.getAcSubType());
+  }
+
+  private ObjectUpload createObjectUpload() {
+    ObjectUpload newObjectUpload = TestConfiguration.buildTestObjectUpload();
+    persist(newObjectUpload);
+    return newObjectUpload;
   }
 
   private ObjectStoreMetadataDto getDtoUnderTest() {

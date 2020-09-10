@@ -19,6 +19,7 @@ import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
 import io.restassured.response.ValidatableResponse;
+import org.springframework.http.HttpStatus;
 
 public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
 
@@ -86,27 +87,38 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
   
   @Override
   protected Map<String, Object> buildCreateAttributeMap() {
-    
+    objectStoreMetadata = buildObjectStoreMetadataDto();
+    return toAttributeMap(objectStoreMetadata);
+  }
+
+  private ObjectStoreMetadataDto buildObjectStoreMetadataDto() {
     OffsetDateTime dateTime4Test = OffsetDateTime.now();
     // file related data has to match what is set by TestConfiguration
-    objectStoreMetadata = new ObjectStoreMetadataDto();
-    objectStoreMetadata.setUuid(null);
-    objectStoreMetadata.setAcHashFunction("SHA-1");
-    objectStoreMetadata.setDcType(null); //on creation null should be accepted
-    objectStoreMetadata.setXmpRightsWebStatement(null); // default value from configuration should be used
-    objectStoreMetadata.setDcRights(null); // default value from configuration should be used
-    objectStoreMetadata.setXmpRightsOwner(null); // default value from configuration should be used
-    objectStoreMetadata.setAcDigitizationDate(dateTime4Test);
-    objectStoreMetadata.setFileIdentifier(TestConfiguration.TEST_FILE_IDENTIFIER);
-    objectStoreMetadata.setFileExtension(TestConfiguration.TEST_FILE_EXT);
-    objectStoreMetadata.setBucket(TestConfiguration.TEST_BUCKET);
-    objectStoreMetadata.setAcMetadataCreator(UUID.randomUUID());
-    objectStoreMetadata.setDcCreator(UUID.randomUUID());
-    objectStoreMetadata.setPubliclyReleasable(true);
-    objectStoreMetadata.setNotPubliclyReleasableReason("Classified");
-    objectStoreMetadata.setXmpRightsUsageTerms(null);
+    ObjectStoreMetadataDto osMetadata = new ObjectStoreMetadataDto();
+    osMetadata.setUuid(null);
+    osMetadata.setAcHashFunction("SHA-1");
+    osMetadata.setDcType(null); //on creation null should be accepted
+    osMetadata.setXmpRightsWebStatement(null); // default value from configuration should be used
+    osMetadata.setDcRights(null); // default value from configuration should be used
+    osMetadata.setXmpRightsOwner(null); // default value from configuration should be used
+    osMetadata.setAcDigitizationDate(dateTime4Test);
+    osMetadata.setFileIdentifier(TestConfiguration.TEST_FILE_IDENTIFIER);
+    osMetadata.setFileExtension(TestConfiguration.TEST_FILE_EXT);
+    osMetadata.setBucket(TestConfiguration.TEST_BUCKET);
+    osMetadata.setAcMetadataCreator(UUID.randomUUID());
+    osMetadata.setDcCreator(UUID.randomUUID());
+    osMetadata.setPubliclyReleasable(true);
+    osMetadata.setNotPubliclyReleasableReason("Classified");
+    osMetadata.setXmpRightsUsageTerms(null);
+    return osMetadata;
+  }
 
-    return toAttributeMap(objectStoreMetadata);
+  @Test
+  public void sendInvalidFileIdentifier() {
+    ObjectStoreMetadataDto osMetadata = buildObjectStoreMetadataDto();
+    osMetadata.setFileIdentifier(UUID.randomUUID());
+    sendPost(getResourceUnderTest(), toJsonAPIMap(toAttributeMap(osMetadata), null),
+        HttpStatus.UNPROCESSABLE_ENTITY.value());
   }
 
   @Override
