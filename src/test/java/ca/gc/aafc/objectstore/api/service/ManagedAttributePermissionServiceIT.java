@@ -81,6 +81,28 @@ public class ManagedAttributePermissionServiceIT {
       () -> repoUnderTest.findOne(id, new QuerySpec(ManagedAttributeDto.class)));
   }
 
+  @Test
+  void update_unauthorizedUser_ThrowAccessDenied() {
+    mockCurrentUser(DinaRole.COLLECTION_MANAGER);
+    ManagedAttributeDto dto = repoUnderTest.create(createDto());
+
+    mockCurrentUser(DinaRole.STAFF);
+    Assertions.assertNotNull(
+      repoUnderTest.findOne(dto.getUuid(), new QuerySpec(ManagedAttributeDto.class)));
+    Assertions.assertThrows(AccessDeniedException.class, () -> repoUnderTest.save(dto));
+  }
+
+  @Test
+  void update_authorizedUser_DoesNotThrowAccessDenied() {
+    mockCurrentUser(DinaRole.COLLECTION_MANAGER);
+    ManagedAttributeDto dto = repoUnderTest.create(createDto());
+
+    ManagedAttributeDto persistedDto = repoUnderTest.findOne(
+      dto.getUuid(),
+      new QuerySpec(ManagedAttributeDto.class));
+    Assertions.assertDoesNotThrow(() -> repoUnderTest.save(persistedDto));
+  }
+
   private static ManagedAttributeDto createDto() {
     ManagedAttributeDto dto = new ManagedAttributeDto();
     dto.setName(RandomStringUtils.randomAlphabetic(4));
