@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 
@@ -24,7 +26,6 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
 import org.xmlpull.v1.XmlPullParserException;
 
-import ca.gc.aafc.objectstore.api.file.FileMetaEntry;
 import ca.gc.aafc.objectstore.api.file.FolderStructureStrategy;
 import ca.gc.aafc.objectstore.api.minio.MinioFileService;
 import io.minio.MinioClient;
@@ -52,14 +53,32 @@ import okhttp3.Headers;
 public class TestConfiguration {
 
   private final FolderStructureStrategy folderStructureStrategy = new FolderStructureStrategy();
-  public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
   public static final String TEST_BUCKET = "test";
   public static final String TEST_USAGE_TERMS = "test usage terms";
+
   public static final UUID TEST_FILE_IDENTIFIER = UUID.randomUUID();
   public static final UUID TEST_THUMBNAIL_IDENTIFIER = UUID.randomUUID();
   public static final String TEST_FILE_EXT = ".txt";
+  public static final String TEST_FILE_MEDIA_TYPE = MediaType.TEXT_PLAIN_VALUE;
   public static final String TEST_ORIGINAL_FILENAME = "myfile" + TEST_FILE_EXT;
   public static final String ILLEGAL_BUCKET_CHAR = "~";
+
+  /**
+   * Bu the ObjectUpload matching the one stored in the mock Minio.
+   * @return
+   */
+  public static ObjectUpload buildTestObjectUpload() {
+    return ObjectUploadFactory.newObjectUpload()
+        .fileIdentifier(TestConfiguration.TEST_FILE_IDENTIFIER)
+        .thumbnailIdentifier(TestConfiguration.TEST_THUMBNAIL_IDENTIFIER)
+        .evaluatedMediaType(TestConfiguration.TEST_FILE_MEDIA_TYPE)
+        .detectedMediaType(TestConfiguration.TEST_FILE_MEDIA_TYPE)
+        .detectedFileExtension(TestConfiguration.TEST_FILE_EXT)
+        .evaluatedFileExtension(TestConfiguration.TEST_FILE_EXT)
+        .bucket(TestConfiguration.TEST_BUCKET)
+        .originalFilename(TestConfiguration.TEST_ORIGINAL_FILENAME)
+        .build();
+  }
   
   @Primary
   @Bean
@@ -85,7 +104,7 @@ public class TestConfiguration {
     InputStream is = new ByteArrayInputStream(
         testFile.getBytes(StandardCharsets.UTF_8));
     
-    storeTestObject(minioClient, TEST_FILE_IDENTIFIER, TEST_FILE_EXT, is, MediaType.TEXT_PLAIN_VALUE);    
+    storeTestObject(minioClient, TEST_FILE_IDENTIFIER, TEST_FILE_EXT, is);
   }
   
   /**
@@ -95,14 +114,11 @@ public class TestConfiguration {
    * @param id
    * @param objExt
    * @param objStream
-   * @param mediaType
    * @throws InvalidKeyException
    * @throws InvalidBucketNameException
    * @throws NoSuchAlgorithmException
-   * @throws NoResponseException
    * @throws ErrorResponseException
    * @throws InternalException
-   * @throws InvalidArgumentException
    * @throws InsufficientDataException
    * @throws InvalidResponseException
    * @throws IOException
@@ -111,29 +127,14 @@ public class TestConfiguration {
    * @throws IllegalArgumentException
    */
   private void storeTestObject(MinioClient minioClient, UUID id, String objExt,
-      InputStream objStream, String mediaType) throws InvalidKeyException,
+      InputStream objStream) throws InvalidKeyException,
       InvalidBucketNameException, NoSuchAlgorithmException, ErrorResponseException,
       InternalException, InsufficientDataException, InvalidResponseException, IOException,
-      XmlPullParserException, IllegalArgumentException, XmlParserException {
+       IllegalArgumentException, XmlParserException {
     minioClient.putObject(
       TEST_BUCKET,
       MinioFileService.toMinioObjectName(folderStructureStrategy.getPathFor(id + objExt)),
       objStream,
-      null);
-
-    FileMetaEntry fme = new FileMetaEntry(id);
-    fme.setEvaluatedFileExtension(objExt);
-    fme.setReceivedMediaType(mediaType);
-    fme.setDetectedMediaType(mediaType);
-    fme.setThumbnailIdentifier(TEST_THUMBNAIL_IDENTIFIER);
-    fme.setSha1Hex("123");
-    String jsonContent = OBJECT_MAPPER.writeValueAsString(fme);
-    InputStream metaStream = new ByteArrayInputStream(jsonContent.getBytes(StandardCharsets.UTF_8));
-    minioClient.putObject(
-      TEST_BUCKET,
-      MinioFileService.toMinioObjectName(
-        folderStructureStrategy.getPathFor(id + FileMetaEntry.SUFFIX)),
-      metaStream,
       null);
   }
   
@@ -214,7 +215,7 @@ public class TestConfiguration {
       public ObjectStat statObject(String bucketName, String objectName) {
         Headers head = Headers.of(
           ImmutableMap.of(
-            "Content-Type", MediaType.TEXT_PLAIN_VALUE,
+            "Content-Type", TEST_FILE_MEDIA_TYPE,
             "Last-Modified", "Tue, 15 Nov 1994 12:45:26 GMT",
             "Content-Length","1234"));
         return new ObjectStat(bucketName, objectName, head);

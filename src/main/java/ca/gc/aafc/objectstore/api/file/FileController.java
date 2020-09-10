@@ -1,10 +1,7 @@
 package ca.gc.aafc.objectstore.api.file;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
 import java.security.DigestInputStream;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
@@ -16,8 +13,6 @@ import java.util.UUID;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
-import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
-import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MimeTypeException;
@@ -27,7 +22,6 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,24 +31,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
-import org.xmlpull.v1.XmlPullParserException;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
+import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.minio.MinioFileService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataReadService;
+import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
 import io.crnk.core.exception.UnauthorizedException;
 import io.minio.errors.ErrorResponseException;
 import io.minio.errors.InsufficientDataException;
 import io.minio.errors.InternalException;
 import io.minio.errors.InvalidBucketNameException;
-import io.minio.errors.InvalidEndpointException;
-import io.minio.errors.InvalidPortException;
 import io.minio.errors.InvalidResponseException;
-import io.minio.errors.RegionConflictException;
 import io.minio.errors.XmlParserException;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
@@ -71,7 +60,6 @@ public class FileController {
   private final MinioFileService minioService;
   private final ObjectStoreMetadataReadService objectStoreMetadataReadService;
   private final MediaTypeDetectionStrategy mediaTypeDetectionStrategy;
-  private final ObjectMapper objectMapper;
   private final ThumbnailService thumbnailService;
   private final MessageSource messageSource;
 
@@ -83,7 +71,6 @@ public class FileController {
       ObjectUploadService objectUploadService,
       ObjectStoreMetadataReadService objectStoreMetadataReadService,
       MediaTypeDetectionStrategy mediaTypeDetectionStrategy, 
-      Jackson2ObjectMapperBuilder jackson2ObjectMapperBuilder,
       ThumbnailService thumbnailService,
       DinaAuthenticatedUser authenticatedUser,
       MessageSource messageSource
@@ -94,19 +81,16 @@ public class FileController {
     this.mediaTypeDetectionStrategy = mediaTypeDetectionStrategy;
     this.thumbnailService = thumbnailService;
     this.authenticatedUser = authenticatedUser;
-    this.objectMapper = jackson2ObjectMapperBuilder.build();
-    objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
     this.messageSource = messageSource;
   }
 
   @PostMapping("/file/{bucket}")
   @Transactional
-  public FileMetaEntry handleFileUpload(@RequestParam("file") MultipartFile file,
+  public ObjectUpload handleFileUpload(@RequestParam("file") MultipartFile file,
       @PathVariable String bucket) throws InvalidKeyException, NoSuchAlgorithmException,
       InvalidBucketNameException, ErrorResponseException, InternalException,
-      InsufficientDataException, InvalidResponseException, RegionConflictException,
-      InvalidEndpointException, InvalidPortException, IOException, XmlPullParserException,
-      URISyntaxException, MimeTypeException, IllegalArgumentException, XmlParserException {
+      InsufficientDataException, InvalidResponseException, 
+      MimeTypeException, XmlParserException, IOException {
 
     // make sure we have an authenticatedUser
     checkAuthenticatedUser();
@@ -121,18 +105,6 @@ public class FileController {
 
     MediaTypeDetectionStrategy.MediaTypeDetectionResult mtdr = mediaTypeDetectionStrategy
         .detectMediaType(file.getInputStream(), file.getContentType(), file.getOriginalFilename());
-
-    FileMetaEntry fileMetaEntry = new FileMetaEntry(uuid);
-    fileMetaEntry.setOriginalFilename(file.getOriginalFilename());
-    fileMetaEntry.setReceivedMediaType(file.getContentType());
-    
-    fileMetaEntry.setDetectedMediaType(Objects.toString(mtdr.getDetectedMediaType()));
-    fileMetaEntry.setDetectedFileExtension(mtdr.getDetectedMimeType().getExtension());
-    
-    fileMetaEntry.setEvaluatedMediaType(mtdr.getEvaluatedMediatype());
-    fileMetaEntry.setEvaluatedFileExtension(mtdr.getEvaluatedExtension());
-
-    fileMetaEntry.setSizeInBytes(file.getSize());
 
     // Decorate the InputStream in order to compute the hash
     MessageDigest md = MessageDigest.getInstance(DIGEST_ALGORITHM);
@@ -164,17 +136,12 @@ public class FileController {
         .build());
 
     UUID thumbUuid = generateThumbNail(uuid, file.getInputStream(), bucket, mtdr.getEvaluatedMediatype());
-    fileMetaEntry.setSha1Hex(sha1Hex);
-    fileMetaEntry.setThumbnailIdentifier(thumbUuid);
-
-    storeFileMetaEntry(fileMetaEntry, bucket);
 
     if (thumbUuid != null) {
       objectUpload.setThumbnailIdentifier(thumbUuid);
       objectUploadService.update(objectUpload);
     }
-
-    return fileMetaEntry;
+    return objectUpload;
   }
 
   /**
@@ -207,46 +174,8 @@ public class FileController {
       }
     }
     return null;
-  }
-
-  /**
-   * Store a {@link FileMetaEntry} in Minio as a json file.
-   * 
-   * @param fileMetaEntry
-   * @param bucket
-   * @throws InvalidKeyException
-   * @throws NoSuchAlgorithmException
-   * @throws InvalidBucketNameException
-   * @throws NoResponseException
-   * @throws ErrorResponseException
-   * @throws InternalException
-   * @throws InvalidArgumentException
-   * @throws InsufficientDataException
-   * @throws InvalidResponseException
-   * @throws RegionConflictException
-   * @throws InvalidEndpointException
-   * @throws InvalidPortException
-   * @throws IOException
-   * @throws XmlPullParserException
-   * @throws URISyntaxException
-   * @throws XmlParserException
-   * @throws IllegalArgumentException
-   */
-  private void storeFileMetaEntry(FileMetaEntry fileMetaEntry, String bucket)
-      throws InvalidKeyException, NoSuchAlgorithmException, InvalidBucketNameException,
-      ErrorResponseException, InternalException, InsufficientDataException,
-      InvalidResponseException, RegionConflictException, InvalidEndpointException,
-      InvalidPortException, IOException, XmlPullParserException, URISyntaxException,
-      IllegalArgumentException, XmlParserException {
-
-    String jsonContent = objectMapper.writeValueAsString(fileMetaEntry);
-    InputStream inputStream = new ByteArrayInputStream(
-        jsonContent.getBytes(StandardCharsets.UTF_8));
-    minioService.storeFile(fileMetaEntry.getFileMetaEntryFilename().toString(), 
-        inputStream, fileMetaEntry.getDetectedMediaType(), bucket, null);
-  }
-  
-  /**
+  } 
+   /**
    * Triggers a download of a file. Note that the file requires a metadata entry in the database to
    * be available for download.
    * 
@@ -294,7 +223,7 @@ public class FileController {
           "FileIdentifier " + fileUuid + " or bucket " + bucket + " Not Found", null));
 
       InputStreamResource isr = new InputStreamResource(is);
-      return new ResponseEntity<InputStreamResource>(isr, respHeaders, HttpStatus.OK);
+      return new ResponseEntity<>(isr, respHeaders, HttpStatus.OK);
     } catch (IOException e) {
       log.warn("Can't download object", e);
     }

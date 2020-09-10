@@ -10,6 +10,7 @@ import java.util.UUID;
 import javax.inject.Inject;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -18,6 +19,7 @@ import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectSubtypeDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
+import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.file.ThumbnailService;
 import ca.gc.aafc.objectstore.api.respository.ObjectStoreResourceRepository;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
@@ -35,18 +37,29 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
   private ObjectSubtypeDto acSubType;
 
   private ObjectStoreMetadataDto derived;
-  
+
+  private ObjectUpload objectUpload;
+
   private ObjectStoreMetadata createTestObjectStoreMetadata() {
     testObjectStoreMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
     persist(testObjectStoreMetadata);
     return testObjectStoreMetadata;
   }
-  
+
   @BeforeEach
   public void setup() {
     createTestObjectStoreMetadata();
     createAcSubType();
     createDerivedFrom();
+    objectUpload = createObjectUpload();
+  }
+
+  /**
+   * Clean up database after each test.
+   */
+  @AfterEach
+  public void tearDown() {
+    service.deleteById(ObjectUpload.class, objectUpload.getId());
   }
 
   private void createAcSubType() {
@@ -56,7 +69,6 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
     acSubType.setUuid(oSubtype.getUuid());
     acSubType.setAcSubtype(oSubtype.getAcSubtype());
     acSubType.setDcType(oSubtype.getDcType());
-
   }
 
   private void createDerivedFrom() {
@@ -173,6 +185,12 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
       ObjectStoreMetadata.class, "uuid", updateMetadataDto.getUuid());
     assertNull(result.getAcDerivedFrom());
     assertNull(result.getAcSubType());
+  }
+
+  private ObjectUpload createObjectUpload() {
+    ObjectUpload newObjectUpload = TestConfiguration.buildTestObjectUpload();
+    persist(newObjectUpload);
+    return newObjectUpload;
   }
 
   private ObjectStoreMetadataDto getDtoUnderTest() {
