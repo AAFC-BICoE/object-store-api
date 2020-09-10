@@ -1,9 +1,12 @@
 package ca.gc.aafc.objectstore.api.service;
 
+import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
+import ca.gc.aafc.dina.security.DinaRole;
 import ca.gc.aafc.objectstore.api.dto.ManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
 import ca.gc.aafc.objectstore.api.respository.ManagedAttributeResourceRepository;
-import ca.gc.aafc.objectstore.api.testsupport.factories.ManagedAttributeFactory;
+import io.crnk.core.exception.ResourceNotFoundException;
+import io.crnk.core.queryspec.QuerySpec;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,12 +14,18 @@ import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
 import org.mockito.Answers;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
+import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
+import org.testcontainers.shaded.com.google.common.collect.ImmutableSet;
+import org.testcontainers.shaded.org.apache.commons.lang.RandomStringUtils;
 
 import javax.inject.Inject;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 @SpringBootTest(properties = "keycloak.enabled=true")
 @ActiveProfiles("test")
@@ -25,29 +34,77 @@ public class ManagedAttributePermissionServiceIT {
   @Inject
   private ManagedAttributeResourceRepository repoUnderTest;
 
+  @MockBean
+  private DinaAuthenticatedUser currentUser;
+
   @BeforeEach
   void setUp() {
-    List<String> expectedGroups = Collections.singletonList("group 1/STAFF");
+    /* A valid authentication token is required in the security context,
+    however it is the mocked current user which defines the current role
+    of the user for the tests */
+    SecurityContextHolder.getContext()
+      .setAuthentication(createMockedUser());
+  }
+
+  @Test
+  void create_unauthorizedUser_ThrowsAccessDenied() {
+    mockCurrentUser(DinaRole.STAFF);
+    Assertions.assertThrows(
+      AccessDeniedException.class,
+      () -> repoUnderTest.create(new ManagedAttributeDto()));
+  }
+
+  @Test
+  void create_authorizedUser_DoesNotThrowAccessDenied() {
+    mockCurrentUser(DinaRole.COLLECTION_MANAGER);
+    Assertions.assertDoesNotThrow(() -> repoUnderTest.create(createDto()));
+  }
+
+  @Test
+  void delete_unauthorizedUser_ThrowAccessDenied() {
+    mockCurrentUser(DinaRole.COLLECTION_MANAGER);
+    UUID id = repoUnderTest.create(createDto()).getUuid();
+
+    mockCurrentUser(DinaRole.STAFF);
+    Assertions.assertNotNull(repoUnderTest.findOne(id, new QuerySpec(ManagedAttributeDto.class)));
+    Assertions.assertThrows(AccessDeniedException.class, () -> repoUnderTest.delete(id));
+  }
+
+  @Test
+  void delete_authorizedUser_DoesNotThrowAccessDenied() {
+    mockCurrentUser(DinaRole.COLLECTION_MANAGER);
+    UUID id = repoUnderTest.create(createDto()).getUuid();
+
+    Assertions.assertNotNull(repoUnderTest.findOne(id, new QuerySpec(ManagedAttributeDto.class)));
+    Assertions.assertDoesNotThrow(() -> repoUnderTest.delete(id));
+    Assertions.assertThrows(
+      ResourceNotFoundException.class,
+      () -> repoUnderTest.findOne(id, new QuerySpec(ManagedAttributeDto.class)));
+  }
+
+  private static ManagedAttributeDto createDto() {
+    ManagedAttributeDto dto = new ManagedAttributeDto();
+    dto.setName(RandomStringUtils.randomAlphabetic(4));
+    dto.setDescription(ImmutableMap.of("en", "Test"));
+    dto.setManagedAttributeType(ManagedAttribute.ManagedAttributeType.STRING);
+    return dto;
+  }
+
+  private void mockCurrentUser(DinaRole role) {
+    Mockito.when(currentUser.getRolesPerGroup())
+      .thenReturn(ImmutableMap.of("group1", ImmutableSet.of(role)));
+    Mockito.when(currentUser.getUsername()).thenReturn("test user");
+  }
+
+  private static KeycloakAuthenticationToken createMockedUser() {
+    List<String> expectedGroups = Collections.singletonList("group 1/COLLECTION_MANAGER");
     KeycloakAuthenticationToken mockToken = Mockito.mock(
       KeycloakAuthenticationToken.class,
       Answers.RETURNS_DEEP_STUBS
     );
 
     mockToken(expectedGroups, mockToken);
-    SecurityContextHolder.getContext().setAuthentication(mockToken);
-  }
-
-  @Test
-  void create_unauthorizedUser_ReturnsAccessDenied() {
-    ManagedAttribute managedAttribute = ManagedAttributeFactory.newManagedAttribute().build();
-    ManagedAttributeDto dto = new ManagedAttributeDto();
-    dto.setUuid(managedAttribute.getUuid());
-    dto.setName(managedAttribute.getName());
-    dto.setDescription(managedAttribute.getDescription());
-    dto.setManagedAttributeType(managedAttribute.getManagedAttributeType());
-    repoUnderTest.create(dto);
-
-    Assertions.assertTrue(true);
+    return mockToken;
   }
 
   public static void mockToken(
