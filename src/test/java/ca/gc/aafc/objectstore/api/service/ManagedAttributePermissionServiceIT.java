@@ -7,6 +7,7 @@ import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
 import ca.gc.aafc.objectstore.api.respository.ManagedAttributeResourceRepository;
 import io.crnk.core.exception.ResourceNotFoundException;
 import io.crnk.core.queryspec.QuerySpec;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,6 +44,12 @@ public class ManagedAttributePermissionServiceIT {
     however it is the mocked current user which defines the current role
     of the user for the tests */
     SecurityContextHolder.getContext().setAuthentication(createMockedToken());
+  }
+
+  @AfterAll
+  static void afterAll() {
+    // Prevent other tests from failing from the mocked security context.
+    SecurityContextHolder.getContext().setAuthentication(null);
   }
 
   @Test
