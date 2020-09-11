@@ -2,6 +2,7 @@ package ca.gc.aafc.objectstore.api.service;
 
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.dina.security.DinaRole;
+import ca.gc.aafc.objectstore.api.MinioTestConfiguration;
 import ca.gc.aafc.objectstore.api.dto.ManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
 import ca.gc.aafc.objectstore.api.respository.ManagedAttributeResourceRepository;
@@ -16,9 +17,9 @@ import org.mockito.Answers;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
 import org.testcontainers.shaded.com.google.common.collect.ImmutableSet;
 import org.testcontainers.shaded.org.apache.commons.lang.RandomStringUtils;
@@ -29,7 +30,7 @@ import java.util.List;
 import java.util.UUID;
 
 @SpringBootTest(properties = "keycloak.enabled=true")
-@ActiveProfiles("test")
+@Import(MinioTestConfiguration.class)
 public class ManagedAttributePermissionServiceIT {
 
   @Inject
