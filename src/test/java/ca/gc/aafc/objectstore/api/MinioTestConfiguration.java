@@ -16,12 +16,10 @@ import java.util.UUID;
 
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 
 import org.apache.commons.io.IOUtils;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
 import org.xmlpull.v1.XmlPullParserException;
@@ -49,8 +47,8 @@ import okhttp3.Headers;
  * A MinioClient stub with 1 entry will be created for testing purpose (see {@link #setupFile(MinioClient)})
  *
  */
-@Configuration
-public class TestConfiguration {
+@org.springframework.boot.test.context.TestConfiguration
+public class MinioTestConfiguration {
 
   private final FolderStructureStrategy folderStructureStrategy = new FolderStructureStrategy();
   public static final String TEST_BUCKET = "test";
@@ -69,14 +67,14 @@ public class TestConfiguration {
    */
   public static ObjectUpload buildTestObjectUpload() {
     return ObjectUploadFactory.newObjectUpload()
-        .fileIdentifier(TestConfiguration.TEST_FILE_IDENTIFIER)
-        .thumbnailIdentifier(TestConfiguration.TEST_THUMBNAIL_IDENTIFIER)
-        .evaluatedMediaType(TestConfiguration.TEST_FILE_MEDIA_TYPE)
-        .detectedMediaType(TestConfiguration.TEST_FILE_MEDIA_TYPE)
-        .detectedFileExtension(TestConfiguration.TEST_FILE_EXT)
-        .evaluatedFileExtension(TestConfiguration.TEST_FILE_EXT)
-        .bucket(TestConfiguration.TEST_BUCKET)
-        .originalFilename(TestConfiguration.TEST_ORIGINAL_FILENAME)
+        .fileIdentifier(MinioTestConfiguration.TEST_FILE_IDENTIFIER)
+        .thumbnailIdentifier(MinioTestConfiguration.TEST_THUMBNAIL_IDENTIFIER)
+        .evaluatedMediaType(MinioTestConfiguration.TEST_FILE_MEDIA_TYPE)
+        .detectedMediaType(MinioTestConfiguration.TEST_FILE_MEDIA_TYPE)
+        .detectedFileExtension(MinioTestConfiguration.TEST_FILE_EXT)
+        .evaluatedFileExtension(MinioTestConfiguration.TEST_FILE_EXT)
+        .bucket(MinioTestConfiguration.TEST_BUCKET)
+        .originalFilename(MinioTestConfiguration.TEST_ORIGINAL_FILENAME)
         .build();
   }
   
@@ -172,8 +170,8 @@ public class TestConfiguration {
     }
     
     /**
-     * If {@link TestConfiguration#ILLEGAL_BUCKET_CHAR} is present in the bucket name, {@link InvalidBucketNameException}
-     * will be thrown. Otherwise, the item for {@link TestConfiguration#TEST_FILE_IDENTIFIER} will be returned.
+     * If {@link MinioTestConfiguration#ILLEGAL_BUCKET_CHAR} is present in the bucket name, {@link InvalidBucketNameException}
+     * will be thrown. Otherwise, the item for {@link MinioTestConfiguration#TEST_FILE_IDENTIFIER} will be returned.
      */
     @Override
     public Iterable<Result<Item>> listObjects(String bucketName, String prefix) {

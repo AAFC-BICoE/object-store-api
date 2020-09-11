@@ -11,7 +11,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import ca.gc.aafc.objectstore.api.TestConfiguration;
+import ca.gc.aafc.objectstore.api.MinioTestConfiguration;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
@@ -36,7 +36,7 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
   
   @BeforeEach
   public void setup() {
-    oUpload = TestConfiguration.buildTestObjectUpload();
+    oUpload = MinioTestConfiguration.buildTestObjectUpload();
 
     // used to test relationships
     ObjectStoreMetadata metadata = ObjectStoreMetadataFactory
@@ -64,10 +64,10 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
    */
   @AfterEach
   public void tearDown() {
-    deleteEntityByUUID("fileIdentifier", TestConfiguration.TEST_THUMBNAIL_IDENTIFIER, ObjectStoreMetadata.class);
-    deleteEntityByUUID("fileIdentifier", TestConfiguration.TEST_FILE_IDENTIFIER, ObjectStoreMetadata.class);
+    deleteEntityByUUID("fileIdentifier", MinioTestConfiguration.TEST_THUMBNAIL_IDENTIFIER, ObjectStoreMetadata.class);
+    deleteEntityByUUID("fileIdentifier", MinioTestConfiguration.TEST_FILE_IDENTIFIER, ObjectStoreMetadata.class);
     deleteEntityByUUID("uuid", oSubtype.getUuid(), ObjectSubtype.class);
-    deleteEntityByUUID("fileIdentifier", TestConfiguration.TEST_FILE_IDENTIFIER, ObjectUpload.class);
+    deleteEntityByUUID("fileIdentifier", MinioTestConfiguration.TEST_FILE_IDENTIFIER, ObjectUpload.class);
   }
   
   @Override
@@ -102,9 +102,9 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
     osMetadata.setDcRights(null); // default value from configuration should be used
     osMetadata.setXmpRightsOwner(null); // default value from configuration should be used
     osMetadata.setAcDigitizationDate(dateTime4Test);
-    osMetadata.setFileIdentifier(TestConfiguration.TEST_FILE_IDENTIFIER);
-    osMetadata.setFileExtension(TestConfiguration.TEST_FILE_EXT);
-    osMetadata.setBucket(TestConfiguration.TEST_BUCKET);
+    osMetadata.setFileIdentifier(MinioTestConfiguration.TEST_FILE_IDENTIFIER);
+    osMetadata.setFileExtension(MinioTestConfiguration.TEST_FILE_EXT);
+    osMetadata.setBucket(MinioTestConfiguration.TEST_BUCKET);
     osMetadata.setAcMetadataCreator(UUID.randomUUID());
     osMetadata.setDcCreator(UUID.randomUUID());
     osMetadata.setPubliclyReleasable(true);
