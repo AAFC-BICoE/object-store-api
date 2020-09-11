@@ -18,7 +18,7 @@ public class DinaAuthenticatedUserConfig {
   public static final String USER_NAME = "test_user";
   public static final Map<String, Set<DinaRole>> ROLES_PER_GROUPS = 
     ImmutableMap.of(
-      TestConfiguration.TEST_BUCKET, Collections.singleton(DinaRole.STAFF),
+      MinioTestConfiguration.TEST_BUCKET, Collections.singleton(DinaRole.STAFF),
       "Group 2", Collections.singleton(DinaRole.STAFF)
     );
 
