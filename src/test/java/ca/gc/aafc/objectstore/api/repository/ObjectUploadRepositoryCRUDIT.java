@@ -62,5 +62,6 @@ public class ObjectUploadRepositoryCRUDIT extends BaseRepositoryTest {
     assertEquals(testObjectUpload.getFileIdentifier(), objectUploadDto.getFileIdentifier());
     assertNotNull(objectUploadDto.getCreatedOn());
     assertEquals(testObjectUpload.getCreatedBy(), objectUploadDto.getCreatedBy());
+    assertEquals(testObjectUpload.getBucket(), objectUploadDto.getBucket());
   }    
 }

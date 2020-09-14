@@ -1,9 +1,5 @@
 package ca.gc.aafc.objectstore.api.respository;
 
-import java.util.Optional;
-
-import org.springframework.stereotype.Repository;
-
 import ca.gc.aafc.dina.filter.DinaFilterResolver;
 import ca.gc.aafc.dina.mapper.DinaMapper;
 import ca.gc.aafc.dina.repository.DinaRepository;
@@ -11,22 +7,27 @@ import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.dina.service.DinaService;
 import ca.gc.aafc.objectstore.api.dto.ManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
+import ca.gc.aafc.objectstore.api.service.ManagedAttributeAuthorizationService;
 import lombok.NonNull;
+import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
 
 @Repository
 public class ManagedAttributeResourceRepository
-    extends DinaRepository<ManagedAttributeDto, ManagedAttribute> {
+  extends DinaRepository<ManagedAttributeDto, ManagedAttribute> {
 
-  private Optional<DinaAuthenticatedUser> authenticatedUser;
+  private final Optional<DinaAuthenticatedUser> authenticatedUser;
 
   public ManagedAttributeResourceRepository(
     @NonNull DinaService<ManagedAttribute> dinaService,
     @NonNull DinaFilterResolver filterResolver,
+    @NonNull ManagedAttributeAuthorizationService authorizationService,
     Optional<DinaAuthenticatedUser> authenticatedUser
   ) {
     super(
       dinaService,
-      Optional.empty(),
+      Optional.of(authorizationService),
       Optional.empty(),
       new DinaMapper<>(ManagedAttributeDto.class),
       ManagedAttributeDto.class,

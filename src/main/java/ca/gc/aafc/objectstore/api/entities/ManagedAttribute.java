@@ -14,7 +14,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
-import javax.persistence.Transient;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -121,17 +120,6 @@ public class ManagedAttribute implements DinaEntity {
 
   public void setAcceptedValues(String[] acceptedValues) {
     this.acceptedValues = acceptedValues;
-  }
-
-  @Transient
-  @Deprecated
-  public OffsetDateTime getCreatedDate() {
-    return createdOn;
-  }
-
-  @Deprecated
-  public void setCreatedDate(OffsetDateTime createdOn) {
-    this.createdOn = createdOn;
   }
 
   @Column(name = "created_on", insertable = false, updatable = false)
