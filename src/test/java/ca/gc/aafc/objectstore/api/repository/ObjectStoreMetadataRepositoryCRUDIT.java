@@ -1,6 +1,6 @@
 package ca.gc.aafc.objectstore.api.repository;
 
-import ca.gc.aafc.objectstore.api.TestConfiguration;
+import ca.gc.aafc.objectstore.api.MinioTestConfiguration;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectSubtypeDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
@@ -13,6 +13,7 @@ import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
 import io.crnk.core.queryspec.QuerySpec;
 import io.crnk.core.resource.list.ResourceList;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -36,8 +37,6 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
   private ObjectStoreMetadataDto derived;
 
   private ObjectUpload objectUpload;
-
-  private ObjectStoreMetadata createTestObjectStoreMetadata() {
 
   private void createTestObjectStoreMetadata() {
     testObjectStoreMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();

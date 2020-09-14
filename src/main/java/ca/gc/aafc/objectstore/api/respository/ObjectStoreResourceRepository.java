@@ -9,9 +9,8 @@ import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.dina.service.DinaService;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
+import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.file.FileController;
-import ca.gc.aafc.objectstore.api.file.FileInformationService;
-import ca.gc.aafc.objectstore.api.file.FileMetaEntry;
 import ca.gc.aafc.objectstore.api.file.ThumbnailService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataDefaultValueSetterService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataReadService;
@@ -28,8 +27,6 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.criteria.Predicate;
 import javax.transaction.Transactional;
 import javax.validation.ValidationException;
-import javax.ws.rs.BadRequestException;
-import java.io.IOException;
 import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.Objects;
@@ -45,7 +42,6 @@ public class ObjectStoreResourceRepository
   implements ObjectStoreMetadataReadService {
 
   private final DinaService<ObjectStoreMetadata> dinaService;
-  private final FileInformationService fileInformationService;
   private final DinaAuthenticatedUser authenticatedUser;
   private final ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService;
   private static final PathSpec DELETED_PATH_SPEC = PathSpec.of("softDeleted");
@@ -56,7 +52,6 @@ public class ObjectStoreResourceRepository
   public ObjectStoreResourceRepository(
     @NonNull DinaService<ObjectStoreMetadata> dinaService,
     @NonNull DinaFilterResolver filterResolver,
-    @NonNull FileInformationService fileInformationService,
     @NonNull ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService,
     @NonNull DinaAuthenticatedUser authenticatedUser
   ) {
@@ -69,7 +64,6 @@ public class ObjectStoreResourceRepository
       ObjectStoreMetadata.class,
       filterResolver);
     this.dinaService = dinaService;
-    this.fileInformationService = fileInformationService;
     this.defaultValueSetterService = defaultValueSetterService;
     this.authenticatedUser = authenticatedUser;
   }
@@ -167,8 +161,8 @@ public class ObjectStoreResourceRepository
   /**
    * Method responsible for dealing with validation and setting of data related to files.
    *
-   * @param objectMetadata - Incoming MetaData
-   * @throws ValidationException if the file identifier or bucket is missing from the request body
+   * @param objectMetadata - The metadata of the data to set.
+   * @throws ValidationException If a file identifier was not provided.
    */
   private ObjectStoreMetadataDto handleFileRelatedData(ObjectStoreMetadataDto objectMetadata)
     throws ValidationException {
@@ -178,39 +172,21 @@ public class ObjectStoreResourceRepository
       throw new ValidationException("fileIdentifier and bucket should be provided");
     }
 
-    FileMetaEntry fileMetaEntry = getFileMetaEntry(objectMetadata);
+    ObjectUpload objectUpload = dinaService.findOne(
+      objectMetadata.getFileIdentifier(),
+      ObjectUpload.class);
 
-    objectMetadata.setFileExtension(fileMetaEntry.getEvaluatedFileExtension());
-    objectMetadata.setOriginalFilename(fileMetaEntry.getOriginalFilename());
-    objectMetadata.setDcFormat(fileMetaEntry.getDetectedMediaType());
-    objectMetadata.setAcHashValue(fileMetaEntry.getSha1Hex());
+    if (objectUpload == null) {
+      throw new ValidationException("fileIdentifier not found");
+    }
+
+    objectMetadata.setFileExtension(objectUpload.getEvaluatedFileExtension());
+    objectMetadata.setOriginalFilename(objectUpload.getOriginalFilename());
+    objectMetadata.setDcFormat(objectUpload.getDetectedMediaType());
+    objectMetadata.setAcHashValue(objectUpload.getSha1Hex());
     objectMetadata.setAcHashFunction(FileController.DIGEST_ALGORITHM);
 
     return objectMetadata;
-  }
-
-  /**
-   * Returns the {@link FileMetaEntry} for the resource of the given {@link ObjectStoreMetadataDto}
-   *
-   * @param objectMetadata - meta data for the resource
-   * @return {@link FileMetaEntry} for the resource
-   */
-  private FileMetaEntry getFileMetaEntry(ObjectStoreMetadataDto objectMetadata) {
-    try {
-      return fileInformationService
-        .getJsonFileContentAs(
-          objectMetadata.getBucket(),
-          objectMetadata.getFileIdentifier().toString() + FileMetaEntry.SUFFIX,
-          FileMetaEntry.class)
-        .orElseThrow(() -> new BadRequestException(
-          this.getClass().getSimpleName() +
-          " with ID " +
-          objectMetadata.getFileIdentifier() +
-          " Not Found."));
-    } catch (IOException e) {
-      log.error(e.getMessage());
-      throw new BadRequestException("Can't process " + objectMetadata.getFileIdentifier());
-    }
   }
 
   /**
@@ -220,12 +196,13 @@ public class ObjectStoreResourceRepository
    * @param resource - parent resource metadata of the thumbnail
    */
   private void handleThumbNailMetaEntry(ObjectStoreMetadataDto resource) {
-    FileMetaEntry fileMetaEntry = getFileMetaEntry(resource);
-    if (fileMetaEntry.getThumbnailIdentifier() != null) {
+    ObjectUpload objectUpload = dinaService.findOne(
+      resource.getFileIdentifier(),
+      ObjectUpload.class);
+    if (objectUpload.getThumbnailIdentifier() != null) {
       ObjectStoreMetadataDto thumbnailMetadataDto = ThumbnailService.generateThumbMetaData(
         resource,
-        fileMetaEntry.getThumbnailIdentifier());
-
+        objectUpload.getThumbnailIdentifier());
       super.create(thumbnailMetadataDto);
     }
   }
