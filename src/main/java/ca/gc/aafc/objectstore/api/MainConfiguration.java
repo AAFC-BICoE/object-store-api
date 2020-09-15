@@ -8,11 +8,11 @@ import javax.inject.Inject;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 
 import ca.gc.aafc.dina.DinaBaseApiAutoConfiguration;
 import ca.gc.aafc.dina.jpa.BaseDAO;
@@ -36,7 +36,7 @@ public class MainConfiguration {
   private ObjectStoreMetaDataFieldResolvers metaDataFieldResolver;
 
   @Bean
-  @Profile("!test")
+  @ConditionalOnMissingBean
   public MinioClient initMinioClient(
       @Value("${minio.scheme:}") String protocol, 
       @Value("${minio.host:}") String host,
