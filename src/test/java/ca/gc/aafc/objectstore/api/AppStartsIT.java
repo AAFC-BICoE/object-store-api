@@ -7,10 +7,13 @@ import javax.inject.Inject;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 
+import ca.gc.aafc.dina.testsupport.PostgresTestContainerInitializer;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 
 @SpringBootTest(classes = ObjectStoreApiLauncher.class)
+@ContextConfiguration(initializers = { PostgresTestContainerInitializer.class })
 @ActiveProfiles("test")
 public class AppStartsIT {
   

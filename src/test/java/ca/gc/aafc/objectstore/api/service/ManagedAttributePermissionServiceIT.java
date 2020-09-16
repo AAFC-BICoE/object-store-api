@@ -2,6 +2,7 @@ package ca.gc.aafc.objectstore.api.service;
 
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.dina.security.DinaRole;
+import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.dto.ManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
 import ca.gc.aafc.objectstore.api.respository.ManagedAttributeResourceRepository;
@@ -28,7 +29,8 @@ import java.util.List;
 import java.util.UUID;
 
 @SpringBootTest(properties = "keycloak.enabled=true")
-public class ManagedAttributePermissionServiceIT {
+
+public class ManagedAttributePermissionServiceIT extends BaseIntegrationTest {
 
   @Inject
   private ManagedAttributeResourceRepository repoUnderTest;

@@ -6,8 +6,10 @@ import javax.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 
 import ca.gc.aafc.dina.testsupport.DatabaseSupportService;
+import ca.gc.aafc.dina.testsupport.PostgresTestContainerInitializer;
 
 /**
  * The class is ported from seqdb.dbi with below changes, will be moved to a
@@ -27,6 +29,7 @@ import ca.gc.aafc.dina.testsupport.DatabaseSupportService;
  */
 @SpringBootTest
 @Transactional
+@ContextConfiguration(initializers = { PostgresTestContainerInitializer.class })
 @ActiveProfiles("test")
 public abstract class BaseEntityCRUDIT {
 
