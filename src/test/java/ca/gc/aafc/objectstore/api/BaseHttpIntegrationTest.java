@@ -10,7 +10,9 @@ import org.springframework.boot.web.server.LocalServerPort;
  *
  */
 @SpringBootTest(
-    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    classes = ObjectStoreApiLauncher.class,
+    properties = "spring.config.additional-location=classpath:/application-test.yml"
 )
 public abstract class BaseHttpIntegrationTest extends BaseIntegrationTest { 
   @LocalServerPort
