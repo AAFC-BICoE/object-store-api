@@ -28,12 +28,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-@SpringBootTest(
-  properties = {
-    "keycloak.enabled=true",
-    "spring.config.additional-location=classpath:/application-test.yml"
-  }
-)
+@SpringBootTest(properties = "keycloak.enabled=true")
 public class ManagedAttributePermissionServiceIT extends BaseIntegrationTest {
 
   @Inject
