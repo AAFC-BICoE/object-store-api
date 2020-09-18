@@ -1,5 +1,6 @@
 package ca.gc.aafc.objectstore.api.respository.managedattributemap;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -77,7 +78,8 @@ public class ManagedAttributeMapRepository extends ResourceRepositoryBase<Manage
       .orElseThrow(() -> new ValidationException("Metadata relationship required to add managed attributes map."));
     final ObjectStoreMetadata metadata = dao.findOneByNaturalId(metadataUuid, ObjectStoreMetadata.class);
 
-    final List<MetadataManagedAttribute> managedAttributeValues = metadata.getManagedAttribute();
+    final List<MetadataManagedAttribute> managedAttributeValues =
+      metadata.getManagedAttribute() == null ? new ArrayList<>() : metadata.getManagedAttribute();
 
     // Loop through the changed attribute values:
     for (final Entry<String, ManagedAttributeMapValue> entry : resource.getValues().entrySet()) {
