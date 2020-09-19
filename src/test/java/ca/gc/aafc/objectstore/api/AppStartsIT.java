@@ -1,22 +1,13 @@
 package ca.gc.aafc.objectstore.api;
 
-import static org.junit.Assert.assertNotNull;
+import ca.gc.aafc.objectstore.api.entities.DcType;
+import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ContextConfiguration;
+import static org.junit.Assert.assertNotNull;
 
-import ca.gc.aafc.dina.testsupport.PostgresTestContainerInitializer;
-import ca.gc.aafc.objectstore.api.entities.DcType;
-
-@SpringBootTest(
-  classes = ObjectStoreApiLauncher.class,
-  properties = "spring.config.additional-location=classpath:/application-test.yml"
-)
-@ContextConfiguration(initializers = { PostgresTestContainerInitializer.class })
-public class AppStartsIT {
+public class AppStartsIT extends BaseIntegrationTest {
   
   @Inject
   private ObjectStoreConfiguration config;
