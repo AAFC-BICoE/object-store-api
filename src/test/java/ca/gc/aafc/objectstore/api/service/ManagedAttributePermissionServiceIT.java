@@ -1,9 +1,14 @@
 package ca.gc.aafc.objectstore.api.service;
 
-import javax.inject.Inject;
 
+import ca.gc.aafc.dina.testsupport.security.WithMockKeycloakUser;
+import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
+import ca.gc.aafc.objectstore.api.dto.ManagedAttributeDto;
+import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
+import ca.gc.aafc.objectstore.api.respository.ManagedAttributeResourceRepository;
 import com.google.common.collect.ImmutableMap;
-
+import io.crnk.core.exception.ResourceNotFoundException;
+import io.crnk.core.queryspec.QuerySpec;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,13 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.access.AccessDeniedException;
 
-import ca.gc.aafc.dina.testsupport.security.WithMockKeycloakUser;
-import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
-import ca.gc.aafc.objectstore.api.dto.ManagedAttributeDto;
-import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
-import ca.gc.aafc.objectstore.api.respository.ManagedAttributeResourceRepository;
-import io.crnk.core.exception.ResourceNotFoundException;
-import io.crnk.core.queryspec.QuerySpec;
+import javax.inject.Inject;
 
 @SpringBootTest(properties = "keycloak.enabled=true")
 public class ManagedAttributePermissionServiceIT extends BaseIntegrationTest {
