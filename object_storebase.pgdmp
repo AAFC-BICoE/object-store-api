@@ -1,0 +1,273 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 9.6.10
+-- Dumped by pg_dump version 9.6.10
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Name: agent; Type: SCHEMA; Schema: -; Owner: liquibaseuserbase
+--
+
+CREATE SCHEMA agent;
+
+
+ALTER SCHEMA agent OWNER TO liquibaseuserbase;
+
+--
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
+--
+
+CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
+
+
+--
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
+
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- Name: databasechangelog; Type: TABLE; Schema: agent; Owner: liquibaseuserbase
+--
+
+CREATE TABLE agent.databasechangelog (
+    id character varying(255) NOT NULL,
+    author character varying(255) NOT NULL,
+    filename character varying(255) NOT NULL,
+    dateexecuted timestamp without time zone NOT NULL,
+    orderexecuted integer NOT NULL,
+    exectype character varying(10) NOT NULL,
+    md5sum character varying(35),
+    description character varying(255),
+    comments character varying(255),
+    tag character varying(255),
+    liquibase character varying(20),
+    contexts character varying(255),
+    labels character varying(255),
+    deployment_id character varying(10)
+);
+
+
+ALTER TABLE agent.databasechangelog OWNER TO liquibaseuserbase;
+
+--
+-- Name: databasechangeloglock; Type: TABLE; Schema: agent; Owner: liquibaseuserbase
+--
+
+CREATE TABLE agent.databasechangeloglock (
+    id integer NOT NULL,
+    locked boolean NOT NULL,
+    lockgranted timestamp without time zone,
+    lockedby character varying(255)
+);
+
+
+ALTER TABLE agent.databasechangeloglock OWNER TO liquibaseuserbase;
+
+--
+-- Name: person; Type: TABLE; Schema: agent; Owner: liquibaseuserbase
+--
+
+CREATE TABLE agent.person (
+    id integer NOT NULL,
+    uuid uuid NOT NULL,
+    display_name character varying(250) NOT NULL,
+    email character varying(250) NOT NULL,
+    created_by character varying(255),
+    created_on timestamp with time zone DEFAULT now()
+);
+
+
+ALTER TABLE agent.person OWNER TO liquibaseuserbase;
+
+--
+-- Name: person_id_seq; Type: SEQUENCE; Schema: agent; Owner: liquibaseuserbase
+--
+
+CREATE SEQUENCE agent.person_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE agent.person_id_seq OWNER TO liquibaseuserbase;
+
+--
+-- Name: person_id_seq; Type: SEQUENCE OWNED BY; Schema: agent; Owner: liquibaseuserbase
+--
+
+ALTER SEQUENCE agent.person_id_seq OWNED BY agent.person.id;
+
+
+--
+-- Name: person id; Type: DEFAULT; Schema: agent; Owner: liquibaseuserbase
+--
+
+ALTER TABLE ONLY agent.person ALTER COLUMN id SET DEFAULT nextval('agent.person_id_seq'::regclass);
+
+
+--
+-- Data for Name: databasechangelog; Type: TABLE DATA; Schema: agent; Owner: liquibaseuserbase
+--
+
+COPY agent.databasechangelog (id, author, filename, dateexecuted, orderexecuted, exectype, md5sum, description, comments, tag, liquibase, contexts, labels, deployment_id) FROM stdin;
+create_agent_table	jonathan Keyuk	db/changelog/db.changelog-init.xml	2020-06-15 19:32:14.011655	1	EXECUTED	8:784abd144bb11819d0473a6c3117d61b	createTable tableName=agent; sql		\N	3.8.9	schema-change AND schema-change	\N	2249533927
+1-Add_CreatedBy_and_CreatedOn_agent_table	jonathan Keyuk	db/changelog/migrations/1-Add_CreatedBy_and_CreatedOn_agent_table.xml	2020-06-15 19:32:14.109556	2	EXECUTED	8:b894b16d7955b11932c7ded1d6af1cf4	addColumn tableName=agent		\N	3.8.9	schema-change AND schema-change	\N	2249533927
+2-Rename_agent_tableName_to_person_and_update_primaryKey_and_unique_index_names_1	xgan	db/changelog/migrations/2-Rename_agent_tableName_to_person_and_update_primaryKey_and_unique_index_names.xml	2020-06-25 15:48:11.566392	3	EXECUTED	8:9bd9415ab27f2f0afd5948c8160ad963	dropPrimaryKey constraintName=pk_agent_id, tableName=agent; dropUniqueConstraint constraintName=agent_uuid_key, tableName=agent; dropIndex indexName=agent_unique_name, tableName=agent; dropIndex indexName=agent_unique_email, tableName=agent		\N	3.8.9	schema-change AND schema-change	\N	3100091486
+2-Rename_agent_tableName_to_person_and_update_primaryKey_and_unique_index_names_2	xgan	db/changelog/migrations/2-Rename_agent_tableName_to_person_and_update_primaryKey_and_unique_index_names.xml	2020-06-25 15:48:11.576835	4	EXECUTED	8:91764b6ebfcbed3adfbfc67a0ac5c70f	renameTable newTableName=person, oldTableName=agent		\N	3.8.9	schema-change AND schema-change	\N	3100091486
+2-Rename_agent_tableName_to_person_and_update_primaryKey_and_unique_index_names_3	xgan	db/changelog/migrations/2-Rename_agent_tableName_to_person_and_update_primaryKey_and_unique_index_names.xml	2020-06-25 15:48:11.669831	5	EXECUTED	8:8fef828eb90057b08c3ef572deef1632	addPrimaryKey constraintName=pk_person_id, tableName=person; addUniqueConstraint constraintName=person_uuid_key, tableName=person; sql; renameSequence newSequenceName=person_id_seq, oldSequenceName=agent_id_seq		\N	3.8.9	schema-change AND schema-change	\N	3100091486
+\.
+
+
+--
+-- Data for Name: databasechangeloglock; Type: TABLE DATA; Schema: agent; Owner: liquibaseuserbase
+--
+
+COPY agent.databasechangeloglock (id, locked, lockgranted, lockedby) FROM stdin;
+1	f	\N	\N
+\.
+
+
+--
+-- Data for Name: person; Type: TABLE DATA; Schema: agent; Owner: liquibaseuserbase
+--
+
+COPY agent.person (id, uuid, display_name, email, created_by, created_on) FROM stdin;
+1	c286c976-95b2-4c8d-90c3-416f4869b404	Tom	tom.chalker@canada.ca	user	2020-06-16 11:47:47.840381+00
+2	d3681c90-80a3-43b7-8471-23ef718c3967	Heather Cole	heather.cole@canada.ca	user	2020-06-16 12:48:02.513876+00
+3	b22bee16-15a0-4351-ae81-3812efee2e90	Michelle Locke	michelle.locke@canada.ca	user	2020-06-16 12:50:43.934538+00
+4	e7126143-d7db-44cc-9494-3c29f651f5e1	Tara Rintoul	tara.rintoul@canada.ca	user	2020-06-16 12:53:27.132921+00
+5	7e1b23ba-8df7-4588-b8fb-99d8bd6f7632	Shannon Asencio	shannon.asencio@canada.ca	user	2020-06-16 13:01:05.763498+00
+6	b22e5fff-d6a3-4d35-97b9-73b91e98885d	Claudia Banchini	claudia.banchini@canada.ca	user	2020-06-16 13:02:17.25477+00
+7	08599187-6471-49fc-9f94-afaff1f64f4c	Miao Mindy Liu	miaomindy.liu@canada.ca	user	2020-06-16 13:03:50.605068+00
+8	fcc8d905-cfaf-4758-8419-5d2fe959f5c7	Owen Lonsdale	owen.lonsdale@canada.ca	user	2020-06-16 13:04:39.486303+00
+9	a07bcaef-26c8-47f9-8ba9-f6e37bd01401	Anissa Lybaert	anissa.lybaert@canada.ca	user	2020-06-16 13:05:24.273182+00
+10	452e8b2b-0eea-4045-a6c8-9a17b17ac255	David Shorthouse	david.shorthouse@canada.ca	user	2020-06-16 16:22:09.280462+00
+11	aa0937be-a786-41e1-9b87-0096786ec435	Jeff Skevington	jeffrey.skevington@canada.ca	dshorthouse	2020-06-17 16:51:10.837891+00
+13	f25d8bd1-6f51-47de-ad75-890410fd2de3	Satpal Bilkhu	satpal.bilkhu@canada.ca	user	2020-07-30 20:03:31.586929+00
+14	02d9512a-e45e-4cbf-bc6c-cf72db24753e	Mathew Poff	mathew.poff@canada.ca	user	2020-07-30 20:17:58.751245+00
+15	bcadfc57-888e-4359-a8ac-e0c448eaaa28	Mélanie Bélisle-Leclerc	melanie.belisle-leclerc@canada.ca	user	2020-07-30 20:32:35.257943+00
+16	cff83d02-d67c-4f22-8849-944d70bf9721	Jonathan Keyuk	jonathan.keyuk@canada.ca	user	2020-07-31 11:30:25.110472+00
+12	9f079df1-c457-476d-b540-3ab026bf0720	Test User	some@email.com	user	2020-06-17 17:15:15.529455+00
+17	30e74960-f723-416e-a1f7-876fac5d2b74	Xuemei Gan	xuemei.gan@canada.ca	user	2020-07-31 15:41:14.763266+00
+\.
+
+
+--
+-- Name: person_id_seq; Type: SEQUENCE SET; Schema: agent; Owner: liquibaseuserbase
+--
+
+SELECT pg_catalog.setval('agent.person_id_seq', 17, true);
+
+
+--
+-- Name: databasechangeloglock databasechangeloglock_pkey; Type: CONSTRAINT; Schema: agent; Owner: liquibaseuserbase
+--
+
+ALTER TABLE ONLY agent.databasechangeloglock
+    ADD CONSTRAINT databasechangeloglock_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: person person_uuid_key; Type: CONSTRAINT; Schema: agent; Owner: liquibaseuserbase
+--
+
+ALTER TABLE ONLY agent.person
+    ADD CONSTRAINT person_uuid_key UNIQUE (uuid);
+
+
+--
+-- Name: person pk_person_id; Type: CONSTRAINT; Schema: agent; Owner: liquibaseuserbase
+--
+
+ALTER TABLE ONLY agent.person
+    ADD CONSTRAINT pk_person_id PRIMARY KEY (id);
+
+
+--
+-- Name: person_unique_email; Type: INDEX; Schema: agent; Owner: liquibaseuserbase
+--
+
+CREATE UNIQUE INDEX person_unique_email ON agent.person USING btree (lower((email)::text));
+
+
+--
+-- Name: person_unique_name; Type: INDEX; Schema: agent; Owner: liquibaseuserbase
+--
+
+CREATE UNIQUE INDEX person_unique_name ON agent.person USING btree (lower((display_name)::text));
+
+
+--
+-- Name: SCHEMA agent; Type: ACL; Schema: -; Owner: liquibaseuserbase
+--
+
+GRANT USAGE ON SCHEMA agent TO springuserbase;
+
+
+--
+-- Name: TABLE databasechangelog; Type: ACL; Schema: agent; Owner: liquibaseuserbase
+--
+
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE agent.databasechangelog TO springuserbase;
+
+
+--
+-- Name: TABLE databasechangeloglock; Type: ACL; Schema: agent; Owner: liquibaseuserbase
+--
+
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE agent.databasechangeloglock TO springuserbase;
+
+
+--
+-- Name: TABLE person; Type: ACL; Schema: agent; Owner: liquibaseuserbase
+--
+
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE agent.person TO springuserbase;
+
+
+--
+-- Name: SEQUENCE person_id_seq; Type: ACL; Schema: agent; Owner: liquibaseuserbase
+--
+
+GRANT ALL ON SEQUENCE agent.person_id_seq TO springuserbase;
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR SEQUENCES; Type: DEFAULT ACL; Schema: agent; Owner: liquibaseuserbase
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE liquibaseuserbase IN SCHEMA agent REVOKE ALL ON SEQUENCES  FROM liquibaseuserbase;
+ALTER DEFAULT PRIVILEGES FOR ROLE liquibaseuserbase IN SCHEMA agent GRANT ALL ON SEQUENCES  TO springuserbase;
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR TABLES; Type: DEFAULT ACL; Schema: agent; Owner: liquibaseuserbase
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE liquibaseuserbase IN SCHEMA agent REVOKE ALL ON TABLES  FROM liquibaseuserbase;
+ALTER DEFAULT PRIVILEGES FOR ROLE liquibaseuserbase IN SCHEMA agent GRANT SELECT,INSERT,DELETE,UPDATE ON TABLES  TO springuserbase;
+
+
+--
+-- PostgreSQL database dump complete
+--
+

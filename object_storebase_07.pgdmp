@@ -1,0 +1,1186 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 9.6.10
+-- Dumped by pg_dump version 9.6.10
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Name: object_store; Type: SCHEMA; Schema: -; Owner: liquibaseuserbase
+--
+
+CREATE SCHEMA object_store;
+
+
+ALTER SCHEMA object_store OWNER TO liquibaseuserbase;
+
+--
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
+--
+
+CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
+
+
+--
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
+
+
+--
+-- Name: dctype; Type: TYPE; Schema: object_store; Owner: liquibaseuserbase
+--
+
+CREATE TYPE object_store.dctype AS ENUM (
+    'IMAGE',
+    'MOVING_IMAGE',
+    'SOUND',
+    'TEXT',
+    'DATASET',
+    'UNDETERMINED'
+);
+
+
+ALTER TYPE object_store.dctype OWNER TO liquibaseuserbase;
+
+--
+-- Name: managed_attribute_type; Type: TYPE; Schema: object_store; Owner: liquibaseuserbase
+--
+
+CREATE TYPE object_store.managed_attribute_type AS ENUM (
+    'INTEGER',
+    'STRING'
+);
+
+
+ALTER TYPE object_store.managed_attribute_type OWNER TO liquibaseuserbase;
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- Name: databasechangelog; Type: TABLE; Schema: object_store; Owner: liquibaseuserbase
+--
+
+CREATE TABLE object_store.databasechangelog (
+    id character varying(255) NOT NULL,
+    author character varying(255) NOT NULL,
+    filename character varying(255) NOT NULL,
+    dateexecuted timestamp without time zone NOT NULL,
+    orderexecuted integer NOT NULL,
+    exectype character varying(10) NOT NULL,
+    md5sum character varying(35),
+    description character varying(255),
+    comments character varying(255),
+    tag character varying(255),
+    liquibase character varying(20),
+    contexts character varying(255),
+    labels character varying(255),
+    deployment_id character varying(10)
+);
+
+
+ALTER TABLE object_store.databasechangelog OWNER TO liquibaseuserbase;
+
+--
+-- Name: databasechangeloglock; Type: TABLE; Schema: object_store; Owner: liquibaseuserbase
+--
+
+CREATE TABLE object_store.databasechangeloglock (
+    id integer NOT NULL,
+    locked boolean NOT NULL,
+    lockgranted timestamp without time zone,
+    lockedby character varying(255)
+);
+
+
+ALTER TABLE object_store.databasechangeloglock OWNER TO liquibaseuserbase;
+
+--
+-- Name: jv_commit; Type: TABLE; Schema: object_store; Owner: liquibaseuserbase
+--
+
+CREATE TABLE object_store.jv_commit (
+    commit_pk bigint NOT NULL,
+    author character varying(200),
+    commit_date timestamp without time zone,
+    commit_date_instant character varying(30),
+    commit_id numeric(22,2)
+);
+
+
+ALTER TABLE object_store.jv_commit OWNER TO liquibaseuserbase;
+
+--
+-- Name: jv_commit_pk_seq; Type: SEQUENCE; Schema: object_store; Owner: liquibaseuserbase
+--
+
+CREATE SEQUENCE object_store.jv_commit_pk_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE object_store.jv_commit_pk_seq OWNER TO liquibaseuserbase;
+
+--
+-- Name: jv_commit_property; Type: TABLE; Schema: object_store; Owner: liquibaseuserbase
+--
+
+CREATE TABLE object_store.jv_commit_property (
+    property_name character varying(191) NOT NULL,
+    property_value character varying(600),
+    commit_fk bigint NOT NULL
+);
+
+
+ALTER TABLE object_store.jv_commit_property OWNER TO liquibaseuserbase;
+
+--
+-- Name: jv_global_id; Type: TABLE; Schema: object_store; Owner: liquibaseuserbase
+--
+
+CREATE TABLE object_store.jv_global_id (
+    global_id_pk bigint NOT NULL,
+    local_id character varying(191),
+    fragment character varying(200),
+    type_name character varying(200),
+    owner_id_fk bigint
+);
+
+
+ALTER TABLE object_store.jv_global_id OWNER TO liquibaseuserbase;
+
+--
+-- Name: jv_global_id_pk_seq; Type: SEQUENCE; Schema: object_store; Owner: liquibaseuserbase
+--
+
+CREATE SEQUENCE object_store.jv_global_id_pk_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE object_store.jv_global_id_pk_seq OWNER TO liquibaseuserbase;
+
+--
+-- Name: jv_snapshot; Type: TABLE; Schema: object_store; Owner: liquibaseuserbase
+--
+
+CREATE TABLE object_store.jv_snapshot (
+    snapshot_pk bigint NOT NULL,
+    type character varying(200),
+    version bigint,
+    state text,
+    changed_properties text,
+    managed_type character varying(200),
+    global_id_fk bigint,
+    commit_fk bigint
+);
+
+
+ALTER TABLE object_store.jv_snapshot OWNER TO liquibaseuserbase;
+
+--
+-- Name: jv_snapshot_pk_seq; Type: SEQUENCE; Schema: object_store; Owner: liquibaseuserbase
+--
+
+CREATE SEQUENCE object_store.jv_snapshot_pk_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE object_store.jv_snapshot_pk_seq OWNER TO liquibaseuserbase;
+
+--
+-- Name: managed_attribute; Type: TABLE; Schema: object_store; Owner: liquibaseuserbase
+--
+
+CREATE TABLE object_store.managed_attribute (
+    id integer NOT NULL,
+    uuid uuid NOT NULL,
+    type object_store.managed_attribute_type NOT NULL,
+    name character varying(50) NOT NULL,
+    accepted_values text[],
+    created_on timestamp with time zone DEFAULT now(),
+    description jsonb NOT NULL,
+    created_by character varying(250) NOT NULL
+);
+
+
+ALTER TABLE object_store.managed_attribute OWNER TO liquibaseuserbase;
+
+--
+-- Name: managed_attribute_id_seq; Type: SEQUENCE; Schema: object_store; Owner: liquibaseuserbase
+--
+
+CREATE SEQUENCE object_store.managed_attribute_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE object_store.managed_attribute_id_seq OWNER TO liquibaseuserbase;
+
+--
+-- Name: managed_attribute_id_seq; Type: SEQUENCE OWNED BY; Schema: object_store; Owner: liquibaseuserbase
+--
+
+ALTER SEQUENCE object_store.managed_attribute_id_seq OWNED BY object_store.managed_attribute.id;
+
+
+--
+-- Name: metadata; Type: TABLE; Schema: object_store; Owner: liquibaseuserbase
+--
+
+CREATE TABLE object_store.metadata (
+    id integer NOT NULL,
+    uuid uuid NOT NULL,
+    file_identifier uuid NOT NULL,
+    file_extension character varying(10) NOT NULL,
+    bucket character varying(50) NOT NULL,
+    ac_caption character varying(250),
+    dc_format character varying(150),
+    dc_type object_store.dctype NOT NULL,
+    xmp_rights_web_statement character varying(250) NOT NULL,
+    ac_rights character varying(250) NOT NULL,
+    xmp_rights_owner character varying(250) NOT NULL,
+    ac_digitization_date timestamp with time zone,
+    xmp_metadata_date timestamp with time zone,
+    original_filename character varying(250),
+    ac_hash_function character varying(50),
+    ac_hash_value character varying(128),
+    ac_tags text[],
+    created_on timestamp with time zone DEFAULT now(),
+    deleted_date timestamp with time zone,
+    publicly_releasable boolean DEFAULT false,
+    not_publicly_releasable_reason text,
+    ac_derived_from_id integer,
+    ac_sub_type_id integer,
+    ac_metadata_creator_id uuid,
+    dc_creator_id uuid,
+    xmp_rights_usage_terms character varying(500) NOT NULL,
+    created_by character varying(250) NOT NULL,
+    CONSTRAINT check_not_derived_from_self CHECK ((ac_derived_from_id <> id))
+);
+
+
+ALTER TABLE object_store.metadata OWNER TO liquibaseuserbase;
+
+--
+-- Name: metadata_id_seq; Type: SEQUENCE; Schema: object_store; Owner: liquibaseuserbase
+--
+
+CREATE SEQUENCE object_store.metadata_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE object_store.metadata_id_seq OWNER TO liquibaseuserbase;
+
+--
+-- Name: metadata_id_seq; Type: SEQUENCE OWNED BY; Schema: object_store; Owner: liquibaseuserbase
+--
+
+ALTER SEQUENCE object_store.metadata_id_seq OWNED BY object_store.metadata.id;
+
+
+--
+-- Name: metadata_managed_attribute; Type: TABLE; Schema: object_store; Owner: liquibaseuserbase
+--
+
+CREATE TABLE object_store.metadata_managed_attribute (
+    id integer NOT NULL,
+    uuid uuid NOT NULL,
+    metadata_id integer,
+    managed_attribute_id integer,
+    assigned_value character varying(250) NOT NULL,
+    created_on timestamp with time zone DEFAULT now(),
+    created_by character varying(250) NOT NULL
+);
+
+
+ALTER TABLE object_store.metadata_managed_attribute OWNER TO liquibaseuserbase;
+
+--
+-- Name: metadata_managed_attribute_id_seq; Type: SEQUENCE; Schema: object_store; Owner: liquibaseuserbase
+--
+
+CREATE SEQUENCE object_store.metadata_managed_attribute_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE object_store.metadata_managed_attribute_id_seq OWNER TO liquibaseuserbase;
+
+--
+-- Name: metadata_managed_attribute_id_seq; Type: SEQUENCE OWNED BY; Schema: object_store; Owner: liquibaseuserbase
+--
+
+ALTER SEQUENCE object_store.metadata_managed_attribute_id_seq OWNED BY object_store.metadata_managed_attribute.id;
+
+
+--
+-- Name: object_subtype; Type: TABLE; Schema: object_store; Owner: liquibaseuserbase
+--
+
+CREATE TABLE object_store.object_subtype (
+    id integer NOT NULL,
+    dc_type object_store.dctype NOT NULL,
+    ac_subtype character varying(50) NOT NULL,
+    uuid uuid NOT NULL,
+    app_managed boolean DEFAULT false NOT NULL,
+    created_on timestamp with time zone DEFAULT now(),
+    created_by character varying(250) NOT NULL
+);
+
+
+ALTER TABLE object_store.object_subtype OWNER TO liquibaseuserbase;
+
+--
+-- Name: object_subtype_id_seq; Type: SEQUENCE; Schema: object_store; Owner: liquibaseuserbase
+--
+
+CREATE SEQUENCE object_store.object_subtype_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE object_store.object_subtype_id_seq OWNER TO liquibaseuserbase;
+
+--
+-- Name: object_subtype_id_seq; Type: SEQUENCE OWNED BY; Schema: object_store; Owner: liquibaseuserbase
+--
+
+ALTER SEQUENCE object_store.object_subtype_id_seq OWNED BY object_store.object_subtype.id;
+
+
+--
+-- Name: object_upload; Type: TABLE; Schema: object_store; Owner: liquibaseuserbase
+--
+
+CREATE TABLE object_store.object_upload (
+    id integer NOT NULL,
+    file_identifier uuid NOT NULL,
+    created_on timestamp with time zone DEFAULT now() NOT NULL,
+    created_by character varying(250) NOT NULL
+);
+
+
+ALTER TABLE object_store.object_upload OWNER TO liquibaseuserbase;
+
+--
+-- Name: object_upload_id_seq; Type: SEQUENCE; Schema: object_store; Owner: liquibaseuserbase
+--
+
+CREATE SEQUENCE object_store.object_upload_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE object_store.object_upload_id_seq OWNER TO liquibaseuserbase;
+
+--
+-- Name: object_upload_id_seq; Type: SEQUENCE OWNED BY; Schema: object_store; Owner: liquibaseuserbase
+--
+
+ALTER SEQUENCE object_store.object_upload_id_seq OWNED BY object_store.object_upload.id;
+
+
+--
+-- Name: databasereadiness; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.databasereadiness (
+    id integer NOT NULL,
+    status integer,
+    process character varying,
+    application character varying,
+    lastmodified timestamp without time zone
+);
+
+
+ALTER TABLE public.databasereadiness OWNER TO postgres;
+
+--
+-- Name: databasereadiness_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.databasereadiness_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.databasereadiness_id_seq OWNER TO postgres;
+
+--
+-- Name: databasereadiness_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.databasereadiness_id_seq OWNED BY public.databasereadiness.id;
+
+
+--
+-- Name: managed_attribute id; Type: DEFAULT; Schema: object_store; Owner: liquibaseuserbase
+--
+
+ALTER TABLE ONLY object_store.managed_attribute ALTER COLUMN id SET DEFAULT nextval('object_store.managed_attribute_id_seq'::regclass);
+
+
+--
+-- Name: metadata id; Type: DEFAULT; Schema: object_store; Owner: liquibaseuserbase
+--
+
+ALTER TABLE ONLY object_store.metadata ALTER COLUMN id SET DEFAULT nextval('object_store.metadata_id_seq'::regclass);
+
+
+--
+-- Name: metadata_managed_attribute id; Type: DEFAULT; Schema: object_store; Owner: liquibaseuserbase
+--
+
+ALTER TABLE ONLY object_store.metadata_managed_attribute ALTER COLUMN id SET DEFAULT nextval('object_store.metadata_managed_attribute_id_seq'::regclass);
+
+
+--
+-- Name: object_subtype id; Type: DEFAULT; Schema: object_store; Owner: liquibaseuserbase
+--
+
+ALTER TABLE ONLY object_store.object_subtype ALTER COLUMN id SET DEFAULT nextval('object_store.object_subtype_id_seq'::regclass);
+
+
+--
+-- Name: object_upload id; Type: DEFAULT; Schema: object_store; Owner: liquibaseuserbase
+--
+
+ALTER TABLE ONLY object_store.object_upload ALTER COLUMN id SET DEFAULT nextval('object_store.object_upload_id_seq'::regclass);
+
+
+--
+-- Name: databasereadiness id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.databasereadiness ALTER COLUMN id SET DEFAULT nextval('public.databasereadiness_id_seq'::regclass);
+
+
+--
+-- Data for Name: databasechangelog; Type: TABLE DATA; Schema: object_store; Owner: liquibaseuserbase
+--
+
+COPY object_store.databasechangelog (id, author, filename, dateexecuted, orderexecuted, exectype, md5sum, description, comments, tag, liquibase, contexts, labels, deployment_id) FROM stdin;
+init-1	gendreauc	db/changelog/db.changelog-init.xml	2020-07-30 17:54:47.356004	1	EXECUTED	8:85b31838a685578a6ed945c2d2044f0f	sql		\N	3.8.9	schema-change AND schema-change	\N	6131687237
+init-2	gendreauc	db/changelog/db.changelog-init.xml	2020-07-30 17:54:47.368242	2	EXECUTED	8:d407feed6a8a8c99a07f956279e05ceb	sql		\N	3.8.9	schema-change AND schema-change	\N	6131687237
+init-3	gendreauc	db/changelog/db.changelog-init.xml	2020-07-30 17:54:47.443097	3	EXECUTED	8:036e94a0d3d0a321b67064e2b5ccec2f	createTable tableName=metadata		\N	3.8.9	schema-change AND schema-change	\N	6131687237
+init-4	gendreauc	db/changelog/db.changelog-init.xml	2020-07-30 17:54:47.499185	4	EXECUTED	8:a5f75fa27e195a8ed906850fb5ae6b67	createTable tableName=managed_attribute		\N	3.8.9	schema-change AND schema-change	\N	6131687237
+init-5	shemyg	db/changelog/db.changelog-init.xml	2020-07-30 17:54:47.556007	5	EXECUTED	8:627b7864020aba2ee651a09a05edee96	createTable tableName=metadata_managed_attribute		\N	3.8.9	schema-change AND schema-change	\N	6131687237
+init-6	gendreauc	db/changelog/db.changelog-init.xml	2020-07-30 17:54:47.647312	6	EXECUTED	8:075242db86d9ec33a5f4902294119059	createTable tableName=agent; addForeignKeyConstraint baseTableName=metadata, constraintName=fk_metadata_creator_agent, referencedTableName=agent		\N	3.8.9	schema-change AND schema-change	\N	6131687237
+1-Add_description_to_managed_attribute	ganx	db/changelog/migrations/1-Add_description_to_managed_attribute.xml	2020-07-30 17:54:47.65694	7	EXECUTED	8:83084e0f083906faf88af8bb090ef6a3	addColumn tableName=managed_attribute		\N	3.8.9	schema-change	\N	6131687237
+2-Add_support_for_dcCreator	lyonj	db/changelog/migrations/2-Add_support_for_dcCreator.xml	2020-07-30 17:54:47.668781	8	EXECUTED	8:1a8b7292b8924cb9b8179f517701c552	addColumn tableName=metadata; addForeignKeyConstraint baseTableName=metadata, constraintName=fk_dc_creator_agent, referencedTableName=agent		\N	3.8.9	schema-change	\N	6131687237
+3-Add_acDerivedFrom_relationship_to_metadata	keyuk	db/changelog/migrations/3-Add_acDerivedFrom_relationship_to_metadata.xml	2020-07-30 17:54:47.681934	9	EXECUTED	8:22752ae3e0d6b6017ac3677bba9513e1	addColumn tableName=metadata; addForeignKeyConstraint baseTableName=metadata, constraintName=fk_metadata_ac_derived_from_id, referencedTableName=metadata; sql		\N	3.8.9	schema-change	\N	6131687237
+2-Add_ac_subtype_table	ganx	db/changelog/migrations/4-Add_object_subtype_table.xml	2020-07-30 17:54:47.736682	10	EXECUTED	8:4e7576729db557313af1ece20eba181f	createTable tableName=object_subtype; addUniqueConstraint constraintName=unique_dctype_acsubtype_combination_per_object, tableName=object_subtype		\N	3.8.9	schema-change	\N	6131687237
+5-Add_acSubType_for_metadata	keyuk	db/changelog/migrations/5-Add_acSubType_for_metadata.xml	2020-07-30 17:54:47.765103	11	EXECUTED	8:0dc76f367e617d3f8d4575bc66b29a0e	addColumn tableName=metadata; addForeignKeyConstraint baseTableName=metadata, constraintName=fk_metadata_ac_sub_type_id, referencedTableName=object_subtype; sql		\N	3.8.9	schema-change	\N	6131687237
+6-Insert_ThumbNail_ObjectType	keyuk	db/changelog/migrations/6-Insert_ThumbNail_ObjectType.xml	2020-07-30 17:54:47.776658	12	EXECUTED	8:23e9808a82430f69cccacc45a9a31bf8	insert tableName=object_subtype		\N	3.8.9	schema-change	\N	6131687237
+7-alter_metadata_acCreator_dcCreator	keyuk	db/changelog/migrations/7-alter_metadata_acCreator_dcCreator.xml	2020-07-30 17:54:47.787241	13	EXECUTED	8:c0abe0fef326ffda19bb2a63094e01fd	dropColumn tableName=metadata; addColumn tableName=metadata		\N	3.8.9	schema-change	\N	6131687237
+8-drop_agent_table	keyuk	db/changelog/migrations/8-drop_agent_table.xml	2020-07-30 17:54:47.832937	14	EXECUTED	8:5230cd5bb8a6c066dacd02c687e65047	dropTable tableName=agent		\N	3.8.9	schema-change	\N	6131687237
+9-Add_xmpRightsUsageTerms_to_metadata	ganx	db/changelog/migrations/9-Add_xmpRightsUsageTerms_to_metadata.xml	2020-07-30 17:54:47.838317	15	EXECUTED	8:29eb860e2d622c05b81ee1692c6d5985	addColumn tableName=metadata		\N	3.8.9	schema-change	\N	6131687237
+1584740432194-1	poffm (generated)	db/changelog/migrations/10-Add_Javers_audit_tables.xml	2020-07-30 17:54:47.849092	16	EXECUTED	8:2c6f0c7da91feeb7fc173e42e5560ea9	createSequence sequenceName=jv_commit_pk_seq		\N	3.8.9	\N	\N	6131687237
+1584740432194-2	poffm (generated)	db/changelog/migrations/10-Add_Javers_audit_tables.xml	2020-07-30 17:54:47.860164	17	EXECUTED	8:2fd8dd963c363a2a450ad8125d3499f7	createSequence sequenceName=jv_global_id_pk_seq		\N	3.8.9	\N	\N	6131687237
+1584740432194-3	poffm (generated)	db/changelog/migrations/10-Add_Javers_audit_tables.xml	2020-07-30 17:54:47.870934	18	EXECUTED	8:a385cd14dd8eed93697dcafcf551dcc4	createSequence sequenceName=jv_snapshot_pk_seq		\N	3.8.9	\N	\N	6131687237
+1584740432194-5	poffm (generated)	db/changelog/migrations/10-Add_Javers_audit_tables.xml	2020-07-30 17:54:47.896838	19	EXECUTED	8:88694b0d82319c9735326ac399e23744	createTable tableName=jv_commit		\N	3.8.9	\N	\N	6131687237
+1584740432194-6	poffm (generated)	db/changelog/migrations/10-Add_Javers_audit_tables.xml	2020-07-30 17:54:47.927335	20	EXECUTED	8:4e6f6d730cd50b6de9da7e10e543635b	createTable tableName=jv_commit_property		\N	3.8.9	\N	\N	6131687237
+1584740432194-7	poffm (generated)	db/changelog/migrations/10-Add_Javers_audit_tables.xml	2020-07-30 17:54:47.95849	21	EXECUTED	8:f55225165681d48a177df1fd3fd54098	createTable tableName=jv_global_id		\N	3.8.9	\N	\N	6131687237
+1584740432194-8	poffm (generated)	db/changelog/migrations/10-Add_Javers_audit_tables.xml	2020-07-30 17:54:47.990848	22	EXECUTED	8:71e52f2e9b0f534d553492d7dd7d42ed	createTable tableName=jv_snapshot		\N	3.8.9	\N	\N	6131687237
+1584740432194-23	poffm (generated)	db/changelog/migrations/10-Add_Javers_audit_tables.xml	2020-07-30 17:54:48.004347	23	EXECUTED	8:2f331e23dfc95b4c8c9cb2d80de5efe9	createIndex indexName=jv_commit_commit_id_idx, tableName=jv_commit		\N	3.8.9	\N	\N	6131687237
+1584740432194-24	poffm (generated)	db/changelog/migrations/10-Add_Javers_audit_tables.xml	2020-07-30 17:54:48.016427	24	EXECUTED	8:fa3a6aba10eeadccebbe71020d78eae7	createIndex indexName=jv_commit_property_commit_fk_idx, tableName=jv_commit_property		\N	3.8.9	\N	\N	6131687237
+1584740432194-25	poffm (generated)	db/changelog/migrations/10-Add_Javers_audit_tables.xml	2020-07-30 17:54:48.03124	25	EXECUTED	8:9882a8a52879d928d75e3b477885ada0	createIndex indexName=jv_commit_property_property_name_property_value_idx, tableName=jv_commit_property		\N	3.8.9	\N	\N	6131687237
+1584740432194-26	poffm (generated)	db/changelog/migrations/10-Add_Javers_audit_tables.xml	2020-07-30 17:54:48.044033	26	EXECUTED	8:3762104c51e4ac787487f8deed887fc4	createIndex indexName=jv_global_id_local_id_idx, tableName=jv_global_id		\N	3.8.9	\N	\N	6131687237
+1584740432194-27	poffm (generated)	db/changelog/migrations/10-Add_Javers_audit_tables.xml	2020-07-30 17:54:48.05838	27	EXECUTED	8:3ca81ce57abf8263e8b52b17d9a94715	createIndex indexName=jv_global_id_owner_id_fk_idx, tableName=jv_global_id		\N	3.8.9	\N	\N	6131687237
+1584740432194-28	poffm (generated)	db/changelog/migrations/10-Add_Javers_audit_tables.xml	2020-07-30 17:54:48.070383	28	EXECUTED	8:ad63fe32e1085429c05f7e6ac4e303f7	createIndex indexName=jv_snapshot_commit_fk_idx, tableName=jv_snapshot		\N	3.8.9	\N	\N	6131687237
+1584740432194-29	poffm (generated)	db/changelog/migrations/10-Add_Javers_audit_tables.xml	2020-07-30 17:54:48.08205	29	EXECUTED	8:4db877c7477dd9d44a20a3924d0d3062	createIndex indexName=jv_snapshot_global_id_fk_idx, tableName=jv_snapshot		\N	3.8.9	\N	\N	6131687237
+1584740432194-35	poffm (generated)	db/changelog/migrations/10-Add_Javers_audit_tables.xml	2020-07-30 17:54:48.092714	30	EXECUTED	8:084c32481b4a081905276209a8fb56b1	addForeignKeyConstraint baseTableName=jv_commit_property, constraintName=jv_commit_property_commit_fk, referencedTableName=jv_commit		\N	3.8.9	\N	\N	6131687237
+1584740432194-36	poffm (generated)	db/changelog/migrations/10-Add_Javers_audit_tables.xml	2020-07-30 17:54:48.108022	31	EXECUTED	8:013b4f79896e15ab011e7c6bb58dbfbb	addForeignKeyConstraint baseTableName=jv_global_id, constraintName=jv_global_id_owner_id_fk, referencedTableName=jv_global_id		\N	3.8.9	\N	\N	6131687237
+1584740432194-37	poffm (generated)	db/changelog/migrations/10-Add_Javers_audit_tables.xml	2020-07-30 17:54:48.11765	32	EXECUTED	8:bf2e03c610f357b004e46d8a592b05d7	addForeignKeyConstraint baseTableName=jv_snapshot, constraintName=jv_snapshot_commit_fk, referencedTableName=jv_commit		\N	3.8.9	\N	\N	6131687237
+1584740432194-38	poffm (generated)	db/changelog/migrations/10-Add_Javers_audit_tables.xml	2020-07-30 17:54:48.127192	33	EXECUTED	8:2c128b2ddc24ce1d5227bc022fcf2896	addForeignKeyConstraint baseTableName=jv_snapshot, constraintName=jv_snapshot_global_id_fk, referencedTableName=jv_global_id		\N	3.8.9	\N	\N	6131687237
+10-subtype_add_app_managed	keyuk	db/changelog/migrations/11-subtype_add_app_managed.xml	2020-07-30 17:54:48.23235	34	EXECUTED	8:2db593a8272606103799daf65666ec17	addColumn tableName=object_subtype; update tableName=object_subtype		\N	3.8.9	schema-change	\N	6131687237
+12-MakeManagedAttribute-description-mandatory	poffm	db/changelog/migrations/12-MakeManagedAttribute-description-mandatory.xml	2020-07-30 17:54:48.24037	35	EXECUTED	8:4dcbf5d25c5a2a897d71bd1b7808a1c5	addNotNullConstraint columnName=description, tableName=managed_attribute		\N	3.8.9	schema-change	\N	6131687237
+13-managed_attribute_add_createdBy_createdOn	keyuk	db/changelog/migrations/13-managed_attribute_add_createdBy_createdOn.xml	2020-07-30 17:54:48.246852	36	EXECUTED	8:131bc401d122de59329cb524a5c47417	renameColumn newColumnName=created_on, oldColumnName=created_date, tableName=managed_attribute; addColumn tableName=managed_attribute		\N	3.8.9	schema-change	\N	6131687237
+14-Object_subtype_add_createdBy_createdOn	belislem	db/changelog/migrations/14-Object_subtype_add_createdBy_createdOn.xml	2020-08-25 11:30:44.405922	37	EXECUTED	8:e1fe8ef5704cd68ef35d878fb707cca4	addColumn tableName=object_subtype; addColumn tableName=object_subtype; update tableName=object_subtype; addNotNullConstraint columnName=created_by, tableName=object_subtype		\N	3.8.9	schema-change	\N	8355043851
+15-add_object_upload_table	belislem	db/changelog/migrations/15-add_object_upload_table.xml	2020-08-25 11:30:44.515421	38	EXECUTED	8:c40fe3edd191aa8d110ecae3c23122d2	createTable tableName=object_upload		\N	3.8.9	schema-change	\N	8355043851
+16-MetaData_add_createBy_createdOn	KeyukJ	db/changelog/migrations/16-MetaData_add_createBy_createdOn.xml	2020-08-25 14:09:10.658125	39	EXECUTED	8:bf2ec4b62c221547c700fb9b39f6e302	renameColumn newColumnName=created_on, oldColumnName=created_date, tableName=metadata; addColumn tableName=metadata; update tableName=metadata; addNotNullConstraint columnName=created_by, tableName=metadata		\N	3.8.9	schema-change	\N	8364550545
+17-MetaManagedAttrib_add_createdBy_createdOn	KeyukJ	db/changelog/migrations/17-MetaManagedAttrib_add_createdBy_createdOn.xml	2020-08-25 14:09:10.845532	40	EXECUTED	8:d6ec23ad286eaf62a9b7c3262b0bb1df	addColumn tableName=metadata_managed_attribute; addColumn tableName=metadata_managed_attribute; update tableName=metadata_managed_attribute; addNotNullConstraint columnName=created_by, tableName=metadata_managed_attribute		\N	3.8.9	schema-change	\N	8364550545
+\.
+
+
+--
+-- Data for Name: databasechangeloglock; Type: TABLE DATA; Schema: object_store; Owner: liquibaseuserbase
+--
+
+COPY object_store.databasechangeloglock (id, locked, lockgranted, lockedby) FROM stdin;
+1	f	\N	\N
+\.
+
+
+--
+-- Data for Name: jv_commit; Type: TABLE DATA; Schema: object_store; Owner: liquibaseuserbase
+--
+
+COPY object_store.jv_commit (commit_pk, author, commit_date, commit_date_instant, commit_id) FROM stdin;
+100	user	2020-07-30 19:42:05.164	2020-07-30T19:42:05.164748Z	1.00
+101	user	2020-07-30 19:42:28.302	2020-07-30T19:42:28.302110Z	2.00
+102	user	2020-07-30 19:43:32.429	2020-07-30T19:43:32.429413Z	3.00
+103	user	2020-07-30 19:43:32.487	2020-07-30T19:43:32.487151Z	4.00
+104	user	2020-07-30 19:43:41.816	2020-07-30T19:43:41.816214Z	5.00
+105	user	2020-07-31 11:52:12.967	2020-07-31T11:52:12.967733Z	6.00
+106	user	2020-07-31 11:52:13.121	2020-07-31T11:52:13.121294Z	7.00
+107	user	2020-07-31 11:53:05.621	2020-07-31T11:53:05.621248Z	8.00
+108	user	2020-07-31 11:53:05.658	2020-07-31T11:53:05.658539Z	9.00
+109	user	2020-08-12 17:20:51.726	2020-08-12T17:20:51.726448Z	10.00
+110	user	2020-08-12 17:20:51.839	2020-08-12T17:20:51.839221Z	11.00
+111	ganx	2020-08-12 17:21:32.668	2020-08-12T17:21:32.668498Z	12.00
+112	ganx	2020-08-12 17:21:32.697	2020-08-12T17:21:32.697846Z	13.00
+113	ganx	2020-08-14 00:18:20.939	2020-08-14T00:18:20.939624Z	14.00
+\.
+
+
+--
+-- Name: jv_commit_pk_seq; Type: SEQUENCE SET; Schema: object_store; Owner: liquibaseuserbase
+--
+
+SELECT pg_catalog.setval('object_store.jv_commit_pk_seq', 1, true);
+
+
+--
+-- Data for Name: jv_commit_property; Type: TABLE DATA; Schema: object_store; Owner: liquibaseuserbase
+--
+
+COPY object_store.jv_commit_property (property_name, property_value, commit_fk) FROM stdin;
+\.
+
+
+--
+-- Data for Name: jv_global_id; Type: TABLE DATA; Schema: object_store; Owner: liquibaseuserbase
+--
+
+COPY object_store.jv_global_id (global_id_pk, local_id, fragment, type_name, owner_id_fk) FROM stdin;
+100	"3cf0712e-d684-490e-824f-019044771b2b"	\N	metadata	\N
+101	"088cedd5-814f-414d-a56f-4bd9e485a040"	\N	metadata	\N
+102	"56d65b97-f18e-4ccd-b0ee-cc4129e1b5da"	\N	metadata	\N
+103	"f83d4a7a-c2de-480d-9c1f-33dfbf2a9ed3"	\N	metadata	\N
+104	"1cfc7bf8-279a-4084-9ac9-aa657543d934"	\N	metadata	\N
+105	"f4d4fd90-b4a5-44be-877c-99a9c241644e"	\N	metadata	\N
+106	"54318f4b-d49f-4d5c-a840-31e60a872733"	\N	metadata	\N
+107	"aa9fdddc-6580-49ea-b97d-ccd30a1af1c5"	\N	metadata	\N
+108	"a55ce519-57fe-4c37-811c-59b955dc6384"	\N	metadata	\N
+109	"b024cc92-1e22-4c37-8795-5d591c8346b2"	\N	metadata	\N
+110	"8bb2449c-bbbd-4aac-a754-3b1cb4f5c4cf"	\N	metadata	\N
+\.
+
+
+--
+-- Name: jv_global_id_pk_seq; Type: SEQUENCE SET; Schema: object_store; Owner: liquibaseuserbase
+--
+
+SELECT pg_catalog.setval('object_store.jv_global_id_pk_seq', 1, true);
+
+
+--
+-- Data for Name: jv_snapshot; Type: TABLE DATA; Schema: object_store; Owner: liquibaseuserbase
+--
+
+COPY object_store.jv_snapshot (snapshot_pk, type, version, state, changed_properties, managed_type, global_id_fk, commit_fk) FROM stdin;
+100	INITIAL	1	{\n  "managedAttributeMap": {\n    "values": {}\n  },\n  "acMetadataCreator": "9c403c4b-c849-43c4-bbc1-8bd10b1997e1",\n  "dcType": "IMAGE",\n  "fileIdentifier": "1e6802bb-5812-46fb-95a8-e2d7821f6992",\n  "xmpRightsUsageTerms": "Government of Canada Usage Term",\n  "acHashValue": "2c25434f7d41dd59681650f661486f4b45e7c3b4",\n  "acHashFunction": "SHA-1",\n  "bucket": "aafc",\n  "dcFormat": "image/webp",\n  "dcRights": "Copyright Government of Canada",\n  "fileExtension": ".jpg",\n  "xmpRightsWebStatement": "https://open.canada.ca/en/open-government-licence-canada",\n  "id": "3cf0712e-d684-490e-824f-019044771b2b",\n  "xmpRightsOwner": "Government of Canada",\n  "originalFilename": "2QTXABKNNJBW5IK5Q5GKWGQ6UY.jpg",\n  "group": "aafc"\n}	[\n  "managedAttributeMap",\n  "acMetadataCreator",\n  "dcType",\n  "fileIdentifier",\n  "xmpRightsUsageTerms",\n  "acHashValue",\n  "acHashFunction",\n  "bucket",\n  "dcFormat",\n  "dcRights",\n  "fileExtension",\n  "xmpRightsWebStatement",\n  "id",\n  "xmpRightsOwner",\n  "originalFilename",\n  "group"\n]	metadata	100	100
+200	UPDATE	2	{\n  "managedAttributeMap": {\n    "values": {}\n  },\n  "acMetadataCreator": "9f079df1-c457-476d-b540-3ab026bf0720",\n  "dcType": "IMAGE",\n  "fileIdentifier": "1e6802bb-5812-46fb-95a8-e2d7821f6992",\n  "xmpRightsUsageTerms": "Government of Canada Usage Term",\n  "acHashValue": "2c25434f7d41dd59681650f661486f4b45e7c3b4",\n  "acCaption": "Black hole test!",\n  "acHashFunction": "SHA-1",\n  "bucket": "aafc",\n  "dcFormat": "image/webp",\n  "dcRights": "Copyright Government of Canada",\n  "fileExtension": ".jpg",\n  "xmpRightsWebStatement": "https://open.canada.ca/en/open-government-licence-canada",\n  "id": "3cf0712e-d684-490e-824f-019044771b2b",\n  "dcCreator": "9f079df1-c457-476d-b540-3ab026bf0720",\n  "xmpRightsOwner": "Government of Canada",\n  "originalFilename": "2QTXABKNNJBW5IK5Q5GKWGQ6UY.jpg",\n  "group": "aafc"\n}	[\n  "acMetadataCreator",\n  "acCaption",\n  "dcCreator"\n]	metadata	100	101
+300	INITIAL	1	{\n  "managedAttributeMap": {\n    "values": {}\n  },\n  "acMetadataCreator": "9c403c4b-c849-43c4-bbc1-8bd10b1997e1",\n  "dcType": "IMAGE",\n  "fileIdentifier": "5b3518ac-8ba9-40b0-b35b-447a6a85a2ca",\n  "xmpRightsUsageTerms": "Government of Canada Usage Term",\n  "acHashValue": "09b3aef05d7e6c3c8b50dd44ff6bc4d28d23c3b2",\n  "acHashFunction": "SHA-1",\n  "bucket": "aafc",\n  "dcFormat": "image/jpeg",\n  "dcRights": "Copyright Government of Canada",\n  "fileExtension": ".jpg",\n  "xmpRightsWebStatement": "https://open.canada.ca/en/open-government-licence-canada",\n  "id": "088cedd5-814f-414d-a56f-4bd9e485a040",\n  "xmpRightsOwner": "Government of Canada",\n  "originalFilename": "water-636x370.jpg",\n  "group": "aafc"\n}	[\n  "managedAttributeMap",\n  "acMetadataCreator",\n  "dcType",\n  "fileIdentifier",\n  "xmpRightsUsageTerms",\n  "acHashValue",\n  "acHashFunction",\n  "bucket",\n  "dcFormat",\n  "dcRights",\n  "fileExtension",\n  "xmpRightsWebStatement",\n  "id",\n  "xmpRightsOwner",\n  "originalFilename",\n  "group"\n]	metadata	101	102
+400	INITIAL	1	{\n  "managedAttributeMap": {\n    "values": {}\n  },\n  "acSubType": "THUMBNAIL",\n  "acDerivedFrom": {\n    "entity": "metadata",\n    "cdoId": "088cedd5-814f-414d-a56f-4bd9e485a040"\n  },\n  "dcType": "IMAGE",\n  "fileIdentifier": "4ff25079-2a06-4b4a-b5aa-047b17df1a2e",\n  "xmpRightsUsageTerms": "Government of Canada Usage Term",\n  "bucket": "aafc",\n  "dcRights": "Copyright Government of Canada",\n  "fileExtension": ".jpg",\n  "xmpRightsWebStatement": "https://open.canada.ca/en/open-government-licence-canada",\n  "id": "56d65b97-f18e-4ccd-b0ee-cc4129e1b5da",\n  "xmpRightsOwner": "Government of Canada",\n  "originalFilename": "water-636x370.jpg",\n  "group": "aafc"\n}	[\n  "managedAttributeMap",\n  "acSubType",\n  "acDerivedFrom",\n  "dcType",\n  "fileIdentifier",\n  "xmpRightsUsageTerms",\n  "bucket",\n  "dcRights",\n  "fileExtension",\n  "xmpRightsWebStatement",\n  "id",\n  "xmpRightsOwner",\n  "originalFilename",\n  "group"\n]	metadata	102	103
+500	UPDATE	2	{\n  "managedAttributeMap": {\n    "values": {}\n  },\n  "acMetadataCreator": "9f079df1-c457-476d-b540-3ab026bf0720",\n  "dcType": "IMAGE",\n  "fileIdentifier": "5b3518ac-8ba9-40b0-b35b-447a6a85a2ca",\n  "xmpRightsUsageTerms": "Government of Canada Usage Term",\n  "acHashValue": "09b3aef05d7e6c3c8b50dd44ff6bc4d28d23c3b2",\n  "acHashFunction": "SHA-1",\n  "bucket": "aafc",\n  "dcFormat": "image/jpeg",\n  "dcRights": "Copyright Government of Canada",\n  "fileExtension": ".jpg",\n  "xmpRightsWebStatement": "https://open.canada.ca/en/open-government-licence-canada",\n  "id": "088cedd5-814f-414d-a56f-4bd9e485a040",\n  "dcCreator": "9f079df1-c457-476d-b540-3ab026bf0720",\n  "xmpRightsOwner": "Government of Canada",\n  "originalFilename": "water-636x370.jpg",\n  "group": "aafc"\n}	[\n  "acMetadataCreator",\n  "dcCreator"\n]	metadata	101	104
+600	INITIAL	1	{\n  "managedAttributeMap": {\n    "values": {}\n  },\n  "acMetadataCreator": "9c403c4b-c849-43c4-bbc1-8bd10b1997e1",\n  "dcType": "IMAGE",\n  "fileIdentifier": "6759cf26-6ab3-4863-be6d-185fe4f09b86",\n  "xmpRightsUsageTerms": "Government of Canada Usage Term",\n  "acHashValue": "f0a426892480dae3eabc50ff5317d213ebc3c652",\n  "acHashFunction": "SHA-1",\n  "bucket": "aafc",\n  "dcFormat": "image/jpeg",\n  "dcRights": "Copyright Government of Canada",\n  "fileExtension": ".jpg",\n  "xmpRightsWebStatement": "https://open.canada.ca/en/open-government-licence-canada",\n  "id": "f83d4a7a-c2de-480d-9c1f-33dfbf2a9ed3",\n  "xmpRightsOwner": "Government of Canada",\n  "originalFilename": "upload_screen_scrollbar.jpg",\n  "group": "aafc"\n}	[\n  "managedAttributeMap",\n  "acMetadataCreator",\n  "dcType",\n  "fileIdentifier",\n  "xmpRightsUsageTerms",\n  "acHashValue",\n  "acHashFunction",\n  "bucket",\n  "dcFormat",\n  "dcRights",\n  "fileExtension",\n  "xmpRightsWebStatement",\n  "id",\n  "xmpRightsOwner",\n  "originalFilename",\n  "group"\n]	metadata	103	105
+700	INITIAL	1	{\n  "managedAttributeMap": {\n    "values": {}\n  },\n  "acSubType": "THUMBNAIL",\n  "acDerivedFrom": {\n    "entity": "metadata",\n    "cdoId": "f83d4a7a-c2de-480d-9c1f-33dfbf2a9ed3"\n  },\n  "dcType": "IMAGE",\n  "fileIdentifier": "54793830-1204-4727-ab31-2bf700d143d7",\n  "xmpRightsUsageTerms": "Government of Canada Usage Term",\n  "bucket": "aafc",\n  "dcRights": "Copyright Government of Canada",\n  "fileExtension": ".jpg",\n  "xmpRightsWebStatement": "https://open.canada.ca/en/open-government-licence-canada",\n  "id": "1cfc7bf8-279a-4084-9ac9-aa657543d934",\n  "xmpRightsOwner": "Government of Canada",\n  "originalFilename": "upload_screen_scrollbar.jpg",\n  "group": "aafc"\n}	[\n  "managedAttributeMap",\n  "acSubType",\n  "acDerivedFrom",\n  "dcType",\n  "fileIdentifier",\n  "xmpRightsUsageTerms",\n  "bucket",\n  "dcRights",\n  "fileExtension",\n  "xmpRightsWebStatement",\n  "id",\n  "xmpRightsOwner",\n  "originalFilename",\n  "group"\n]	metadata	104	106
+800	INITIAL	1	{\n  "managedAttributeMap": {\n    "values": {}\n  },\n  "acMetadataCreator": "9f079df1-c457-476d-b540-3ab026bf0720",\n  "dcType": "IMAGE",\n  "fileIdentifier": "67f366fe-c5a2-4586-b7ed-c938aba76e95",\n  "xmpRightsUsageTerms": "Government of Canada Usage Term",\n  "acHashValue": "f0a426892480dae3eabc50ff5317d213ebc3c652",\n  "acHashFunction": "SHA-1",\n  "bucket": "aafc",\n  "dcFormat": "image/jpeg",\n  "dcRights": "Copyright Government of Canada",\n  "fileExtension": ".jpg",\n  "xmpRightsWebStatement": "https://open.canada.ca/en/open-government-licence-canada",\n  "id": "f4d4fd90-b4a5-44be-877c-99a9c241644e",\n  "xmpRightsOwner": "Government of Canada",\n  "originalFilename": "upload_screen_scrollbar.jpg",\n  "group": "aafc"\n}	[\n  "managedAttributeMap",\n  "acMetadataCreator",\n  "dcType",\n  "fileIdentifier",\n  "xmpRightsUsageTerms",\n  "acHashValue",\n  "acHashFunction",\n  "bucket",\n  "dcFormat",\n  "dcRights",\n  "fileExtension",\n  "xmpRightsWebStatement",\n  "id",\n  "xmpRightsOwner",\n  "originalFilename",\n  "group"\n]	metadata	105	107
+900	INITIAL	1	{\n  "managedAttributeMap": {\n    "values": {}\n  },\n  "acSubType": "THUMBNAIL",\n  "acDerivedFrom": {\n    "entity": "metadata",\n    "cdoId": "f4d4fd90-b4a5-44be-877c-99a9c241644e"\n  },\n  "dcType": "IMAGE",\n  "fileIdentifier": "91e60ead-9f2e-4d69-9699-cd0d48f98110",\n  "xmpRightsUsageTerms": "Government of Canada Usage Term",\n  "bucket": "aafc",\n  "dcRights": "Copyright Government of Canada",\n  "fileExtension": ".jpg",\n  "xmpRightsWebStatement": "https://open.canada.ca/en/open-government-licence-canada",\n  "id": "54318f4b-d49f-4d5c-a840-31e60a872733",\n  "xmpRightsOwner": "Government of Canada",\n  "originalFilename": "upload_screen_scrollbar.jpg",\n  "group": "aafc"\n}	[\n  "managedAttributeMap",\n  "acSubType",\n  "acDerivedFrom",\n  "dcType",\n  "fileIdentifier",\n  "xmpRightsUsageTerms",\n  "bucket",\n  "dcRights",\n  "fileExtension",\n  "xmpRightsWebStatement",\n  "id",\n  "xmpRightsOwner",\n  "originalFilename",\n  "group"\n]	metadata	106	108
+1000	INITIAL	1	{\n  "managedAttributeMap": {\n    "values": {}\n  },\n  "acMetadataCreator": "9f079df1-c457-476d-b540-3ab026bf0720",\n  "dcType": "IMAGE",\n  "fileIdentifier": "4feddb1c-5bba-400c-a2db-2d4eac8d30d1",\n  "xmpRightsUsageTerms": "Government of Canada Usage Term",\n  "acHashValue": "497d05a4c8afe8294b513919e2ffbcb249fb2175",\n  "acHashFunction": "SHA-1",\n  "bucket": "aafc",\n  "dcFormat": "image/png",\n  "dcRights": "Copyright Government of Canada",\n  "fileExtension": ".png",\n  "xmpRightsWebStatement": "https://open.canada.ca/en/open-government-licence-canada",\n  "id": "aa9fdddc-6580-49ea-b97d-ccd30a1af1c5",\n  "xmpRightsOwner": "Government of Canada",\n  "originalFilename": "Login-as-cnc-cm-2020-07-09 08-42-50.png",\n  "group": "aafc"\n}	[\n  "managedAttributeMap",\n  "acMetadataCreator",\n  "dcType",\n  "fileIdentifier",\n  "xmpRightsUsageTerms",\n  "acHashValue",\n  "acHashFunction",\n  "bucket",\n  "dcFormat",\n  "dcRights",\n  "fileExtension",\n  "xmpRightsWebStatement",\n  "id",\n  "xmpRightsOwner",\n  "originalFilename",\n  "group"\n]	metadata	107	109
+1100	INITIAL	1	{\n  "managedAttributeMap": {\n    "values": {}\n  },\n  "acSubType": "THUMBNAIL",\n  "acDerivedFrom": {\n    "entity": "metadata",\n    "cdoId": "aa9fdddc-6580-49ea-b97d-ccd30a1af1c5"\n  },\n  "dcType": "IMAGE",\n  "fileIdentifier": "6abd7e9a-e6fb-42f6-9ee5-ab82c0980d40",\n  "xmpRightsUsageTerms": "Government of Canada Usage Term",\n  "bucket": "aafc",\n  "dcRights": "Copyright Government of Canada",\n  "fileExtension": ".jpg",\n  "xmpRightsWebStatement": "https://open.canada.ca/en/open-government-licence-canada",\n  "id": "a55ce519-57fe-4c37-811c-59b955dc6384",\n  "xmpRightsOwner": "Government of Canada",\n  "originalFilename": "Login-as-cnc-cm-2020-07-09 08-42-50.png",\n  "group": "aafc"\n}	[\n  "managedAttributeMap",\n  "acSubType",\n  "acDerivedFrom",\n  "dcType",\n  "fileIdentifier",\n  "xmpRightsUsageTerms",\n  "bucket",\n  "dcRights",\n  "fileExtension",\n  "xmpRightsWebStatement",\n  "id",\n  "xmpRightsOwner",\n  "originalFilename",\n  "group"\n]	metadata	108	110
+1200	INITIAL	1	{\n  "managedAttributeMap": {\n    "values": {}\n  },\n  "acMetadataCreator": "30e74960-f723-416e-a1f7-876fac5d2b74",\n  "dcType": "IMAGE",\n  "fileIdentifier": "0df41152-21ee-4619-8be2-6d9ff013151f",\n  "xmpRightsUsageTerms": "Government of Canada Usage Term",\n  "acHashValue": "497d05a4c8afe8294b513919e2ffbcb249fb2175",\n  "acHashFunction": "SHA-1",\n  "bucket": "aafc",\n  "dcFormat": "image/png",\n  "dcRights": "Copyright Government of Canada",\n  "fileExtension": ".png",\n  "xmpRightsWebStatement": "https://open.canada.ca/en/open-government-licence-canada",\n  "id": "b024cc92-1e22-4c37-8795-5d591c8346b2",\n  "xmpRightsOwner": "Government of Canada",\n  "originalFilename": "Login-as-cnc-cm-2020-07-09 08-42-50.png",\n  "group": "aafc"\n}	[\n  "managedAttributeMap",\n  "acMetadataCreator",\n  "dcType",\n  "fileIdentifier",\n  "xmpRightsUsageTerms",\n  "acHashValue",\n  "acHashFunction",\n  "bucket",\n  "dcFormat",\n  "dcRights",\n  "fileExtension",\n  "xmpRightsWebStatement",\n  "id",\n  "xmpRightsOwner",\n  "originalFilename",\n  "group"\n]	metadata	109	111
+1300	INITIAL	1	{\n  "managedAttributeMap": {\n    "values": {}\n  },\n  "acSubType": "THUMBNAIL",\n  "acDerivedFrom": {\n    "entity": "metadata",\n    "cdoId": "b024cc92-1e22-4c37-8795-5d591c8346b2"\n  },\n  "dcType": "IMAGE",\n  "fileIdentifier": "b955b498-bb9e-4dfd-a122-718dfda3f682",\n  "xmpRightsUsageTerms": "Government of Canada Usage Term",\n  "bucket": "aafc",\n  "dcRights": "Copyright Government of Canada",\n  "fileExtension": ".jpg",\n  "xmpRightsWebStatement": "https://open.canada.ca/en/open-government-licence-canada",\n  "id": "8bb2449c-bbbd-4aac-a754-3b1cb4f5c4cf",\n  "xmpRightsOwner": "Government of Canada",\n  "originalFilename": "Login-as-cnc-cm-2020-07-09 08-42-50.png",\n  "group": "aafc"\n}	[\n  "managedAttributeMap",\n  "acSubType",\n  "acDerivedFrom",\n  "dcType",\n  "fileIdentifier",\n  "xmpRightsUsageTerms",\n  "bucket",\n  "dcRights",\n  "fileExtension",\n  "xmpRightsWebStatement",\n  "id",\n  "xmpRightsOwner",\n  "originalFilename",\n  "group"\n]	metadata	110	112
+1400	UPDATE	3	{\n  "managedAttributeMap": {\n    "values": {}\n  },\n  "acMetadataCreator": "9f079df1-c457-476d-b540-3ab026bf0720",\n  "dcType": "IMAGE",\n  "fileIdentifier": "5b3518ac-8ba9-40b0-b35b-447a6a85a2ca",\n  "xmpRightsUsageTerms": "Government of Canada Usage Term",\n  "acHashValue": "09b3aef05d7e6c3c8b50dd44ff6bc4d28d23c3b2",\n  "acCaption": ";lk",\n  "acHashFunction": "SHA-1",\n  "bucket": "aafc",\n  "dcFormat": "image/jpeg",\n  "dcRights": "Copyright Government of Canada",\n  "fileExtension": ".jpg",\n  "xmpRightsWebStatement": "https://open.canada.ca/en/open-government-licence-canada",\n  "id": "088cedd5-814f-414d-a56f-4bd9e485a040",\n  "acTags": [\n    "lk;l"\n  ],\n  "dcCreator": "9f079df1-c457-476d-b540-3ab026bf0720",\n  "xmpRightsOwner": "Government of Canada",\n  "originalFilename": "water-636x370.jpg",\n  "group": "aafc"\n}	[\n  "acCaption",\n  "acTags"\n]	metadata	101	113
+\.
+
+
+--
+-- Name: jv_snapshot_pk_seq; Type: SEQUENCE SET; Schema: object_store; Owner: liquibaseuserbase
+--
+
+SELECT pg_catalog.setval('object_store.jv_snapshot_pk_seq', 14, true);
+
+
+--
+-- Data for Name: managed_attribute; Type: TABLE DATA; Schema: object_store; Owner: liquibaseuserbase
+--
+
+COPY object_store.managed_attribute (id, uuid, type, name, accepted_values, created_on, description, created_by) FROM stdin;
+1	625b63a5-a3c5-4502-94d5-7be1a1c441ea	STRING	CatalogNumber	\N	2020-07-30 18:31:53.364935+00	{"en": "An identifier (preferably unique) for the record within the collection."}	user
+2	815fb1d2-bc74-4c71-9401-7d45f85512b9	STRING	SpecimenView	{Dorsal,Lateral}	2020-07-30 18:39:20.681802+00	{"en": "Orientation of the organism relative to the camera"}	user
+\.
+
+
+--
+-- Name: managed_attribute_id_seq; Type: SEQUENCE SET; Schema: object_store; Owner: liquibaseuserbase
+--
+
+SELECT pg_catalog.setval('object_store.managed_attribute_id_seq', 3, true);
+
+
+--
+-- Data for Name: metadata; Type: TABLE DATA; Schema: object_store; Owner: liquibaseuserbase
+--
+
+COPY object_store.metadata (id, uuid, file_identifier, file_extension, bucket, ac_caption, dc_format, dc_type, xmp_rights_web_statement, ac_rights, xmp_rights_owner, ac_digitization_date, xmp_metadata_date, original_filename, ac_hash_function, ac_hash_value, ac_tags, created_on, deleted_date, publicly_releasable, not_publicly_releasable_reason, ac_derived_from_id, ac_sub_type_id, ac_metadata_creator_id, dc_creator_id, xmp_rights_usage_terms, created_by) FROM stdin;
+1	3cf0712e-d684-490e-824f-019044771b2b	1e6802bb-5812-46fb-95a8-e2d7821f6992	.jpg	aafc	Black hole test!	image/webp	IMAGE	https://open.canada.ca/en/open-government-licence-canada	Copyright Government of Canada	Government of Canada	\N	2020-07-30 19:42:28.289035+00	2QTXABKNNJBW5IK5Q5GKWGQ6UY.jpg	SHA-1	2c25434f7d41dd59681650f661486f4b45e7c3b4	\N	2020-07-30 19:42:05.10897+00	\N	f	\N	\N	\N	9f079df1-c457-476d-b540-3ab026bf0720	9f079df1-c457-476d-b540-3ab026bf0720	Government of Canada Usage Term	user
+3	56d65b97-f18e-4ccd-b0ee-cc4129e1b5da	4ff25079-2a06-4b4a-b5aa-047b17df1a2e	.jpg	aafc	\N	\N	IMAGE	https://open.canada.ca/en/open-government-licence-canada	Copyright Government of Canada	Government of Canada	\N	2020-07-30 19:43:32.472605+00	water-636x370.jpg	\N	\N	\N	2020-07-30 19:43:32.421794+00	\N	f	\N	2	1	\N	\N	Government of Canada Usage Term	user
+4	f83d4a7a-c2de-480d-9c1f-33dfbf2a9ed3	6759cf26-6ab3-4863-be6d-185fe4f09b86	.jpg	aafc	\N	image/jpeg	IMAGE	https://open.canada.ca/en/open-government-licence-canada	Copyright Government of Canada	Government of Canada	\N	2020-07-31 11:52:12.961473+00	upload_screen_scrollbar.jpg	SHA-1	f0a426892480dae3eabc50ff5317d213ebc3c652	\N	2020-07-31 11:52:12.962517+00	\N	f	\N	\N	\N	9c403c4b-c849-43c4-bbc1-8bd10b1997e1	\N	Government of Canada Usage Term	user
+5	1cfc7bf8-279a-4084-9ac9-aa657543d934	54793830-1204-4727-ab31-2bf700d143d7	.jpg	aafc	\N	\N	IMAGE	https://open.canada.ca/en/open-government-licence-canada	Copyright Government of Canada	Government of Canada	\N	2020-07-31 11:52:13.117041+00	upload_screen_scrollbar.jpg	\N	\N	\N	2020-07-31 11:52:12.962517+00	\N	f	\N	4	1	\N	\N	Government of Canada Usage Term	user
+6	f4d4fd90-b4a5-44be-877c-99a9c241644e	67f366fe-c5a2-4586-b7ed-c938aba76e95	.jpg	aafc	\N	image/jpeg	IMAGE	https://open.canada.ca/en/open-government-licence-canada	Copyright Government of Canada	Government of Canada	\N	2020-07-31 11:53:05.617465+00	upload_screen_scrollbar.jpg	SHA-1	f0a426892480dae3eabc50ff5317d213ebc3c652	\N	2020-07-31 11:53:05.618062+00	\N	f	\N	\N	\N	9f079df1-c457-476d-b540-3ab026bf0720	\N	Government of Canada Usage Term	user
+7	54318f4b-d49f-4d5c-a840-31e60a872733	91e60ead-9f2e-4d69-9699-cd0d48f98110	.jpg	aafc	\N	\N	IMAGE	https://open.canada.ca/en/open-government-licence-canada	Copyright Government of Canada	Government of Canada	\N	2020-07-31 11:53:05.65457+00	upload_screen_scrollbar.jpg	\N	\N	\N	2020-07-31 11:53:05.618062+00	\N	f	\N	6	1	\N	\N	Government of Canada Usage Term	user
+8	aa9fdddc-6580-49ea-b97d-ccd30a1af1c5	4feddb1c-5bba-400c-a2db-2d4eac8d30d1	.png	aafc	\N	image/png	IMAGE	https://open.canada.ca/en/open-government-licence-canada	Copyright Government of Canada	Government of Canada	\N	2020-08-12 17:20:51.720972+00	Login-as-cnc-cm-2020-07-09 08-42-50.png	SHA-1	497d05a4c8afe8294b513919e2ffbcb249fb2175	\N	2020-08-12 17:20:51.721767+00	\N	f	\N	\N	\N	9f079df1-c457-476d-b540-3ab026bf0720	\N	Government of Canada Usage Term	user
+9	a55ce519-57fe-4c37-811c-59b955dc6384	6abd7e9a-e6fb-42f6-9ee5-ab82c0980d40	.jpg	aafc	\N	\N	IMAGE	https://open.canada.ca/en/open-government-licence-canada	Copyright Government of Canada	Government of Canada	\N	2020-08-12 17:20:51.83622+00	Login-as-cnc-cm-2020-07-09 08-42-50.png	\N	\N	\N	2020-08-12 17:20:51.721767+00	\N	f	\N	8	1	\N	\N	Government of Canada Usage Term	user
+10	b024cc92-1e22-4c37-8795-5d591c8346b2	0df41152-21ee-4619-8be2-6d9ff013151f	.png	aafc	\N	image/png	IMAGE	https://open.canada.ca/en/open-government-licence-canada	Copyright Government of Canada	Government of Canada	\N	2020-08-12 17:21:32.665699+00	Login-as-cnc-cm-2020-07-09 08-42-50.png	SHA-1	497d05a4c8afe8294b513919e2ffbcb249fb2175	\N	2020-08-12 17:21:32.666135+00	\N	f	\N	\N	\N	30e74960-f723-416e-a1f7-876fac5d2b74	\N	Government of Canada Usage Term	user
+11	8bb2449c-bbbd-4aac-a754-3b1cb4f5c4cf	b955b498-bb9e-4dfd-a122-718dfda3f682	.jpg	aafc	\N	\N	IMAGE	https://open.canada.ca/en/open-government-licence-canada	Copyright Government of Canada	Government of Canada	\N	2020-08-12 17:21:32.69497+00	Login-as-cnc-cm-2020-07-09 08-42-50.png	\N	\N	\N	2020-08-12 17:21:32.666135+00	\N	f	\N	10	1	\N	\N	Government of Canada Usage Term	user
+2	088cedd5-814f-414d-a56f-4bd9e485a040	5b3518ac-8ba9-40b0-b35b-447a6a85a2ca	.jpg	aafc	;lk	image/jpeg	IMAGE	https://open.canada.ca/en/open-government-licence-canada	Copyright Government of Canada	Government of Canada	\N	2020-08-14 00:18:20.933412+00	water-636x370.jpg	SHA-1	09b3aef05d7e6c3c8b50dd44ff6bc4d28d23c3b2	{lk;l}	2020-07-30 19:43:32.421794+00	\N	f	\N	\N	\N	9f079df1-c457-476d-b540-3ab026bf0720	9f079df1-c457-476d-b540-3ab026bf0720	Government of Canada Usage Term	user
+\.
+
+
+--
+-- Name: metadata_id_seq; Type: SEQUENCE SET; Schema: object_store; Owner: liquibaseuserbase
+--
+
+SELECT pg_catalog.setval('object_store.metadata_id_seq', 11, true);
+
+
+--
+-- Data for Name: metadata_managed_attribute; Type: TABLE DATA; Schema: object_store; Owner: liquibaseuserbase
+--
+
+COPY object_store.metadata_managed_attribute (id, uuid, metadata_id, managed_attribute_id, assigned_value, created_on, created_by) FROM stdin;
+\.
+
+
+--
+-- Name: metadata_managed_attribute_id_seq; Type: SEQUENCE SET; Schema: object_store; Owner: liquibaseuserbase
+--
+
+SELECT pg_catalog.setval('object_store.metadata_managed_attribute_id_seq', 1, false);
+
+
+--
+-- Data for Name: object_subtype; Type: TABLE DATA; Schema: object_store; Owner: liquibaseuserbase
+--
+
+COPY object_store.object_subtype (id, dc_type, ac_subtype, uuid, app_managed, created_on, created_by) FROM stdin;
+1	IMAGE	THUMBNAIL	34e4e0d8-91d8-4d52-99ae-ec42d6b0e66e	t	2020-08-25 11:30:43.935453+00	default
+\.
+
+
+--
+-- Name: object_subtype_id_seq; Type: SEQUENCE SET; Schema: object_store; Owner: liquibaseuserbase
+--
+
+SELECT pg_catalog.setval('object_store.object_subtype_id_seq', 1, true);
+
+
+--
+-- Data for Name: object_upload; Type: TABLE DATA; Schema: object_store; Owner: liquibaseuserbase
+--
+
+COPY object_store.object_upload (id, file_identifier, created_on, created_by) FROM stdin;
+\.
+
+
+--
+-- Name: object_upload_id_seq; Type: SEQUENCE SET; Schema: object_store; Owner: liquibaseuserbase
+--
+
+SELECT pg_catalog.setval('object_store.object_upload_id_seq', 1, false);
+
+
+--
+-- Data for Name: databasereadiness; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.databasereadiness (id, status, process, application, lastmodified) FROM stdin;
+1	3	database ready	dina-base	2020-07-30 17:54:32.734692
+\.
+
+
+--
+-- Name: databasereadiness_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.databasereadiness_id_seq', 1, true);
+
+
+--
+-- Name: databasechangeloglock databasechangeloglock_pkey; Type: CONSTRAINT; Schema: object_store; Owner: liquibaseuserbase
+--
+
+ALTER TABLE ONLY object_store.databasechangeloglock
+    ADD CONSTRAINT databasechangeloglock_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: jv_commit jv_commit_pk; Type: CONSTRAINT; Schema: object_store; Owner: liquibaseuserbase
+--
+
+ALTER TABLE ONLY object_store.jv_commit
+    ADD CONSTRAINT jv_commit_pk PRIMARY KEY (commit_pk);
+
+
+--
+-- Name: jv_commit_property jv_commit_property_pk; Type: CONSTRAINT; Schema: object_store; Owner: liquibaseuserbase
+--
+
+ALTER TABLE ONLY object_store.jv_commit_property
+    ADD CONSTRAINT jv_commit_property_pk PRIMARY KEY (property_name, commit_fk);
+
+
+--
+-- Name: jv_global_id jv_global_id_pk; Type: CONSTRAINT; Schema: object_store; Owner: liquibaseuserbase
+--
+
+ALTER TABLE ONLY object_store.jv_global_id
+    ADD CONSTRAINT jv_global_id_pk PRIMARY KEY (global_id_pk);
+
+
+--
+-- Name: jv_snapshot jv_snapshot_pk; Type: CONSTRAINT; Schema: object_store; Owner: liquibaseuserbase
+--
+
+ALTER TABLE ONLY object_store.jv_snapshot
+    ADD CONSTRAINT jv_snapshot_pk PRIMARY KEY (snapshot_pk);
+
+
+--
+-- Name: managed_attribute managed_attribute_uuid_key; Type: CONSTRAINT; Schema: object_store; Owner: liquibaseuserbase
+--
+
+ALTER TABLE ONLY object_store.managed_attribute
+    ADD CONSTRAINT managed_attribute_uuid_key UNIQUE (uuid);
+
+
+--
+-- Name: metadata metadata_file_identifier_key; Type: CONSTRAINT; Schema: object_store; Owner: liquibaseuserbase
+--
+
+ALTER TABLE ONLY object_store.metadata
+    ADD CONSTRAINT metadata_file_identifier_key UNIQUE (file_identifier);
+
+
+--
+-- Name: metadata_managed_attribute metadata_managed_attribute_uuid_key; Type: CONSTRAINT; Schema: object_store; Owner: liquibaseuserbase
+--
+
+ALTER TABLE ONLY object_store.metadata_managed_attribute
+    ADD CONSTRAINT metadata_managed_attribute_uuid_key UNIQUE (uuid);
+
+
+--
+-- Name: metadata metadata_uuid_key; Type: CONSTRAINT; Schema: object_store; Owner: liquibaseuserbase
+--
+
+ALTER TABLE ONLY object_store.metadata
+    ADD CONSTRAINT metadata_uuid_key UNIQUE (uuid);
+
+
+--
+-- Name: object_subtype object_subtype_ac_subtype_key; Type: CONSTRAINT; Schema: object_store; Owner: liquibaseuserbase
+--
+
+ALTER TABLE ONLY object_store.object_subtype
+    ADD CONSTRAINT object_subtype_ac_subtype_key UNIQUE (ac_subtype);
+
+
+--
+-- Name: object_subtype object_subtype_uuid_key; Type: CONSTRAINT; Schema: object_store; Owner: liquibaseuserbase
+--
+
+ALTER TABLE ONLY object_store.object_subtype
+    ADD CONSTRAINT object_subtype_uuid_key UNIQUE (uuid);
+
+
+--
+-- Name: object_upload object_upload_file_identifier_key; Type: CONSTRAINT; Schema: object_store; Owner: liquibaseuserbase
+--
+
+ALTER TABLE ONLY object_store.object_upload
+    ADD CONSTRAINT object_upload_file_identifier_key UNIQUE (file_identifier);
+
+
+--
+-- Name: object_subtype pk_ac_subtype_id; Type: CONSTRAINT; Schema: object_store; Owner: liquibaseuserbase
+--
+
+ALTER TABLE ONLY object_store.object_subtype
+    ADD CONSTRAINT pk_ac_subtype_id PRIMARY KEY (id);
+
+
+--
+-- Name: managed_attribute pk_managed_attribute_id; Type: CONSTRAINT; Schema: object_store; Owner: liquibaseuserbase
+--
+
+ALTER TABLE ONLY object_store.managed_attribute
+    ADD CONSTRAINT pk_managed_attribute_id PRIMARY KEY (id);
+
+
+--
+-- Name: metadata pk_metadata_id; Type: CONSTRAINT; Schema: object_store; Owner: liquibaseuserbase
+--
+
+ALTER TABLE ONLY object_store.metadata
+    ADD CONSTRAINT pk_metadata_id PRIMARY KEY (id);
+
+
+--
+-- Name: metadata_managed_attribute pk_metatdata_managed_attribute_id; Type: CONSTRAINT; Schema: object_store; Owner: liquibaseuserbase
+--
+
+ALTER TABLE ONLY object_store.metadata_managed_attribute
+    ADD CONSTRAINT pk_metatdata_managed_attribute_id PRIMARY KEY (id);
+
+
+--
+-- Name: object_upload pk_object_upload_id; Type: CONSTRAINT; Schema: object_store; Owner: liquibaseuserbase
+--
+
+ALTER TABLE ONLY object_store.object_upload
+    ADD CONSTRAINT pk_object_upload_id PRIMARY KEY (id);
+
+
+--
+-- Name: object_subtype unique_dctype_acsubtype_combination_per_object; Type: CONSTRAINT; Schema: object_store; Owner: liquibaseuserbase
+--
+
+ALTER TABLE ONLY object_store.object_subtype
+    ADD CONSTRAINT unique_dctype_acsubtype_combination_per_object UNIQUE (dc_type, ac_subtype);
+
+
+--
+-- Name: databasereadiness databasereadiness_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.databasereadiness
+    ADD CONSTRAINT databasereadiness_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: jv_commit_commit_id_idx; Type: INDEX; Schema: object_store; Owner: liquibaseuserbase
+--
+
+CREATE INDEX jv_commit_commit_id_idx ON object_store.jv_commit USING btree (commit_id);
+
+
+--
+-- Name: jv_commit_property_commit_fk_idx; Type: INDEX; Schema: object_store; Owner: liquibaseuserbase
+--
+
+CREATE INDEX jv_commit_property_commit_fk_idx ON object_store.jv_commit_property USING btree (commit_fk);
+
+
+--
+-- Name: jv_commit_property_property_name_property_value_idx; Type: INDEX; Schema: object_store; Owner: liquibaseuserbase
+--
+
+CREATE INDEX jv_commit_property_property_name_property_value_idx ON object_store.jv_commit_property USING btree (property_name, property_value);
+
+
+--
+-- Name: jv_global_id_local_id_idx; Type: INDEX; Schema: object_store; Owner: liquibaseuserbase
+--
+
+CREATE INDEX jv_global_id_local_id_idx ON object_store.jv_global_id USING btree (local_id);
+
+
+--
+-- Name: jv_global_id_owner_id_fk_idx; Type: INDEX; Schema: object_store; Owner: liquibaseuserbase
+--
+
+CREATE INDEX jv_global_id_owner_id_fk_idx ON object_store.jv_global_id USING btree (owner_id_fk);
+
+
+--
+-- Name: jv_snapshot_commit_fk_idx; Type: INDEX; Schema: object_store; Owner: liquibaseuserbase
+--
+
+CREATE INDEX jv_snapshot_commit_fk_idx ON object_store.jv_snapshot USING btree (commit_fk);
+
+
+--
+-- Name: jv_snapshot_global_id_fk_idx; Type: INDEX; Schema: object_store; Owner: liquibaseuserbase
+--
+
+CREATE INDEX jv_snapshot_global_id_fk_idx ON object_store.jv_snapshot USING btree (global_id_fk);
+
+
+--
+-- Name: object_subtype_unique_acsubtype; Type: INDEX; Schema: object_store; Owner: liquibaseuserbase
+--
+
+CREATE UNIQUE INDEX object_subtype_unique_acsubtype ON object_store.object_subtype USING btree (lower((ac_subtype)::text));
+
+
+--
+-- Name: metadata fk_metadata_ac_derived_from_id; Type: FK CONSTRAINT; Schema: object_store; Owner: liquibaseuserbase
+--
+
+ALTER TABLE ONLY object_store.metadata
+    ADD CONSTRAINT fk_metadata_ac_derived_from_id FOREIGN KEY (ac_derived_from_id) REFERENCES object_store.metadata(id);
+
+
+--
+-- Name: metadata fk_metadata_ac_sub_type_id; Type: FK CONSTRAINT; Schema: object_store; Owner: liquibaseuserbase
+--
+
+ALTER TABLE ONLY object_store.metadata
+    ADD CONSTRAINT fk_metadata_ac_sub_type_id FOREIGN KEY (ac_sub_type_id) REFERENCES object_store.object_subtype(id);
+
+
+--
+-- Name: metadata_managed_attribute fk_metadata_managed_attribute_to_managed_attribute_id; Type: FK CONSTRAINT; Schema: object_store; Owner: liquibaseuserbase
+--
+
+ALTER TABLE ONLY object_store.metadata_managed_attribute
+    ADD CONSTRAINT fk_metadata_managed_attribute_to_managed_attribute_id FOREIGN KEY (managed_attribute_id) REFERENCES object_store.managed_attribute(id);
+
+
+--
+-- Name: metadata_managed_attribute fk_metadata_managed_attribute_to_metadata_id; Type: FK CONSTRAINT; Schema: object_store; Owner: liquibaseuserbase
+--
+
+ALTER TABLE ONLY object_store.metadata_managed_attribute
+    ADD CONSTRAINT fk_metadata_managed_attribute_to_metadata_id FOREIGN KEY (metadata_id) REFERENCES object_store.metadata(id);
+
+
+--
+-- Name: jv_commit_property jv_commit_property_commit_fk; Type: FK CONSTRAINT; Schema: object_store; Owner: liquibaseuserbase
+--
+
+ALTER TABLE ONLY object_store.jv_commit_property
+    ADD CONSTRAINT jv_commit_property_commit_fk FOREIGN KEY (commit_fk) REFERENCES object_store.jv_commit(commit_pk);
+
+
+--
+-- Name: jv_global_id jv_global_id_owner_id_fk; Type: FK CONSTRAINT; Schema: object_store; Owner: liquibaseuserbase
+--
+
+ALTER TABLE ONLY object_store.jv_global_id
+    ADD CONSTRAINT jv_global_id_owner_id_fk FOREIGN KEY (owner_id_fk) REFERENCES object_store.jv_global_id(global_id_pk);
+
+
+--
+-- Name: jv_snapshot jv_snapshot_commit_fk; Type: FK CONSTRAINT; Schema: object_store; Owner: liquibaseuserbase
+--
+
+ALTER TABLE ONLY object_store.jv_snapshot
+    ADD CONSTRAINT jv_snapshot_commit_fk FOREIGN KEY (commit_fk) REFERENCES object_store.jv_commit(commit_pk);
+
+
+--
+-- Name: jv_snapshot jv_snapshot_global_id_fk; Type: FK CONSTRAINT; Schema: object_store; Owner: liquibaseuserbase
+--
+
+ALTER TABLE ONLY object_store.jv_snapshot
+    ADD CONSTRAINT jv_snapshot_global_id_fk FOREIGN KEY (global_id_fk) REFERENCES object_store.jv_global_id(global_id_pk);
+
+
+--
+-- Name: SCHEMA object_store; Type: ACL; Schema: -; Owner: liquibaseuserbase
+--
+
+GRANT USAGE ON SCHEMA object_store TO springuserbase;
+
+
+--
+-- Name: TABLE databasechangelog; Type: ACL; Schema: object_store; Owner: liquibaseuserbase
+--
+
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE object_store.databasechangelog TO springuserbase;
+
+
+--
+-- Name: TABLE databasechangeloglock; Type: ACL; Schema: object_store; Owner: liquibaseuserbase
+--
+
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE object_store.databasechangeloglock TO springuserbase;
+
+
+--
+-- Name: TABLE jv_commit; Type: ACL; Schema: object_store; Owner: liquibaseuserbase
+--
+
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE object_store.jv_commit TO springuserbase;
+
+
+--
+-- Name: SEQUENCE jv_commit_pk_seq; Type: ACL; Schema: object_store; Owner: liquibaseuserbase
+--
+
+GRANT ALL ON SEQUENCE object_store.jv_commit_pk_seq TO springuserbase;
+
+
+--
+-- Name: TABLE jv_commit_property; Type: ACL; Schema: object_store; Owner: liquibaseuserbase
+--
+
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE object_store.jv_commit_property TO springuserbase;
+
+
+--
+-- Name: TABLE jv_global_id; Type: ACL; Schema: object_store; Owner: liquibaseuserbase
+--
+
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE object_store.jv_global_id TO springuserbase;
+
+
+--
+-- Name: SEQUENCE jv_global_id_pk_seq; Type: ACL; Schema: object_store; Owner: liquibaseuserbase
+--
+
+GRANT ALL ON SEQUENCE object_store.jv_global_id_pk_seq TO springuserbase;
+
+
+--
+-- Name: TABLE jv_snapshot; Type: ACL; Schema: object_store; Owner: liquibaseuserbase
+--
+
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE object_store.jv_snapshot TO springuserbase;
+
+
+--
+-- Name: SEQUENCE jv_snapshot_pk_seq; Type: ACL; Schema: object_store; Owner: liquibaseuserbase
+--
+
+GRANT ALL ON SEQUENCE object_store.jv_snapshot_pk_seq TO springuserbase;
+
+
+--
+-- Name: TABLE managed_attribute; Type: ACL; Schema: object_store; Owner: liquibaseuserbase
+--
+
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE object_store.managed_attribute TO springuserbase;
+
+
+--
+-- Name: SEQUENCE managed_attribute_id_seq; Type: ACL; Schema: object_store; Owner: liquibaseuserbase
+--
+
+GRANT ALL ON SEQUENCE object_store.managed_attribute_id_seq TO springuserbase;
+
+
+--
+-- Name: TABLE metadata; Type: ACL; Schema: object_store; Owner: liquibaseuserbase
+--
+
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE object_store.metadata TO springuserbase;
+
+
+--
+-- Name: SEQUENCE metadata_id_seq; Type: ACL; Schema: object_store; Owner: liquibaseuserbase
+--
+
+GRANT ALL ON SEQUENCE object_store.metadata_id_seq TO springuserbase;
+
+
+--
+-- Name: TABLE metadata_managed_attribute; Type: ACL; Schema: object_store; Owner: liquibaseuserbase
+--
+
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE object_store.metadata_managed_attribute TO springuserbase;
+
+
+--
+-- Name: SEQUENCE metadata_managed_attribute_id_seq; Type: ACL; Schema: object_store; Owner: liquibaseuserbase
+--
+
+GRANT ALL ON SEQUENCE object_store.metadata_managed_attribute_id_seq TO springuserbase;
+
+
+--
+-- Name: TABLE object_subtype; Type: ACL; Schema: object_store; Owner: liquibaseuserbase
+--
+
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE object_store.object_subtype TO springuserbase;
+
+
+--
+-- Name: SEQUENCE object_subtype_id_seq; Type: ACL; Schema: object_store; Owner: liquibaseuserbase
+--
+
+GRANT ALL ON SEQUENCE object_store.object_subtype_id_seq TO springuserbase;
+
+
+--
+-- Name: TABLE object_upload; Type: ACL; Schema: object_store; Owner: liquibaseuserbase
+--
+
+GRANT SELECT,INSERT,DELETE,UPDATE ON TABLE object_store.object_upload TO springuserbase;
+
+
+--
+-- Name: SEQUENCE object_upload_id_seq; Type: ACL; Schema: object_store; Owner: liquibaseuserbase
+--
+
+GRANT ALL ON SEQUENCE object_store.object_upload_id_seq TO springuserbase;
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR SEQUENCES; Type: DEFAULT ACL; Schema: object_store; Owner: liquibaseuserbase
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE liquibaseuserbase IN SCHEMA object_store REVOKE ALL ON SEQUENCES  FROM liquibaseuserbase;
+ALTER DEFAULT PRIVILEGES FOR ROLE liquibaseuserbase IN SCHEMA object_store GRANT ALL ON SEQUENCES  TO springuserbase;
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR TABLES; Type: DEFAULT ACL; Schema: object_store; Owner: liquibaseuserbase
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE liquibaseuserbase IN SCHEMA object_store REVOKE ALL ON TABLES  FROM liquibaseuserbase;
+ALTER DEFAULT PRIVILEGES FOR ROLE liquibaseuserbase IN SCHEMA object_store GRANT SELECT,INSERT,DELETE,UPDATE ON TABLES  TO springuserbase;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
