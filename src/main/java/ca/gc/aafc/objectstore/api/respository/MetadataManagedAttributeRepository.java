@@ -1,29 +1,40 @@
 package ca.gc.aafc.objectstore.api.respository;
 
+import ca.gc.aafc.dina.filter.RsqlFilterHandler;
+import ca.gc.aafc.dina.filter.SimpleFilterHandler;
+import ca.gc.aafc.dina.repository.JpaDtoRepository;
+import ca.gc.aafc.dina.repository.JpaResourceRepository;
+import ca.gc.aafc.dina.repository.meta.JpaMetaInformationProvider;
+import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
+import ca.gc.aafc.objectstore.api.dto.MetadataManagedAttributeDto;
 import org.springframework.stereotype.Repository;
 
-import ca.gc.aafc.dina.filter.DinaFilterResolver;
-import ca.gc.aafc.dina.mapper.DinaMapper;
-import ca.gc.aafc.dina.repository.DinaRepository;
-import ca.gc.aafc.dina.service.DinaService;
-import ca.gc.aafc.objectstore.api.dto.MetadataManagedAttributeDto;
-import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
-import lombok.NonNull;
+import java.util.Arrays;
 
 @Repository
-public class MetadataManagedAttributeRepository
-    extends DinaRepository<MetadataManagedAttributeDto, MetadataManagedAttribute> {
+public class MetadataManagedAttributeRepository extends JpaResourceRepository<MetadataManagedAttributeDto> {
+
+  private final DinaAuthenticatedUser authenticatedUser;
 
   public MetadataManagedAttributeRepository(
-    @NonNull DinaService<MetadataManagedAttribute> dinaService,
-    @NonNull DinaFilterResolver filterResolver
+    JpaDtoRepository dtoRepository,
+    SimpleFilterHandler simpleFilterHandler,
+    RsqlFilterHandler rsqlFilterHandler,
+    JpaMetaInformationProvider metaInformationProvider,
+    DinaAuthenticatedUser authenticatedUser
   ) {
     super(
-      dinaService,
-      new DinaMapper<>(MetadataManagedAttributeDto.class),
       MetadataManagedAttributeDto.class,
-      MetadataManagedAttribute.class,
-      filterResolver);
+      dtoRepository,
+      Arrays.asList(simpleFilterHandler, rsqlFilterHandler),
+      metaInformationProvider
+    );
+    this.authenticatedUser = authenticatedUser;
   }
 
+  @Override
+  public <S extends MetadataManagedAttributeDto> S create(S resource) {
+    resource.setCreatedBy(authenticatedUser.getUsername());
+    return super.create(resource);
+  }
 }

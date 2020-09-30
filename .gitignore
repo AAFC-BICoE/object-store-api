@@ -1,7 +1,8 @@
 .classpath
 .project
+*.factorypath
 /.settings
 /target/
 docker-compose.yml
+docker-compose.override.yml
 /*.env
-

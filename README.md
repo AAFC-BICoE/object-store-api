@@ -8,9 +8,10 @@ See DINA object-store [specification](https://github.com/DINA-Web/object-store-s
 
 * Java 11
 * Maven 3.6 (tested)
+* Docker 19+ (for running integration tests)
 
 ## Database
-This project requires a PostgreSQL database to run and to run integration tests.
+This project requires a PostgreSQL database to run.
 
 ## Minio
 A [Minio](https://min.io/) service is also required to run the project (not required for testing).
@@ -41,32 +42,7 @@ docker-compose down
 ```
 
 ## Testing
-For testing purposes use the same docker-compose.yml and .env file (from the section before).
-
-### 1. Add a `docker-compose.override.yml` file.
-
-Create an override file to expose the postgres port on your host:
-```
-version: "3"
-
-services:
-  object-store-db:
-    ports:
-      - 5432:5432
-
-```
-
-### 2. Launch the database service
-
-```
-docker-compose up object-store-db
-```
-
-To run the integration tests:
-
-```
-mvn verify -Dspring.datasource.url=jdbc:postgresql://localhost/object_store_test?currentSchema=object_store -Dspring.datasource.username=web_user -Dspring.datasource.password=test -Dspring.liquibase.user=migration_user -Dspring.liquibase.password=test
-```
+Run tests using `mvn verify`. Docker is required, so the integration tests can launch an embedded Postgres test container.
 
 ## IDE
 

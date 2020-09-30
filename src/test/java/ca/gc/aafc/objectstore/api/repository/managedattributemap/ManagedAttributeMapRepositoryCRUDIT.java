@@ -1,17 +1,5 @@
 package ca.gc.aafc.objectstore.api.repository.managedattributemap;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.validation.ValidationException;
-
-import com.google.common.collect.ImmutableMap;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import ca.gc.aafc.objectstore.api.dto.ManagedAttributeMapDto;
 import ca.gc.aafc.objectstore.api.dto.ManagedAttributeMapDto.ManagedAttributeMapValue;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
@@ -24,7 +12,22 @@ import ca.gc.aafc.objectstore.api.respository.managedattributemap.ManagedAttribu
 import ca.gc.aafc.objectstore.api.testsupport.factories.ManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MetadataManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
 import io.crnk.core.queryspec.QuerySpec;
+import org.javers.core.Javers;
+import org.javers.core.metamodel.object.CdoSnapshot;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.validation.ValidationException;
+
+import java.util.Arrays;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ManagedAttributeMapRepositoryCRUDIT extends BaseRepositoryTest {
 
@@ -36,6 +39,12 @@ public class ManagedAttributeMapRepositoryCRUDIT extends BaseRepositoryTest {
 
   @Inject
   private EntityManager entityManager;
+
+  @Inject
+  private Javers javers;
+
+  @Inject
+  private ObjectMapper objectMapper;
 
   private ObjectStoreMetadata testMetadata;
   private ManagedAttribute testManagedAttribute1;
@@ -53,11 +62,8 @@ public class ManagedAttributeMapRepositoryCRUDIT extends BaseRepositoryTest {
     testManagedAttribute2 = ManagedAttributeFactory.newManagedAttribute().name("attr2").build();
     entityManager.persist(testManagedAttribute2);
 
-    testAttr1Value = MetadataManagedAttributeFactory.newMetadataManagedAttribute()
-      .assignedValue("test value 1")
-      .managedAttribute(testManagedAttribute1)
-      .objectStoreMetadata(testMetadata)
-      .build();
+    testAttr1Value = MetadataManagedAttributeFactory.newMetadataManagedAttribute().assignedValue("test value 1")
+        .managedAttribute(testManagedAttribute1).objectStoreMetadata(testMetadata).build();
     entityManager.persist(testAttr1Value);
 
     entityManager.flush();
@@ -65,25 +71,45 @@ public class ManagedAttributeMapRepositoryCRUDIT extends BaseRepositoryTest {
   }
 
   @Test
-  public void setAttributeValue_whenMMADoesntExist_createMMA() {
+  public void setAttributeValue_whenMMADoesntExist_createMMAAndSnapshot() {
     // Set attr2 value:
-    managedAttributeMapRepository.create(
-      ManagedAttributeMapDto.builder()
+    managedAttributeMapRepository.create(ManagedAttributeMapDto.builder()
         .metadata(metadataRepository.findOne(testMetadata.getUuid(), new QuerySpec(ObjectStoreMetadataDto.class)))
-        .values(ImmutableMap.<String, ManagedAttributeMapValue>builder()
-          .put(testManagedAttribute2.getUuid().toString(), ManagedAttributeMapValue.builder()
-            .value("New attr2 value")
-            .build())
-          .build())
-        .build()
-    );
+        .values(ImmutableMap.<String, ManagedAttributeMapValue>builder().put(testManagedAttribute2.getUuid().toString(),
+            ManagedAttributeMapValue.builder().value("New attr2 value").build()).build())
+        .build());
 
     entityManager.flush();
     entityManager.refresh(testMetadata);
 
-    // The managed attribute value (MetadataManagedAttribute) should have been created:
+    // The managed attribute value (MetadataManagedAttribute) should have been
+    // created:
     assertEquals(2, testMetadata.getManagedAttribute().size());
     assertEquals("New attr2 value", testMetadata.getManagedAttribute().get(1).getAssignedValue());
+
+    // Check the snapshot to make sure the embedded managedAttributeMap was updated:
+    CdoSnapshot latestSnapshot = javers.getLatestSnapshot(
+      testMetadata.getUuid(),
+      ObjectStoreMetadataDto.class
+    ).get();
+    // Correct fields should be updated:
+    assertEquals(
+      Arrays.asList("managedAttributeMap", "createdOn"),
+      latestSnapshot.getChanged()
+    );
+
+    ManagedAttributeMapDto attrMap = objectMapper.convertValue(
+      latestSnapshot.getPropertyValue("managedAttributeMap"),
+      ManagedAttributeMapDto.class
+    );
+    assertEquals(
+      "test value 1",
+      attrMap.getValues().get(testManagedAttribute1.getUuid().toString()).getValue()
+    );
+    assertEquals(
+      "New attr2 value",
+      attrMap.getValues().get(testManagedAttribute2.getUuid().toString()).getValue()
+    );
   }
 
   @Test

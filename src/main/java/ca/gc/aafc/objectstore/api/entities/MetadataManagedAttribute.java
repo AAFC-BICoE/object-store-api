@@ -1,6 +1,12 @@
 package ca.gc.aafc.objectstore.api.entities;
 
-import java.util.UUID;
+import ca.gc.aafc.dina.entity.DinaEntity;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.hibernate.annotations.NaturalId;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,16 +16,12 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
+import javax.persistence.PreRemove;
+import javax.persistence.PreUpdate;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.hibernate.annotations.NaturalId;
-
-import ca.gc.aafc.dina.entity.DinaEntity;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.RequiredArgsConstructor;
+import java.time.OffsetDateTime;
+import java.util.UUID;
 
 @Entity
 @Builder(toBuilder = true)
@@ -34,6 +36,8 @@ public class MetadataManagedAttribute implements DinaEntity {
   private ObjectStoreMetadata objectStoreMetadata;
   private ManagedAttribute managedAttribute;
   private String assignedValue;
+  private String createdBy;
+  private OffsetDateTime createdOn;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -93,8 +97,41 @@ public class MetadataManagedAttribute implements DinaEntity {
   }
 
   @PrePersist
-  public void initUuid() {
+  public void init() {
     this.uuid = UUID.randomUUID();
+    this.updateParentMetadata();
+  }
+  
+  /**
+   * MetadataManagedAttribute is considered a child value of ObjectStoreMetadata,
+   * so update the parent whenever this is modified.
+   * 
+   * This helps for auditing.
+   */
+  @PreUpdate
+  @PreRemove
+  public void updateParentMetadata() {
+    this.objectStoreMetadata.setXmpMetadataDate(OffsetDateTime.now());
   }
 
+  @Override
+  @NotBlank
+  @Column(name = "created_by", updatable = false)
+  public String getCreatedBy() {
+    return createdBy;
+  }
+
+  public void setCreatedBy(String createdBy) {
+    this.createdBy = createdBy;
+  }
+
+  @Override
+  @Column(name = "created_on", insertable = false, updatable = false)
+  public OffsetDateTime getCreatedOn() {
+    return createdOn;
+  }
+
+  public void setCreatedOn(OffsetDateTime createdOn) {
+    this.createdOn = createdOn;
+  }
 }

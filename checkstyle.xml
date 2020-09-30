@@ -107,18 +107,16 @@ limitations under the License.
     <module name="TreeWalker">
     
       <!-- Indent Checks -->    
-      <!-- How much spaces a tab is worth  -->
-      <property name="tabWidth" value="2"/>
 
       <!-- severity is at ignore until we fix the other issues -->
       <module name="Indentation">
         <property name="basicOffset" value="2"/>
         <property name="braceAdjustment" value="0"/>
         <property name="caseIndent" value="2"/>
-        <property name="throwsIndent" value="4"/>
-        <property name="lineWrappingIndentation" value="4"/>
+        <property name="throwsIndent" value="2"/>
+        <property name="lineWrappingIndentation" value="2"/>
         <property name="arrayInitIndent" value="2"/>
-        <property name="severity" value="ignore"/>
+        <property name="severity" value="error"/>
       </module>
 
       <!--

@@ -7,20 +7,19 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.util.NestedServletException;
 
+import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
-import ca.gc.aafc.objectstore.api.TestConfiguration;
+import ca.gc.aafc.objectstore.api.MinioTestConfiguration;
 
-@SpringBootTest
-@ActiveProfiles("test")
-public class FileUploadIT {
+@Import(MinioTestConfiguration.class)
+public class FileUploadIT extends BaseIntegrationTest {
 
   @Autowired
   protected WebApplicationContext wac;
@@ -48,7 +47,7 @@ public class FileUploadIT {
     try {
       webAppContextSetup(this.wac).build()
       .perform(MockMvcRequestBuilders
-          .multipart("/api/v1/file/a" + TestConfiguration.ILLEGAL_BUCKET_CHAR + "b").file(file));
+          .multipart("/api/v1/file/a" + MinioTestConfiguration.ILLEGAL_BUCKET_CHAR + "b").file(file));
       fail("Expected NestedServletException");
     }
     // NestedServletException is a generic exception so we want to do the assertion on the cause

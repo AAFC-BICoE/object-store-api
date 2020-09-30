@@ -89,7 +89,6 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
   }
 
   public static final String API_BASE_PATH = "/api/v1";
-  public static final String SCHEMA_BASE_PATH = "/json-schema";
    
   @BeforeEach
   public final void before() {
@@ -364,14 +363,20 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
   }
 
   /**
-   * Sends a DELETE to the resource under test for the provided id. Asserts that it returns HTTP NO
-   * CONTENT 204.
+   * Sends a DELETE to the resource under test for the provided id. Asserts that
+   * it returns HTTP NO CONTENT 204.
    * 
    * @param id
    */
   protected void sendDelete(String id) {
-    Response response = given().contentType(JSON_API_CONTENT_TYPE).when().delete(getResourceUnderTest() + "/" + id);
-    response.then().statusCode(HttpStatus.NO_CONTENT.value());
+    sendDelete(id, HttpStatus.NO_CONTENT.value());
+  }
+
+  protected void sendDelete(String id, int code) {
+    given().contentType(JSON_API_CONTENT_TYPE)
+      .when()
+      .delete(getResourceUnderTest() + "/" + id)
+      .then().statusCode(code);
   }
 
   /**
@@ -382,7 +387,7 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
    * @return id of the newly created resource
    */
   protected String sendPost(Map<String, Object> dataMap) {
-    return sendPost(getResourceUnderTest(), dataMap);
+    return sendPost(getResourceUnderTest(), dataMap, HttpStatus.CREATED.value());
   }
   
   /**
@@ -393,11 +398,11 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
    * @param dataMap body of the POST as Map
    * @return id of the newly created resource
    */
-  protected String sendPost(String resourceName, Map<String, Object> dataMap) {
+  protected String sendPost(String resourceName, Map<String, Object> dataMap, int code) {
     log.info("Posting to resourceName: {}", () -> dataMap);
     Response response = given().header("crnk-compact", "true").contentType(JSON_API_CONTENT_TYPE).body(dataMap).when()
         .post(resourceName);
-    response.then().statusCode(HttpStatus.CREATED.value());
+    response.then().statusCode(code);
     String id = (String) response.body().jsonPath().get("data.id");
     return id;
   }
@@ -410,9 +415,17 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
    * @return
    */
   protected ValidatableResponse sendPatch(String id, Map<String, Object> dataMap) {
-    Response response = given().header("crnk-compact", "true").contentType(JSON_API_CONTENT_TYPE).body(dataMap).when()
-        .patch(getResourceUnderTest() + "/" + id);
-    return response.then().statusCode(HttpStatus.OK.value());
+    return sendPatch(id, HttpStatus.OK.value(), dataMap);
+  }
+
+  protected ValidatableResponse sendPatch(String id, int code, Map<String, Object> dataMap) {
+    return given().header("crnk-compact", "true")
+      .contentType(JSON_API_CONTENT_TYPE)
+      .body(dataMap)
+      .when()
+      .patch(getResourceUnderTest() + "/" + id)
+      .then()
+      .statusCode(code);
   }
 
   /**
@@ -425,7 +438,7 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
    * @param entityClass      - Class representing the entity to delete.
    */
   protected <T> void deleteEntityByUUID(String uuidPropertyName, UUID uuid, Class<T> entityClass) {
-    runInNewTransaction(em -> {
+    service.runInNewTransaction(em -> {
       CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
       CriteriaDelete<T> query = criteriaBuilder.createCriteriaDelete(entityClass);
       Root<T> root = query.from(entityClass);

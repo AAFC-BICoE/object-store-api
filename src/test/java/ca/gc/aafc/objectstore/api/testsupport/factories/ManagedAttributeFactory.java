@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.BiFunction;
 
+import com.google.common.collect.ImmutableMap;
+
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute.ManagedAttributeType;
 import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
@@ -25,6 +27,8 @@ public class ManagedAttributeFactory implements TestableEntityFactory<ManagedAtt
     return ManagedAttribute.builder()
         .uuid(UUID.randomUUID())
         .name(TestableEntityFactory.generateRandomNameLettersOnly(12))
+        .description(ImmutableMap.of("en", "test description"))
+        .createdBy("createdBy")
         .managedAttributeType(ManagedAttributeType.STRING);
    } 
   
