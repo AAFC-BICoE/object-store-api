@@ -89,7 +89,6 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
   }
 
   public static final String API_BASE_PATH = "/api/v1";
-  public static final String SCHEMA_BASE_PATH = "/json-schema";
    
   @BeforeEach
   public final void before() {

@@ -1,23 +1,9 @@
 package ca.gc.aafc.objectstore.api.crud;
 
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-
+import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-
-import ca.gc.aafc.dina.testsupport.DatabaseSupportService;
 
 /**
- * The class is ported from seqdb.dbi with below changes, will be moved to a
- * common package later.
- * 
- * 1. Remove the TestConfig as the entitiy scan is now on application launcher,
- * no need to use another application context. 2. Remove the @ActiveProfiles as
- * the test and local dev are now relying on the postgres in a container, no
- * need to use another yml file for test.
- * 
  * Base class for CRUD-based Integration tests. The main purpose is to ensure
  * all entities can be saved/loaded/deleted from a database.
  * 
@@ -25,13 +11,7 @@ import ca.gc.aafc.dina.testsupport.DatabaseSupportService;
  * order of testing of save/find/remove.
  * 
  */
-@SpringBootTest
-@Transactional
-@ActiveProfiles("test")
-public abstract class BaseEntityCRUDIT {
-
-  @Inject
-  protected DatabaseSupportService service;
+public abstract class BaseEntityCRUDIT extends BaseIntegrationTest {
 
   /**
    * Runs the three main CRUD methods while performing a transaction for each

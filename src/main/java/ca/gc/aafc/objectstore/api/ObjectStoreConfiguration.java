@@ -7,15 +7,11 @@ import org.springframework.boot.context.properties.ConstructorBinding;
 @ConfigurationProperties(prefix = "objectstore")
 public class ObjectStoreConfiguration {
   
-  private String defaultLicenceURL;
-  private String defaultCopyright;
-  private String defaultCopyrightOwner;
-  private String defaultUsageTerms;
-  
-  public String getDefaultUsageTerms() {
-    return defaultUsageTerms;
-  }
-  
+  private final String defaultLicenceURL;
+  private final String defaultCopyright;
+  private final String defaultCopyrightOwner;
+  private final String defaultUsageTerms;
+
   public ObjectStoreConfiguration(String defaultLicenceURL, String defaultCopyright, String defaultCopyrightOwner, String defaultUsageTerms ) {
     this.defaultLicenceURL = defaultLicenceURL;
     this.defaultCopyright = defaultCopyright;
@@ -33,6 +29,10 @@ public class ObjectStoreConfiguration {
   
   public String getDefaultCopyrightOwner() {
     return defaultCopyrightOwner;
+  }
+
+  public String getDefaultUsageTerms() {
+    return defaultUsageTerms;
   }
 
 }
