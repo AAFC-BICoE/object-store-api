@@ -1,5 +1,6 @@
 package ca.gc.aafc.objectstore.api.respository.managedattributemap;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -26,11 +27,11 @@ import io.crnk.core.resource.list.ResourceList;
 /**
  * Resource repository for adding Managed Attribute values in a more client-friendly way than
  * manually adding MetadataManagedAttributes.
- * 
+ *
  * ManagedAttributeMap is a derived object to conveniently/compactly get/set a Metadata's ManagedAttribute values.
- * 
+ *
  * Provides a POST endpoint for adding new ManagedAttribute values for a Metadata.
- * 
+ *
  * Example POST request body to /api/managed-attribute-map:
  * {
  *   "data": {
@@ -77,8 +78,9 @@ public class ManagedAttributeMapRepository extends ResourceRepositoryBase<Manage
       .orElseThrow(() -> new ValidationException("Metadata relationship required to add managed attributes map."));
     final ObjectStoreMetadata metadata = dao.findOneByNaturalId(metadataUuid, ObjectStoreMetadata.class);
 
-    final List<MetadataManagedAttribute> managedAttributeValues = metadata.getManagedAttribute();
-    
+    final List<MetadataManagedAttribute> managedAttributeValues =
+      metadata.getManagedAttribute() == null ? new ArrayList<>() : metadata.getManagedAttribute();
+
     // Loop through the changed attribute values:
     for (final Entry<String, ManagedAttributeMapValue> entry : resource.getValues().entrySet()) {
       final UUID changedAttributeUuid = UUID.fromString(entry.getKey());
