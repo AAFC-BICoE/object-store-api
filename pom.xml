@@ -24,6 +24,7 @@
 		<minio.version>7.0.2</minio.version>
 		<tika.version>1.24.1</tika.version>
 		<thumbnailator.version>0.4.12</thumbnailator.version>
+		<pdfbox.version>2.0.21</pdfbox.version>
 		<imageio.version>3.6</imageio.version>
 
 		<spotbugs-maven-plugin.version>4.0.4</spotbugs-maven-plugin.version>
@@ -125,6 +126,12 @@
 			<artifactId>imageio-tiff</artifactId>
 			<version>${imageio.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.pdfbox</groupId>
+			<artifactId>pdfbox</artifactId>
+			<version>${pdfbox.version}</version>
+		</dependency>
+
 
 		<!-- TEST Scope -->
 		<dependency>

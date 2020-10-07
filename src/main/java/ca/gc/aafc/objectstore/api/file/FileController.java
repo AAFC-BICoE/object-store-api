@@ -164,7 +164,7 @@ public class FileController {
     if (thumbnailService.isSupported(fileExtension)) {
       log.info("Generating a thumbnail for file with UUID of: {}", () -> fileID);
 
-      try (InputStream thumbnail = thumbnailService.generateThumbnail(in)) {
+      try (InputStream thumbnail = thumbnailService.generateThumbnail(in, fileExtension)) {
         UUID thumbID = getNewUUID(bucket);
         String fileName = thumbID.toString() + ".thumbnail" + ThumbnailService.THUMBNAIL_EXTENSION;
         minioService.storeFile(fileName, thumbnail, "image/jpeg", bucket, null);
