@@ -5,8 +5,6 @@ import ca.gc.aafc.dina.mapper.CustomFieldResolver;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.crnk.core.resource.annotations.JsonApiId;
 import io.crnk.core.resource.annotations.JsonApiRelation;
@@ -49,7 +47,6 @@ public class ObjectStoreMetadataDto {
   @ShallowReference
   private DcType dcType;
 
-  @JsonInclude(Include.NON_EMPTY)
   private String acCaption;
 
   private OffsetDateTime acDigitizationDate;
@@ -62,7 +59,6 @@ public class ObjectStoreMetadataDto {
   private String xmpRightsOwner;
   private String xmpRightsUsageTerms;
 
-  @JsonInclude(Include.NON_EMPTY)
   private String originalFilename;
 
   private String acHashFunction;
@@ -70,10 +66,8 @@ public class ObjectStoreMetadataDto {
 
   @DiffIgnore
   private OffsetDateTime createdDate;
-  @JsonInclude(Include.NON_EMPTY)
   private OffsetDateTime deletedDate;
 
-  @JsonInclude(Include.NON_EMPTY)
   private String[] acTags;
 
   @JsonApiRelation
@@ -95,10 +89,8 @@ public class ObjectStoreMetadataDto {
 
   private boolean publiclyReleasable;
 
-  @JsonInclude(Include.NON_EMPTY)
   private String notPubliclyReleasableReason;
 
-  @JsonInclude(Include.NON_EMPTY)
   private String acSubType;
 
   private String group;
