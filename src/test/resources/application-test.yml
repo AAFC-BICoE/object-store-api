@@ -13,3 +13,4 @@ embedded.postgresql:
   init-script-file: create-test-users.sql
   database: object_store_test
   schema: object_store
+dina.auditing.enabled: true
