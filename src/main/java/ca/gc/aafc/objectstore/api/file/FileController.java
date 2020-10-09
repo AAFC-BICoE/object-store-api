@@ -95,13 +95,13 @@ public class FileController {
     // make sure we have an authenticatedUser
     checkAuthenticatedUser();
 
+    authenticateBucket(bucket);
+
     // Temporary, we will need to check if the user is an admin
     minioService.ensureBucketExists(bucket);
 
-    // Check that the UUID is not already assigned.
-    UUID uuid = getNewUUID(bucket);
-
-    authenticateBucket(bucket);
+    // Safe get unique UUID
+    UUID uuid = generateUUID();
 
     MediaTypeDetectionStrategy.MediaTypeDetectionResult mtdr = mediaTypeDetectionStrategy
         .detectMediaType(file.getInputStream(), file.getContentType(), file.getOriginalFilename());
@@ -165,7 +165,7 @@ public class FileController {
       log.info("Generating a thumbnail for file with UUID of: {}", () -> fileID);
 
       try (InputStream thumbnail = thumbnailService.generateThumbnail(in, fileExtension)) {
-        UUID thumbID = getNewUUID(bucket);
+        UUID thumbID = generateUUID();
         String fileName = thumbID.toString() + ".thumbnail" + ThumbnailService.THUMBNAIL_EXTENSION;
         minioService.storeFile(fileName, thumbnail, "image/jpeg", bucket, null);
         return thumbID;
@@ -231,15 +231,22 @@ public class FileController {
     throw new ResponseStatusException(
         HttpStatus.INTERNAL_SERVER_ERROR, null);
   }
-  
-  private UUID getNewUUID(String bucketName) throws IllegalStateException, IOException {
+
+  /**
+   * Even if it's almost impossible, we need to make sure that the UUID is not already in use otherwise we will
+   * overwrite the previous file.
+   * @return
+   * @throws IllegalStateException
+   */
+  private UUID generateUUID() throws IllegalStateException {
     int numberOfAttempt = 0;
     while (numberOfAttempt < MAX_NUMBER_OF_ATTEMPT_RANDOM_UUID) {
       UUID uuid = UUID.randomUUID();
-      if (!minioService.isFileWithPrefixExists(bucketName, uuid.toString())) {
+      // this would be better with an exists() function
+      if (objectUploadService.findOne(uuid, ObjectUpload.class) == null) {
         return uuid;
       }
-      log.warn("Could not get a uuid for file in bucket :{}", () -> bucketName);
+      log.warn("Could not get a unique uuid for file");
       numberOfAttempt++;
     }
     throw new IllegalStateException("Can't assign unique UUID. Giving up.");
