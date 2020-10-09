@@ -5,19 +5,15 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Streams;
 
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.stereotype.Service;
 
 import ca.gc.aafc.objectstore.api.file.FileInformationService;
@@ -27,7 +23,6 @@ import io.minio.ErrorCode;
 import io.minio.MinioClient;
 import io.minio.ObjectStat;
 import io.minio.PutObjectOptions;
-import io.minio.Result;
 import io.minio.errors.ErrorResponseException;
 import io.minio.errors.InsufficientDataException;
 import io.minio.errors.InternalException;
@@ -35,7 +30,6 @@ import io.minio.errors.InvalidBucketNameException;
 import io.minio.errors.InvalidResponseException;
 import io.minio.errors.RegionConflictException;
 import io.minio.errors.XmlParserException;
-import io.minio.messages.Item;
 import lombok.extern.log4j.Log4j2;
 
 @Service
@@ -45,14 +39,11 @@ public class MinioFileService implements FileInformationService {
   private static final int UNKNOWN_OBJECT_SIZE = -1;
   private final MinioClient minioClient;
   private final FolderStructureStrategy folderStructureStrategy;
-  private final ObjectMapper objectMapper;
 
   @Inject
-  public MinioFileService(MinioClient minioClient, FolderStructureStrategy folderStructureStrategy,
-      Jackson2ObjectMapperBuilder jackson2ObjectMapperBuilder) {
+  public MinioFileService(MinioClient minioClient, FolderStructureStrategy folderStructureStrategy) {
     this.minioClient = minioClient;
     this.folderStructureStrategy = folderStructureStrategy;
-    this.objectMapper = jackson2ObjectMapperBuilder.build();
   }
 
   /**
@@ -143,10 +134,12 @@ public class MinioFileService implements FileInformationService {
         minioClient.makeBucket(bucketName);
       }
     } catch (InvalidKeyException | ErrorResponseException | IllegalArgumentException
-        | InsufficientDataException | InternalException | InvalidBucketNameException
+        | InsufficientDataException | InternalException
         | InvalidResponseException | NoSuchAlgorithmException | RegionConflictException
         | XmlParserException e) {
       throw new IOException(e);
+    } catch (InvalidBucketNameException ibnEx) {
+      throw new IllegalStateException(ibnEx);
     }
   }
 
@@ -177,15 +170,6 @@ public class MinioFileService implements FileInformationService {
       throw new IOException(e);
     }
   }
-  
-  public <T> Optional<T> getJsonFileContentAs(String bucketName, String filename, Class<T> clazz)
-      throws IOException {
-    Optional<InputStream> is = getFile(filename, bucketName);
-    if (!is.isPresent()) {
-      return Optional.empty();
-    }
-    return Optional.of(objectMapper.readValue(is.get(), clazz));
-  }
 
   /**
    * See {@link FileInformationService#getFileInfo(String, String)}
@@ -212,43 +196,6 @@ public class MinioFileService implements FileInformationService {
         | NoSuchAlgorithmException | XmlParserException e) {
       throw new IOException(e);
     }
-  }
-  
-  /**
-   * @see FileInformationService#isFileWithPrefixExists(String, String)
-   * 
-   */
-  @Override
-  public boolean isFileWithPrefixExists(String bucketName, String prefix)
-      throws IllegalStateException, IOException {
-    try {
-      log.debug("Checking file with prefix.  bucket: {}, prefix: {}", () -> bucketName, () -> prefix);
-      Iterator<Result<Item>> result = minioClient.listObjects(bucketName, getFileLocation(prefix))
-          .iterator();
-      if (result.hasNext()) {
-        log.error("File with existing prefix found. bucket: {}, prefix: {}, file location: {}", () -> bucketName, 
-          () -> prefix, () -> getFileLocation(prefix));
-        return true;
-      }
-
-      // when hasNext returns false it could also mean an error
-      Result<Item> nextResult = result.next();
-      if (nextResult != null) {
-        log.warn("Minio client iterator hasNext() is false but next item is not null.");
-        // get will throw an exception if one occurred in the call to Minio
-        nextResult.get();
-      }
-    } catch (NoSuchElementException e) {
-      // ignore. Just a safety catch since MinioClient uses the iterator that is not exactly what
-      // the interface defines.
-      // next hasNext returns false but there is an element in the iterator that triggers an
-      // exception
-    } catch (ErrorResponseException | InvalidKeyException | IllegalArgumentException
-        | InsufficientDataException | InternalException | InvalidBucketNameException
-        | InvalidResponseException | NoSuchAlgorithmException | XmlParserException e) {
-      throw new IllegalStateException(e);
-    }
-    return false;
   }
 
 }
