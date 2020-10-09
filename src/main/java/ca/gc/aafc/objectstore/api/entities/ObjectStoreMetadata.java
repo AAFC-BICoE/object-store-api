@@ -435,8 +435,4 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
     this.createdOn = createdOn;
   }
 
-  @PrePersist
-  public void initUuid() {
-    this.uuid = UUID.randomUUID();
-  }
 }

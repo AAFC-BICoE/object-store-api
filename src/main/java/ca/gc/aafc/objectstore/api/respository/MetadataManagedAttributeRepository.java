@@ -31,7 +31,8 @@ public class MetadataManagedAttributeRepository
       new DinaMapper<>(MetadataManagedAttributeDto.class),
       MetadataManagedAttributeDto.class,
       MetadataManagedAttribute.class,
-      filterResolver);
+      filterResolver,
+      null);
     this.authenticatedUser = authenticatedUser;
   }
 
