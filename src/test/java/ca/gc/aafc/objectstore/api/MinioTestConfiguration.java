@@ -128,7 +128,7 @@ public class MinioTestConfiguration {
         PutObjectArgs.builder()
         .bucket(TEST_BUCKET)
         .object(MinioFileService.toMinioObjectName(folderStructureStrategy.getPathFor(id + objExt)))
-        .stream(objStream, -1, 10000)
+        .stream(objStream, -1, PutObjectArgs.MAX_PART_SIZE)
     .build());
   }
   
