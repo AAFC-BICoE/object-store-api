@@ -16,8 +16,10 @@ import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import com.google.common.collect.ImmutableMap;
 
 import io.minio.BucketExistsArgs;
+import io.minio.GetObjectArgs;
 import io.minio.ObjectWriteResponse;
 import io.minio.PutObjectArgs;
+import io.minio.StatObjectArgs;
 import io.minio.errors.ServerException;
 import org.apache.commons.io.IOUtils;
 import org.springframework.context.annotation.Bean;
@@ -152,7 +154,6 @@ public class MinioTestConfiguration {
     
     @Override
     public ObjectWriteResponse putObject(PutObjectArgs args) {
-    //String bucketName, String objectName, InputStream stream, PutObjectOptions options) {
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       try {
         IOUtils.copy(args.stream(), baos);
@@ -162,61 +163,21 @@ public class MinioTestConfiguration {
       INTERNAL_OBJECTS.put(args.bucket() + args.object(), baos.toByteArray());
       return null;
     }
-    
-    @Override
-    public InputStream getObject(String bucketName, String objectName) {
-      return new ByteArrayInputStream(INTERNAL_OBJECTS.get(bucketName + objectName));
-    }
-    
-//    /**
-//     * If {@link MinioTestConfiguration#ILLEGAL_BUCKET_CHAR} is present in the bucket name, {@link InvalidBucketNameException}
-//     * will be thrown. Otherwise, the item for {@link MinioTestConfiguration#TEST_FILE_IDENTIFIER} will be returned.
-//     */
-//    @Override
-//    public Iterable<Result<Item>> listObjects(String bucketName, String prefix) {
-//      // Trying to mimic what Minio Java SDK will do.
-//      Iterator<Result<Item>> iterator = null;
-//        Result<Item> result;
-//        if(bucketName.contains(ILLEGAL_BUCKET_CHAR)) {
-//          result = new Result<Item>(new InvalidBucketNameException(bucketName, "generated for testing purpose"));
-//          iterator = new Iterator<Result<Item>>() {
-//
-//            @Override
-//            public boolean hasNext() {
-//              return false;
-//            }
-//
-//            @Override
-//            public Result<Item> next() {
-//              return result;
-//            }
-//          };
-//        }
-//        else {
-//          Optional<String> potentialKey = INTERNAL_OBJECTS.keySet().stream()
-//              .filter(key -> key.startsWith(prefix)).findFirst();
-//          if (potentialKey.isPresent()) {
-//            Item item = new Item(potentialKey.get());
-//            result = new Result<Item>(item);
-//            iterator = Collections.singletonList(result).iterator();
-//          } else {
-//            iterator = Collections.emptyIterator();
-//          }
-//        }
-//
-//        final Iterator<Result<Item>> finalIterator = iterator;
-//        return () -> finalIterator;
-//      }
 
-      @Override
-      public ObjectStat statObject(String bucketName, String objectName) {
-        Headers head = Headers.of(
-          ImmutableMap.of(
-            "Content-Type", TEST_FILE_MEDIA_TYPE,
-            "Last-Modified", "Tue, 15 Nov 1994 12:45:26 GMT",
-            "Content-Length","1234"));
-        return new ObjectStat(bucketName, objectName, head);
-      }
+    @Override
+    public InputStream getObject(GetObjectArgs args) {
+      return new ByteArrayInputStream(INTERNAL_OBJECTS.get(args.bucket() + args.object()));
     }
+
+    @Override
+    public ObjectStat statObject(StatObjectArgs args) {
+      Headers head = Headers.of(
+          ImmutableMap.of(
+              "Content-Type", TEST_FILE_MEDIA_TYPE,
+              "Last-Modified", "Tue, 15 Nov 1994 12:45:26 GMT",
+              "Content-Length", "1234"));
+      return new ObjectStat(args.bucket(), args.bucket(), head);
+    }
+  }
 
 }
