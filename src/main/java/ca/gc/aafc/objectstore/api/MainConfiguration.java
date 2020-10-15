@@ -23,8 +23,6 @@ import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.resolvers.ObjectStoreMetaDataFieldResolvers;
 import ca.gc.aafc.objectstore.api.respository.DtoEntityMapping;
 import io.minio.MinioClient;
-import io.minio.errors.InvalidEndpointException;
-import io.minio.errors.InvalidPortException;
 
 @Configuration
 @EntityScan("ca.gc.aafc.objectstore.api.entities")
@@ -42,10 +40,11 @@ public class MainConfiguration {
       @Value("${minio.host:}") String host,
       @Value("${minio.port:}") int port, 
       @Value("${minio.accessKey:}") String accessKey, 
-      @Value("${minio.secretKey:}") String secretKey)
-      throws InvalidEndpointException, InvalidPortException {
+      @Value("${minio.secretKey:}") String secretKey) {
     String endpoint = protocol + "://" + host;
-    return new MinioClient(endpoint, port, accessKey, secretKey);
+    return MinioClient.builder()
+        .endpoint(endpoint, port, false)
+        .credentials(accessKey, secretKey).build();
   }
 
   /**

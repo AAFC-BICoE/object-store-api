@@ -45,6 +45,7 @@ import io.minio.errors.InternalException;
 import io.minio.errors.InvalidBucketNameException;
 import io.minio.errors.InvalidResponseException;
 import io.minio.errors.XmlParserException;
+import io.minio.errors.ServerException;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 
@@ -90,7 +91,7 @@ public class FileController {
       @PathVariable String bucket) throws InvalidKeyException, NoSuchAlgorithmException,
       InvalidBucketNameException, ErrorResponseException, InternalException,
       InsufficientDataException, InvalidResponseException, 
-      MimeTypeException, XmlParserException, IOException {
+      MimeTypeException, XmlParserException, IOException, ServerException {
 
     // make sure we have an authenticatedUser
     checkAuthenticatedUser();
@@ -114,9 +115,7 @@ public class FileController {
       uuid.toString() + mtdr.getEvaluatedExtension(),
       dis,
       mtdr.getEvaluatedMediatype(),
-      bucket,
-      null
-    );
+      bucket);
 
     String sha1Hex = DigestUtils.sha1Hex(md.digest());
    
@@ -167,7 +166,7 @@ public class FileController {
       try (InputStream thumbnail = thumbnailService.generateThumbnail(in, fileExtension)) {
         UUID thumbID = generateUUID();
         String fileName = thumbID.toString() + ".thumbnail" + ThumbnailService.THUMBNAIL_EXTENSION;
-        minioService.storeFile(fileName, thumbnail, "image/jpeg", bucket, null);
+        minioService.storeFile(fileName, thumbnail, "image/jpeg", bucket);
         return thumbID;
       } catch (IOException e) {
         log.warn(() -> "A thumbnail could not be generated for file " + fileID, e);
