@@ -15,6 +15,7 @@ import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import com.google.common.collect.ImmutableMap;
 
+import io.minio.BucketExistsArgs;
 import io.minio.ObjectWriteResponse;
 import io.minio.PutObjectArgs;
 import io.minio.errors.ServerException;
@@ -145,7 +146,7 @@ public class MinioTestConfiguration {
     }
     
     @Override
-    public boolean bucketExists(String bucketName){
+    public boolean bucketExists(BucketExistsArgs bucketArgs){
       return true;
     }
     
