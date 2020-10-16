@@ -31,7 +31,7 @@ public class ManagedAttributeResourceRepository
       Optional.empty(),
       new DinaMapper<>(ManagedAttributeDto.class),
       ManagedAttributeDto.class,
-      ManagedAttribute.class, filterResolver,null);
+      ManagedAttribute.class, filterResolver, null);
     this.authenticatedUser = authenticatedUser;
   }
 
