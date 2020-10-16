@@ -62,7 +62,8 @@ public class ObjectStoreResourceRepository
       new DinaMapper<>(ObjectStoreMetadataDto.class),
       ObjectStoreMetadataDto.class,
       ObjectStoreMetadata.class,
-      filterResolver);
+      filterResolver,
+      null);
     this.dinaService = dinaService;
     this.defaultValueSetterService = defaultValueSetterService;
     this.authenticatedUser = authenticatedUser;
