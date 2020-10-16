@@ -39,7 +39,7 @@
 		<hibernate-types-52.version>2.9.13</hibernate-types-52.version>
 		<dina-base-api.version>0.37</dina-base-api.version>
 
-		<!-- Override SpringBoot version (3.6) to avoid NoClassDefFoundError: org/apache/maven/doxia/siterenderer/DocumentContent -->
+		<!-- Override to avoid NoClassDefFoundError: org/apache/maven/doxia/siterenderer/DocumentContent -->
 		<maven-site-plugin.version>3.7.1</maven-site-plugin.version>
 
 		<spring-boot-maven-plugin.fork>false</spring-boot-maven-plugin.fork>
@@ -332,7 +332,7 @@
 					<format>xml</format>
 					<failBuildOnCVSS>8</failBuildOnCVSS>
 					<suppressionFiles>
-						<suppressionFile>owasp-suppression.xml</suppressionFile> <!-- Required due to bug in plugin https://github.com/jeremylong/DependencyCheck/issues/1827 -->
+						<suppressionFile>owasp-suppression.xml</suppressionFile> <!-- Track false positives -->
 					</suppressionFiles>
 				</configuration>
 			</plugin>

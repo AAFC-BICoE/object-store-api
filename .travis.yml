@@ -9,6 +9,7 @@ cache:
 
 script: 
   - mvn verify checkstyle:check com.github.spotbugs:spotbugs-maven-plugin:check jacoco:check
+  - if [ "$TRAVIS_BRANCH" == "dev" ]; then mvn org.owasp:dependency-check-maven:check; fi
  
 jdk:
   - openjdk11
