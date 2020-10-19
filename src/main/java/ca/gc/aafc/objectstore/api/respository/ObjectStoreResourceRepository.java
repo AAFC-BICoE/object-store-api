@@ -5,6 +5,7 @@ import ca.gc.aafc.dina.filter.DinaFilterResolver;
 import ca.gc.aafc.dina.mapper.DinaMapper;
 import ca.gc.aafc.dina.repository.DinaRepository;
 import ca.gc.aafc.dina.repository.GoneException;
+import ca.gc.aafc.dina.repository.external.ExternalResourceProvider;
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.dina.service.DinaService;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
@@ -53,7 +54,8 @@ public class ObjectStoreResourceRepository
     @NonNull DinaService<ObjectStoreMetadata> dinaService,
     @NonNull DinaFilterResolver filterResolver,
     @NonNull ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService,
-    @NonNull DinaAuthenticatedUser authenticatedUser
+    @NonNull DinaAuthenticatedUser authenticatedUser,
+    @NonNull ExternalResourceProvider externalResourceProvider
   ) {
     super(
       dinaService,
@@ -63,7 +65,7 @@ public class ObjectStoreResourceRepository
       ObjectStoreMetadataDto.class,
       ObjectStoreMetadata.class,
       filterResolver,
-      null);
+      externalResourceProvider);
     this.dinaService = dinaService;
     this.defaultValueSetterService = defaultValueSetterService;
     this.authenticatedUser = authenticatedUser;
