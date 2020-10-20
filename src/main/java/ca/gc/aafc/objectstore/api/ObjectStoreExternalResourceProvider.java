@@ -25,7 +25,7 @@ public class ObjectStoreExternalResourceProvider implements ExternalResourceProv
   public String getReferenceForType(String type) {
     if (!providerMap.containsKey(type)) {
       throw new IllegalArgumentException(
-        "No external type of [" + type + "] is is defined by the ExternalResourceProvider");
+        "No external type of [" + type + "] is defined by the ExternalResourceProvider");
     }
     return providerMap.get(type);
   }
