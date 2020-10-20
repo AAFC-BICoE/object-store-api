@@ -133,7 +133,8 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
   protected List<Relationship> buildRelationshipList() {
     return Arrays.asList(
       Relationship.of(METADATA_DERIVED_PROPERTY_NAME, "metadata", metadataId.toString()),
-      Relationship.of("dcCreator", "person", UUID.randomUUID().toString()));
+      Relationship.of("dcCreator", "person", UUID.randomUUID().toString()),
+      Relationship.of("acMetadataCreator", "person", UUID.randomUUID().toString()));
   }
   
   @Test
