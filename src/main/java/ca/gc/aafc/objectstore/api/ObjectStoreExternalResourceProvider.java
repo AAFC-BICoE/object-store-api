@@ -10,20 +10,20 @@ import java.util.Set;
 @Component
 public class ObjectStoreExternalResourceProvider implements ExternalResourceProvider {
 
-  public static final Map<String, String> typeToReferenceMap = ImmutableMap.of(
+  public static final Map<String, String> TYPE_TO_REFERENCE_MAP = ImmutableMap.of(
     "person", "Agent/api/v1/person");
 
   @Override
   public String getReferenceForType(String type) {
-    if (!typeToReferenceMap.containsKey(type)) {
+    if (!TYPE_TO_REFERENCE_MAP.containsKey(type)) {
       throw new IllegalArgumentException(
         "No external type of [" + type + "] is is defined by the ExternalResourceProvider");
     }
-    return typeToReferenceMap.get(type);
+    return TYPE_TO_REFERENCE_MAP.get(type);
   }
 
   @Override
   public Set<String> getTypes() {
-    return typeToReferenceMap.keySet();
+    return TYPE_TO_REFERENCE_MAP.keySet();
   }
 }
