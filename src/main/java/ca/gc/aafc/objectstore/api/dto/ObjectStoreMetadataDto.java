@@ -146,7 +146,7 @@ public class ObjectStoreMetadataDto {
       .getId());
   }
 
-  private static ExternalRelationDto newPerson(UUID id) {
+  public static ExternalRelationDto newPerson(UUID id) {
     return ExternalRelationDto.builder().type("person").id(id.toString()).build();
   }
 
