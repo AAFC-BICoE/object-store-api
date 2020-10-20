@@ -4,6 +4,7 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import ca.gc.aafc.dina.dto.RelatedEntity;
+import ca.gc.aafc.dina.mapper.DerivedDtoField;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -23,7 +24,10 @@ public class ObjectSubtypeDto {
 
   private DcType dcType;
   private String acSubtype;
+
+  @DerivedDtoField
   private boolean appManaged;
+  
   private String createdBy;
   private OffsetDateTime createdOn;
 }
