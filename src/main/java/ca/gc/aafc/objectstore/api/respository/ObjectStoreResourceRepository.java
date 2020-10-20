@@ -7,6 +7,7 @@ import ca.gc.aafc.dina.repository.DinaRepository;
 import ca.gc.aafc.dina.repository.GoneException;
 import ca.gc.aafc.dina.repository.external.ExternalResourceProvider;
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
+import ca.gc.aafc.dina.service.AuditService;
 import ca.gc.aafc.dina.service.DinaService;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
@@ -54,13 +55,14 @@ public class ObjectStoreResourceRepository
     @NonNull DinaService<ObjectStoreMetadata> dinaService,
     @NonNull DinaFilterResolver filterResolver,
     @NonNull ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService,
+    @NonNull ExternalResourceProvider externalResourceProvider,
     @NonNull DinaAuthenticatedUser authenticatedUser,
-    @NonNull ExternalResourceProvider externalResourceProvider
+    @NonNull AuditService auditService
   ) {
     super(
       dinaService,
       Optional.empty(),
-      Optional.empty(),
+      Optional.of(auditService),
       new DinaMapper<>(ObjectStoreMetadataDto.class),
       ObjectStoreMetadataDto.class,
       ObjectStoreMetadata.class,
