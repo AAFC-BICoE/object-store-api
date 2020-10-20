@@ -1,29 +1,37 @@
 package ca.gc.aafc.objectstore.api;
 
 import ca.gc.aafc.dina.repository.external.ExternalResourceProvider;
-import com.google.common.collect.ImmutableMap;
-import org.springframework.stereotype.Component;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
 
 import java.util.Map;
 import java.util.Set;
 
-@Component
+@Configuration
+@Getter
+@Setter
+@RequiredArgsConstructor
+@EnableConfigurationProperties
+@ConfigurationProperties(prefix = "external-types")
 public class ObjectStoreExternalResourceProvider implements ExternalResourceProvider {
 
-  public static final Map<String, String> TYPE_TO_REFERENCE_MAP = ImmutableMap.of(
-    "person", "Agent/api/v1/person");
+  private final Map<String, String> providerMap;
 
   @Override
   public String getReferenceForType(String type) {
-    if (!TYPE_TO_REFERENCE_MAP.containsKey(type)) {
+    if (!providerMap.containsKey(type)) {
       throw new IllegalArgumentException(
         "No external type of [" + type + "] is is defined by the ExternalResourceProvider");
     }
-    return TYPE_TO_REFERENCE_MAP.get(type);
+    return providerMap.get(type);
   }
 
   @Override
   public Set<String> getTypes() {
-    return TYPE_TO_REFERENCE_MAP.keySet();
+    return providerMap.keySet();
   }
 }
