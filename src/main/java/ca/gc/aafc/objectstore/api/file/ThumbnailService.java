@@ -5,14 +5,19 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
+import java.awt.image.BufferedImage;
 
 import javax.imageio.ImageIO;
 
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.rendering.ImageType;
+import org.apache.pdfbox.rendering.PDFRenderer;
 import org.springframework.stereotype.Service;
 
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import net.coobird.thumbnailator.Thumbnails;
+import net.coobird.thumbnailator.Thumbnails.Builder;
 
 @Service
 public class ThumbnailService {
@@ -23,12 +28,25 @@ public class ThumbnailService {
   public static final String THUMBNAIL_AC_SUB_TYPE = "THUMBNAIL";
   public static final DcType THUMBNAIL_DC_TYPE = DcType.IMAGE;
   public static final String SYSTEM_GENERATED = "System Generated";
+  public static final String PDF_FILETYPE = "application/pdf";
 
-  public InputStream generateThumbnail(InputStream sourceImageStream) throws IOException {
+  public InputStream generateThumbnail(InputStream sourceStream, String fileType) throws IOException {
+    Builder<?> thumbnailBuilder;
+
+    // PDFs are handled as a special case:
+    if (PDF_FILETYPE.equals(fileType)) {
+      PDDocument pDoc = PDDocument.load(sourceStream);
+      PDFRenderer pdfRenderer = new PDFRenderer(pDoc);
+      BufferedImage bufferedImage = pdfRenderer.renderImageWithDPI(0, 72, ImageType.RGB);
+      thumbnailBuilder = Thumbnails.of(bufferedImage);
+    } else {
+      // Standard image use case:
+      thumbnailBuilder = Thumbnails.of(sourceStream);
+    }
 
     try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
       // Create the thumbnail:
-      Thumbnails.of(sourceImageStream)
+      thumbnailBuilder
         .size(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT)
         .outputFormat("jpg")
         .toOutputStream(os);
@@ -38,8 +56,13 @@ public class ThumbnailService {
     }
   }
 
-  public boolean isSupported(String extension) {
-    return ImageIO.getImageReadersByMIMEType(extension).hasNext();
+  public boolean isSupported(String fileType) {
+    // PDFs are handled as a special case:
+    if (PDF_FILETYPE.equals(fileType)) {
+      return true;
+    }
+
+    return ImageIO.getImageReadersByMIMEType(fileType).hasNext();
   }
 
   /**

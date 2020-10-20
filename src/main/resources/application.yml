@@ -65,3 +65,4 @@ keycloak:
           - /*
 # Wait for requests to finish before shutting down:
 server.shutdown: graceful
+dina.auditing.enabled: true

@@ -34,13 +34,13 @@ public class ManagedAttributeMapDto {
   @EqualsAndHashCode.Exclude // "equals(...)" comparisons should ignore this generated field.
   @JsonApiId
   private String id;
-  
+
   /**
    * Map of ManagedAttribute UUIDs to values.
    */
   @Builder.Default
   private Map<String, ManagedAttributeMapValue> values = new HashMap<>();
-  
+
   @DiffIgnore
   @EqualsAndHashCode.Exclude // "equals(...)" comparisons should ignore this generated field.
   @JsonApiRelation

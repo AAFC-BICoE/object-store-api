@@ -1,19 +1,5 @@
 package ca.gc.aafc.objectstore.api.repository;
 
-import static org.junit.Assert.assertNull;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
-import java.util.Collections;
-import java.util.UUID;
-
-import javax.inject.Inject;
-
-import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import ca.gc.aafc.objectstore.api.MinioTestConfiguration;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectSubtypeDto;
@@ -26,12 +12,24 @@ import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFacto
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
 import io.crnk.core.queryspec.QuerySpec;
 import io.crnk.core.resource.list.ResourceList;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import javax.inject.Inject;
+import java.util.Collections;
+import java.util.UUID;
+
+import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
-  
+
   @Inject
   private ObjectStoreResourceRepository objectStoreResourceRepository;
-  
+
   private ObjectStoreMetadata testObjectStoreMetadata;
 
   private ObjectSubtypeDto acSubType;
@@ -40,10 +38,9 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
 
   private ObjectUpload objectUpload;
 
-  private ObjectStoreMetadata createTestObjectStoreMetadata() {
+  private void createTestObjectStoreMetadata() {
     testObjectStoreMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
     persist(testObjectStoreMetadata);
-    return testObjectStoreMetadata;
   }
 
   @BeforeEach
@@ -80,12 +77,13 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
 
   @Test
   public void findMeta_whenNoFieldsAreSelected_MetadataReturnedWithAllFields() {
-    ObjectStoreMetadataDto objectStoreMetadataDto = getDtoUnderTest();  
+    ObjectStoreMetadataDto objectStoreMetadataDto = getDtoUnderTest();
     assertNotNull(objectStoreMetadataDto);
     assertEquals(testObjectStoreMetadata.getUuid(), objectStoreMetadataDto.getUuid());
     assertEquals(testObjectStoreMetadata.getDcType(), objectStoreMetadataDto.getDcType());
-    assertEquals(testObjectStoreMetadata.getAcDigitizationDate(), 
-        objectStoreMetadataDto.getAcDigitizationDate());
+    assertEquals(
+      testObjectStoreMetadata.getAcDigitizationDate(),
+      objectStoreMetadataDto.getAcDigitizationDate());
   }
 
   @Test
@@ -93,7 +91,8 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
     QuerySpec querySpec = new QuerySpec(ObjectStoreMetadataDto.class);
     querySpec.includeRelation(Collections.singletonList("managedAttributeMap"));
 
-    ResourceList<ObjectStoreMetadataDto> objectStoreMetadataDto = objectStoreResourceRepository.findAll(querySpec);
+    ResourceList<ObjectStoreMetadataDto> objectStoreMetadataDto = objectStoreResourceRepository.findAll(
+      querySpec);
     assertNotNull(objectStoreMetadataDto);
     // We cannot check for the presence of the ManagedAttributeMap in in this test, because Crnk
     // fetches relations marked with "LookupIncludeBehavior.AUTOMATICALLY_ALWAYS" outside of "findAll".
@@ -194,10 +193,9 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
   }
 
   private ObjectStoreMetadataDto getDtoUnderTest() {
-    ObjectStoreMetadataDto updateMetadataDto = objectStoreResourceRepository.findOne(
-      testObjectStoreMetadata.getUuid(),
-      new QuerySpec(ObjectStoreMetadataDto.class));
-    return updateMetadataDto;
+    QuerySpec querySpec = new QuerySpec(ObjectStoreMetadataDto.class);
+    querySpec.includeRelation(Collections.singletonList("acDerivedFrom"));
+    return objectStoreResourceRepository.findOne(testObjectStoreMetadata.getUuid(), querySpec);
   }
 
 }

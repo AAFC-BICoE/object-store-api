@@ -40,7 +40,8 @@ public class ObjectSubtypeResourceRepository
       new DinaMapper<>(ObjectSubtypeDto.class),
       ObjectSubtypeDto.class,
       ObjectSubtype.class,
-      filterResolver);
+      filterResolver,
+      null);
     this.dinaService = dinaService;
     this.messageSource = messageSource;
     this.authenticatedUser = authenticatedUser;

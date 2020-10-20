@@ -61,7 +61,6 @@ public class FileControllerIT extends BaseIntegrationTest {
     MockMultipartFile mockFile = getFileUnderTest();
 
     ObjectUpload uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
-
     UUID thumbnailIdentifier = uploadResponse.getThumbnailIdentifier();
 
     // Persist the associated metadata and thumbnail meta separately:

@@ -7,29 +7,29 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import com.google.common.collect.ImmutableMap;
 
+import io.minio.BucketExistsArgs;
+import io.minio.GetObjectArgs;
+import io.minio.ObjectWriteResponse;
+import io.minio.PutObjectArgs;
+import io.minio.StatObjectArgs;
+import io.minio.errors.ServerException;
 import org.apache.commons.io.IOUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
-import org.xmlpull.v1.XmlPullParserException;
 
 import ca.gc.aafc.objectstore.api.file.FolderStructureStrategy;
 import ca.gc.aafc.objectstore.api.minio.MinioFileService;
 import io.minio.MinioClient;
 import io.minio.ObjectStat;
-import io.minio.PutObjectOptions;
-import io.minio.Result;
 import io.minio.errors.ErrorResponseException;
 import io.minio.errors.InsufficientDataException;
 import io.minio.errors.InternalException;
@@ -38,7 +38,6 @@ import io.minio.errors.InvalidEndpointException;
 import io.minio.errors.InvalidPortException;
 import io.minio.errors.InvalidResponseException;
 import io.minio.errors.XmlParserException;
-import io.minio.messages.Item;
 import okhttp3.Headers;
 
 /**
@@ -85,10 +84,10 @@ public class MinioTestConfiguration {
       MinioClient minioClient = new MinioClientStub();
       setupFile(minioClient);
       return minioClient;
-    } catch (InvalidKeyException | InvalidBucketNameException | NoSuchAlgorithmException
-        | ErrorResponseException | InternalException | InsufficientDataException
-        | InvalidResponseException | IOException | XmlPullParserException | InvalidEndpointException
-        | InvalidPortException | IllegalArgumentException | XmlParserException e) {
+    } catch (InvalidKeyException | InvalidBucketNameException | NoSuchAlgorithmException | ErrorResponseException |
+        InternalException | InsufficientDataException | InvalidResponseException | IOException |
+        InvalidEndpointException | InvalidPortException | IllegalArgumentException | XmlParserException |
+        ServerException e) {
       throw new RuntimeException("Can't setup Minio client for testing", e);
     }
   }
@@ -96,7 +95,7 @@ public class MinioTestConfiguration {
   private void setupFile(MinioClient minioClient) throws InvalidKeyException,
       InvalidBucketNameException, NoSuchAlgorithmException, ErrorResponseException,
       InternalException, InsufficientDataException, InvalidResponseException, IOException,
-      XmlPullParserException, IllegalArgumentException, XmlParserException {
+      IllegalArgumentException, XmlParserException, ServerException {
 
     String testFile = "This is a test\n";
     InputStream is = new ByteArrayInputStream(
@@ -120,7 +119,6 @@ public class MinioTestConfiguration {
    * @throws InsufficientDataException
    * @throws InvalidResponseException
    * @throws IOException
-   * @throws XmlPullParserException
    * @throws XmlParserException
    * @throws IllegalArgumentException
    */
@@ -128,12 +126,13 @@ public class MinioTestConfiguration {
       InputStream objStream) throws InvalidKeyException,
       InvalidBucketNameException, NoSuchAlgorithmException, ErrorResponseException,
       InternalException, InsufficientDataException, InvalidResponseException, IOException,
-       IllegalArgumentException, XmlParserException {
+      IllegalArgumentException, XmlParserException, ServerException {
     minioClient.putObject(
-      TEST_BUCKET,
-      MinioFileService.toMinioObjectName(folderStructureStrategy.getPathFor(id + objExt)),
-      objStream,
-      null);
+        PutObjectArgs.builder()
+        .bucket(TEST_BUCKET)
+        .object(MinioFileService.toMinioObjectName(folderStructureStrategy.getPathFor(id + objExt)))
+        .stream(objStream, -1, PutObjectArgs.MAX_PART_SIZE)
+    .build());
   }
   
   /**
@@ -149,75 +148,36 @@ public class MinioTestConfiguration {
     }
     
     @Override
-    public boolean bucketExists(String bucketName){
+    public boolean bucketExists(BucketExistsArgs bucketArgs){
       return true;
     }
     
     @Override
-    public void putObject(String bucketName, String objectName, InputStream stream, PutObjectOptions options) {
+    public ObjectWriteResponse putObject(PutObjectArgs args) {
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       try {
-        IOUtils.copy(stream, baos);
+        IOUtils.copy(args.stream(), baos);
       } catch (IOException e) {
         e.printStackTrace();
       }
-      INTERNAL_OBJECTS.put(bucketName + objectName, baos.toByteArray());
+      INTERNAL_OBJECTS.put(args.bucket() + args.object(), baos.toByteArray());
+      return null;
     }
-    
+
     @Override
-    public InputStream getObject(String bucketName, String objectName) {
-      return new ByteArrayInputStream(INTERNAL_OBJECTS.get(bucketName + objectName));
+    public InputStream getObject(GetObjectArgs args) {
+      return new ByteArrayInputStream(INTERNAL_OBJECTS.get(args.bucket() + args.object()));
     }
-    
-    /**
-     * If {@link MinioTestConfiguration#ILLEGAL_BUCKET_CHAR} is present in the bucket name, {@link InvalidBucketNameException}
-     * will be thrown. Otherwise, the item for {@link MinioTestConfiguration#TEST_FILE_IDENTIFIER} will be returned.
-     */
+
     @Override
-    public Iterable<Result<Item>> listObjects(String bucketName, String prefix) {
-      // Trying to mimic what Minio Java SDK will do.
-      Iterator<Result<Item>> iterator = null;
-        Result<Item> result;
-        if(bucketName.contains(ILLEGAL_BUCKET_CHAR)) {
-          result = new Result<Item>(new InvalidBucketNameException(bucketName, "generated for testing purpose"));
-          iterator = new Iterator<Result<Item>>() {
-
-            @Override
-            public boolean hasNext() {
-              return false;
-            }
-
-            @Override
-            public Result<Item> next() {
-              return result;
-            }
-          };
-        }
-        else {
-          Optional<String> potentialKey = INTERNAL_OBJECTS.keySet().stream()
-              .filter(key -> key.startsWith(prefix)).findFirst();
-          if (potentialKey.isPresent()) {
-            Item item = new Item(potentialKey.get());
-            result = new Result<Item>(item);
-            iterator = Collections.singletonList(result).iterator();
-          } else {
-            iterator = Collections.emptyIterator();
-          }  
-        }
-        
-        final Iterator<Result<Item>> finalIterator = iterator;
-        return () -> finalIterator;
-      }
-
-      @Override
-      public ObjectStat statObject(String bucketName, String objectName) {
-        Headers head = Headers.of(
+    public ObjectStat statObject(StatObjectArgs args) {
+      Headers head = Headers.of(
           ImmutableMap.of(
-            "Content-Type", TEST_FILE_MEDIA_TYPE,
-            "Last-Modified", "Tue, 15 Nov 1994 12:45:26 GMT",
-            "Content-Length","1234"));
-        return new ObjectStat(bucketName, objectName, head);
-      }
+              "Content-Type", TEST_FILE_MEDIA_TYPE,
+              "Last-Modified", "Tue, 15 Nov 1994 12:45:26 GMT",
+              "Content-Length", "1234"));
+      return new ObjectStat(args.bucket(), args.bucket(), head);
     }
+  }
 
 }
