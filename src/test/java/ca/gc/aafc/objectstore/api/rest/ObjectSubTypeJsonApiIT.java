@@ -57,10 +57,10 @@ public class ObjectSubTypeJsonApiIT extends BaseJsonApiIntegrationTest {
   }
 
   @Test
-  public void create_AsAppManaged_ReturnsUnAuthorized() {
+  public void create_AsAppManaged_ReturnsCreated() {
     ObjectSubtypeDto dto = createRandomType();
     dto.setAppManaged(true);
-    sendPost(getResourceUnderTest(), toJsonAPIMap(toAttributeMap(dto), null), HttpStatus.FORBIDDEN_403);
+    sendPost(getResourceUnderTest(), toJsonAPIMap(toAttributeMap(dto), null), HttpStatus.CREATED_201);
   }
 
   @Test
@@ -69,13 +69,13 @@ public class ObjectSubTypeJsonApiIT extends BaseJsonApiIntegrationTest {
   }
 
   @Test
-  public void update_ToAppManaged_ReturnsUnAuthorized() {
+  public void update_ToAppManaged_ReturnsOK() {
     ObjectSubtypeDto dto = createRandomType();
     dto.setAppManaged(false);
     String id = sendPost(toJsonAPIMap(toAttributeMap(dto), null));
 
     dto.setAppManaged(true);
-    sendPatch(id, HttpStatus.FORBIDDEN_403, toJsonAPIMap(toAttributeMap(dto), null));
+    sendPatch(id, HttpStatus.OK_200, toJsonAPIMap(toAttributeMap(dto), null));
     sendDelete(id);
   }
 
