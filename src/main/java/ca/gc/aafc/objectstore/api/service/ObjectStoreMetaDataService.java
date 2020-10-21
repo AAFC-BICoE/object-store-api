@@ -9,6 +9,7 @@ import lombok.NonNull;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import java.util.UUID;
 
 @Service
 public class ObjectStoreMetaDataService extends DinaService<ObjectStoreMetadata> {
@@ -25,6 +26,7 @@ public class ObjectStoreMetaDataService extends DinaService<ObjectStoreMetadata>
 
   @Override
   protected void preCreate(ObjectStoreMetadata entity) {
+    entity.setUuid(UUID.randomUUID());
     if (entity.getAcSubType() != null) {
       setAcSubType(entity, entity.getAcSubType());
     }
