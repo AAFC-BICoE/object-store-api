@@ -125,29 +125,4 @@ public class ObjectStoreMetadataDto {
       .build();
   }
 
-  @CustomFieldResolver(fieldName = "dcCreator")
-  public static ExternalRelationDto dcCreatorToDTO(@NonNull ObjectStoreMetadata entity) {
-    return entity.getDcCreator() == null ? null : newPerson(entity.getDcCreator());
-  }
-
-  @CustomFieldResolver(fieldName = "dcCreator")
-  public static UUID dcCreatorToEntity(@NonNull ObjectStoreMetadataDto dto) {
-    return dto.getDcCreator() == null ? null : UUID.fromString(dto.getDcCreator().getId());
-  }
-
-  @CustomFieldResolver(fieldName = "acMetadataCreator")
-  public static ExternalRelationDto acMetadataCreatorToDTO(@NonNull ObjectStoreMetadata entity) {
-    return entity.getAcMetadataCreator() == null ? null : newPerson(entity.getAcMetadataCreator());
-  }
-
-  @CustomFieldResolver(fieldName = "acMetadataCreator")
-  public static UUID acMetadataCreatorEntity(@NonNull ObjectStoreMetadataDto dto) {
-    return dto.getAcMetadataCreator() == null ? null : UUID.fromString(dto.getAcMetadataCreator()
-      .getId());
-  }
-
-  public static ExternalRelationDto newPerson(UUID id) {
-    return ExternalRelationDto.builder().type("person").id(id.toString()).build();
-  }
-
 }
