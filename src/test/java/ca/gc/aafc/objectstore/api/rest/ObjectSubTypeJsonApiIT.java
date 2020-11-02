@@ -16,6 +16,7 @@ public class ObjectSubTypeJsonApiIT extends BaseJsonApiIntegrationTest {
   private ObjectSubtypeDto objectSubtype;
   private static final String SCHEMA_NAME = "ObjectSubtype";
   private static final String RESOURCE_UNDER_TEST = "object-subtype";
+
   private static final String THUMB_TYPE_UUID = "34e4e0d8-91d8-4d52-99ae-ec42d6b0e66e";
   private final static String DINA_USER_NAME = DinaAuthenticatedUserConfig.USER_NAME;
 
