@@ -26,7 +26,6 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
   private static final String METADATA_DERIVED_PROPERTY_NAME = "acDerivedFrom";
   private static final String SCHEMA_NAME = "Metadata";
   private static final String RESOURCE_UNDER_TEST = "metadata";
-  private static final String SCHEMA_PATH = "DINA-Web/object-store-specs/master/schema/metadata.yml";
   
   private ObjectStoreMetadataDto objectStoreMetadata;
   private ObjectSubtype oSubtype;
@@ -78,11 +77,6 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
   @Override
   protected String getSchemaName() {
     return SCHEMA_NAME;
-  }
-  
-  @Override
-  protected String getSchemaPath() {
-    return SCHEMA_PATH;
   }
   
   @Override
