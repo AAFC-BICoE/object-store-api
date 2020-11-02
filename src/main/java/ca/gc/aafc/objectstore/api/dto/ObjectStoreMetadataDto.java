@@ -1,7 +1,9 @@
 package ca.gc.aafc.objectstore.api.dto;
 
+import ca.gc.aafc.dina.dto.ExternalRelationDto;
 import ca.gc.aafc.dina.dto.RelatedEntity;
 import ca.gc.aafc.dina.mapper.CustomFieldResolver;
+import ca.gc.aafc.dina.repository.meta.JsonApiExternalRelation;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
@@ -25,7 +27,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
-@SuppressFBWarnings({ "EI_EXPOSE_REP", "EI_EXPOSE_REP2" })
+@SuppressFBWarnings({"EI_EXPOSE_REP", "EI_EXPOSE_REP2"})
 @RelatedEntity(ObjectStoreMetadata.class)
 @Data
 @JsonApiResource(type = ObjectStoreMetadataDto.TYPENAME)
@@ -85,13 +87,17 @@ public class ObjectStoreMetadataDto {
   @JsonApiRelation(lookUp = LookupIncludeBehavior.AUTOMATICALLY_ALWAYS)
   private ManagedAttributeMapDto managedAttributeMap;
 
-  private UUID acMetadataCreator;
+  @JsonApiExternalRelation(type = "person")
+  @JsonApiRelation
+  private ExternalRelationDto acMetadataCreator;
 
   @JsonApiRelation
   @ShallowReference
   private ObjectStoreMetadataDto acDerivedFrom;
 
-  private UUID dcCreator;
+  @JsonApiExternalRelation(type = "person")
+  @JsonApiRelation
+  private ExternalRelationDto dcCreator;
 
   private boolean publiclyReleasable;
 

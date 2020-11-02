@@ -67,7 +67,7 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
   public static final URI SCHEMA_BASE_URI;
   
   private static final String SPEC_HOST = "raw.githubusercontent.com";
-  private static final String ROOT_SPEC_PATH = "DINA-Web/object-store-specs/master/schema/object-store-api.yaml";  
+  private static final String ROOT_SPEC_PATH = "DINA-Web/object-store-specs/master/schema/object-store-api.yml";
   
   static {
     URIBuilder uriBuilder = new URIBuilder();
@@ -86,6 +86,9 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
     IT_OBJECT_MAPPER.registerModule(DcTypeJsonSerDe.asModule());
     IT_OBJECT_MAPPER.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
     IT_OBJECT_MAPPER.setSerializationInclusion(Include.NON_NULL);
+
+    //TODO see ticket 20787
+    System.setProperty("testing.skip-remote-schema-validation", "true");
   }
 
   public static final String API_BASE_PATH = "/api/v1";

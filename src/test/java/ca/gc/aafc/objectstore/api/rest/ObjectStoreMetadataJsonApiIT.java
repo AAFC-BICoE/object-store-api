@@ -26,7 +26,7 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
   private static final String METADATA_DERIVED_PROPERTY_NAME = "acDerivedFrom";
   private static final String SCHEMA_NAME = "Metadata";
   private static final String RESOURCE_UNDER_TEST = "metadata";
-  private static final String SCHEMA_PATH = "DINA-Web/object-store-specs/master/schema/metadata.yaml";  
+  private static final String SCHEMA_PATH = "DINA-Web/object-store-specs/master/schema/metadata.yml";
   
   private ObjectStoreMetadataDto objectStoreMetadata;
   private ObjectSubtype oSubtype;
@@ -105,8 +105,6 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
     osMetadata.setFileIdentifier(MinioTestConfiguration.TEST_FILE_IDENTIFIER);
     osMetadata.setFileExtension(MinioTestConfiguration.TEST_FILE_EXT);
     osMetadata.setBucket(MinioTestConfiguration.TEST_BUCKET);
-    osMetadata.setAcMetadataCreator(UUID.randomUUID());
-    osMetadata.setDcCreator(UUID.randomUUID());
     osMetadata.setPubliclyReleasable(true);
     osMetadata.setNotPubliclyReleasableReason("Classified");
     osMetadata.setXmpRightsUsageTerms(null);
@@ -134,7 +132,9 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
   @Override
   protected List<Relationship> buildRelationshipList() {
     return Arrays.asList(
-      Relationship.of(METADATA_DERIVED_PROPERTY_NAME, "metadata", metadataId.toString()));
+      Relationship.of(METADATA_DERIVED_PROPERTY_NAME, "metadata", metadataId.toString()),
+      Relationship.of("dcCreator", "person", UUID.randomUUID().toString()),
+      Relationship.of("acMetadataCreator", "person", UUID.randomUUID().toString()));
   }
   
   @Test
