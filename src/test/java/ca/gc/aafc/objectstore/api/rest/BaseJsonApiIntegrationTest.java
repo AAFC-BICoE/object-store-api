@@ -67,7 +67,7 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
   public static final URI SCHEMA_BASE_URI;
   
   private static final String SPEC_HOST = "raw.githubusercontent.com";
-  private static final String ROOT_SPEC_PATH = "DINA-Web/object-store-specs/master/schema/object-store-api.yaml";  
+  private static final String ROOT_SPEC_PATH = "DINA-Web/object-store-specs/master/schema/object-store-api.yml";
   
   static {
     URIBuilder uriBuilder = new URIBuilder();
