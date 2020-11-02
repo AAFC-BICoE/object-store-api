@@ -14,17 +14,11 @@ public class ManagedAttributeJsonApiIT extends BaseJsonApiIntegrationTest {
   
   private static final String SCHEMA_NAME = "ManagedAttribute";
   private static final String RESOURCE_UNDER_TEST = "managed-attribute";
-  private static final String SCHEMA_PATH = "DINA-Web/object-store-specs/master/schema/managedAttribute.yaml";  
   private final static String DINA_USER_NAME = DinaAuthenticatedUserConfig.USER_NAME;
 
   @Override
   protected String getSchemaName() {
     return SCHEMA_NAME;
-  }
-  
-  @Override
-  protected String getSchemaPath() {
-    return SCHEMA_PATH;
   }
      
   @Override
