@@ -31,31 +31,18 @@ import java.util.UUID;
 /**
  * Resource repository for adding Managed Attribute values in a more client-friendly way than
  * manually adding MetadataManagedAttributes.
- *
- * ManagedAttributeMap is a derived object to conveniently/compactly get/set a Metadata's ManagedAttribute values.
- *
+ * <p>
+ * ManagedAttributeMap is a derived object to conveniently/compactly get/set a Metadata's
+ * ManagedAttribute values.
+ * <p>
  * Provides a POST endpoint for adding new ManagedAttribute values for a Metadata.
- *
- * Example POST request body to /api/managed-attribute-map:
- * {
- *   "data": {
- *     "type": "managed-attribute-map",
- *     "attributes": {
- *       "values": {
- *         // The UUID refers to the ManagedAttribute's UUID
- *         "51451dcd-a2c5-45fb-8dba-d4c26b60169e": { "value": "example value" },
- *         "d7c0d0a7-aef2-462d-9dc0-deb85f4ce85b": { "value": "example value 2" }
- *       }
- *     }
- *     "relationships": {
- *       "metadata": {
- *         "data": {
- *           { "type": "metadata", "id": "de29c062-6686-412a-b71e-677c83d0c3aa" }
- *         }
- *       }
- *     }
- *   }
- * }
+ * <p>
+ * Example POST request body to /api/managed-attribute-map: { "data": { "type":
+ * "managed-attribute-map", "attributes": { "values": { // The UUID refers to the ManagedAttribute's
+ * UUID "51451dcd-a2c5-45fb-8dba-d4c26b60169e": { "value": "example value" },
+ * "d7c0d0a7-aef2-462d-9dc0-deb85f4ce85b": { "value": "example value 2" } } } "relationships": {
+ * "metadata": { "data": { { "type": "metadata", "id": "de29c062-6686-412a-b71e-677c83d0c3aa" } } }
+ * } } }
  */
 @Repository
 @Transactional
@@ -137,15 +124,19 @@ public class ManagedAttributeMapRepository extends ResourceRepositoryBase<Manage
     // flush all jpa changes
     dao.update(metadata);
     // map to dto and audit
-    mappingLayer.mapEntitiesToDto(
-      new QuerySpec(ObjectStoreMetadataDto.class), Collections.singletonList(metadata)
-    ).stream().findFirst().ifPresent(objectStoreMetadataDto -> {
-      objectStoreMetadataDto.setManagedAttributeMap(
+    mapMetadata(metadata).ifPresent(dto -> {
+      dto.setManagedAttributeMap(
         MetadataToManagedAttributeMapRepository.getAttributeMapFromMetadata(metadata));
-      auditService.audit(objectStoreMetadataDto);
+      auditService.audit(dto);
     });
 
     return resource;
+  }
+
+  private Optional<ObjectStoreMetadataDto> mapMetadata(ObjectStoreMetadata metadata) {
+    return mappingLayer.mapEntitiesToDto(
+      new QuerySpec(ObjectStoreMetadataDto.class), Collections.singletonList(metadata)
+    ).stream().findFirst();
   }
 
 }
