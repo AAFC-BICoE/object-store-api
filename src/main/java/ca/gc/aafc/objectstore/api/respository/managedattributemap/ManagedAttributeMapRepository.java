@@ -1,21 +1,13 @@
 package ca.gc.aafc.objectstore.api.respository.managedattributemap;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.UUID;
-
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-import javax.validation.ValidationException;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Repository;
-
 import ca.gc.aafc.dina.jpa.BaseDAO;
+import ca.gc.aafc.dina.mapper.DinaMapper;
+import ca.gc.aafc.dina.mapper.DinaMappingLayer;
+import ca.gc.aafc.dina.service.AuditService;
+import ca.gc.aafc.dina.service.DinaService;
 import ca.gc.aafc.objectstore.api.dto.ManagedAttributeMapDto;
 import ca.gc.aafc.objectstore.api.dto.ManagedAttributeMapDto.ManagedAttributeMapValue;
+import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
@@ -23,6 +15,18 @@ import io.crnk.core.exception.MethodNotAllowedException;
 import io.crnk.core.queryspec.QuerySpec;
 import io.crnk.core.repository.ResourceRepositoryBase;
 import io.crnk.core.resource.list.ResourceList;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Repository;
+
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+import javax.validation.ValidationException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Resource repository for adding Managed Attribute values in a more client-friendly way than
@@ -58,11 +62,18 @@ import io.crnk.core.resource.list.ResourceList;
 public class ManagedAttributeMapRepository extends ResourceRepositoryBase<ManagedAttributeMapDto, UUID> {
 
   private final BaseDAO dao;
+  private final AuditService auditService;
+  private final DinaMappingLayer<ObjectStoreMetadataDto, ObjectStoreMetadata> mappingLayer;
 
   @Inject
-  public ManagedAttributeMapRepository(final BaseDAO baseDao) {
+  public ManagedAttributeMapRepository(final BaseDAO baseDao, AuditService auditService) {
     super(ManagedAttributeMapDto.class);
     this.dao = baseDao;
+    this.auditService = auditService;
+    this.mappingLayer = new DinaMappingLayer<>(
+      ObjectStoreMetadataDto.class,
+      new DinaService<>(baseDao),
+      new DinaMapper<>(ObjectStoreMetadataDto.class));
   }
 
   @Override
@@ -74,9 +85,12 @@ public class ManagedAttributeMapRepository extends ResourceRepositoryBase<Manage
   public <S extends ManagedAttributeMapDto> S create(final S resource) {
     // Get the target metadata:
     final UUID metadataUuid = Optional.ofNullable(resource.getMetadata())
-      .map(m -> m.getUuid())
-      .orElseThrow(() -> new ValidationException("Metadata relationship required to add managed attributes map."));
-    final ObjectStoreMetadata metadata = dao.findOneByNaturalId(metadataUuid, ObjectStoreMetadata.class);
+      .map(ObjectStoreMetadataDto::getUuid)
+      .orElseThrow(() -> new ValidationException(
+        "Metadata relationship required to add managed attributes map."));
+    final ObjectStoreMetadata metadata = dao.findOneByNaturalId(
+      metadataUuid,
+      ObjectStoreMetadata.class);
 
     final List<MetadataManagedAttribute> managedAttributeValues =
       metadata.getManagedAttribute() == null ? new ArrayList<>() : metadata.getManagedAttribute();
@@ -84,12 +98,14 @@ public class ManagedAttributeMapRepository extends ResourceRepositoryBase<Manage
     // Loop through the changed attribute values:
     for (final Entry<String, ManagedAttributeMapValue> entry : resource.getValues().entrySet()) {
       final UUID changedAttributeUuid = UUID.fromString(entry.getKey());
-      final ManagedAttribute changedAttribute = dao.findOneByNaturalId(changedAttributeUuid, ManagedAttribute.class);
+      final ManagedAttribute changedAttribute = dao.findOneByNaturalId(
+        changedAttributeUuid,
+        ManagedAttribute.class);
       final String newValue = entry.getValue().getValue();
 
       final Optional<MetadataManagedAttribute> existingAttributeValue = managedAttributeValues.stream()
-          .filter(existingAttr -> existingAttr.getManagedAttribute() == changedAttribute)
-          .findFirst();
+        .filter(existingAttr -> existingAttr.getManagedAttribute() == changedAttribute)
+        .findFirst();
 
       // If this attribute is already set then update the value :
       existingAttributeValue.ifPresent(val -> {
@@ -102,7 +118,7 @@ public class ManagedAttributeMapRepository extends ResourceRepositoryBase<Manage
       });
 
       // If there is no existing value then create a new one:
-      if (!existingAttributeValue.isPresent() && !StringUtils.isBlank(newValue)) {
+      if (existingAttributeValue.isEmpty() && !StringUtils.isBlank(newValue)) {
         final MetadataManagedAttribute newAttributeValue = MetadataManagedAttribute.builder()
           .managedAttribute(changedAttribute)
           .objectStoreMetadata(metadata)
@@ -117,6 +133,17 @@ public class ManagedAttributeMapRepository extends ResourceRepositoryBase<Manage
 
     // Crnk requires a created resource to have an ID. Create one here if the client did not provide one.
     resource.setId(Optional.ofNullable(resource.getId()).orElse("N/A"));
+
+    // flush all jpa changes
+    dao.update(metadata);
+    // map to dto and audit
+    mappingLayer.mapEntitiesToDto(
+      new QuerySpec(ObjectStoreMetadataDto.class), Collections.singletonList(metadata)
+    ).stream().findFirst().ifPresent(objectStoreMetadataDto -> {
+      objectStoreMetadataDto.setManagedAttributeMap(
+        MetadataToManagedAttributeMapRepository.getAttributeMapFromMetadata(metadata));
+      auditService.audit(objectStoreMetadataDto);
+    });
 
     return resource;
   }
