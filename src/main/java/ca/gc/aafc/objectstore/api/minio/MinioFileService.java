@@ -1,5 +1,30 @@
 package ca.gc.aafc.objectstore.api.minio;
 
+import ca.gc.aafc.objectstore.api.file.FileInformationService;
+import ca.gc.aafc.objectstore.api.file.FileObjectInfo;
+import ca.gc.aafc.objectstore.api.file.FolderStructureStrategy;
+import com.google.common.collect.Streams;
+import io.minio.BucketExistsArgs;
+import io.minio.ErrorCode;
+import io.minio.GetObjectArgs;
+import io.minio.MakeBucketArgs;
+import io.minio.MinioClient;
+import io.minio.ObjectStat;
+import io.minio.PutObjectArgs;
+import io.minio.RemoveObjectArgs;
+import io.minio.StatObjectArgs;
+import io.minio.errors.ErrorResponseException;
+import io.minio.errors.InsufficientDataException;
+import io.minio.errors.InternalException;
+import io.minio.errors.InvalidBucketNameException;
+import io.minio.errors.InvalidResponseException;
+import io.minio.errors.RegionConflictException;
+import io.minio.errors.ServerException;
+import io.minio.errors.XmlParserException;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.stereotype.Service;
+
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -8,33 +33,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-
-import com.google.common.collect.Streams;
-
-import io.minio.BucketExistsArgs;
-import io.minio.GetObjectArgs;
-import io.minio.MakeBucketArgs;
-import io.minio.PutObjectArgs;
-import io.minio.StatObjectArgs;
-import io.minio.errors.ServerException;
-import org.springframework.stereotype.Service;
-
-import ca.gc.aafc.objectstore.api.file.FileInformationService;
-import ca.gc.aafc.objectstore.api.file.FileObjectInfo;
-import ca.gc.aafc.objectstore.api.file.FolderStructureStrategy;
-import io.minio.ErrorCode;
-import io.minio.MinioClient;
-import io.minio.ObjectStat;
-import io.minio.errors.ErrorResponseException;
-import io.minio.errors.InsufficientDataException;
-import io.minio.errors.InternalException;
-import io.minio.errors.InvalidBucketNameException;
-import io.minio.errors.InvalidResponseException;
-import io.minio.errors.RegionConflictException;
-import io.minio.errors.XmlParserException;
-import lombok.extern.log4j.Log4j2;
 
 @Service
 @Log4j2
@@ -201,4 +199,13 @@ public class MinioFileService implements FileInformationService {
     }
   }
 
+  public void removeFile(String bucket, String fileName) throws IOException {
+    try {
+      minioClient.removeObject(RemoveObjectArgs.builder().bucket(bucket).object(fileName).build());
+    } catch (ErrorResponseException | InvalidBucketNameException | InsufficientDataException
+      | InternalException | InvalidKeyException | InvalidResponseException |
+      NoSuchAlgorithmException | ServerException | XmlParserException e) {
+      throw new IOException(e);
+    }
+  }
 }
