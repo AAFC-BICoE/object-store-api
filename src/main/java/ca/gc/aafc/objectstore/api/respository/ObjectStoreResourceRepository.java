@@ -7,6 +7,7 @@ import ca.gc.aafc.dina.repository.DinaRepository;
 import ca.gc.aafc.dina.repository.GoneException;
 import ca.gc.aafc.dina.repository.external.ExternalResourceProvider;
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
+import ca.gc.aafc.dina.security.DinaRole;
 import ca.gc.aafc.dina.service.AuditService;
 import ca.gc.aafc.dina.service.DinaService;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
@@ -159,7 +160,11 @@ public class ObjectStoreResourceRepository
   public void delete(Serializable id) {
     ObjectStoreMetadata objectStoreMetadata = dinaService.findOne(id, ObjectStoreMetadata.class);
     if (objectStoreMetadata != null) {
-      objectStoreMetadata.setDeletedDate(OffsetDateTime.now());
+      if (isUserCollectionManager()) {
+        dinaService.delete(objectStoreMetadata);
+      } else {
+        objectStoreMetadata.setDeletedDate(OffsetDateTime.now());
+      }
     }
   }
 
@@ -210,5 +215,15 @@ public class ObjectStoreResourceRepository
         objectUpload.getThumbnailIdentifier());
       super.create(thumbnailMetadataDto);
     }
+  }
+
+  /**
+   * Returns true if the authenticated user has a collection manager role in one of it's groups.
+   *
+   * @return true if the authenticated user has a collection manager role in one of it's groups.
+   */
+  private boolean isUserCollectionManager() {
+    return authenticatedUser.getRolesPerGroup().values().stream().anyMatch(
+      dinaRoles -> dinaRoles.stream().anyMatch(role -> role.equals(DinaRole.COLLECTION_MANAGER)));
   }
 }
