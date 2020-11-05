@@ -94,6 +94,7 @@ public class ManagedAttributeMapRepository extends ResourceRepositoryBase<Manage
 
     final List<MetadataManagedAttribute> managedAttributeValues =
       metadata.getManagedAttribute() == null ? new ArrayList<>() : metadata.getManagedAttribute();
+    metadata.setManagedAttribute(managedAttributeValues);
 
     // Loop through the changed attribute values:
     for (final Entry<String, ManagedAttributeMapValue> entry : resource.getValues().entrySet()) {
@@ -142,7 +143,6 @@ public class ManagedAttributeMapRepository extends ResourceRepositoryBase<Manage
         MetadataToManagedAttributeMapRepository.getAttributeMapFromMetadata(metadata));
       auditService.audit(dto);
     });
-
     return resource;
   }
 
