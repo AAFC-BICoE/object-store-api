@@ -65,7 +65,6 @@ public class ManagedAttributeAuditingIT extends BaseIntegrationTest {
   void createMMA_SnapShotPersisted() {
     String test_value_1 = "TEST_VALUE_1";
     ObjectStoreMetadataDto meta = metadataRepository.create(newMeta());
-
     managedAttributeMapRepository.create(newAttribMap(test_value_1, meta));
 
     ObjectStoreMetadataDto result = findMetaData(meta.getUuid());
@@ -89,12 +88,14 @@ public class ManagedAttributeAuditingIT extends BaseIntegrationTest {
     ObjectStoreMetadataDto meta = metadataRepository.create(newMeta());
     managedAttributeMapRepository.create(newAttribMap("value", meta));
 
-    metadataRepository.save(findMetaData(meta.getUuid()));
+    ObjectStoreMetadataDto updated = findMetaData(meta.getUuid());
+    updated.setXmpRightsOwner("new owner");
+    metadataRepository.save(updated);
 
     CdoSnapshot resultSnap = javers.getLatestSnapshot(meta.getUuid(), ObjectStoreMetadataDto.class)
       .orElse(null);
     Assertions.assertNotNull(resultSnap);
-    MatcherAssert.assertThat(resultSnap.getChanged(), Matchers.empty());
+    MatcherAssert.assertThat(resultSnap.getChanged(), Matchers.contains("xmpRightsOwner"));
   }
 
   private ManagedAttributeMapDto parseMapFromSnapshot(CdoSnapshot resultSnap) {
