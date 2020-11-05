@@ -357,21 +357,6 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
     this.acSubTypeId = acSubTypeId;
   }
 
-  // TODO: Fix dina-base-api modifyRelation method so it doesn't fail when the
-  // DTO has a relation that the entity doesn't.
-  @Deprecated
-  @Transient
-  public Object getManagedAttributeMap() {
-    return null;
-  }
-  
-  // TODO: Fix dina-base-api modifyRelation method so it doesn't fail when the
-  // DTO has a relation that the entity doesn't.
-  @Deprecated
-  @Transient
-  public void setManagedAttributeMap(Object object) {
-  }
-
   @Column(name = "ac_metadata_creator_id")
   public UUID getAcMetadataCreator() {
     return acMetadataCreator;
