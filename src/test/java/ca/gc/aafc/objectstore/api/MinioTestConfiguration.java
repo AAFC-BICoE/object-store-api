@@ -1,5 +1,33 @@
 package ca.gc.aafc.objectstore.api;
 
+import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
+import ca.gc.aafc.objectstore.api.file.FolderStructureStrategy;
+import ca.gc.aafc.objectstore.api.minio.MinioFileService;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
+import com.google.common.collect.ImmutableMap;
+import io.minio.BucketExistsArgs;
+import io.minio.GetObjectArgs;
+import io.minio.MinioClient;
+import io.minio.ObjectStat;
+import io.minio.ObjectWriteResponse;
+import io.minio.PutObjectArgs;
+import io.minio.RemoveObjectArgs;
+import io.minio.StatObjectArgs;
+import io.minio.errors.ErrorResponseException;
+import io.minio.errors.InsufficientDataException;
+import io.minio.errors.InternalException;
+import io.minio.errors.InvalidBucketNameException;
+import io.minio.errors.InvalidEndpointException;
+import io.minio.errors.InvalidPortException;
+import io.minio.errors.InvalidResponseException;
+import io.minio.errors.ServerException;
+import io.minio.errors.XmlParserException;
+import okhttp3.Headers;
+import org.apache.commons.io.IOUtils;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
+import org.springframework.http.MediaType;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -11,37 +39,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
-import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
-import com.google.common.collect.ImmutableMap;
-
-import io.minio.BucketExistsArgs;
-import io.minio.GetObjectArgs;
-import io.minio.ObjectWriteResponse;
-import io.minio.PutObjectArgs;
-import io.minio.StatObjectArgs;
-import io.minio.errors.ServerException;
-import org.apache.commons.io.IOUtils;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Primary;
-import org.springframework.http.MediaType;
-
-import ca.gc.aafc.objectstore.api.file.FolderStructureStrategy;
-import ca.gc.aafc.objectstore.api.minio.MinioFileService;
-import io.minio.MinioClient;
-import io.minio.ObjectStat;
-import io.minio.errors.ErrorResponseException;
-import io.minio.errors.InsufficientDataException;
-import io.minio.errors.InternalException;
-import io.minio.errors.InvalidBucketNameException;
-import io.minio.errors.InvalidEndpointException;
-import io.minio.errors.InvalidPortException;
-import io.minio.errors.InvalidResponseException;
-import io.minio.errors.XmlParserException;
-import okhttp3.Headers;
-
 /**
- * 
+ *
  * Configuration used to override bean in the context of Integration testing.
  * A MinioClient stub with 1 entry will be created for testing purpose (see {@link #setupFile(MinioClient)})
  *
@@ -76,7 +75,7 @@ public class MinioTestConfiguration {
         .originalFilename(MinioTestConfiguration.TEST_ORIGINAL_FILENAME)
         .build();
   }
-  
+
   @Primary
   @Bean
   public MinioClient initMinioClient() {
@@ -91,7 +90,7 @@ public class MinioTestConfiguration {
       throw new RuntimeException("Can't setup Minio client for testing", e);
     }
   }
-  
+
   private void setupFile(MinioClient minioClient) throws InvalidKeyException,
       InvalidBucketNameException, NoSuchAlgorithmException, ErrorResponseException,
       InternalException, InsufficientDataException, InvalidResponseException, IOException,
@@ -100,13 +99,13 @@ public class MinioTestConfiguration {
     String testFile = "This is a test\n";
     InputStream is = new ByteArrayInputStream(
         testFile.getBytes(StandardCharsets.UTF_8));
-    
+
     storeTestObject(minioClient, TEST_FILE_IDENTIFIER, TEST_FILE_EXT, is);
   }
-  
+
   /**
    * Store a test object using the provided minio client.
-   * 
+   *
    * @param minioClient
    * @param id
    * @param objExt
@@ -134,24 +133,24 @@ public class MinioTestConfiguration {
         .stream(objStream, -1, PutObjectArgs.MAX_PART_SIZE)
     .build());
   }
-  
+
   /**
    * Stub used to replace MinioClient for testing.
    *
    */
   public static class MinioClientStub extends MinioClient {
-    
+
     private final Map<String, byte[]> INTERNAL_OBJECTS = new HashMap<>();
 
     public MinioClientStub() throws InvalidEndpointException, InvalidPortException {
       super("localhost");
     }
-    
+
     @Override
     public boolean bucketExists(BucketExistsArgs bucketArgs){
       return true;
     }
-    
+
     @Override
     public ObjectWriteResponse putObject(PutObjectArgs args) {
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -177,6 +176,14 @@ public class MinioTestConfiguration {
               "Last-Modified", "Tue, 15 Nov 1994 12:45:26 GMT",
               "Content-Length", "1234"));
       return new ObjectStat(args.bucket(), args.bucket(), head);
+    }
+
+    @Override
+    public void removeObject(RemoveObjectArgs args) throws ErrorResponseException,
+      IllegalArgumentException, InsufficientDataException, InternalException,
+      InvalidBucketNameException, InvalidKeyException, InvalidResponseException,
+      IOException, NoSuchAlgorithmException, ServerException, XmlParserException {
+      INTERNAL_OBJECTS.remove(args.bucket() + args.object());
     }
   }
 

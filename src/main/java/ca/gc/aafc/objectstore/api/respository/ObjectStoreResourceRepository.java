@@ -15,15 +15,18 @@ import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.file.FileController;
 import ca.gc.aafc.objectstore.api.file.ThumbnailService;
+import ca.gc.aafc.objectstore.api.minio.MinioFileService;
 import ca.gc.aafc.objectstore.api.respository.managedattributemap.MetadataToManagedAttributeMapRepository;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataDefaultValueSetterService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataReadService;
+import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
 import io.crnk.core.queryspec.FilterOperator;
 import io.crnk.core.queryspec.FilterSpec;
 import io.crnk.core.queryspec.PathSpec;
 import io.crnk.core.queryspec.QuerySpec;
 import io.crnk.core.resource.list.ResourceList;
 import lombok.NonNull;
+import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Repository;
@@ -31,6 +34,7 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.criteria.Predicate;
 import javax.transaction.Transactional;
 import javax.validation.ValidationException;
+import java.io.IOException;
 import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.Objects;
@@ -47,6 +51,8 @@ public class ObjectStoreResourceRepository
 
   private final DinaService<ObjectStoreMetadata> dinaService;
   private final DinaAuthenticatedUser authenticatedUser;
+  private final MinioFileService minioService;
+  private final ObjectUploadService objectUploadService;
   private final ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService;
   private static final PathSpec DELETED_PATH_SPEC = PathSpec.of("softDeleted");
   private static final PathSpec DELETED_DATE = PathSpec.of(SoftDeletable.DELETED_DATE_FIELD_NAME);
@@ -59,7 +65,9 @@ public class ObjectStoreResourceRepository
     @NonNull ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService,
     @NonNull ExternalResourceProvider externalResourceProvider,
     @NonNull DinaAuthenticatedUser authenticatedUser,
-    @NonNull AuditService auditService
+    @NonNull AuditService auditService,
+    @NonNull MinioFileService minioService,
+    @NonNull ObjectUploadService objectUploadService
   ) {
     super(
       dinaService,
@@ -73,6 +81,8 @@ public class ObjectStoreResourceRepository
     this.dinaService = dinaService;
     this.defaultValueSetterService = defaultValueSetterService;
     this.authenticatedUser = authenticatedUser;
+    this.minioService = minioService;
+    this.objectUploadService = objectUploadService;
   }
 
   /**
@@ -158,18 +168,47 @@ public class ObjectStoreResourceRepository
   }
 
   /**
-   * Soft-delete using setDeletedDate instead of a hard delete.
+   * Soft-delete using setDeletedDate instead of a hard delete. Unless the user is a collection
+   * manager, then a hard delete is triggered. hard delete removes original file, metadata, and
+   * object upload record.
    */
+  @SneakyThrows
   @Override
   public void delete(Serializable id) {
     ObjectStoreMetadata objectStoreMetadata = dinaService.findOne(id, ObjectStoreMetadata.class);
     if (objectStoreMetadata != null) {
       if (isUserCollectionManager()) {
-        dinaService.delete(objectStoreMetadata);
+        hardDelete(objectStoreMetadata);
       } else {
         objectStoreMetadata.setDeletedDate(OffsetDateTime.now());
       }
     }
+  }
+
+  /**
+   * Hard deletes a given metadata hard delete removes original file, metadata, and object upload
+   * record.
+   *
+   * @param objectStoreMetadata - metadata to remove
+   * @throws IOException If there is an issue removing the file from minio.
+   */
+  private void hardDelete(@NonNull ObjectStoreMetadata objectStoreMetadata) throws IOException {
+    ObjectUpload objectUpload = dinaService.findOne(
+      objectStoreMetadata.getFileIdentifier(),
+      ObjectUpload.class);
+
+    if (objectUpload != null) {
+      //Remove File from minio
+      minioService.removeFile(
+        objectUpload.getBucket(),
+        objectUpload.getOriginalFilename());
+
+      //Remove upload record
+      objectUploadService.delete(objectUpload);
+    }
+
+    //Delete Meta
+    dinaService.delete(objectStoreMetadata);
   }
 
   /**
