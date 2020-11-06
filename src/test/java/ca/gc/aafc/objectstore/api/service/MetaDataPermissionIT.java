@@ -24,10 +24,15 @@ public class MetaDataPermissionIT extends BaseIntegrationTest {
 
   private ObjectStoreMetadata metadata;
   private ObjectUpload objectUpload;
+  private ObjectStoreMetadata thumbMeta;
 
   @BeforeEach
   void setUp() {
+    thumbMeta = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
+    service.save(thumbMeta);
+
     objectUpload = MinioTestConfiguration.buildTestObjectUpload();
+    objectUpload.setThumbnailIdentifier(thumbMeta.getFileIdentifier());
     service.save(objectUpload);
 
     metadata = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
@@ -43,6 +48,7 @@ public class MetaDataPermissionIT extends BaseIntegrationTest {
     repo.delete(metadata.getUuid());
     Assertions.assertNull(service.find(ObjectStoreMetadata.class, metadata.getId()));
     Assertions.assertNull(service.find(ObjectUpload.class, objectUpload.getId()));
+    Assertions.assertNull(service.find(ObjectStoreMetadata.class, thumbMeta.getId()));
   }
 
   @WithMockKeycloakUser(groupRole = {"group 1:STAFF"})

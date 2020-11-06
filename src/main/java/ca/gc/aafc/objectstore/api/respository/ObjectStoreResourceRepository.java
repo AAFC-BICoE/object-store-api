@@ -34,7 +34,6 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.criteria.Predicate;
 import javax.transaction.Transactional;
 import javax.validation.ValidationException;
-import java.io.IOException;
 import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.Objects;
@@ -186,25 +185,36 @@ public class ObjectStoreResourceRepository
   }
 
   /**
-   * Hard deletes a given metadata hard delete removes original file, metadata, and object upload
-   * record.
+   * Hard deletes a given metadata hard delete removes original file, metadata, object upload
+   * record, and thumb nail.
    *
    * @param objectStoreMetadata - metadata to remove
-   * @throws IOException If there is an issue removing the file from minio.
    */
-  private void hardDelete(@NonNull ObjectStoreMetadata objectStoreMetadata) throws IOException {
+  private void hardDelete(@NonNull ObjectStoreMetadata objectStoreMetadata) {
     ObjectUpload objectUpload = dinaService.findOne(
       objectStoreMetadata.getFileIdentifier(),
       ObjectUpload.class);
 
     if (objectUpload != null) {
       //Remove File from minio
-      minioService.removeFile(
+      removeFileFromMinio(
         objectUpload.getBucket(),
-        objectUpload.getOriginalFilename());
+        objectUpload.getFileIdentifier(),
+        objectUpload.getEvaluatedFileExtension());
 
       //Remove upload record
       objectUploadService.delete(objectUpload);
+
+      //Remove thumbnail and thumb nail meta data
+      if (objectUpload.getThumbnailIdentifier() != null) {
+        loadObjectStoreMetadataByFileId(objectUpload.getThumbnailIdentifier()).ifPresent(thumb -> {
+          removeFileFromMinio(
+            thumb.getBucket(),
+            thumb.getFileIdentifier(),
+            ThumbnailService.THUMBNAIL_EXTENSION);
+          dinaService.delete(thumb);
+        });
+      }
     }
 
     //Delete Meta
@@ -258,6 +268,22 @@ public class ObjectStoreResourceRepository
         objectUpload.getThumbnailIdentifier());
       super.create(thumbnailMetadataDto);
     }
+  }
+
+  /**
+   * Removes a file from the minio file service.
+   *
+   * @param bucket                 - bucket of the file
+   * @param fileIdentifier         - file identifier
+   * @param evaluatedFileExtension - extension of the file
+   */
+  @SneakyThrows
+  private void removeFileFromMinio(
+    String bucket,
+    UUID fileIdentifier,
+    String evaluatedFileExtension
+  ) {
+    minioService.removeFile(bucket, fileIdentifier + evaluatedFileExtension);
   }
 
   /**
