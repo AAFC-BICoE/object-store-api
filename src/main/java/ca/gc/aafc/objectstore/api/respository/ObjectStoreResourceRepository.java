@@ -199,7 +199,7 @@ public class ObjectStoreResourceRepository
       //Remove File from minio
       removeFileFromMinio(
         objectUpload.getBucket(),
-        objectUpload.getFileIdentifier(),
+        objectUpload.getFileIdentifier().toString(),
         objectUpload.getEvaluatedFileExtension());
 
       //Remove upload record
@@ -209,8 +209,8 @@ public class ObjectStoreResourceRepository
       if (objectUpload.getThumbnailIdentifier() != null) {
         loadObjectStoreMetadataByFileId(objectUpload.getThumbnailIdentifier()).ifPresent(thumb -> {
           removeFileFromMinio(
-            thumb.getBucket(),
-            thumb.getFileIdentifier(),
+            objectUpload.getBucket(),
+            thumb.getFileIdentifier() + ".thumbnail",
             ThumbnailService.THUMBNAIL_EXTENSION);
           dinaService.delete(thumb);
         });
@@ -280,7 +280,7 @@ public class ObjectStoreResourceRepository
   @SneakyThrows
   private void removeFileFromMinio(
     String bucket,
-    UUID fileIdentifier,
+    String fileIdentifier,
     String evaluatedFileExtension
   ) {
     minioService.removeFile(bucket, fileIdentifier + evaluatedFileExtension);
