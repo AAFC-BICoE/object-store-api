@@ -15,6 +15,7 @@ import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.file.FileController;
 import ca.gc.aafc.objectstore.api.file.ThumbnailService;
+import ca.gc.aafc.objectstore.api.respository.managedattributemap.MetadataToManagedAttributeMapRepository;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataDefaultValueSetterService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataReadService;
 import io.crnk.core.queryspec.FilterOperator;
@@ -82,6 +83,9 @@ public class ObjectStoreResourceRepository
   @SuppressWarnings("unchecked")
   public <S extends ObjectStoreMetadataDto> S save(S resource) {
     handleFileRelatedData(resource);
+    loadObjectStoreMetadata(resource.getUuid()).ifPresent(objectStoreMetadata ->
+      resource.setManagedAttributeMap(
+        MetadataToManagedAttributeMapRepository.getAttributeMapFromMetadata(objectStoreMetadata)));
     S dto = super.save(resource);
     return (S) this.findOne(dto.getUuid(), new QuerySpec(ObjectStoreMetadataDto.class));
   }
