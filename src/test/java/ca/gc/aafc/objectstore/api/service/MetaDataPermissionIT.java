@@ -42,9 +42,15 @@ public class MetaDataPermissionIT extends BaseIntegrationTest {
 
   @WithMockKeycloakUser(groupRole = {"group 1:COLLECTION_MANAGER"})
   @Test
-  void delete_WhenCollectionManager_HardDeletes() {
+  void delete_OnSecondDeleteWhenCollectionManager_HardDeletes() {
     Assertions.assertNotNull(service.find(ObjectStoreMetadata.class, metadata.getId()));
     Assertions.assertNotNull(service.find(ObjectUpload.class, objectUpload.getId()));
+    //first delete
+    repo.delete(metadata.getUuid());
+    Assertions.assertNotNull(service.find(ObjectStoreMetadata.class, metadata.getId()));
+    Assertions.assertNotNull(service.find(ObjectUpload.class, objectUpload.getId()));
+    Assertions.assertNotNull(service.find(ObjectStoreMetadata.class, thumbMeta.getId()));
+    //second delete
     repo.delete(metadata.getUuid());
     Assertions.assertNull(service.find(ObjectStoreMetadata.class, metadata.getId()));
     Assertions.assertNull(service.find(ObjectUpload.class, objectUpload.getId()));
@@ -53,8 +59,9 @@ public class MetaDataPermissionIT extends BaseIntegrationTest {
 
   @WithMockKeycloakUser(groupRole = {"group 1:STAFF"})
   @Test
-  void delete_WhenNOTCollectionManager_SoftDeletes() {
+  void delete_OnSecondDeleteWhenStaff_SoftDeletes() {
     Assertions.assertNotNull(service.find(ObjectStoreMetadata.class, metadata.getId()));
+    repo.delete(metadata.getUuid());
     repo.delete(metadata.getUuid());
     ObjectStoreMetadata actual = service.find(ObjectStoreMetadata.class, metadata.getId());
     Assertions.assertNotNull(actual);

@@ -176,7 +176,7 @@ public class ObjectStoreResourceRepository
   public void delete(Serializable id) {
     ObjectStoreMetadata objectStoreMetadata = dinaService.findOne(id, ObjectStoreMetadata.class);
     if (objectStoreMetadata != null) {
-      if (isUserCollectionManager()) {
+      if (objectStoreMetadata.getDeletedDate() != null && isUserCollectionManager()) {
         hardDelete(objectStoreMetadata);
       } else {
         objectStoreMetadata.setDeletedDate(OffsetDateTime.now());
