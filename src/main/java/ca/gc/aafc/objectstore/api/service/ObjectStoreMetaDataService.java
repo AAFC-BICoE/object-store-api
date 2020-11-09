@@ -2,7 +2,6 @@ package ca.gc.aafc.objectstore.api.service;
 
 import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.dina.service.DefaultDinaService;
-import ca.gc.aafc.dina.service.DinaService;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.resolvers.ObjectStoreMetaDataFieldResolvers;
