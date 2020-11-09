@@ -1,6 +1,7 @@
 package ca.gc.aafc.objectstore.api.service;
 
 import ca.gc.aafc.dina.jpa.BaseDAO;
+import ca.gc.aafc.dina.service.DefaultDinaService;
 import ca.gc.aafc.dina.service.DinaService;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
@@ -12,7 +13,7 @@ import javax.inject.Inject;
 import java.util.UUID;
 
 @Service
-public class ObjectStoreMetaDataService extends DinaService<ObjectStoreMetadata> {
+public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMetadata> {
 
   @Inject
   private ObjectStoreMetaDataFieldResolvers metaDataFieldResolver;
@@ -30,11 +31,6 @@ public class ObjectStoreMetaDataService extends DinaService<ObjectStoreMetadata>
     if (entity.getAcSubType() != null) {
       setAcSubType(entity, entity.getAcSubType());
     }
-  }
-
-  @Override
-  protected void preDelete(ObjectStoreMetadata entity) {
-    // Do Nothing
   }
 
   @Override
