@@ -13,4 +13,7 @@ embedded.postgresql:
   init-script-file: create-test-users.sql
   database: object_store_test
   schema: object_store
+external-types:
+  providerMap:
+    person: "Agent/api/v1/person"
 dina.auditing.enabled: true

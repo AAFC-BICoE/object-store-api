@@ -22,7 +22,7 @@ import java.util.UUID;
 
 /**
  * Fetches the ManagedAttributeMap for a given Metadata.
- * 
+ *
  * ManagedAttributeMap is a derived object to conveniently/compactly get/set a Metadata's ManagedAttribute values.
  */
 @Repository
@@ -57,7 +57,7 @@ public class MetadataToManagedAttributeMapRepository
   /**
    * Gets the ManagedAttributeMapDto for the given metadata.
    */
-  public ManagedAttributeMapDto getAttributeMapFromMetadata(ObjectStoreMetadata metadata) {
+  public static ManagedAttributeMapDto getAttributeMapFromMetadata(ObjectStoreMetadata metadata) {
     List<MetadataManagedAttribute> attrs = metadata.getManagedAttribute();
 
     // Build the attribute values map:
@@ -73,14 +73,11 @@ public class MetadataToManagedAttributeMapRepository
         );
       }
     }
-
-    ManagedAttributeMapDto attrMap = ManagedAttributeMapDto.builder()
-      // This is a generated/derived object, so it doesn't have its own ID:
+    // This is a generated/derived object, so it doesn't have its own ID:
+    return ManagedAttributeMapDto.builder()
       .id(ObjectStoreMetadataDto.TYPENAME + "/" + metadata.getUuid() + "/" + ManagedAttributeMapDto.TYPENAME)
       .values(attrValuesMap)
       .build();
-      
-    return attrMap;
   }
 
 }

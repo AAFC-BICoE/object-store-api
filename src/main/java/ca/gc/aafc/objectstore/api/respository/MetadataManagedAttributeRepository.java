@@ -1,17 +1,18 @@
 package ca.gc.aafc.objectstore.api.respository;
 
+import java.util.Optional;
+
+import org.springframework.stereotype.Repository;
+
 import ca.gc.aafc.dina.filter.DinaFilterResolver;
 import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.dina.mapper.DinaMapper;
 import ca.gc.aafc.dina.repository.DinaRepository;
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
-import ca.gc.aafc.dina.service.DinaService;
+import ca.gc.aafc.dina.service.DefaultDinaService;
 import ca.gc.aafc.objectstore.api.dto.MetadataManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
 import lombok.NonNull;
-import org.springframework.stereotype.Repository;
-
-import java.util.Optional;
 
 @Repository
 public class MetadataManagedAttributeRepository
@@ -25,7 +26,7 @@ public class MetadataManagedAttributeRepository
     @NonNull DinaAuthenticatedUser authenticatedUser
   ) {
     super(
-      new DinaService<>(baseDAO),
+      new DefaultDinaService<>(baseDAO),
       Optional.empty(),
       Optional.empty(),
       new DinaMapper<>(MetadataManagedAttributeDto.class),

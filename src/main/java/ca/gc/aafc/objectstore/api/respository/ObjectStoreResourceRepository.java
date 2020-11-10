@@ -5,6 +5,7 @@ import ca.gc.aafc.dina.filter.DinaFilterResolver;
 import ca.gc.aafc.dina.mapper.DinaMapper;
 import ca.gc.aafc.dina.repository.DinaRepository;
 import ca.gc.aafc.dina.repository.GoneException;
+import ca.gc.aafc.dina.repository.external.ExternalResourceProvider;
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.dina.service.AuditService;
 import ca.gc.aafc.dina.service.DinaService;
@@ -13,6 +14,7 @@ import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.file.FileController;
 import ca.gc.aafc.objectstore.api.file.ThumbnailService;
+import ca.gc.aafc.objectstore.api.respository.managedattributemap.MetadataToManagedAttributeMapRepository;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataDefaultValueSetterService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataReadService;
 import io.crnk.core.queryspec.FilterOperator;
@@ -54,6 +56,7 @@ public class ObjectStoreResourceRepository
     @NonNull DinaService<ObjectStoreMetadata> dinaService,
     @NonNull DinaFilterResolver filterResolver,
     @NonNull ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService,
+    @NonNull ExternalResourceProvider externalResourceProvider,
     @NonNull DinaAuthenticatedUser authenticatedUser,
     @NonNull AuditService auditService
   ) {
@@ -65,7 +68,7 @@ public class ObjectStoreResourceRepository
       ObjectStoreMetadataDto.class,
       ObjectStoreMetadata.class,
       filterResolver,
-      null);
+      externalResourceProvider);
     this.dinaService = dinaService;
     this.defaultValueSetterService = defaultValueSetterService;
     this.authenticatedUser = authenticatedUser;
@@ -79,6 +82,9 @@ public class ObjectStoreResourceRepository
   @SuppressWarnings("unchecked")
   public <S extends ObjectStoreMetadataDto> S save(S resource) {
     handleFileRelatedData(resource);
+    loadObjectStoreMetadata(resource.getUuid()).ifPresent(objectStoreMetadata ->
+      resource.setManagedAttributeMap(
+        MetadataToManagedAttributeMapRepository.getAttributeMapFromMetadata(objectStoreMetadata)));
     S dto = super.save(resource);
     return (S) this.findOne(dto.getUuid(), new QuerySpec(ObjectStoreMetadataDto.class));
   }

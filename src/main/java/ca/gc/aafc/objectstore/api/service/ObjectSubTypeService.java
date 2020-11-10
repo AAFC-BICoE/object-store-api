@@ -6,12 +6,12 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import ca.gc.aafc.dina.jpa.BaseDAO;
-import ca.gc.aafc.dina.service.DinaService;
+import ca.gc.aafc.dina.service.DefaultDinaService;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import lombok.NonNull;
 
 @Service
-public class ObjectSubTypeService extends DinaService<ObjectSubtype> {
+public class ObjectSubTypeService extends DefaultDinaService<ObjectSubtype> {
 
   private final MessageSource messageSource;
 

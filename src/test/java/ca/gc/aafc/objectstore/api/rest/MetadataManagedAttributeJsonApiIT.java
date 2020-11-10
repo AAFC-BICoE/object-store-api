@@ -40,12 +40,7 @@ public class MetadataManagedAttributeJsonApiIT extends BaseJsonApiIntegrationTes
   protected String getSchemaName() {
     return null;
   }
-  
-  @Override
-  protected String getSchemaPath() {
-    return null;
-  }
-  
+
   @Override
   protected String getResourceUnderTest() {
     return "metadata-managed-attribute";
