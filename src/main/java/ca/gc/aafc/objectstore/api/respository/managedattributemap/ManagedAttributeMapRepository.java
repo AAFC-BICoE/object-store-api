@@ -1,10 +1,24 @@
 package ca.gc.aafc.objectstore.api.respository.managedattributemap;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.UUID;
+
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+import javax.validation.ValidationException;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Repository;
+
 import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.dina.mapper.DinaMapper;
 import ca.gc.aafc.dina.mapper.DinaMappingLayer;
 import ca.gc.aafc.dina.service.AuditService;
-import ca.gc.aafc.dina.service.DinaService;
+import ca.gc.aafc.dina.service.DefaultDinaService;
 import ca.gc.aafc.objectstore.api.dto.ManagedAttributeMapDto;
 import ca.gc.aafc.objectstore.api.dto.ManagedAttributeMapDto.ManagedAttributeMapValue;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
@@ -15,18 +29,6 @@ import io.crnk.core.exception.MethodNotAllowedException;
 import io.crnk.core.queryspec.QuerySpec;
 import io.crnk.core.repository.ResourceRepositoryBase;
 import io.crnk.core.resource.list.ResourceList;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Repository;
-
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-import javax.validation.ValidationException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.UUID;
 
 /**
  * Resource repository for adding Managed Attribute values in a more client-friendly way than
@@ -72,7 +74,7 @@ public class ManagedAttributeMapRepository extends ResourceRepositoryBase<Manage
     this.auditService = auditService;
     this.mappingLayer = new DinaMappingLayer<>(
       ObjectStoreMetadataDto.class,
-      new DinaService<>(baseDao),
+      new DefaultDinaService<>(baseDao),
       new DinaMapper<>(ObjectStoreMetadataDto.class));
   }
 

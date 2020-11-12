@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
     <suppress>
-        <cpe>cpe:/a:pivotal_software:spring_security:5.3.4</cpe>
+        <cpe>cpe:/a:pivotal_software:spring_security:5.3.5</cpe>
     </suppress>
     <suppress>
         <!-- simple-xml-safe is fine but it is flagged as the same as simple-xml -->

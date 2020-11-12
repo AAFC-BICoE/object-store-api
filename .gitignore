@@ -6,3 +6,5 @@
 docker-compose.yml
 docker-compose.override.yml
 /*.env
+/*.idea
+/*.vscode
