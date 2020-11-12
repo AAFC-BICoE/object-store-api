@@ -52,6 +52,7 @@ public class ObjectStoreResourceRepository
   private final DinaAuthenticatedUser authenticatedUser;
   private final MinioFileService minioService;
   private final ObjectUploadService objectUploadService;
+  private final AuditService auditService;
   private final ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService;
   private static final PathSpec DELETED_PATH_SPEC = PathSpec.of("softDeleted");
   private static final PathSpec DELETED_DATE = PathSpec.of(SoftDeletable.DELETED_DATE_FIELD_NAME);
@@ -78,6 +79,7 @@ public class ObjectStoreResourceRepository
       filterResolver,
       externalResourceProvider);
     this.dinaService = dinaService;
+    this.auditService = auditService;
     this.defaultValueSetterService = defaultValueSetterService;
     this.authenticatedUser = authenticatedUser;
     this.minioService = minioService;
@@ -219,6 +221,12 @@ public class ObjectStoreResourceRepository
 
     //Delete Meta
     dinaService.delete(objectStoreMetadata);
+
+    //Delete audit info
+    auditService.removeSnapshots(AuditService.AuditInstance.builder()
+      .type(ObjectStoreMetadataDto.TYPENAME)
+      .id(objectStoreMetadata.getUuid().toString())
+      .build());
   }
 
   /**
