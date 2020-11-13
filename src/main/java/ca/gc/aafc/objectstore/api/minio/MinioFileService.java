@@ -151,7 +151,7 @@ public class MinioFileService implements FileInformationService {
 
   public Optional<InputStream> getFile(String fileName, String bucketName) throws IOException {
     try {
-      return Optional.of(
+      return Optional.ofNullable(
           minioClient.getObject(
               GetObjectArgs.builder()
                   .bucket(bucketName)

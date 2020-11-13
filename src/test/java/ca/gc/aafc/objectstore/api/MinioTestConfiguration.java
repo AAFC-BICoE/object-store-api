@@ -166,7 +166,8 @@ public class MinioTestConfiguration {
 
     @Override
     public InputStream getObject(GetObjectArgs args) {
-      return new ByteArrayInputStream(INTERNAL_OBJECTS.get(args.bucket() + args.object()));
+      byte[] buf = INTERNAL_OBJECTS.get(args.bucket() + args.object());
+      return buf == null ? null : new ByteArrayInputStream(buf);
     }
 
     @Override

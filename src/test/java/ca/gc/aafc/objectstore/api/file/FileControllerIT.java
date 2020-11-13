@@ -69,9 +69,19 @@ public class FileControllerIT extends BaseIntegrationTest {
       .build();
     entityManager.persist(thumbMetaData);
     
+    String thumbnailFilename = thumbnailIdentifier + ".thumbnail";
+
+    // Wait for the thumbnail to be asynchronously persisted:
+    for (int attempts = 0; attempts <= 100; attempts++) {
+      if (minioFileService.getFile(thumbnailFilename, bucketUnderTest).isPresent()) {
+        break;
+      }
+      Thread.sleep(100);
+    }
+
     ResponseEntity<InputStreamResource> thumbnailDownloadResponse = fileController.downloadObject(
       bucketUnderTest,
-      thumbnailIdentifier + ".thumbnail"
+      thumbnailFilename
     );
 
     assertEquals(HttpStatus.OK, thumbnailDownloadResponse.getStatusCode());
