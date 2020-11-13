@@ -2,15 +2,32 @@ package ca.gc.aafc.objectstore.api.exif;
 
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.metadata.Metadata;
+import com.drew.metadata.exif.ExifSubIFDDirectory;
 import lombok.SneakyThrows;
 
 import java.io.File;
+import java.util.Optional;
 
 public class ExifParser {
 
   @SneakyThrows
-  public static Metadata parse(File inputStream){
+  public static Metadata parse(File inputStream) {
     return ImageMetadataReader.readMetadata(inputStream);
+  }
+
+  public static Optional<String> parseDate(Metadata metadata) {
+    ExifSubIFDDirectory directory = metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class);
+    if (directory != null) {
+      String description = directory.getDescription(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
+      if (description == null) {
+        description = directory.getDescription(ExifSubIFDDirectory.TAG_DATETIME);
+      }
+      if (description == null) {
+        description = directory.getDescription(ExifSubIFDDirectory.TAG_DATETIME_DIGITIZED);
+      }
+      return Optional.ofNullable(description);
+    }
+    return Optional.empty();
   }
 
 }
