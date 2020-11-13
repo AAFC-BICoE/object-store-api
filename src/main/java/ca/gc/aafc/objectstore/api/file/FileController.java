@@ -58,7 +58,7 @@ public class FileController {
 
   public static final String DIGEST_ALGORITHM = "SHA-1";
   private static final int MAX_NUMBER_OF_ATTEMPT_RANDOM_UUID = 5;
-  private static final int READ_AHEAD_BUFFER_SIZE = 10*1024;
+  private static final int READ_AHEAD_BUFFER_SIZE = 10 * 1024;
 
   private final ObjectUploadService objectUploadService;
   private final MinioFileService minioService;

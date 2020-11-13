@@ -1,13 +1,7 @@
 package ca.gc.aafc.objectstore.api.file;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.SequenceInputStream;
-import java.util.Objects;
-
-import javax.annotation.Nullable;
-
+import lombok.Builder;
+import lombok.Getter;
 import lombok.NonNull;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -21,8 +15,9 @@ import org.apache.tika.mime.MimeType;
 import org.apache.tika.mime.MimeTypeException;
 import org.springframework.stereotype.Service;
 
-import lombok.Builder;
-import lombok.Getter;
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * A MediaTypeDetectionStrategy allows to determine the media type based on an InputStream and information

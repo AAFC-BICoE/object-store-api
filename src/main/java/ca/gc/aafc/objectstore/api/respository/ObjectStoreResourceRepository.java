@@ -12,6 +12,7 @@ import ca.gc.aafc.dina.service.DinaService;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
+import ca.gc.aafc.objectstore.api.exif.ExifParser;
 import ca.gc.aafc.objectstore.api.file.FileController;
 import ca.gc.aafc.objectstore.api.file.ThumbnailService;
 import ca.gc.aafc.objectstore.api.respository.managedattributemap.MetadataToManagedAttributeMapRepository;
@@ -31,7 +32,10 @@ import javax.persistence.criteria.Predicate;
 import javax.transaction.Transactional;
 import javax.validation.ValidationException;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeParseException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -194,6 +198,21 @@ public class ObjectStoreResourceRepository
     objectMetadata.setDcFormat(objectUpload.getDetectedMediaType());
     objectMetadata.setAcHashValue(objectUpload.getSha1Hex());
     objectMetadata.setAcHashFunction(FileController.DIGEST_ALGORITHM);
+
+    if (objectUpload.getExif() != null) {
+      for (String dateTag : ExifParser.DATE_TAKEN_POSSIBLE_TAGS) {
+        if(objectUpload.getExif().get(dateTag) != null) {
+          try {
+            objectMetadata.setAcDigitizationDate(LocalDateTime.parse(objectUpload.getExif().get(dateTag),
+                ExifParser.EXIF_DATE_FORMATTER)
+                .atOffset(ZoneOffset.UTC)); //not really true but we will do it like that for now
+          }
+          catch (DateTimeParseException dtpEx){
+            log.debug(dtpEx);
+          }
+        }
+      }
+    }
 
     return objectMetadata;
   }

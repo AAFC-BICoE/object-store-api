@@ -13,11 +13,14 @@ import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
 import io.crnk.core.queryspec.QuerySpec;
 import io.crnk.core.resource.list.ResourceList;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.tomcat.jni.Local;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.UUID;
 
@@ -120,6 +123,10 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
     assertEquals(derived.getUuid(), result.getAcDerivedFrom().getUuid());
     assertEquals(acSubType.getUuid(), result.getAcSubType().getUuid());
     assertEquals(MinioTestConfiguration.TEST_USAGE_TERMS, result.getXmpRightsUsageTerms());
+
+    //test exif interpretation
+    assertEquals(LocalDateTime.of(2020,11,13,10,03,17).atOffset(ZoneOffset.UTC),
+        result.getAcDigitizationDate());
   }
 
   @Test

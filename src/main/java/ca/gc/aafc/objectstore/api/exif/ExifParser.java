@@ -10,6 +10,7 @@ import lombok.extern.log4j.Log4j2;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 @Log4j2
 public final class ExifParser {
 
+  public static final DateTimeFormatter EXIF_DATE_FORMATTER = DateTimeFormatter.ofPattern("uuuu:MM:dd HH:mm:ss");
   public static final List<String> DATE_TAKEN_POSSIBLE_TAGS = List.of(
       "Date/Time Original",
       "Date/Time",
