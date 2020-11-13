@@ -17,7 +17,7 @@ class ExifParserTest {
   void parseDate() {
     Optional<String> date = ExifParser.parseDate(ExifParser.parse(new FileInputStream(TEST_PIC.getFile())));
     Assertions.assertTrue(date.isPresent());
-    Assertions.assertEquals("2018:12:12 14:28:34", date.get());
+    Assertions.assertEquals("2020:11:13 10:03:17", date.get());
   }
 
 }

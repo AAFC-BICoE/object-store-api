@@ -15,7 +15,7 @@ public final class ExifParser {
 
   @SneakyThrows
   public static Metadata parse(InputStream inputStream) {
-    return ImageMetadataReader.readMetadata(inputStream);
+    return ImageMetadataReader.readMetadata(inputStream, 10 * 1024L);
   }
 
   public static Optional<String> parseDate(Metadata metadata) {
