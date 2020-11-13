@@ -12,7 +12,10 @@ import javax.imageio.ImageIO;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
+import org.springframework.util.concurrent.ListenableFuture;
 
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.DcType;
@@ -30,7 +33,8 @@ public class ThumbnailService {
   public static final String SYSTEM_GENERATED = "System Generated";
   public static final String PDF_FILETYPE = "application/pdf";
 
-  public InputStream generateThumbnail(InputStream sourceStream, String fileType) throws IOException {
+  @Async
+  public ListenableFuture<InputStream> generateThumbnail(InputStream sourceStream, String fileType) throws IOException {
     Builder<?> thumbnailBuilder;
 
     // PDFs are handled as a special case:
@@ -52,7 +56,7 @@ public class ThumbnailService {
         .toOutputStream(os);
 
       ByteArrayInputStream thumbnail = new ByteArrayInputStream(os.toByteArray());
-      return thumbnail;
+      return new AsyncResult<>(thumbnail);
     }
   }
 
