@@ -86,7 +86,6 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
   }
 
   private ObjectStoreMetadataDto buildObjectStoreMetadataDto() {
-    OffsetDateTime dateTime4Test = OffsetDateTime.now();
     // file related data has to match what is set by TestConfiguration
     ObjectStoreMetadataDto osMetadata = new ObjectStoreMetadataDto();
     osMetadata.setUuid(null);
@@ -95,7 +94,6 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
     osMetadata.setXmpRightsWebStatement(null); // default value from configuration should be used
     osMetadata.setDcRights(null); // default value from configuration should be used
     osMetadata.setXmpRightsOwner(null); // default value from configuration should be used
-    osMetadata.setAcDigitizationDate(dateTime4Test);
     osMetadata.setFileIdentifier(MinioTestConfiguration.TEST_FILE_IDENTIFIER);
     osMetadata.setFileExtension(MinioTestConfiguration.TEST_FILE_EXT);
     osMetadata.setBucket(MinioTestConfiguration.TEST_BUCKET);
@@ -115,9 +113,6 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
 
   @Override
   protected Map<String, Object> buildUpdateAttributeMap() {
-
-    OffsetDateTime dateTime4TestUpdate = OffsetDateTime.now();
-    objectStoreMetadata.setAcDigitizationDate(dateTime4TestUpdate);
     objectStoreMetadata.setDcType(oSubtype.getDcType());
     objectStoreMetadata.setAcSubType(oSubtype.getAcSubtype());
     return toAttributeMap(objectStoreMetadata);
