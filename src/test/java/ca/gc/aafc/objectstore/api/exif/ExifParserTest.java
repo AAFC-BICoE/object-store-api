@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 
+import java.io.FileInputStream;
 import java.util.Optional;
 
 class ExifParserTest {
@@ -14,7 +15,7 @@ class ExifParserTest {
   @SneakyThrows
   @Test
   void parseDate() {
-    Optional<String> date = ExifParser.parseDate(ExifParser.parse(TEST_PIC.getFile()));
+    Optional<String> date = ExifParser.parseDate(ExifParser.parse(new FileInputStream(TEST_PIC.getFile())));
     Assertions.assertTrue(date.isPresent());
     Assertions.assertEquals("2018:12:12 14:28:34", date.get());
   }

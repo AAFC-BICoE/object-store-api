@@ -5,7 +5,7 @@ import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
 import lombok.SneakyThrows;
 
-import java.io.File;
+import java.io.InputStream;
 import java.util.Optional;
 
 public final class ExifParser {
@@ -14,7 +14,7 @@ public final class ExifParser {
   }
 
   @SneakyThrows
-  public static Metadata parse(File inputStream) {
+  public static Metadata parse(InputStream inputStream) {
     return ImageMetadataReader.readMetadata(inputStream);
   }
 
