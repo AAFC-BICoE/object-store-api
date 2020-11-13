@@ -16,16 +16,21 @@ class ExifParserTest {
   @SneakyThrows
   @Test
   void extractDateTaken_OnEXIFAvailable_EXIFExtracted() {
-    Optional<String> date = ExifParser.extractDateTaken(new FileInputStream(TEST_PIC.getFile()));
-    Assertions.assertTrue(date.isPresent());
-    Assertions.assertEquals("2020:11:13 10:03:17", date.get());
+    try (FileInputStream fis = new FileInputStream(TEST_PIC.getFile())) {
+      Optional<String> date = ExifParser.extractDateTaken(fis);
+      Assertions.assertTrue(date.isPresent());
+      Assertions.assertEquals("2020:11:13 10:03:17", date.get());
+    }
+
   }
 
   @SneakyThrows
   @Test
   void extractDateTaken_NoEXIFAvailable_NothingReturned() {
-    Optional<String> date = ExifParser.extractDateTaken(new FileInputStream(TEST_FILE.getFile()));
-    Assertions.assertTrue(date.isEmpty());
+    try (FileInputStream fis = new FileInputStream(TEST_FILE.getFile())) {
+      Optional<String> date = ExifParser.extractDateTaken(fis);
+      Assertions.assertTrue(date.isEmpty());
+    }
   }
 
 }

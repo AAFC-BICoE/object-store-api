@@ -28,7 +28,7 @@ public final class ExifParser {
   /**
    * Try to extract the date from the EXIF in provided {@link InputStream}.
    * If the format is unsupported {@link Optional#empty()} is returned
-   * @param inputStream
+   * @param inputStream {@link InputStream} to parse, can't ne null, won't be closed.
    * @return date as string or @link Optional#empty()} if can't be extracted.
    * @throws IOException
    */
