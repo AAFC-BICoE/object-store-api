@@ -8,7 +8,9 @@ import lombok.SneakyThrows;
 import java.io.File;
 import java.util.Optional;
 
-public class ExifParser {
+public final class ExifParser {
+
+  private ExifParser() {}
 
   @SneakyThrows
   public static Metadata parse(File inputStream) {
