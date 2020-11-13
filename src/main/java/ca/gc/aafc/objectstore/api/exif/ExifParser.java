@@ -10,7 +10,8 @@ import java.util.Optional;
 
 public final class ExifParser {
 
-  private ExifParser() {}
+  private ExifParser() {
+  }
 
   @SneakyThrows
   public static Metadata parse(File inputStream) {
