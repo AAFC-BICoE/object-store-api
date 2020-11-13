@@ -6,8 +6,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.FileInputStream;
+import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Tests related to {@link ExifParser}
+ */
 class ExifParserTest {
 
   private static final ClassPathResource TEST_PIC = new ClassPathResource("testPic.jpg");
@@ -17,9 +21,13 @@ class ExifParserTest {
   @Test
   void extractDateTaken_OnEXIFAvailable_EXIFExtracted() {
     try (FileInputStream fis = new FileInputStream(TEST_PIC.getFile())) {
-      Optional<String> date = ExifParser.extractDateTaken(fis);
-      Assertions.assertTrue(date.isPresent());
-      Assertions.assertEquals("2020:11:13 10:03:17", date.get());
+      Map<String, String> exifData = ExifParser.extractExifTags(fis);
+
+      Optional<String> dateValue = exifData.keySet().stream()
+          .filter(ExifParser.DATE_TAKEN_POSSIBLE_TAGS::contains)
+          .findFirst();
+      Assertions.assertTrue(dateValue.isPresent());
+      Assertions.assertEquals("2020:11:13 10:03:17", exifData.get(dateValue.get()));
     }
 
   }
@@ -28,8 +36,8 @@ class ExifParserTest {
   @Test
   void extractDateTaken_NoEXIFAvailable_NothingReturned() {
     try (FileInputStream fis = new FileInputStream(TEST_FILE.getFile())) {
-      Optional<String> date = ExifParser.extractDateTaken(fis);
-      Assertions.assertTrue(date.isEmpty());
+      Map<String, String> exifData = ExifParser.extractExifTags(fis);
+      Assertions.assertTrue(exifData.isEmpty());
     }
   }
 

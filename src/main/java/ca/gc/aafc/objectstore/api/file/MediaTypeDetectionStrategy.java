@@ -8,6 +8,7 @@ import java.util.Objects;
 
 import javax.annotation.Nullable;
 
+import lombok.NonNull;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.config.TikaConfig;
@@ -43,16 +44,15 @@ public class MediaTypeDetectionStrategy {
   @Builder
   @Getter
   public static class MediaTypeDetectionResult {
-    private InputStream inputStream;
 
-    private String receivedMediaType;
-    private String receivedFileName;
+    private final String receivedMediaType;
+    private final String receivedFileName;
 
-    private org.apache.tika.mime.MediaType detectedMediaType;
-    private org.apache.tika.mime.MimeType detectedMimeType;
+    private final org.apache.tika.mime.MediaType detectedMediaType;
+    private final org.apache.tika.mime.MimeType detectedMimeType;
     
-    private String evaluatedMediatype;
-    private String evaluatedExtension;
+    private final String evaluatedMediaType;
+    private final String evaluatedExtension;
 
     public boolean isKnownExtensionForMediaType() {
       if (StringUtils.isBlank(getFileExtension(receivedFileName)) || detectedMimeType == null) {
@@ -71,42 +71,34 @@ public class MediaTypeDetectionStrategy {
    * Detect the MediaType and MimeType of an InputStream by reading the beginning of the stream.
    * A new InputStream is returned to make sure the caller can read the entire stream from the beginning.
    * 
-   * @param is
+   * @param is will be consumed but not closed
    * @param receivedMediaType
    * @param originalFilename
    * @return
    * @throws IOException
    * @throws MimeTypeException
    */
-  public MediaTypeDetectionResult detectMediaType(InputStream is,
+  public MediaTypeDetectionResult detectMediaType(@NonNull InputStream is,
       @Nullable String receivedMediaType, @Nullable String originalFilename)
       throws IOException, MimeTypeException {
-    
-    Objects.requireNonNull(is);
 
-    // Read the beginning of the Stream to allow Tika to detect the mediaType
-    byte[] buffer = new byte[10 * 1024];
-    int lenght = is.read(buffer);
-    ByteArrayInputStream bais = new ByteArrayInputStream(buffer, 0, lenght);
-    
     Metadata metadata = new Metadata();
     if (StringUtils.isNotBlank(originalFilename)) {
       metadata.set(Metadata.RESOURCE_NAME_KEY, originalFilename);
     }
 
-    MediaType detectedMediaType = TIKA_DETECTOR.detect(TikaInputStream.get(bais), metadata);
+    MediaType detectedMediaType = TIKA_DETECTOR.detect(TikaInputStream.get(is), metadata);
     MimeType detectedMimeType = TIKA_CONFIG.getMimeRepository().forName(detectedMediaType.toString());
 
     MediaTypeDetectionResult.MediaTypeDetectionResultBuilder mtdrBldr = MediaTypeDetectionResult
         .builder()
-        .inputStream(new SequenceInputStream(bais, is))
         .receivedMediaType(receivedMediaType)
         .receivedFileName(originalFilename)
         .detectedMediaType(detectedMediaType)
         .detectedMimeType(detectedMimeType);
     
     // Decide on the MediaType and extension that should be used    
-    mtdrBldr.evaluatedMediatype(
+    mtdrBldr.evaluatedMediaType(
         StringUtils.isBlank(receivedMediaType) ? detectedMediaType.toString() : receivedMediaType);
     
     mtdrBldr.evaluatedExtension(
