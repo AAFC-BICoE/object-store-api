@@ -146,7 +146,7 @@ public class FileController {
       uuid,
       file.getInputStream(),
       bucket,
-      mtdr.getEvaluatedMediatype(),
+      mtdr.getEvaluatedMediaType(),
       objectUpload.getFileIdentifier()
     );
 
