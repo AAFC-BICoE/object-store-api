@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
+import ca.gc.aafc.objectstore.api.exif.ExifParser;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import com.google.common.collect.ImmutableMap;
 
@@ -74,6 +75,7 @@ public class MinioTestConfiguration {
         .evaluatedFileExtension(MinioTestConfiguration.TEST_FILE_EXT)
         .bucket(MinioTestConfiguration.TEST_BUCKET)
         .originalFilename(MinioTestConfiguration.TEST_ORIGINAL_FILENAME)
+        .exif(Map.of(ExifParser.DATE_TAKEN_POSSIBLE_TAGS.get(0), "2020:11:13 10:03:17"))
         .build();
   }
   
