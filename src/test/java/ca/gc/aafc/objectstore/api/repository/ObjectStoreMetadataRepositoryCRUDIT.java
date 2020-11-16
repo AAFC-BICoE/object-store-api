@@ -120,6 +120,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
     assertEquals(derived.getUuid(), result.getAcDerivedFrom().getUuid());
     assertEquals(acSubType.getUuid(), result.getAcSubType().getUuid());
     assertEquals(MinioTestConfiguration.TEST_USAGE_TERMS, result.getXmpRightsUsageTerms());
+
   }
 
   @Test
