@@ -199,21 +199,6 @@ public class ObjectStoreResourceRepository
     objectMetadata.setAcHashValue(objectUpload.getSha1Hex());
     objectMetadata.setAcHashFunction(FileController.DIGEST_ALGORITHM);
 
-    if (objectUpload.getExif() != null) {
-      for (String dateTag : ExifParser.DATE_TAKEN_POSSIBLE_TAGS) {
-        if(objectUpload.getExif().get(dateTag) != null) {
-          try {
-            objectMetadata.setAcDigitizationDate(LocalDateTime.parse(objectUpload.getExif().get(dateTag),
-                ExifParser.EXIF_DATE_FORMATTER)
-                .atOffset(ZoneOffset.UTC)); //not really true but we will do it like that for now
-          }
-          catch (DateTimeParseException dtpEx){
-            log.debug(dtpEx);
-          }
-        }
-      }
-    }
-
     return objectMetadata;
   }
 

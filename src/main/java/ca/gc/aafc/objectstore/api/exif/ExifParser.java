@@ -51,9 +51,7 @@ public final class ExifParser {
     if (directory == null) {
       return Collections.emptyMap();
     }
-
     return directory.getTags().stream().collect(Collectors.toMap(Tag::getTagName, Tag::getDescription));
-
   }
 
 
