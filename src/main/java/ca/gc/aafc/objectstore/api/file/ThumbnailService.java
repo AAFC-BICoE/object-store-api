@@ -39,6 +39,7 @@ public class ThumbnailService {
       PDFRenderer pdfRenderer = new PDFRenderer(pDoc);
       BufferedImage bufferedImage = pdfRenderer.renderImageWithDPI(0, 72, ImageType.RGB);
       thumbnailBuilder = Thumbnails.of(bufferedImage);
+      pDoc.close();
     } else {
       // Standard image use case:
       thumbnailBuilder = Thumbnails.of(sourceStream);
