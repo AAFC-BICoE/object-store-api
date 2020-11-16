@@ -29,8 +29,13 @@ public class ReadAheadInputStream {
     return ReadAheadInputStream.builder().readAheadBuffer(bais).inputStream(new SequenceInputStream(bais, is)).build();
   }
 
+  /**
+   * Get the read ahead buffer with the possibility to reset it before usage.
+   * @param reset should the read ahead buffer be reset or no
+   * @return
+   */
   public ByteArrayInputStream getReadAheadBuffer(boolean reset) {
-    if(reset && readAheadBuffer != null) {
+    if (reset && readAheadBuffer != null) {
       readAheadBuffer.reset();
     }
     return readAheadBuffer;
