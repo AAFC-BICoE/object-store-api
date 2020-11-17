@@ -193,7 +193,7 @@ public class FileController {
         .thenAccept(result -> {
           try (InputStream thumbnailStream = result) {
             minioService.storeFile(fileName, thumbnailStream, "image/jpeg", bucket);
-          } catch(Exception e) {
+          } catch (Throwable e) {
             log.warn(() -> "A thumbnail could not be generated for file " + fileID, e);
           }
         });
