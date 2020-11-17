@@ -112,7 +112,6 @@ public class FileController {
 
     MediaTypeDetectionStrategy.MediaTypeDetectionResult mtdr = mediaTypeDetectionStrategy
         .detectMediaType(prIs.getReadAheadBuffer(), file.getContentType(), file.getOriginalFilename());
-    Map<String, String> exifData = ExifParser.extractExifTags(prIs.getReadAheadBuffer(true));
 
     // Decorate the InputStream in order to compute the hash
     MessageDigest md = MessageDigest.getInstance(DIGEST_ALGORITHM);
@@ -125,6 +124,11 @@ public class FileController {
       bucket);
 
     String sha1Hex = DigestUtils.sha1Hex(md.digest());
+
+    Map<String, String> exifData;
+    try (InputStream exifIs = file.getInputStream()) {
+      exifData = ExifParser.extractExifTags(exifIs);
+    }
    
     // record the uploaded object to ensure we eventually get the metadata for it
     ObjectUpload objectUpload =  objectUploadService.create(ObjectUpload.builder()

@@ -106,11 +106,29 @@ public class FileControllerIT extends BaseIntegrationTest {
       () -> fileController.handleFileUpload(mockFile, "ivalid-bucket"));
   }
 
+  /**
+   * Test with a larger image that will exceed the read ahead buffer.
+   * @throws Exception
+   */
+  @Transactional
+  @Test
+  public void fileUpload_OnValidLargerUpload_ObjectUploadEntryCreated() throws Exception {
+    MockMultipartFile mockFile = getMockMultipartFile("cc0_test_image.jpg", MediaType.IMAGE_JPEG_VALUE);
+    ObjectUpload uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
+    ObjectUpload objUploaded = objectUploadService.findOne(uploadResponse.getFileIdentifier(), ObjectUpload.class);
+
+    assertNotNull(objUploaded);
+  }
+
   private MockMultipartFile getFileUnderTest() throws IOException {
-    Resource imageFile = resourceLoader.getResource("classpath:drawing.png");
+    return getMockMultipartFile("drawing.png", MediaType.IMAGE_PNG_VALUE);
+  }
+
+  private MockMultipartFile getMockMultipartFile(String fileNameInClasspath, String mediaType) throws IOException {
+    Resource imageFile = resourceLoader.getResource("classpath:" + fileNameInClasspath);
     byte[] bytes = IOUtils.toByteArray(imageFile.getInputStream());
 
-    return new MockMultipartFile("file", "testfile", MediaType.IMAGE_PNG_VALUE, bytes);
+    return new MockMultipartFile("file", "testfile", mediaType, bytes);
   }
 
 }
