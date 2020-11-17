@@ -6,6 +6,7 @@ import java.security.DigestInputStream;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -13,6 +14,7 @@ import java.util.UUID;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
+import ca.gc.aafc.objectstore.api.exif.ExifParser;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MimeTypeException;
@@ -56,6 +58,7 @@ public class FileController {
 
   public static final String DIGEST_ALGORITHM = "SHA-1";
   private static final int MAX_NUMBER_OF_ATTEMPT_RANDOM_UUID = 5;
+  private static final int READ_AHEAD_BUFFER_SIZE = 10 * 1024;
 
   private final ObjectUploadService objectUploadService;
   private final MinioFileService minioService;
@@ -104,17 +107,21 @@ public class FileController {
     // Safe get unique UUID
     UUID uuid = generateUUID();
 
+    // We need access to the first bytes in a form that we can reset the InputStream
+    ReadAheadInputStream prIs = ReadAheadInputStream.from(file.getInputStream(), READ_AHEAD_BUFFER_SIZE);
+
     MediaTypeDetectionStrategy.MediaTypeDetectionResult mtdr = mediaTypeDetectionStrategy
-        .detectMediaType(file.getInputStream(), file.getContentType(), file.getOriginalFilename());
+        .detectMediaType(prIs.getReadAheadBuffer(), file.getContentType(), file.getOriginalFilename());
+    Map<String, String> exifData = ExifParser.extractExifTags(prIs.getReadAheadBuffer(true));
 
     // Decorate the InputStream in order to compute the hash
     MessageDigest md = MessageDigest.getInstance(DIGEST_ALGORITHM);
-    DigestInputStream dis = new DigestInputStream(mtdr.getInputStream(), md);
+    DigestInputStream dis = new DigestInputStream(prIs.getInputStream(), md);
     
     minioService.storeFile(
       uuid.toString() + mtdr.getEvaluatedExtension(),
       dis,
-      mtdr.getEvaluatedMediatype(),
+      mtdr.getEvaluatedMediaType(),
       bucket);
 
     String sha1Hex = DigestUtils.sha1Hex(md.digest());
@@ -128,13 +135,14 @@ public class FileController {
         .receivedMediaType(file.getContentType())
         .detectedMediaType(Objects.toString(mtdr.getDetectedMediaType()))
         .detectedFileExtension(mtdr.getDetectedMimeType().getExtension())
-        .evaluatedMediaType(mtdr.getEvaluatedMediatype())
+        .evaluatedMediaType(mtdr.getEvaluatedMediaType())
         .evaluatedFileExtension(mtdr.getEvaluatedExtension())
         .sizeInBytes(file.getSize())
         .bucket(bucket)
+        .exif(exifData)
         .build());
 
-    UUID thumbUuid = generateThumbNail(uuid, file.getInputStream(), bucket, mtdr.getEvaluatedMediatype());
+    UUID thumbUuid = generateThumbNail(uuid, file.getInputStream(), bucket, mtdr.getEvaluatedMediaType());
 
     if (thumbUuid != null) {
       objectUpload.setThumbnailIdentifier(thumbUuid);

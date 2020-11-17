@@ -128,7 +128,7 @@ public class MediaTypeDetectionStrategyTest {
         assertEquals(detectedExt, mtdr.getDetectedMimeType().getExtension());
       }
       
-      assertEquals(evaluatedMediaType, mtdr.getEvaluatedMediatype());
+      assertEquals(evaluatedMediaType, mtdr.getEvaluatedMediaType());
       assertEquals(evaluatedExt, mtdr.getEvaluatedExtension());
     } catch (MimeTypeException | IOException e) {
       fail(e);

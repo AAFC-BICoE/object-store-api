@@ -34,4 +34,5 @@ public class ObjectUploadCRUDIT extends BaseEntityCRUDIT {
     service.deleteById(ObjectUpload.class, id);
     assertNull(service.find(ObjectUpload.class, id));
   }
+
 }

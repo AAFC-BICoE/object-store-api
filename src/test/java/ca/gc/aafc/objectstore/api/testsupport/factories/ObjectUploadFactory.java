@@ -4,6 +4,7 @@ import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.BiFunction;
 
@@ -26,6 +27,7 @@ public class ObjectUploadFactory implements TestableEntityFactory<ObjectUpload> 
         .originalFilename("testFile")
         .sha1Hex("b52c98d49782a6ebb9c8e3bb1ad7aa2f03706481")
         .bucket("testBucket")
+        .exif(Map.of("ex1", "exVal1"))
         .createdBy("createdBy");
   }
 
