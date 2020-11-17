@@ -2,12 +2,16 @@ package ca.gc.aafc.objectstore.api.entities;
 
 import ca.gc.aafc.dina.entity.DinaEntity;
 import ca.gc.aafc.dina.entity.SoftDeletable;
+import ca.gc.aafc.dina.mapper.CustomFieldResolver;
+import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import com.vladmihalcea.hibernate.type.array.StringArrayType;
 import com.vladmihalcea.hibernate.type.basic.PostgreSQLEnumType;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.NaturalIdCache;
 import org.hibernate.annotations.Type;
@@ -89,7 +93,8 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
   
   private boolean publiclyReleasable;
   private String notPubliclyReleasableReason;
-  
+
+  @CustomFieldResolver(setterMethod = "acSubTypeToEntity")
   private ObjectSubtype acSubType;
   
   /** Read-only field to get the ac_sub_type_id to allow filtering by null values. */
@@ -417,6 +422,16 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
 
   public void setCreatedOn(OffsetDateTime createdOn) {
     this.createdOn = createdOn;
+  }
+
+  public static ObjectSubtype acSubTypeToEntity(@NonNull ObjectStoreMetadataDto dto) {
+    if (dto.getDcType() == null || StringUtils.isBlank(dto.getAcSubType())) {
+      return null;
+    }
+    return ObjectSubtype.builder()
+      .acSubtype(dto.getAcSubType().toUpperCase())
+      .dcType(dto.getDcType())
+      .build();
   }
 
 }
