@@ -1,5 +1,34 @@
 package ca.gc.aafc.objectstore.api;
 
+import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
+import ca.gc.aafc.objectstore.api.exif.ExifParser;
+import ca.gc.aafc.objectstore.api.file.FolderStructureStrategy;
+import ca.gc.aafc.objectstore.api.minio.MinioFileService;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
+import com.google.common.collect.ImmutableMap;
+import io.minio.BucketExistsArgs;
+import io.minio.GetObjectArgs;
+import io.minio.MinioClient;
+import io.minio.ObjectStat;
+import io.minio.ObjectWriteResponse;
+import io.minio.PutObjectArgs;
+import io.minio.RemoveObjectArgs;
+import io.minio.StatObjectArgs;
+import io.minio.errors.ErrorResponseException;
+import io.minio.errors.InsufficientDataException;
+import io.minio.errors.InternalException;
+import io.minio.errors.InvalidBucketNameException;
+import io.minio.errors.InvalidEndpointException;
+import io.minio.errors.InvalidPortException;
+import io.minio.errors.InvalidResponseException;
+import io.minio.errors.ServerException;
+import io.minio.errors.XmlParserException;
+import okhttp3.Headers;
+import org.apache.commons.io.IOUtils;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
+import org.springframework.http.MediaType;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -10,35 +39,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
-import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
-import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
-import com.google.common.collect.ImmutableMap;
-
-import io.minio.BucketExistsArgs;
-import io.minio.GetObjectArgs;
-import io.minio.ObjectWriteResponse;
-import io.minio.PutObjectArgs;
-import io.minio.StatObjectArgs;
-import io.minio.errors.ServerException;
-import org.apache.commons.io.IOUtils;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Primary;
-import org.springframework.http.MediaType;
-
-import ca.gc.aafc.objectstore.api.file.FolderStructureStrategy;
-import ca.gc.aafc.objectstore.api.minio.MinioFileService;
-import io.minio.MinioClient;
-import io.minio.ObjectStat;
-import io.minio.errors.ErrorResponseException;
-import io.minio.errors.InsufficientDataException;
-import io.minio.errors.InternalException;
-import io.minio.errors.InvalidBucketNameException;
-import io.minio.errors.InvalidEndpointException;
-import io.minio.errors.InvalidPortException;
-import io.minio.errors.InvalidResponseException;
-import io.minio.errors.XmlParserException;
-import okhttp3.Headers;
 
 /**
  * 
