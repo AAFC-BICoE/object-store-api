@@ -14,6 +14,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -25,7 +26,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotBlank;
@@ -86,6 +86,9 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
   private UUID dcCreator;
 
   private ObjectStoreMetadata acDerivedFrom;
+
+  @Builder.Default
+  private List<ObjectStoreMetadata> derivatives = new ArrayList<>();
   
   private boolean publiclyReleasable;
   private String notPubliclyReleasableReason;
@@ -309,7 +312,7 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
     this.xmpRightsOwner = xmpRightsOwner;
   }
 
-  @OneToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "ac_derived_from_id", referencedColumnName = "id")
   public ObjectStoreMetadata getAcDerivedFrom() {
     return acDerivedFrom;
@@ -317,6 +320,25 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
 
   public void setAcDerivedFrom(ObjectStoreMetadata acDerivedFrom) {
     this.acDerivedFrom = acDerivedFrom;
+  }
+
+  @OneToMany(mappedBy = "acDerivedFrom", cascade = CascadeType.ALL)
+  public List<ObjectStoreMetadata> getDerivatives() {
+    return derivatives;
+  }
+
+  public void setDerivatives(List<ObjectStoreMetadata> derivatives) {
+    this.derivatives = derivatives;
+  }
+
+  public void addDerivative(ObjectStoreMetadata derivative) {
+    derivatives.add(derivative);
+    derivative.setAcDerivedFrom(this);
+  }
+
+  public void removeDerivative(ObjectStoreMetadata derivative) {
+    derivatives.remove(derivative);
+    derivative.setAcDerivedFrom(null);
   }
 
   @Column(name = "publicly_releasable")
