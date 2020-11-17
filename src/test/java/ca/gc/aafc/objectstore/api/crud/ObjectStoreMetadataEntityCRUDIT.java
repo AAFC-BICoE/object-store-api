@@ -107,14 +107,45 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
   }
 
   @Test
+  void test_addDerivedFrom_RelationsEstablished() {
+    ObjectStoreMetadata parent = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
+    ObjectStoreMetadata child = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
+
+    child.setAcDerivedFrom(parent);
+    service.save(child);
+
+    ObjectStoreMetadata resultChild = service.find(ObjectStoreMetadata.class, child.getId());
+    ObjectStoreMetadata resultParent = service.find(ObjectStoreMetadata.class, parent.getId());
+
+    Assertions.assertEquals(resultChild.getAcDerivedFrom().getId(), resultParent.getId());
+
+    List<ObjectStoreMetadata> resultDerivatives = resultParent.getDerivatives();
+    Assertions.assertEquals(1, resultDerivatives.size());
+    Assertions.assertEquals(resultChild.getId(), resultDerivatives.get(0).getId());
+  }
+
+  @Test
+  void test_RemoveDerivedFrom_RelationsRemoved() {
+    ObjectStoreMetadata parent = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
+    ObjectStoreMetadata child = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
+    child.setAcDerivedFrom(parent);
+    service.save(child);
+
+    ObjectStoreMetadata update = service.find(ObjectStoreMetadata.class, child.getId());
+    update.setAcDerivedFrom(null);
+    service.save(update);
+
+    ObjectStoreMetadata resultChild = service.find(ObjectStoreMetadata.class, child.getId());
+    ObjectStoreMetadata resultParent = service.find(ObjectStoreMetadata.class, parent.getId());
+
+    Assertions.assertNull(resultChild.getAcDerivedFrom());
+    Assertions.assertEquals(0, resultParent.getDerivatives().size());
+  }
+
+  @Test
   public void testRelationships() {
     ManagedAttribute ma = ManagedAttributeFactory.newManagedAttribute().build();
     service.save(ma, false);
-
-    ObjectStoreMetadata derivedFrom = ObjectStoreMetadataFactory.newObjectStoreMetadata()
-        .fileIdentifier(UUID.randomUUID())
-        .build();
-    service.save(derivedFrom);
 
     ObjectSubtype ost = ObjectSubtypeFactory.newObjectSubtype().build();
     service.save(ost, false);
@@ -122,7 +153,6 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
     ObjectStoreMetadata osm = ObjectStoreMetadataFactory
         .newObjectStoreMetadata()
         .acDigitizationDate(TEST_OFFSET_DT)
-        .acDerivedFrom(derivedFrom)
         .acSubType(ost)
         .build();
 
@@ -155,8 +185,6 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
     // Test read-only getAcSubTypeId Formula field:
     assertEquals(ost.getId(), restoredOsm.getAcSubTypeId());
     assertEquals(ost.getId(), restoredOsm.getAcSubType().getId());
-
-    assertEquals(derivedFrom.getId(), restoredOsm.getAcDerivedFrom().getId());
   }
 
 }
