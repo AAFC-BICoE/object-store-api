@@ -73,13 +73,13 @@ public class MainConfiguration implements AsyncConfigurer {
 
   @Override
   public Executor getAsyncExecutor() {
-      ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-      executor.setCorePoolSize(5);
-      executor.setMaxPoolSize(15);
-      executor.setQueueCapacity(1000);
-      executor.setThreadNamePrefix("AsyncExecutor-");
-      executor.initialize();
-      return executor;
+    ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+    executor.setCorePoolSize(5);
+    executor.setMaxPoolSize(15);
+    executor.setQueueCapacity(1000);
+    executor.setThreadNamePrefix("AsyncExecutor-");
+    executor.initialize();
+    return executor;
   }
 
 }
