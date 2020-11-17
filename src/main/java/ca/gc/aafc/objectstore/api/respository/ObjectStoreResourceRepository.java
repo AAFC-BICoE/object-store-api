@@ -173,7 +173,6 @@ public class ObjectStoreResourceRepository
    * manager, then a hard delete is triggered. hard delete removes original file, metadata, and
    * object upload record.
    */
-  @SneakyThrows
   @Override
   public void delete(Serializable id) {
     ObjectStoreMetadata objectStoreMetadata = dinaService.findOne(id, ObjectStoreMetadata.class);
