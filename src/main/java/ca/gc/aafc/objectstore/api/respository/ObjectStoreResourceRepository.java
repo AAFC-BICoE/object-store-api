@@ -282,15 +282,13 @@ public class ObjectStoreResourceRepository
    *
    * @param bucket                 - bucket of the file
    * @param fileIdentifier         - file identifier
-   * @param evaluatedFileExtension - extension of the file
+   * @param fileExtension - extension of the file
    */
   @SneakyThrows
-  private void removeFileFromMinio(
-    String bucket,
-    String fileIdentifier,
-    String evaluatedFileExtension
-  ) {
-    minioService.removeFile(bucket, fileIdentifier + evaluatedFileExtension);
+  private void removeFileFromMinio(String bucket, String fileIdentifier, String fileExtension) {
+    minioService.removeFile(
+      bucket,
+      fileIdentifier + StringUtils.prependIfMissing(fileExtension, "."));
   }
 
   /**
