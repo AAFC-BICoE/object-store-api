@@ -3,7 +3,9 @@ package ca.gc.aafc.objectstore.api.file;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.DigestInputStream;
+import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
+import java.security.KeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
@@ -46,6 +48,7 @@ import io.minio.errors.InsufficientDataException;
 import io.minio.errors.InternalException;
 import io.minio.errors.InvalidBucketNameException;
 import io.minio.errors.InvalidResponseException;
+import io.minio.errors.MinioException;
 import io.minio.errors.ServerException;
 import io.minio.errors.XmlParserException;
 import lombok.SneakyThrows;
@@ -193,7 +196,7 @@ public class FileController {
         .thenAccept(result -> {
           try (InputStream thumbnailStream = result) {
             minioService.storeFile(fileName, thumbnailStream, "image/jpeg", bucket);
-          } catch (Throwable e) {
+          } catch (MinioException | RuntimeException | IOException | GeneralSecurityException e) {
             log.warn(() -> "A thumbnail could not be generated for file " + fileID, e);
           }
         });
