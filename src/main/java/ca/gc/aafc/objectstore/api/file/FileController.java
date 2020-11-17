@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.security.DigestInputStream;
 import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
-import java.security.KeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
@@ -196,7 +195,7 @@ public class FileController {
         .thenAccept(result -> {
           try (InputStream thumbnailStream = result) {
             minioService.storeFile(fileName, thumbnailStream, "image/jpeg", bucket);
-          } catch (MinioException | RuntimeException | IOException | GeneralSecurityException e) {
+          } catch (MinioException | IOException | GeneralSecurityException e) {
             log.warn(() -> "A thumbnail could not be generated for file " + fileID, e);
           }
         });
