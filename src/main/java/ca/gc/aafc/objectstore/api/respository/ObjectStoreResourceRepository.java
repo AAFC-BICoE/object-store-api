@@ -169,9 +169,10 @@ public class ObjectStoreResourceRepository
   }
 
   /**
-   * Soft-delete using setDeletedDate instead of a hard delete. Unless the user is a collection
-   * manager, then a hard delete is triggered. hard delete removes original file, metadata, and
-   * object upload record.
+   * Soft-delete using setDeletedDate instead of a hard delete. If the resource has already been
+   * soft deleted and the authenticated user is a collection manager, this will trigger a hard
+   * delete. Hard delete removes original file, metadata, audit snapshots, and object upload
+   * record.
    */
   @Override
   public void delete(Serializable id) {
@@ -187,7 +188,7 @@ public class ObjectStoreResourceRepository
 
   /**
    * Hard deletes a given metadata hard delete removes original file, metadata, object upload
-   * record, and thumb nail.
+   * record, audit snapshots, and thumb nail.
    *
    * @param objectStoreMetadata - metadata to remove
    */
@@ -280,9 +281,9 @@ public class ObjectStoreResourceRepository
   /**
    * Removes a file from the minio file service.
    *
-   * @param bucket                 - bucket of the file
-   * @param fileIdentifier         - file identifier
-   * @param fileExtension - extension of the file
+   * @param bucket         - bucket of the file
+   * @param fileIdentifier - file identifier
+   * @param fileExtension  - extension of the file
    */
   @SneakyThrows
   private void removeFileFromMinio(String bucket, String fileIdentifier, String fileExtension) {
