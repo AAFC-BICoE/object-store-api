@@ -30,11 +30,11 @@ public class MetaDataPermissionIT extends BaseIntegrationTest {
   private ObjectStoreMetadata metadata;
   private ObjectUpload objectUpload;
   private ObjectStoreMetadata thumbMeta;
+  private ObjectStoreMetadata child;
 
   @BeforeEach
   void setUp() {
     thumbMeta = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
-    service.save(thumbMeta);
 
     objectUpload = MinioTestConfiguration.buildTestObjectUpload();
     objectUpload.setThumbnailIdentifier(thumbMeta.getFileIdentifier());
@@ -43,6 +43,14 @@ public class MetaDataPermissionIT extends BaseIntegrationTest {
     metadata = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
     metadata.setFileIdentifier(objectUpload.getFileIdentifier());
     service.save(metadata);
+
+    thumbMeta.setAcDerivedFrom(fetchMetaById(metadata.getId()));
+    service.save(thumbMeta);
+
+    child = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
+    child.setAcDerivedFrom(fetchMetaById(metadata.getId()));
+    service.save(child);
+
     //Create audit snapshot
     repo.save(repo.findOne(metadata.getUuid(), new QuerySpec(ObjectStoreMetadataDto.class)));
   }
@@ -50,21 +58,23 @@ public class MetaDataPermissionIT extends BaseIntegrationTest {
   @WithMockKeycloakUser(groupRole = {"group 1:COLLECTION_MANAGER"})
   @Test
   void delete_OnSecondDeleteWhenCollectionManager_HardDeletes() {
-    Assertions.assertNotNull(service.find(ObjectStoreMetadata.class, metadata.getId()));
+    Assertions.assertNotNull(fetchMetaById(metadata.getId()));
     Assertions.assertNotNull(service.find(ObjectUpload.class, objectUpload.getId()));
     //first delete
     repo.delete(metadata.getUuid());
-    Assertions.assertNotNull(service.find(ObjectStoreMetadata.class, metadata.getId()));
+    Assertions.assertNotNull(fetchMetaById(metadata.getId()));
     Assertions.assertNotNull(service.find(ObjectUpload.class, objectUpload.getId()));
-    Assertions.assertNotNull(service.find(ObjectStoreMetadata.class, thumbMeta.getId()));
+    Assertions.assertNotNull(fetchMetaById(thumbMeta.getId()));
+    Assertions.assertNotNull(fetchMetaById(child.getId()).getAcDerivedFrom());
     Assertions.assertTrue(
       javers.getLatestSnapshot(metadata.getUuid(), ObjectStoreMetadataDto.class).isPresent(),
       "snap shot should still exist for this metadata");
     //second delete
     repo.delete(metadata.getUuid());
-    Assertions.assertNull(service.find(ObjectStoreMetadata.class, metadata.getId()));
+    Assertions.assertNull(fetchMetaById(metadata.getId()));
     Assertions.assertNull(service.find(ObjectUpload.class, objectUpload.getId()));
-    Assertions.assertNull(service.find(ObjectStoreMetadata.class, thumbMeta.getId()));
+    Assertions.assertNull(fetchMetaById(thumbMeta.getId()));
+    Assertions.assertNull(fetchMetaById(child.getId()).getAcDerivedFrom());
     Assertions.assertTrue(
       javers.getLatestSnapshot(metadata.getUuid(), ObjectStoreMetadataDto.class).isEmpty(),
       "snapshot should be removed for this metadata");
@@ -73,16 +83,20 @@ public class MetaDataPermissionIT extends BaseIntegrationTest {
   @WithMockKeycloakUser(groupRole = {"group 1:STAFF"})
   @Test
   void delete_OnSecondDeleteWhenStaff_SoftDeletes() {
-    Assertions.assertNotNull(service.find(ObjectStoreMetadata.class, metadata.getId()));
+    Assertions.assertNotNull(fetchMetaById(metadata.getId()));
     repo.delete(metadata.getUuid());
     repo.delete(metadata.getUuid());
-    ObjectStoreMetadata actual = service.find(ObjectStoreMetadata.class, metadata.getId());
+    ObjectStoreMetadata actual = fetchMetaById(metadata.getId());
     Assertions.assertNotNull(actual);
     Assertions.assertNotNull(actual.getDeletedDate());
     Assertions.assertNotNull(service.find(ObjectUpload.class, objectUpload.getId()));
     Assertions.assertTrue(
       javers.getLatestSnapshot(metadata.getUuid(), ObjectStoreMetadataDto.class).isPresent(),
       "snap shot should still exist for this metadata");
+  }
+
+  private ObjectStoreMetadata fetchMetaById(Integer id) {
+    return service.find(ObjectStoreMetadata.class, id);
   }
 
 }
