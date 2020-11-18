@@ -1,23 +1,21 @@
 package ca.gc.aafc.objectstore.api.file;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.UUID;
-import java.awt.image.BufferedImage;
-
-import javax.imageio.ImageIO;
-
+import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
+import ca.gc.aafc.objectstore.api.entities.DcType;
+import net.coobird.thumbnailator.Thumbnails;
+import net.coobird.thumbnailator.Thumbnails.Builder;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.springframework.stereotype.Service;
 
-import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
-import ca.gc.aafc.objectstore.api.entities.DcType;
-import net.coobird.thumbnailator.Thumbnails;
-import net.coobird.thumbnailator.Thumbnails.Builder;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.UUID;
 
 @Service
 public class ThumbnailService {
@@ -35,11 +33,11 @@ public class ThumbnailService {
 
     // PDFs are handled as a special case:
     if (PDF_FILETYPE.equals(fileType)) {
-      PDDocument pDoc = PDDocument.load(sourceStream);
-      PDFRenderer pdfRenderer = new PDFRenderer(pDoc);
-      BufferedImage bufferedImage = pdfRenderer.renderImageWithDPI(0, 72, ImageType.RGB);
-      thumbnailBuilder = Thumbnails.of(bufferedImage);
-      pDoc.close();
+      try (PDDocument pDoc = PDDocument.load(sourceStream)) {
+        PDFRenderer pdfRenderer = new PDFRenderer(pDoc);
+        BufferedImage bufferedImage = pdfRenderer.renderImageWithDPI(0, 72, ImageType.RGB);
+        thumbnailBuilder = Thumbnails.of(bufferedImage);
+      }
     } else {
       // Standard image use case:
       thumbnailBuilder = Thumbnails.of(sourceStream);
@@ -52,8 +50,7 @@ public class ThumbnailService {
         .outputFormat("jpg")
         .toOutputStream(os);
 
-      ByteArrayInputStream thumbnail = new ByteArrayInputStream(os.toByteArray());
-      return thumbnail;
+      return new ByteArrayInputStream(os.toByteArray());
     }
   }
 
