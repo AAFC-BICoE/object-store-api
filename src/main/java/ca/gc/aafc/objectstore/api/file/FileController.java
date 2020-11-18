@@ -47,10 +47,8 @@ import io.minio.errors.InsufficientDataException;
 import io.minio.errors.InternalException;
 import io.minio.errors.InvalidBucketNameException;
 import io.minio.errors.InvalidResponseException;
-import io.minio.errors.MinioException;
 import io.minio.errors.ServerException;
 import io.minio.errors.XmlParserException;
-import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 
 @RestController
@@ -144,65 +142,21 @@ public class FileController {
         .exif(exifData)
         .build());
 
-    generateThumbNail(
-      uuid,
-      file.getInputStream(),
-      bucket,
-      mtdr.getEvaluatedMediaType(),
-      objectUpload.getFileIdentifier()
-    );
+    String fileExtension = mtdr.getEvaluatedMediaType();
+
+    if (thumbnailService.isSupported(fileExtension)) {
+      log.info("Generating a thumbnail for file with UUID of: {}", () -> uuid);
+
+      UUID thumbnailID = generateUUID();
+
+      // Create the thumbnail asynchronously so the client doesn't have to wait during file upload:
+      thumbnailService.generateThumbnail(uuid, fileExtension, thumbnailID);
+    }
 
     return objectUpload;
   }
 
   /**
-   * Stores a generated thumbnail and returns the Identifier or Null if a
-   * thumbnail could not be generated.
-   * 
-   * @param fileID
-   *                        - UUID of the original file the thumbnail uses.
-   * 
-   * @param in
-   *                        - image input stream
-   * @param bucket
-   *                        - bucket to store thumbnail
-   * @param fileExtension
-   *                        - file extension of the image
-   * @return - UUID of the stored thumbnail, or null
-   */
-  @SneakyThrows
-  private void generateThumbNail(
-    UUID fileID,
-    InputStream in,
-    String bucket,
-    String fileExtension,
-    UUID objectUploadUuid
-  ) {
-    if (thumbnailService.isSupported(fileExtension)) {
-      log.info("Generating a thumbnail for file with UUID of: {}", () -> fileID);
-
-      UUID thumbnailID = generateUUID();
-      String fileName = thumbnailID.toString() + ".thumbnail" + ThumbnailService.THUMBNAIL_EXTENSION;
-
-      // Update the ObjectUpload:
-      ObjectUpload objectUpload = objectUploadService.findOne(objectUploadUuid, ObjectUpload.class);
-      objectUpload.setThumbnailIdentifier(thumbnailID);
-      objectUploadService.update(objectUpload);
-
-      // Create the thumbnail asynchronously so the client doesn't have to wait during file upload:
-      thumbnailService.generateThumbnail(in, fileExtension)
-        .completable()
-        .thenAccept(result -> {
-          try (InputStream thumbnailStream = result) {
-            minioService.storeFile(fileName, thumbnailStream, "image/jpeg", bucket);
-          } catch (MinioException | IOException | GeneralSecurityException e) {
-            log.warn(() -> "A thumbnail could not be generated for file " + fileID, e);
-          }
-        });
-    }
-  }
-
-   /**
    * Triggers a download of a file. Note that the file requires a metadata entry in the database to
    * be available for download.
    * 
