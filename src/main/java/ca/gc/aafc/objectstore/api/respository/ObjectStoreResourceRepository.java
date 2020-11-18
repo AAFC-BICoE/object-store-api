@@ -211,7 +211,7 @@ public class ObjectStoreResourceRepository
       if (objectUpload.getThumbnailIdentifier() != null) {
         loadObjectStoreMetadataByFileId(objectUpload.getThumbnailIdentifier()).ifPresent(thumb -> {
           removeFileFromMinio(
-            objectUpload.getBucket(),
+            thumb.getBucket(),
             thumb.getFileIdentifier() + ".thumbnail",
             ThumbnailService.THUMBNAIL_EXTENSION);
           dinaService.delete(thumb);
