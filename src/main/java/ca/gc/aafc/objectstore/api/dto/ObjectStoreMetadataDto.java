@@ -6,7 +6,6 @@ import ca.gc.aafc.dina.mapper.CustomFieldResolver;
 import ca.gc.aafc.dina.repository.meta.JsonApiExternalRelation;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
-import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -16,7 +15,6 @@ import io.crnk.core.resource.annotations.JsonApiResource;
 import io.crnk.core.resource.annotations.LookupIncludeBehavior;
 import lombok.Data;
 import lombok.NonNull;
-import org.apache.commons.lang3.StringUtils;
 import org.javers.core.metamodel.annotation.DiffIgnore;
 import org.javers.core.metamodel.annotation.Id;
 import org.javers.core.metamodel.annotation.PropertyName;
@@ -105,24 +103,13 @@ public class ObjectStoreMetadataDto {
   private String notPubliclyReleasableReason;
 
   @JsonInclude(Include.NON_EMPTY)
+  @CustomFieldResolver(setterMethod = "acSubTypeToDTO")
   private String acSubType;
 
   private String group;
 
-  @CustomFieldResolver(fieldName = "acSubType")
   public static String acSubTypeToDTO(@NonNull ObjectStoreMetadata entity) {
     return entity.getAcSubType() == null ? null : entity.getAcSubType().getAcSubtype();
-  }
-
-  @CustomFieldResolver(fieldName = "acSubType")
-  public static ObjectSubtype acSubTypeToEntity(@NonNull ObjectStoreMetadataDto dto) {
-    if (dto.getDcType() == null || StringUtils.isBlank(dto.getAcSubType())) {
-      return null;
-    }
-    return ObjectSubtype.builder()
-      .acSubtype(dto.getAcSubType().toUpperCase())
-      .dcType(dto.getDcType())
-      .build();
   }
 
 }

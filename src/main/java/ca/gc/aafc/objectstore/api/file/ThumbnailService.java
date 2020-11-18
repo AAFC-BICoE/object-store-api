@@ -63,10 +63,11 @@ public class ThumbnailService {
       
       // PDFs are handled as a special case:
       if (PDF_FILETYPE.equals(fileType)) {
-        PDDocument pDoc = PDDocument.load(originalFile);
-        PDFRenderer pdfRenderer = new PDFRenderer(pDoc);
-        BufferedImage bufferedImage = pdfRenderer.renderImageWithDPI(0, 72, ImageType.RGB);
-        thumbnailBuilder = Thumbnails.of(bufferedImage);
+        try (PDDocument pDoc = PDDocument.load(originalFile)) {
+          PDFRenderer pdfRenderer = new PDFRenderer(pDoc);
+          BufferedImage bufferedImage = pdfRenderer.renderImageWithDPI(0, 72, ImageType.RGB);
+          thumbnailBuilder = Thumbnails.of(bufferedImage);
+        }
       } else {
         // Standard image use case:
         thumbnailBuilder = Thumbnails.of(originalFile);
