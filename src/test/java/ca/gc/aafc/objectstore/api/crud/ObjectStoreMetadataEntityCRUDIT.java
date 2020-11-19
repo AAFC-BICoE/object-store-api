@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
+import javax.persistence.criteria.Predicate;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -119,13 +120,28 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
     parent.addDerivative(child);
     metaService.create(parent);
 
+    // Needed to force a flush, also proves amount of total meta in the db
+    Assertions.assertEquals(2, metaService.findAll(ObjectStoreMetadata.class,
+      (criteriaBuilder, objectStoreMetadataRoot) -> new Predicate[0],
+      null, 0, 100).size());
+
     Assertions.assertNotNull(metaService.findOne(child.getUuid(), ObjectStoreMetadata.class));
 
     metaService.delete(parent);
-    Assertions.assertNull(metaService.findOne(parent.getUuid(), ObjectStoreMetadata.class));
-    Assertions.assertNotNull(metaService.findOne(child.getUuid(), ObjectStoreMetadata.class));
-  }
 
+    // Needed to force a flush, also proves amount of total meta in the db
+    Assertions.assertEquals(1, metaService.findAll(ObjectStoreMetadata.class,
+      (criteriaBuilder, objectStoreMetadataRoot) -> new Predicate[0],
+      null, 0, 100).size());
+
+    Assertions.assertNull(metaService.findOne(parent.getUuid(), ObjectStoreMetadata.class));
+
+    ObjectStoreMetadata resultChild = metaService.findOne(
+      child.getUuid(),
+      ObjectStoreMetadata.class);
+    Assertions.assertNotNull(resultChild);
+    Assertions.assertNull(resultChild.getAcDerivedFrom());
+  }
   @Test
   public void testRelationships() {
     ManagedAttribute ma = ManagedAttributeFactory.newManagedAttribute().build();
