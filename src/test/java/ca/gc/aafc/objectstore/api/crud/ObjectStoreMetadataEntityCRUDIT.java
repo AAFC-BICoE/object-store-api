@@ -1,5 +1,6 @@
 package ca.gc.aafc.objectstore.api.crud;
 
+import ca.gc.aafc.dina.service.DinaService;
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
@@ -11,6 +12,7 @@ import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import javax.inject.Inject;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -20,6 +22,9 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
+
+  @Inject
+  private DinaService<ObjectStoreMetadata> metaService;
 
   private static final ZoneId MTL_TZ = ZoneId.of("America/Montreal");
   private final ZonedDateTime TEST_ZONED_DT = ZonedDateTime.of(2019, 1, 2, 3, 4, 5, 0, MTL_TZ);
@@ -76,7 +81,7 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
     ObjectStoreMetadata child = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
 
     parent.addDerivative(child);
-    service.save(parent);
+    metaService.create(parent);
 
     ObjectStoreMetadata resultChild = service.find(ObjectStoreMetadata.class, child.getId());
     ObjectStoreMetadata resultParent = service.find(ObjectStoreMetadata.class, parent.getId());
@@ -93,11 +98,11 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
     ObjectStoreMetadata parent = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
     ObjectStoreMetadata child = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
     parent.addDerivative(child);
-    service.save(parent);
+    metaService.create(parent);
 
     ObjectStoreMetadata update = service.find(ObjectStoreMetadata.class, parent.getId());
     update.removeDerivative(service.find(ObjectStoreMetadata.class, child.getId()));
-    service.save(update);
+    metaService.update(parent);
 
     ObjectStoreMetadata resultChild = service.find(ObjectStoreMetadata.class, child.getId());
     ObjectStoreMetadata resultParent = service.find(ObjectStoreMetadata.class, parent.getId());
@@ -107,39 +112,19 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
   }
 
   @Test
-  void test_addDerivedFrom_RelationsEstablished() {
+  void test_DeleteParent_ChildrenNotDeleted() {
     ObjectStoreMetadata parent = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
     ObjectStoreMetadata child = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
 
-    child.setAcDerivedFrom(parent);
-    service.save(child);
+    metaService.create(child);
+    parent.addDerivative(child);
+    metaService.create(parent);
 
-    ObjectStoreMetadata resultChild = service.find(ObjectStoreMetadata.class, child.getId());
-    ObjectStoreMetadata resultParent = service.find(ObjectStoreMetadata.class, parent.getId());
+    Assertions.assertNotNull(metaService.findOne(child.getUuid(), ObjectStoreMetadata.class));
 
-    Assertions.assertEquals(resultChild.getAcDerivedFrom().getId(), resultParent.getId());
-
-    List<ObjectStoreMetadata> resultDerivatives = resultParent.getDerivatives();
-    Assertions.assertEquals(1, resultDerivatives.size());
-    Assertions.assertEquals(resultChild.getId(), resultDerivatives.get(0).getId());
-  }
-
-  @Test
-  void test_RemoveDerivedFrom_RelationsRemoved() {
-    ObjectStoreMetadata parent = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
-    ObjectStoreMetadata child = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
-    child.setAcDerivedFrom(parent);
-    service.save(child);
-
-    ObjectStoreMetadata update = service.find(ObjectStoreMetadata.class, child.getId());
-    update.setAcDerivedFrom(null);
-    service.save(update);
-
-    ObjectStoreMetadata resultChild = service.find(ObjectStoreMetadata.class, child.getId());
-    ObjectStoreMetadata resultParent = service.find(ObjectStoreMetadata.class, parent.getId());
-
-    Assertions.assertNull(resultChild.getAcDerivedFrom());
-    Assertions.assertEquals(0, resultParent.getDerivatives().size());
+    metaService.delete(parent);
+    Assertions.assertNull(metaService.findOne(parent.getUuid(), ObjectStoreMetadata.class));
+    Assertions.assertNotNull(metaService.findOne(child.getUuid(), ObjectStoreMetadata.class));
   }
 
   @Test
