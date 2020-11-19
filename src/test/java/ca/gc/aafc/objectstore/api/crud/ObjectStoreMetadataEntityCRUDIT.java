@@ -142,6 +142,7 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
     Assertions.assertNotNull(resultChild);
     Assertions.assertNull(resultChild.getAcDerivedFrom());
   }
+
   @Test
   public void testRelationships() {
     ManagedAttribute ma = ManagedAttributeFactory.newManagedAttribute().build();
