@@ -9,8 +9,8 @@ import ca.gc.aafc.objectstore.api.testsupport.factories.ManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MetadataManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
@@ -39,8 +39,8 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
       .acDigitizationDate(TEST_OFFSET_DT)
       .build();
 
-  @AfterEach
-  void tearDown() {
+  @BeforeEach
+  void setUp() {
     // Clean all database entries
     metaService.findAll(ObjectStoreMetadata.class,
       (criteriaBuilder, objectStoreMetadataRoot) -> new Predicate[0],
