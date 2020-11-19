@@ -149,7 +149,7 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
   /**
    * Returns fileIdentifier + fileExtension
    * 
-   * @return
+   * @return fileIdentifier + fileExtension
    */
   @Transient
   public String getFilename() {
@@ -323,6 +323,13 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
     return acDerivedFrom;
   }
 
+  /**
+   * Sets the acDerived from value. Note to establish and remove a bi directional relationship, the
+   * {@link ObjectStoreMetadata#addDerivative} and {@link ObjectStoreMetadata#removeDerivative}
+   * methods should be called from the parent.
+   *
+   * @param acDerivedFrom - parent to set
+   */
   public void setAcDerivedFrom(ObjectStoreMetadata acDerivedFrom) {
     this.acDerivedFrom = acDerivedFrom;
   }
@@ -336,11 +343,23 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
     this.derivatives = derivatives;
   }
 
+  /**
+   * Adds the given derivative to the list of derivatives. This method should be used to establish
+   * Bi directional JPA relations ships.
+   *
+   * @param derivative - derivative to add
+   */
   public void addDerivative(ObjectStoreMetadata derivative) {
     derivatives.add(derivative);
     derivative.setAcDerivedFrom(this);
   }
 
+  /**
+   * Adds the given derivative to the list of derivatives. This method should be used to remove Bi
+   * directional JPA relations ships.
+   *
+   * @param derivative - derivative to remove
+   */
   public void removeDerivative(ObjectStoreMetadata derivative) {
     derivatives.remove(derivative);
     derivative.setAcDerivedFrom(null);
