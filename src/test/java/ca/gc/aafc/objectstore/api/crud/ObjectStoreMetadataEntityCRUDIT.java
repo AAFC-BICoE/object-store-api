@@ -9,6 +9,7 @@ import ca.gc.aafc.objectstore.api.testsupport.factories.ManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MetadataManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -37,6 +38,14 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
       .dcCreator(UUID.randomUUID())
       .acDigitizationDate(TEST_OFFSET_DT)
       .build();
+
+  @AfterEach
+  void tearDown() {
+    // Clean all database entries
+    metaService.findAll(ObjectStoreMetadata.class,
+      (criteriaBuilder, objectStoreMetadataRoot) -> new Predicate[0],
+      null, 0, 100).forEach(metaService::delete);
+  }
 
   @Override
   public void testSave() {
