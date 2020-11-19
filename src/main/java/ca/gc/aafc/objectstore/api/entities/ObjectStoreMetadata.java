@@ -317,7 +317,7 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
     this.xmpRightsOwner = xmpRightsOwner;
   }
 
-  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "ac_derived_from_id", referencedColumnName = "id")
   public ObjectStoreMetadata getAcDerivedFrom() {
     return acDerivedFrom;
@@ -334,7 +334,7 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
     this.acDerivedFrom = acDerivedFrom;
   }
 
-  @OneToMany(mappedBy = "acDerivedFrom", cascade = CascadeType.ALL)
+  @OneToMany(mappedBy = "acDerivedFrom", cascade = {CascadeType.PERSIST})
   public List<ObjectStoreMetadata> getDerivatives() {
     return derivatives;
   }

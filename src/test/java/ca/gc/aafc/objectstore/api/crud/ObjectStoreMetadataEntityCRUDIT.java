@@ -116,7 +116,6 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
     ObjectStoreMetadata parent = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
     ObjectStoreMetadata child = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
 
-    metaService.create(child);
     parent.addDerivative(child);
     metaService.create(parent);
 
