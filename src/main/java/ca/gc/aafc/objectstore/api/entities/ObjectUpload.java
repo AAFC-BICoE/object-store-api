@@ -49,7 +49,9 @@ public class ObjectUpload implements DinaEntity {
   private long sizeInBytes;
   private UUID thumbnailIdentifier;
   private String bucket;
+
   private Map<String, String> exif;
+  private String dateTimeDigitized;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -191,6 +193,15 @@ public class ObjectUpload implements DinaEntity {
 
   public void setBucket(String bucket) {
     this.bucket = bucket;
+  }
+
+  @Size(max = 50)
+  public String getDateTimeDigitized() {
+    return dateTimeDigitized;
+  }
+
+  public void setDateTimeDigitized(String dateTimeDigitized) {
+    this.dateTimeDigitized = dateTimeDigitized;
   }
 
   @Type(type = "jsonb")

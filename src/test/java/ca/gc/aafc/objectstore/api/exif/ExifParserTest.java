@@ -6,8 +6,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.FileInputStream;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Tests related to {@link ExifParser}
@@ -19,7 +22,7 @@ class ExifParserTest {
 
   @SneakyThrows
   @Test
-  void extractDateTaken_OnEXIFAvailable_EXIFExtracted() {
+  void extractExifTags_OnEXIFAvailable_EXIFExtracted() {
     try (FileInputStream fis = new FileInputStream(TEST_PIC.getFile())) {
       Map<String, String> exifData = ExifParser.extractExifTags(fis);
 
@@ -27,18 +30,24 @@ class ExifParserTest {
           .filter(ExifParser.DATE_TAKEN_POSSIBLE_TAGS::contains)
           .findFirst();
       Assertions.assertTrue(dateValue.isPresent());
-      Assertions.assertEquals("2020:11:13 10:03:17", exifData.get(dateValue.get()));
+      assertEquals("2020:11:13 10:03:17", exifData.get(dateValue.get()));
     }
-
   }
 
   @SneakyThrows
   @Test
-  void extractDateTaken_NoEXIFAvailable_NothingReturned() {
+  void extractExifTags_NoEXIFAvailable_NothingReturned() {
     try (FileInputStream fis = new FileInputStream(TEST_FILE.getFile())) {
       Map<String, String> exifData = ExifParser.extractExifTags(fis);
       Assertions.assertTrue(exifData.isEmpty());
     }
+  }
+
+  @Test
+  void parseDateTaken_WhenDateAvailable_dateParsedAndReturned() {
+    Map<String, String> exif = Map.of(ExifParser.DATE_TAKEN_POSSIBLE_TAGS.get(0), "2020:11:13 10:03:17");
+    assertEquals(Optional.of(LocalDateTime.of(2020,11,13,10,3,17)),
+        ExifParser.parseDateTaken(exif));
   }
 
 }
