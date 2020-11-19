@@ -334,7 +334,7 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
     this.acDerivedFrom = acDerivedFrom;
   }
 
-  @OneToMany(mappedBy = "acDerivedFrom", cascade = {CascadeType.PERSIST})
+  @OneToMany(mappedBy = "acDerivedFrom", cascade = CascadeType.PERSIST)
   public List<ObjectStoreMetadata> getDerivatives() {
     return derivatives;
   }
