@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.util.UUID;
 
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 
 import org.apache.commons.io.IOUtils;
@@ -23,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.transaction.annotation.Propagation;
 
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
@@ -44,9 +44,6 @@ public class FileControllerIT extends BaseIntegrationTest {
   private FileController fileController;
 
   @Inject
-  private EntityManager entityManager;
-
-  @Inject
   private MinioFileService minioFileService;
 
   @Inject
@@ -55,7 +52,7 @@ public class FileControllerIT extends BaseIntegrationTest {
   private final static String bucketUnderTest = DinaAuthenticatedUserConfig.ROLES_PER_GROUPS.keySet().stream()
     .findFirst().get();
 
-  @Transactional
+  @org.springframework.transaction.annotation.Transactional(propagation = Propagation.NEVER)
   @Test
   public void fileUpload_whenImageIsUploaded_generateThumbnail() throws Exception {
     MockMultipartFile mockFile = getFileUnderTest();
@@ -64,10 +61,12 @@ public class FileControllerIT extends BaseIntegrationTest {
     UUID thumbnailIdentifier = uploadResponse.getThumbnailIdentifier();
 
     // Persist the associated metadata and thumbnail meta separately:
-    ObjectStoreMetadata thumbMetaData = ObjectStoreMetadataFactory.newObjectStoreMetadata()
-      .fileIdentifier(thumbnailIdentifier)
-      .build();
-    entityManager.persist(thumbMetaData);
+    service.runInNewTransaction(entityManager -> {
+      ObjectStoreMetadata thumbMetaData = ObjectStoreMetadataFactory.newObjectStoreMetadata()
+        .fileIdentifier(thumbnailIdentifier)
+        .build();
+      entityManager.persist(thumbMetaData);
+    });
     
     String thumbnailFilename = thumbnailIdentifier + ".thumbnail";
 

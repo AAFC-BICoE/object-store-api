@@ -9,7 +9,6 @@ import java.security.GeneralSecurityException;
 import java.util.UUID;
 
 import javax.imageio.ImageIO;
-import javax.transaction.Transactional;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.ImageType;
@@ -46,23 +45,25 @@ public class ThumbnailService {
   private final ObjectUploadService objectUploadService;
 
   @Async
-  @Transactional
   public void generateThumbnail(
     @NonNull UUID objectUploadUuid,
-    @NonNull String fileType,
-    @NonNull UUID thumbnailID
+    @NonNull String sourceFilename,
+    @NonNull String sourceFileType
   ) throws IOException {
-    String fileName = thumbnailID.toString() + ".thumbnail" + ThumbnailService.THUMBNAIL_EXTENSION;
     ObjectUpload objectUpload = objectUploadService.findOne(objectUploadUuid, ObjectUpload.class);
+    String fileName = objectUpload.getThumbnailIdentifier().toString() + ".thumbnail" + ThumbnailService.THUMBNAIL_EXTENSION;
     
-    try (InputStream originalFile = minioService
-        .getFile(objectUpload.getFileIdentifier().toString(), objectUpload.getBucket())
-        .orElseThrow(() -> new IllegalArgumentException("file not found: " + objectUpload.getFileIdentifier()))) {
+    try (
+      InputStream originalFile = minioService
+        .getFile(sourceFilename, objectUpload.getBucket())
+        .orElseThrow(() -> new IllegalArgumentException("file not found: " + objectUpload.getFileIdentifier()));
+      ByteArrayOutputStream os = new ByteArrayOutputStream() 
+    ) {
 
       Builder<?> thumbnailBuilder;
       
       // PDFs are handled as a special case:
-      if (PDF_FILETYPE.equals(fileType)) {
+      if (PDF_FILETYPE.equals(sourceFileType)) {
         try (PDDocument pDoc = PDDocument.load(originalFile)) {
           PDFRenderer pdfRenderer = new PDFRenderer(pDoc);
           BufferedImage bufferedImage = pdfRenderer.renderImageWithDPI(0, 72, ImageType.RGB);
@@ -73,21 +74,16 @@ public class ThumbnailService {
         thumbnailBuilder = Thumbnails.of(originalFile);
       }
   
-      try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-        // Create the thumbnail:
-        thumbnailBuilder
-          .size(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT)
-          .outputFormat("jpg")
-          .toOutputStream(os);
-  
-        try (ByteArrayInputStream thumbnail = new ByteArrayInputStream(os.toByteArray())) {
-          minioService.storeFile(fileName, thumbnail, "image/jpeg", objectUpload.getBucket());
-        }
+      // Create the thumbnail:
+      thumbnailBuilder
+        .size(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT)
+        .outputFormat("jpg")
+        .toOutputStream(os);
+
+      try (ByteArrayInputStream thumbnail = new ByteArrayInputStream(os.toByteArray())) {
+        minioService.storeFile(fileName, thumbnail, "image/jpeg", objectUpload.getBucket());
       }
 
-      // Update the ObjectUpload:
-      objectUpload.setThumbnailIdentifier(thumbnailID);
-      objectUploadService.update(objectUpload);    
     } catch (MinioException | IOException | GeneralSecurityException e) {
       log.warn(() -> "A thumbnail could not be generated for file " + objectUpload.getOriginalFilename(), e);
     }

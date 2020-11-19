@@ -3,7 +3,6 @@ package ca.gc.aafc.objectstore.api.file;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.DigestInputStream;
-import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -13,7 +12,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import javax.inject.Inject;
-import javax.transaction.Transactional;
 
 import ca.gc.aafc.objectstore.api.exif.ExifParser;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -89,7 +87,6 @@ public class FileController {
   }
 
   @PostMapping("/file/{bucket}")
-  @Transactional
   public ObjectUpload handleFileUpload(@RequestParam("file") MultipartFile file,
       @PathVariable String bucket) throws InvalidKeyException, NoSuchAlgorithmException,
       InvalidBucketNameException, ErrorResponseException, InternalException,
@@ -117,8 +114,10 @@ public class FileController {
     MessageDigest md = MessageDigest.getInstance(DIGEST_ALGORITHM);
     DigestInputStream dis = new DigestInputStream(prIs.getInputStream(), md);
     
+    String filename = uuid.toString() + mtdr.getEvaluatedExtension();
+
     minioService.storeFile(
-      uuid.toString() + mtdr.getEvaluatedExtension(),
+      filename,
       dis,
       mtdr.getEvaluatedMediaType(),
       bucket);
@@ -152,9 +151,11 @@ public class FileController {
       log.info("Generating a thumbnail for file with UUID of: {}", () -> uuid);
 
       UUID thumbnailID = generateUUID();
+      objectUpload.setThumbnailIdentifier(thumbnailID);
+      objectUploadService.update(objectUpload);    
 
       // Create the thumbnail asynchronously so the client doesn't have to wait during file upload:
-      thumbnailService.generateThumbnail(uuid, fileExtension, thumbnailID);
+      thumbnailService.generateThumbnail(uuid, filename, fileExtension);
     }
 
     return objectUpload;
