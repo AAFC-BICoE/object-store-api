@@ -37,5 +37,7 @@ public class ObjectUploadDto {
   private UUID thumbnailIdentifier;
   private String bucket;
 
+  private String dateTimeDigitized;
+
   private Map<String,String> exif;
 }

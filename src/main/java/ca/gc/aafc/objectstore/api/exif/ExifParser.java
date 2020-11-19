@@ -63,12 +63,11 @@ public final class ExifParser {
    * @return
    */
   public static Optional<LocalDateTime> parseDateTaken(@NonNull Map<String, String> exif) {
-    for(Map.Entry<String, String> eData : exif.entrySet()) {
-      if(DATE_TAKEN_POSSIBLE_TAGS.contains(eData.getKey())) {
+    for (Map.Entry<String, String> eData : exif.entrySet()) {
+      if (DATE_TAKEN_POSSIBLE_TAGS.contains(eData.getKey())) {
         try {
           return Optional.of(LocalDateTime.parse(eData.getValue(), EXIF_DATE_FORMATTER));
-        }
-        catch (DateTimeParseException dtpEx) { //if we can't parse it we just skip
+        } catch (DateTimeParseException dtpEx) { //if we can't parse it we just skip
           log.debug(dtpEx);
         }
       }
