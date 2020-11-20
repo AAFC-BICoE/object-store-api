@@ -42,9 +42,7 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
   @BeforeEach
   void setUp() {
     // Clean all database entries
-    metaService.findAll(ObjectStoreMetadata.class,
-      (criteriaBuilder, objectStoreMetadataRoot) -> new Predicate[0],
-      null, 0, 100).forEach(metaService::delete);
+    fetchAllMeta().forEach(metaService::delete);
   }
 
   @Override
@@ -72,7 +70,7 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
         fetchedObjectStoreMeta.getAcDigitizationDate()
         .atZoneSameInstant(MTL_TZ)
         .toOffsetDateTime());
-    
+
     //should be auto-generated
     assertNotNull(fetchedObjectStoreMeta.getCreatedOn());
     assertNotNull(fetchedObjectStoreMeta.getXmpMetadataDate());
@@ -130,18 +128,14 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
     metaService.create(parent);
 
     // Needed to force a flush, also proves amount of total meta in the db
-    Assertions.assertEquals(2, metaService.findAll(ObjectStoreMetadata.class,
-      (criteriaBuilder, objectStoreMetadataRoot) -> new Predicate[0],
-      null, 0, 100).size());
+    Assertions.assertEquals(2, fetchAllMeta().size());
 
     Assertions.assertNotNull(metaService.findOne(child.getUuid(), ObjectStoreMetadata.class));
 
     metaService.delete(parent);
 
     // Needed to force a flush, also proves amount of total meta in the db
-    Assertions.assertEquals(1, metaService.findAll(ObjectStoreMetadata.class,
-      (criteriaBuilder, objectStoreMetadataRoot) -> new Predicate[0],
-      null, 0, 100).size());
+    Assertions.assertEquals(1, fetchAllMeta().size());
 
     Assertions.assertNull(metaService.findOne(parent.getUuid(), ObjectStoreMetadata.class));
 
@@ -159,7 +153,7 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
 
     ObjectSubtype ost = ObjectSubtypeFactory.newObjectSubtype().build();
     service.save(ost, false);
-   
+
     ObjectStoreMetadata osm = ObjectStoreMetadataFactory
         .newObjectStoreMetadata()
         .acDigitizationDate(TEST_OFFSET_DT)
@@ -174,27 +168,38 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
     assertNotNull(restoredOsm.getId());
 
     OffsetDateTime initialTimestamp = restoredOsm.getXmpMetadataDate();
-    
+
     // link the 2 entities
     MetadataManagedAttribute mma = MetadataManagedAttributeFactory.newMetadataManagedAttribute()
     .objectStoreMetadata(restoredOsm)
     .managedAttribute(ma)
     .assignedValue("test value")
     .build();
-    
+
     service.save(mma);
-  
+
     OffsetDateTime newTimestamp = restoredOsm.getXmpMetadataDate();
 
     // Adding a MetadataManagedAttribute should update the parent ObjectStoreMetadata:
     assertNotEquals(newTimestamp, initialTimestamp);
-    
+
     MetadataManagedAttribute restoredMma = service.find(MetadataManagedAttribute.class, mma.getId());
     assertEquals(restoredOsm.getId(), restoredMma.getObjectStoreMetadata().getId());
 
     // Test read-only getAcSubTypeId Formula field:
     assertEquals(ost.getId(), restoredOsm.getAcSubTypeId());
     assertEquals(ost.getId(), restoredOsm.getAcSubType().getId());
+  }
+
+  /**
+   * Helper method to return a list of all metadata from the database. Note this will flush Hibernate changes.
+   *
+   * @return list of all metadata from the database.
+   */
+  private List<ObjectStoreMetadata> fetchAllMeta() {
+    return metaService.findAll(ObjectStoreMetadata.class,
+      (criteriaBuilder, objectStoreMetadataRoot) -> new Predicate[0],
+      null, 0, 100);
   }
 
 }
