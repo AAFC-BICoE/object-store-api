@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
 import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.Assert.assertNull;
@@ -75,6 +76,12 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
     derived.setUuid(derivedMeta.getUuid());
   }
 
+  private ObjectUpload createObjectUpload() {
+    ObjectUpload newObjectUpload = MinioTestConfiguration.buildTestObjectUpload();
+    persist(newObjectUpload);
+    return newObjectUpload;
+  }
+
   @Test
   public void findMeta_whenNoFieldsAreSelected_MetadataReturnedWithAllFields() {
     ObjectStoreMetadataDto objectStoreMetadataDto = getDtoUnderTest();
@@ -120,6 +127,9 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
     assertEquals(acSubType.getUuid(), result.getAcSubType().getUuid());
     assertEquals(MinioTestConfiguration.TEST_USAGE_TERMS, result.getXmpRightsUsageTerms());
 
+    List<ObjectStoreMetadataDto> derivatives = fetchMetaById(derived.getUuid()).getDerivatives();
+    assertEquals(1, derivatives.size());
+    assertEquals(result.getUuid(), derivatives.get(0).getUuid());
   }
 
   @Test
@@ -143,9 +153,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
 
   @Test
   public void create_ThumbNailReturnedAsDerivative() {
-    ObjectStoreMetadataDto parentDTO = newMetaDto();
-
-    UUID parentUuid = objectStoreResourceRepository.create(parentDTO).getUuid();
+    UUID parentUuid = objectStoreResourceRepository.create(newMetaDto()).getUuid();
 
     ObjectStoreMetadata child = service.findUnique(
       ObjectStoreMetadata.class,
@@ -200,18 +208,6 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
     assertNull(result.getAcSubType());
   }
 
-  private ObjectUpload createObjectUpload() {
-    ObjectUpload newObjectUpload = MinioTestConfiguration.buildTestObjectUpload();
-    persist(newObjectUpload);
-    return newObjectUpload;
-  }
-
-  private ObjectStoreMetadataDto getDtoUnderTest() {
-    QuerySpec querySpec = new QuerySpec(ObjectStoreMetadataDto.class);
-    querySpec.includeRelation(Collections.singletonList("acDerivedFrom"));
-    return objectStoreResourceRepository.findOne(testObjectStoreMetadata.getUuid(), querySpec);
-  }
-
   private ObjectStoreMetadataDto newMetaDto() {
     ObjectStoreMetadataDto parentDTO = new ObjectStoreMetadataDto();
     parentDTO.setBucket(MinioTestConfiguration.TEST_BUCKET);
@@ -220,6 +216,21 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
     parentDTO.setXmpRightsUsageTerms(MinioTestConfiguration.TEST_USAGE_TERMS);
     parentDTO.setCreatedBy(RandomStringUtils.random(4));
     return parentDTO;
+  }
+
+  private ObjectStoreMetadataDto fetchMetaById(UUID uuid) {
+    return objectStoreResourceRepository.findOne(uuid, newQuery());
+  }
+
+  private ObjectStoreMetadataDto getDtoUnderTest() {
+    return fetchMetaById(testObjectStoreMetadata.getUuid());
+  }
+
+  private static QuerySpec newQuery() {
+    QuerySpec querySpec = new QuerySpec(ObjectStoreMetadataDto.class);
+    querySpec.includeRelation(List.of("derivatives"));
+    querySpec.includeRelation(Collections.singletonList("acDerivedFrom"));
+    return querySpec;
   }
 
 }
