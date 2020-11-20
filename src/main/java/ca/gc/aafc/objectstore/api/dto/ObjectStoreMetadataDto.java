@@ -95,7 +95,7 @@ public class ObjectStoreMetadataDto {
   private ObjectStoreMetadataDto acDerivedFrom;
 
   @JsonApiRelation
-  @ShallowReference
+  @DiffIgnore
   private List<ObjectStoreMetadataDto> derivatives = new ArrayList<>();
 
   @JsonApiExternalRelation(type = "person")
