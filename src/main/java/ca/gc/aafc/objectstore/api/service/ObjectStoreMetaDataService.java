@@ -50,6 +50,9 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
 
       setAcSubType(entity, temp);
     }
+    if (entity.getAcDerivedFrom() != null) {
+      entity.getAcDerivedFrom().addDerivative(entity);
+    }
   }
 
   @Override
