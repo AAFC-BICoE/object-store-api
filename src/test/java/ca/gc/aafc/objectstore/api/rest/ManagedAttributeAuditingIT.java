@@ -74,7 +74,7 @@ public class ManagedAttributeAuditingIT extends BaseIntegrationTest {
     CdoSnapshot resultSnap = javers.getLatestSnapshot(meta.getUuid(), ObjectStoreMetadataDto.class)
       .orElse(null);
     Assertions.assertNotNull(resultSnap);
-    MatcherAssert.assertThat(resultSnap.getChanged(), Matchers.contains("managedAttributeMap"));
+    MatcherAssert.assertThat(resultSnap.getChanged(), Matchers.hasItem("managedAttributeMap"));
 
     String resultAttribValue = parseMapFromSnapshot(resultSnap)
       .getValues()
