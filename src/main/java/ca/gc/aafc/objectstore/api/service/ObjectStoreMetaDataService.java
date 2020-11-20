@@ -18,16 +18,23 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
   @Inject
   private ObjectStoreMetaDataFieldResolvers metaDataFieldResolver;
 
+  private final ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService;
+
   private final BaseDAO baseDAO;
 
-  public ObjectStoreMetaDataService(@NonNull BaseDAO baseDAO) {
+  public ObjectStoreMetaDataService(@NonNull BaseDAO baseDAO,
+                                    @NonNull ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService) {
     super(baseDAO);
     this.baseDAO = baseDAO;
+    this.defaultValueSetterService = defaultValueSetterService;
   }
 
   @Override
   protected void preCreate(ObjectStoreMetadata entity) {
     entity.setUuid(UUID.randomUUID());
+
+    defaultValueSetterService.assignDefaultValues(entity);
+
     if (entity.getAcSubType() != null) {
       setAcSubType(entity, entity.getAcSubType());
     }
