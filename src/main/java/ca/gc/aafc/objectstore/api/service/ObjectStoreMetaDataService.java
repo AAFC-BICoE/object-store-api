@@ -5,18 +5,27 @@ import ca.gc.aafc.dina.service.DefaultDinaService;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.resolvers.ObjectStoreMetaDataFieldResolvers;
+import ca.gc.aafc.objectstore.api.validation.MetadataManagedAttributeValidator;
 import lombok.NonNull;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.Errors;
 
 import javax.inject.Inject;
+
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMetadata> {
 
   @Inject
   private ObjectStoreMetaDataFieldResolvers metaDataFieldResolver;
+
+  @Inject
+  private MetadataManagedAttributeValidator metadataManagedAttributeValidator;
 
   private final BaseDAO baseDAO;
 
@@ -25,16 +34,38 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
     this.baseDAO = baseDAO;
   }
 
+  private void validateMetaManagedAttribute(ObjectStoreMetadata entity){
+    if ( entity.getManagedAttribute() == null) 
+      return;
+    
+    List<Errors> validatedErrors = entity.getManagedAttribute().stream().map(  mma  -> {      
+      Errors errors = new BeanPropertyBindingResult(mma, "mma");
+      metadataManagedAttributeValidator.validate(mma, errors);
+      return errors;
+    }).collect(Collectors.toList());
+
+    if (validatedErrors!= null && validatedErrors.size()>0) {
+      String errorMsg = validatedErrors.get(0).getFieldError().getDefaultMessage();
+      throw new IllegalArgumentException(errorMsg);
+    };
+  
+  }
+
   @Override
   protected void preCreate(ObjectStoreMetadata entity) {
+    validateMetaManagedAttribute(entity);
+
     entity.setUuid(UUID.randomUUID());
     if (entity.getAcSubType() != null) {
       setAcSubType(entity, entity.getAcSubType());
     }
+
   }
 
   @Override
   protected void preUpdate(ObjectStoreMetadata entity) {
+    validateMetaManagedAttribute(entity);
+
     ObjectSubtype temp = entity.getAcSubType();
 
     if (temp != null) {
@@ -46,7 +77,7 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
       baseDAO.update(entity);
 
       setAcSubType(entity, temp);
-    }
+    }    
   }
 
   @Override
