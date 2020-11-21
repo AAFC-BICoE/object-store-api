@@ -8,6 +8,7 @@ import ca.gc.aafc.objectstore.api.resolvers.ObjectStoreMetaDataFieldResolvers;
 import ca.gc.aafc.objectstore.api.validation.MetadataManagedAttributeValidator;
 import lombok.NonNull;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
@@ -34,21 +35,28 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
     this.baseDAO = baseDAO;
   }
 
-  private void validateMetaManagedAttribute(ObjectStoreMetadata entity){
-    if ( entity.getManagedAttribute() == null) 
+  private void validateMetaManagedAttribute(ObjectStoreMetadata entity) {
+    if ( entity.getManagedAttribute() == null)  {
       return;
+    }
     
     List<Errors> validatedErrors = entity.getManagedAttribute().stream().map(  mma  -> {      
-      Errors errors = new BeanPropertyBindingResult(mma, "mma");
+      Errors errors = new BeanPropertyBindingResult(mma, mma.getUuid().toString());
       metadataManagedAttributeValidator.validate(mma, errors);
       return errors;
     }).collect(Collectors.toList());
 
-    if (validatedErrors!= null && validatedErrors.size()>0) {
-      String errorMsg = validatedErrors.get(0).getFieldError().getDefaultMessage();
-      throw new IllegalArgumentException(errorMsg);
-    };
-  
+    if (validatedErrors != null && validatedErrors.size() > 0) {
+      String errorMsg = validatedErrors.get(0).getFieldError() != null ? validatedErrors.get(0).getFieldError().getDefaultMessage()
+        : 
+        validatedErrors.get(0).getAllErrors() != null && validatedErrors.get(0).getAllErrors().size() > 0 ?
+        validatedErrors.get(0).getAllErrors().get(0).getDefaultMessage()
+        : null
+      ;
+      if (!StringUtils.isEmpty(errorMsg)) {
+        throw new IllegalArgumentException(errorMsg);
+      }
+    }  
   }
 
   @Override

@@ -10,6 +10,7 @@ import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFacto
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
@@ -25,23 +26,36 @@ public class ObjectStoreMetadataServiceIT extends BaseIntegrationTest {
   @Inject
   private ObjectStoreMetaDataService objectStoreMetaDataService;
 
+  private ObjectStoreMetadata testMetadata;
+  @BeforeEach
+  void setup(){
+    testMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata()
+    .managedAttribute(Collections.singletonList( MetadataManagedAttributeFactory.newMetadataManagedAttribute()        
+    .build()))
+    .build();
+  }
+
+  @Test
+  public void objectStoreMetaDataService_OnCreate_InvalidMetadataManagedAttributeValue_throwException() {
+    //invalid assigned value at creation time should throw exception
+    Assertions.assertThrows(IllegalArgumentException.class, () -> objectStoreMetaDataService.create(testMetadata));        
+
+    //fix the assigned value to a valid one
+    testMetadata.getManagedAttribute().get(0).setAssignedValue("a");
+    ObjectStoreMetadata testMetadataCreated = objectStoreMetaDataService.create(testMetadata);
+    Assertions.assertNotNull(testMetadataCreated);
+  }
+
   @Test
   public void objectStoreMetaDataService_OnUpdate_InvalidMetadataManagedAttributeValue_throwException() {
+    //First persit an objectstore metadata via service
+    testMetadata.getManagedAttribute().get(0).setAssignedValue("a");
+    ObjectStoreMetadata testMetadataCreated = objectStoreMetaDataService.create(testMetadata);
+    Assertions.assertNotNull(testMetadataCreated);    
 
-    ObjectStoreMetadata testMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata()
-        .managedAttribute(Collections.singletonList( MetadataManagedAttributeFactory.newMetadataManagedAttribute()        
-        .build()))
-        .build();
-
-    ObjectStoreMetadata testMetadataCreated =  objectStoreMetaDataService.create(testMetadata);
-
-    Assertions.assertNotNull(testMetadataCreated);
-
-    testMetadataCreated.getManagedAttribute().get(0).getManagedAttribute().setManagedAttributeType(ManagedAttributeType.INTEGER);
-    testMetadataCreated.getManagedAttribute().get(0).getManagedAttribute().setAcceptedValues(null);    
-
-    Assertions.assertThrows(IllegalArgumentException.class, () -> testMetadataCreated.getManagedAttribute().get(0).setAssignedValue("test"));
-
-  }
+    //then Update the assigned value to non accepted values
+    testMetadataCreated.getManagedAttribute().get(0).setAssignedValue("c");
+    Assertions.assertThrows(IllegalArgumentException.class, () -> objectStoreMetaDataService.update(testMetadataCreated));        
+  }  
 
 }
