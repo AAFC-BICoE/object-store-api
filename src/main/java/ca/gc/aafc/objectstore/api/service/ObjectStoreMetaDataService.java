@@ -29,12 +29,15 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
 
   @Inject
   private MetadataManagedAttributeValidator metadataManagedAttributeValidator;
+  private final ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService;
 
   private final BaseDAO baseDAO;
 
-  public ObjectStoreMetaDataService(@NonNull BaseDAO baseDAO) {
+  public ObjectStoreMetaDataService(@NonNull BaseDAO baseDAO,
+                                    @NonNull ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService) {
     super(baseDAO);
     this.baseDAO = baseDAO;
+    this.defaultValueSetterService = defaultValueSetterService;
   }
 
   private void validateMetaManagedAttribute(ObjectStoreMetadata entity) {
@@ -66,6 +69,9 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
     validateMetaManagedAttribute(entity);
 
     entity.setUuid(UUID.randomUUID());
+
+    defaultValueSetterService.assignDefaultValues(entity);
+
     if (entity.getAcSubType() != null) {
       setAcSubType(entity, entity.getAcSubType());
     }
