@@ -10,10 +10,13 @@ import lombok.extern.log4j.Log4j2;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -52,6 +55,24 @@ public final class ExifParser {
       return Collections.emptyMap();
     }
     return directory.getTags().stream().collect(Collectors.toMap(Tag::getTagName, Tag::getDescription));
+  }
+
+  /**
+   * Tries to parse a {@link LocalDateTime} from EXIF tags.
+   * @param exif
+   * @return
+   */
+  public static Optional<LocalDateTime> parseDateTaken(@NonNull Map<String, String> exif) {
+    for (Map.Entry<String, String> eData : exif.entrySet()) {
+      if (DATE_TAKEN_POSSIBLE_TAGS.contains(eData.getKey())) {
+        try {
+          return Optional.of(LocalDateTime.parse(eData.getValue(), EXIF_DATE_FORMATTER));
+        } catch (DateTimeParseException dtpEx) { //if we can't parse it we just skip
+          log.debug(dtpEx);
+        }
+      }
+    }
+    return Optional.empty();
   }
 
 

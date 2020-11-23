@@ -6,6 +6,7 @@ import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.resolvers.ObjectStoreMetaDataFieldResolvers;
 import lombok.NonNull;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -17,16 +18,23 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
   @Inject
   private ObjectStoreMetaDataFieldResolvers metaDataFieldResolver;
 
+  private final ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService;
+
   private final BaseDAO baseDAO;
 
-  public ObjectStoreMetaDataService(@NonNull BaseDAO baseDAO) {
+  public ObjectStoreMetaDataService(@NonNull BaseDAO baseDAO,
+                                    @NonNull ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService) {
     super(baseDAO);
     this.baseDAO = baseDAO;
+    this.defaultValueSetterService = defaultValueSetterService;
   }
 
   @Override
   protected void preCreate(ObjectStoreMetadata entity) {
     entity.setUuid(UUID.randomUUID());
+
+    defaultValueSetterService.assignDefaultValues(entity);
+
     if (entity.getAcSubType() != null) {
       setAcSubType(entity, entity.getAcSubType());
     }
@@ -45,6 +53,13 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
       baseDAO.update(entity);
 
       setAcSubType(entity, temp);
+    }
+  }
+
+  @Override
+  protected void preDelete(ObjectStoreMetadata entity) {
+    if (CollectionUtils.isNotEmpty(entity.getDerivatives())) {
+      entity.getDerivatives().forEach(derived -> derived.setAcDerivedFrom(null));
     }
   }
 
