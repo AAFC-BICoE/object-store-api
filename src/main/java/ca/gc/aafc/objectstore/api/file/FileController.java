@@ -13,7 +13,6 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 
-import ca.gc.aafc.objectstore.api.exif.ExifParser;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MimeTypeException;
@@ -24,6 +23,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,6 +36,7 @@ import org.springframework.web.server.ResponseStatusException;
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
+import ca.gc.aafc.objectstore.api.exif.ExifParser;
 import ca.gc.aafc.objectstore.api.minio.MinioFileService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataReadService;
 import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
@@ -64,6 +65,7 @@ public class FileController {
   private final MediaTypeDetectionStrategy mediaTypeDetectionStrategy;
   private final ThumbnailService thumbnailService;
   private final MessageSource messageSource;
+  private final TransactionTemplate transactionTemplate;
 
   // request scoped bean
   private DinaAuthenticatedUser authenticatedUser;
@@ -75,7 +77,8 @@ public class FileController {
       MediaTypeDetectionStrategy mediaTypeDetectionStrategy, 
       ThumbnailService thumbnailService,
       DinaAuthenticatedUser authenticatedUser,
-      MessageSource messageSource
+      MessageSource messageSource,
+      TransactionTemplate transactionTemplate
   ) {
     this.minioService = minioService;
     this.objectUploadService = objectUploadService;
@@ -84,6 +87,7 @@ public class FileController {
     this.thumbnailService = thumbnailService;
     this.authenticatedUser = authenticatedUser;
     this.messageSource = messageSource;
+    this.transactionTemplate = transactionTemplate;
   }
 
   @PostMapping("/file/{bucket}")
@@ -101,14 +105,16 @@ public class FileController {
     // Temporary, we will need to check if the user is an admin
     minioService.ensureBucketExists(bucket);
 
-    // Safe get unique UUID
-    UUID uuid = generateUUID();
-
     // We need access to the first bytes in a form that we can reset the InputStream
     ReadAheadInputStream prIs = ReadAheadInputStream.from(file.getInputStream(), READ_AHEAD_BUFFER_SIZE);
-
+  
     MediaTypeDetectionStrategy.MediaTypeDetectionResult mtdr = mediaTypeDetectionStrategy
         .detectMediaType(prIs.getReadAheadBuffer(), file.getContentType(), file.getOriginalFilename());
+
+    String fileExtension = mtdr.getEvaluatedMediaType();
+
+    // Safe get unique UUID
+    UUID uuid = transactionTemplate.execute(transactionStatus -> generateUUID());
 
     // Decorate the InputStream in order to compute the hash
     MessageDigest md = MessageDigest.getInstance(DIGEST_ALGORITHM);
@@ -128,37 +134,41 @@ public class FileController {
     try (InputStream exifIs = file.getInputStream()) {
       exifData = ExifParser.extractExifTags(exifIs);
     }
-   
-    // record the uploaded object to ensure we eventually get the metadata for it
-    ObjectUpload objectUpload =  objectUploadService.create(ObjectUpload.builder()
-        .fileIdentifier(uuid)
-        .createdBy(authenticatedUser.getUsername())
-        .originalFilename(file.getOriginalFilename())
-        .sha1Hex(sha1Hex)
-        .receivedMediaType(file.getContentType())
-        .detectedMediaType(Objects.toString(mtdr.getDetectedMediaType()))
-        .detectedFileExtension(mtdr.getDetectedMimeType().getExtension())
-        .evaluatedMediaType(mtdr.getEvaluatedMediaType())
-        .evaluatedFileExtension(mtdr.getEvaluatedExtension())
-        .sizeInBytes(file.getSize())
-        .bucket(bucket)
-        .exif(exifData)
-        .build());
 
-    String fileExtension = mtdr.getEvaluatedMediaType();
+    boolean thumbnailIsSupported = thumbnailService.isSupported(fileExtension);
 
-    if (thumbnailService.isSupported(fileExtension)) {
-      log.info("Generating a thumbnail for file with UUID of: {}", () -> uuid);
+    ObjectUpload createdObjectUpload = transactionTemplate.execute(transactionStatus -> {
+      // record the uploaded object to ensure we eventually get the metadata for it
+      ObjectUpload objectUpload = objectUploadService.create(ObjectUpload.builder()
+          .fileIdentifier(uuid)
+          .createdBy(authenticatedUser.getUsername())
+          .originalFilename(file.getOriginalFilename())
+          .sha1Hex(sha1Hex)
+          .receivedMediaType(file.getContentType())
+          .detectedMediaType(Objects.toString(mtdr.getDetectedMediaType()))
+          .detectedFileExtension(mtdr.getDetectedMimeType().getExtension())
+          .evaluatedMediaType(mtdr.getEvaluatedMediaType())
+          .evaluatedFileExtension(mtdr.getEvaluatedExtension())
+          .sizeInBytes(file.getSize())
+          .bucket(bucket)
+          .exif(exifData)
+          .build());
 
-      UUID thumbnailID = generateUUID();
-      objectUpload.setThumbnailIdentifier(thumbnailID);
-      objectUploadService.update(objectUpload);    
-
+      if (thumbnailIsSupported) {
+        UUID thumbnailID = generateUUID();
+        objectUpload.setThumbnailIdentifier(thumbnailID);
+        objectUploadService.update(objectUpload);
+      }
+      return objectUpload;
+    });
+    
+    if (thumbnailIsSupported) {
+      log.info("Generating a thumbnail for file with UUID of: {}", () -> createdObjectUpload.getFileIdentifier());
       // Create the thumbnail asynchronously so the client doesn't have to wait during file upload:
       thumbnailService.generateThumbnail(uuid, filename, fileExtension);
     }
 
-    return objectUpload;
+    return createdObjectUpload;
   }
 
   /**

@@ -9,6 +9,7 @@ import java.security.GeneralSecurityException;
 import java.util.UUID;
 
 import javax.imageio.ImageIO;
+import javax.transaction.Transactional;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.ImageType;
@@ -44,6 +45,7 @@ public class ThumbnailService {
   private final MinioFileService minioService;
   private final ObjectUploadService objectUploadService;
 
+  @Transactional
   @Async
   public void generateThumbnail(
     @NonNull UUID objectUploadUuid,
