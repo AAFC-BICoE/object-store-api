@@ -13,6 +13,7 @@ import javax.transaction.Transactional;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.InputStreamResource;
@@ -23,6 +24,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
@@ -48,9 +50,23 @@ public class FileControllerIT extends BaseIntegrationTest {
 
   @Inject
   private ObjectUploadService objectUploadService;
+  
+  @Inject
+  private TransactionTemplate transactionTemplate;
 
   private final static String bucketUnderTest = DinaAuthenticatedUserConfig.ROLES_PER_GROUPS.keySet().stream()
     .findFirst().get();
+
+  @AfterEach
+  public void cleanup() {
+    // Delete the ObjectUploads that are not deleted automatically because they are created
+    // asynchronously outside the test's transaction:
+    transactionTemplate.execute(
+      transactionStatus -> {
+        service.deleteByProperty(ObjectUpload.class, "bucket", bucketUnderTest);
+        return null;
+      });
+  }
 
   @org.springframework.transaction.annotation.Transactional(propagation = Propagation.NEVER)
   @Test
