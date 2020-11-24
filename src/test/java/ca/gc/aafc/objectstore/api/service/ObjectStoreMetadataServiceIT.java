@@ -56,6 +56,9 @@ public class ObjectStoreMetadataServiceIT extends BaseIntegrationTest {
     //then Update the assigned value to non accepted values
     testMetadataCreated.getManagedAttribute().get(0).setAssignedValue("c");
     Assertions.assertThrows(IllegalArgumentException.class, () -> objectStoreMetaDataService.update(testMetadataCreated));        
+
+    testMetadataCreated.getManagedAttribute().get(0).getManagedAttribute().setManagedAttributeType(ManagedAttributeType.INTEGER);
+    Assertions.assertThrows(IllegalArgumentException.class, () -> objectStoreMetaDataService.update(testMetadataCreated));        
   }  
 
 }
