@@ -115,11 +115,14 @@ public class FileController {
 
     // Safe get unique UUID
     UUID uuid = transactionTemplate.execute(transactionStatus -> generateUUID());
+    if (uuid == null) {
+      throw new IllegalStateException("Can't assign unique UUID.");
+    }
 
     // Decorate the InputStream in order to compute the hash
     MessageDigest md = MessageDigest.getInstance(DIGEST_ALGORITHM);
     DigestInputStream dis = new DigestInputStream(prIs.getInputStream(), md);
-    
+
     String filename = uuid.toString() + mtdr.getEvaluatedExtension();
 
     minioService.storeFile(
