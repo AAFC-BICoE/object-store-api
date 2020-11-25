@@ -17,7 +17,6 @@ import ca.gc.aafc.objectstore.api.file.FileController;
 import ca.gc.aafc.objectstore.api.file.ThumbnailService;
 import ca.gc.aafc.objectstore.api.minio.MinioFileService;
 import ca.gc.aafc.objectstore.api.respository.managedattributemap.MetadataToManagedAttributeMapRepository;
-import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataDefaultValueSetterService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataReadService;
 import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
 import io.crnk.core.queryspec.FilterOperator;
@@ -39,7 +38,6 @@ import java.time.OffsetDateTime;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Function;
 
 @Log4j2
 @Repository
@@ -53,7 +51,6 @@ public class ObjectStoreResourceRepository
   private final MinioFileService minioService;
   private final ObjectUploadService objectUploadService;
   private final AuditService auditService;
-  private final ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService;
   private static final PathSpec DELETED_PATH_SPEC = PathSpec.of("softDeleted");
   private static final PathSpec DELETED_DATE = PathSpec.of(SoftDeletable.DELETED_DATE_FIELD_NAME);
   private static final FilterSpec SOFT_DELETED = DELETED_DATE.filter(FilterOperator.NEQ, null);
@@ -62,7 +59,6 @@ public class ObjectStoreResourceRepository
   public ObjectStoreResourceRepository(
     @NonNull DinaService<ObjectStoreMetadata> dinaService,
     @NonNull DinaFilterResolver filterResolver,
-    @NonNull ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService,
     @NonNull ExternalResourceProvider externalResourceProvider,
     @NonNull DinaAuthenticatedUser authenticatedUser,
     @NonNull AuditService auditService,
@@ -80,7 +76,6 @@ public class ObjectStoreResourceRepository
       externalResourceProvider);
     this.dinaService = dinaService;
     this.auditService = auditService;
-    this.defaultValueSetterService = defaultValueSetterService;
     this.authenticatedUser = authenticatedUser;
     this.minioService = minioService;
     this.objectUploadService = objectUploadService;
@@ -152,10 +147,8 @@ public class ObjectStoreResourceRepository
   @SuppressWarnings("unchecked")
   @Override
   public ObjectStoreMetadataDto create(ObjectStoreMetadataDto resource) {
-    Function<ObjectStoreMetadataDto, ObjectStoreMetadataDto> handleFileDataFct = this::handleFileRelatedData;
 
-    // same as assignDefaultValues(handleFileRelatedData(handleDefaultValues)) but easier to follow in my option (C.G.)
-    handleFileDataFct.andThen(defaultValueSetterService::assignDefaultValues).apply(resource);
+    handleFileRelatedData(resource);
 
     resource.setCreatedBy(authenticatedUser.getUsername());
     ObjectStoreMetadataDto created = super.create(resource);

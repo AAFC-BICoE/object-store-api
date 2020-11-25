@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import ca.gc.aafc.objectstore.api.MediaTypeToDcTypeConfiguration;
 import ca.gc.aafc.objectstore.api.ObjectStoreConfiguration;
-import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import lombok.NonNull;
@@ -42,7 +41,7 @@ public class ObjectStoreMetadataDefaultValueSetterService {
    * @param objectMetadata
    * @return
    */
-  public ObjectStoreMetadataDto assignDefaultValues(@NonNull ObjectStoreMetadataDto objectMetadata) {
+  public ObjectStoreMetadata assignDefaultValues(@NonNull ObjectStoreMetadata objectMetadata) {
     if (objectMetadata.getDcType() == null) {
       objectMetadata.setDcType(dcTypeFromDcFormat(objectMetadata.getDcFormat()));
     }
