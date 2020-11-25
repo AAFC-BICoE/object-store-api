@@ -22,4 +22,5 @@ public class ObjectUploadService extends DefaultDinaService<ObjectUpload> {
           .ifPresent(dtd -> entity.setDateTimeDigitized(dtd.toString()));
     }
   }
+
 }

@@ -12,9 +12,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import javax.inject.Inject;
-import javax.transaction.Transactional;
 
-import ca.gc.aafc.objectstore.api.exif.ExifParser;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MimeTypeException;
@@ -25,6 +23,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,6 +36,7 @@ import org.springframework.web.server.ResponseStatusException;
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
+import ca.gc.aafc.objectstore.api.exif.ExifParser;
 import ca.gc.aafc.objectstore.api.minio.MinioFileService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataReadService;
 import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
@@ -46,9 +46,8 @@ import io.minio.errors.InsufficientDataException;
 import io.minio.errors.InternalException;
 import io.minio.errors.InvalidBucketNameException;
 import io.minio.errors.InvalidResponseException;
-import io.minio.errors.XmlParserException;
 import io.minio.errors.ServerException;
-import lombok.SneakyThrows;
+import io.minio.errors.XmlParserException;
 import lombok.extern.log4j.Log4j2;
 
 @RestController
@@ -66,6 +65,7 @@ public class FileController {
   private final MediaTypeDetectionStrategy mediaTypeDetectionStrategy;
   private final ThumbnailService thumbnailService;
   private final MessageSource messageSource;
+  private final TransactionTemplate transactionTemplate;
 
   // request scoped bean
   private DinaAuthenticatedUser authenticatedUser;
@@ -77,7 +77,8 @@ public class FileController {
       MediaTypeDetectionStrategy mediaTypeDetectionStrategy, 
       ThumbnailService thumbnailService,
       DinaAuthenticatedUser authenticatedUser,
-      MessageSource messageSource
+      MessageSource messageSource,
+      TransactionTemplate transactionTemplate
   ) {
     this.minioService = minioService;
     this.objectUploadService = objectUploadService;
@@ -86,10 +87,10 @@ public class FileController {
     this.thumbnailService = thumbnailService;
     this.authenticatedUser = authenticatedUser;
     this.messageSource = messageSource;
+    this.transactionTemplate = transactionTemplate;
   }
 
   @PostMapping("/file/{bucket}")
-  @Transactional
   public ObjectUpload handleFileUpload(@RequestParam("file") MultipartFile file,
       @PathVariable String bucket) throws InvalidKeyException, NoSuchAlgorithmException,
       InvalidBucketNameException, ErrorResponseException, InternalException,
@@ -104,21 +105,28 @@ public class FileController {
     // Temporary, we will need to check if the user is an admin
     minioService.ensureBucketExists(bucket);
 
-    // Safe get unique UUID
-    UUID uuid = generateUUID();
-
     // We need access to the first bytes in a form that we can reset the InputStream
     ReadAheadInputStream prIs = ReadAheadInputStream.from(file.getInputStream(), READ_AHEAD_BUFFER_SIZE);
-
+  
     MediaTypeDetectionStrategy.MediaTypeDetectionResult mtdr = mediaTypeDetectionStrategy
         .detectMediaType(prIs.getReadAheadBuffer(), file.getContentType(), file.getOriginalFilename());
+
+    String fileExtension = mtdr.getEvaluatedMediaType();
+
+    // Safe get unique UUID
+    UUID uuid = transactionTemplate.execute(transactionStatus -> generateUUID());
+    if (uuid == null) {
+      throw new IllegalStateException("Can't assign unique UUID.");
+    }
 
     // Decorate the InputStream in order to compute the hash
     MessageDigest md = MessageDigest.getInstance(DIGEST_ALGORITHM);
     DigestInputStream dis = new DigestInputStream(prIs.getInputStream(), md);
-    
+
+    String filename = uuid.toString() + mtdr.getEvaluatedExtension();
+
     minioService.storeFile(
-      uuid.toString() + mtdr.getEvaluatedExtension(),
+      filename,
       dis,
       mtdr.getEvaluatedMediaType(),
       bucket);
@@ -129,64 +137,44 @@ public class FileController {
     try (InputStream exifIs = file.getInputStream()) {
       exifData = ExifParser.extractExifTags(exifIs);
     }
-   
-    // record the uploaded object to ensure we eventually get the metadata for it
-    ObjectUpload objectUpload =  objectUploadService.create(ObjectUpload.builder()
-        .fileIdentifier(uuid)
-        .createdBy(authenticatedUser.getUsername())
-        .originalFilename(file.getOriginalFilename())
-        .sha1Hex(sha1Hex)
-        .receivedMediaType(file.getContentType())
-        .detectedMediaType(Objects.toString(mtdr.getDetectedMediaType()))
-        .detectedFileExtension(mtdr.getDetectedMimeType().getExtension())
-        .evaluatedMediaType(mtdr.getEvaluatedMediaType())
-        .evaluatedFileExtension(mtdr.getEvaluatedExtension())
-        .sizeInBytes(file.getSize())
-        .bucket(bucket)
-        .exif(exifData)
-        .build());
 
-    UUID thumbUuid = generateThumbNail(uuid, file.getInputStream(), bucket, mtdr.getEvaluatedMediaType());
+    boolean thumbnailIsSupported = thumbnailService.isSupported(fileExtension);
 
-    if (thumbUuid != null) {
-      objectUpload.setThumbnailIdentifier(thumbUuid);
-      objectUploadService.update(objectUpload);
+    ObjectUpload createdObjectUpload = transactionTemplate.execute(transactionStatus -> {
+      // record the uploaded object to ensure we eventually get the metadata for it
+      ObjectUpload objectUpload = objectUploadService.create(ObjectUpload.builder()
+          .fileIdentifier(uuid)
+          .createdBy(authenticatedUser.getUsername())
+          .originalFilename(file.getOriginalFilename())
+          .sha1Hex(sha1Hex)
+          .receivedMediaType(file.getContentType())
+          .detectedMediaType(Objects.toString(mtdr.getDetectedMediaType()))
+          .detectedFileExtension(mtdr.getDetectedMimeType().getExtension())
+          .evaluatedMediaType(mtdr.getEvaluatedMediaType())
+          .evaluatedFileExtension(mtdr.getEvaluatedExtension())
+          .sizeInBytes(file.getSize())
+          .bucket(bucket)
+          .exif(exifData)
+          .build());
+
+      if (thumbnailIsSupported) {
+        UUID thumbnailID = generateUUID();
+        objectUpload.setThumbnailIdentifier(thumbnailID);
+        objectUploadService.update(objectUpload);
+      }
+      return objectUpload;
+    });
+    
+    if (thumbnailIsSupported) {
+      log.info("Generating a thumbnail for file with UUID of: {}", () -> createdObjectUpload.getFileIdentifier());
+      // Create the thumbnail asynchronously so the client doesn't have to wait during file upload:
+      thumbnailService.generateThumbnail(uuid, filename, fileExtension);
     }
-    return objectUpload;
+
+    return createdObjectUpload;
   }
 
   /**
-   * Stores a generated thumbnail and returns the Identifier or Null if a
-   * thumbnail could not be generated.
-   * 
-   * @param fileID
-   *                        - UUID of the original file the thumbnail uses.
-   * 
-   * @param in
-   *                        - image input stream
-   * @param bucket
-   *                        - bucket to store thumbnail
-   * @param fileExtension
-   *                        - file extension of the image
-   * @return - UUID of the stored thumbnail, or null
-   */
-  @SneakyThrows
-  private UUID generateThumbNail(UUID fileID, InputStream in, String bucket, String fileExtension) {
-    if (thumbnailService.isSupported(fileExtension)) {
-      log.info("Generating a thumbnail for file with UUID of: {}", () -> fileID);
-
-      try (InputStream thumbnail = thumbnailService.generateThumbnail(in, fileExtension)) {
-        UUID thumbID = generateUUID();
-        String fileName = thumbID.toString() + ".thumbnail" + ThumbnailService.THUMBNAIL_EXTENSION;
-        minioService.storeFile(fileName, thumbnail, "image/jpeg", bucket);
-        return thumbID;
-      } catch (IOException e) {
-        log.warn(() -> "A thumbnail could not be generated for file " + fileID, e);
-      }
-    }
-    return null;
-  } 
-   /**
    * Triggers a download of a file. Note that the file requires a metadata entry in the database to
    * be available for download.
    * 
