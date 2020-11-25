@@ -22,6 +22,7 @@ import org.javers.core.metamodel.annotation.ShallowReference;
 import org.javers.core.metamodel.annotation.TypeName;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -92,6 +93,10 @@ public class ObjectStoreMetadataDto {
   @JsonApiRelation
   @ShallowReference
   private ObjectStoreMetadataDto acDerivedFrom;
+
+  @JsonApiRelation
+  @DiffIgnore
+  private List<ObjectStoreMetadataDto> derivatives = new ArrayList<>();
 
   @JsonApiExternalRelation(type = "person")
   @JsonApiRelation
