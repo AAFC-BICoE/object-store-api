@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 
+import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -40,14 +41,14 @@ public class ObjectStoreMetadataDefaultValueSetterServiceTest {
   
   @Test
   public void assignDefaultValues_onNoDcFormat_DcTypeIsUndetermined() {
-    ObjectStoreMetadataDto osmd = new ObjectStoreMetadataDto();
+    ObjectStoreMetadata osmd = new ObjectStoreMetadata();
     serviceUnderTest.assignDefaultValues(osmd);
     assertEquals(DcType.UNDETERMINED, osmd.getDcType());
   }
   
   @Test
   public void assignDefaultValues_onPngDcFormat_DcTypeIsImage() {
-    ObjectStoreMetadataDto osmd = new ObjectStoreMetadataDto();
+    ObjectStoreMetadata osmd = new ObjectStoreMetadata();
     osmd.setDcFormat("image/png");
     serviceUnderTest.assignDefaultValues(osmd);
     assertEquals(DcType.IMAGE, osmd.getDcType());

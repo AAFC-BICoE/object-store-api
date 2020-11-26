@@ -1,30 +1,32 @@
 package ca.gc.aafc.objectstore.api.dto;
 
-import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.UUID;
-
-import javax.persistence.Id;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-
-import org.javers.core.metamodel.annotation.DiffIgnore;
-import org.javers.core.metamodel.annotation.PropertyName;
-import org.javers.core.metamodel.annotation.ShallowReference;
-import org.javers.core.metamodel.annotation.TypeName;
-
+import ca.gc.aafc.dina.dto.ExternalRelationDto;
 import ca.gc.aafc.dina.dto.RelatedEntity;
+import ca.gc.aafc.dina.mapper.CustomFieldResolver;
+import ca.gc.aafc.dina.repository.meta.JsonApiExternalRelation;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.crnk.core.resource.annotations.JsonApiId;
 import io.crnk.core.resource.annotations.JsonApiRelation;
 import io.crnk.core.resource.annotations.JsonApiResource;
 import io.crnk.core.resource.annotations.LookupIncludeBehavior;
 import lombok.Data;
+import lombok.NonNull;
+import org.javers.core.metamodel.annotation.DiffIgnore;
+import org.javers.core.metamodel.annotation.Id;
+import org.javers.core.metamodel.annotation.PropertyName;
+import org.javers.core.metamodel.annotation.ShallowReference;
+import org.javers.core.metamodel.annotation.TypeName;
 
-@SuppressFBWarnings({ "EI_EXPOSE_REP", "EI_EXPOSE_REP2" })
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+@SuppressFBWarnings({"EI_EXPOSE_REP", "EI_EXPOSE_REP2"})
 @RelatedEntity(ObjectStoreMetadata.class)
 @Data
 @JsonApiResource(type = ObjectStoreMetadataDto.TYPENAME)
@@ -60,7 +62,7 @@ public class ObjectStoreMetadataDto {
   private String dcRights;
   private String xmpRightsOwner;
   private String xmpRightsUsageTerms;
-  
+
   @JsonInclude(Include.NON_EMPTY)
   private String originalFilename;
 
@@ -71,10 +73,10 @@ public class ObjectStoreMetadataDto {
   private OffsetDateTime createdDate;
   @JsonInclude(Include.NON_EMPTY)
   private OffsetDateTime deletedDate;
-  
+
   @JsonInclude(Include.NON_EMPTY)
   private String[] acTags;
-  
+
   @JsonApiRelation
   @DiffIgnore
   private List<MetadataManagedAttributeDto> managedAttribute;
@@ -84,13 +86,21 @@ public class ObjectStoreMetadataDto {
   @JsonApiRelation(lookUp = LookupIncludeBehavior.AUTOMATICALLY_ALWAYS)
   private ManagedAttributeMapDto managedAttributeMap;
 
-  private UUID acMetadataCreator;
+  @JsonApiExternalRelation(type = "person")
+  @JsonApiRelation
+  private ExternalRelationDto acMetadataCreator;
 
   @JsonApiRelation
   @ShallowReference
   private ObjectStoreMetadataDto acDerivedFrom;
 
-  private UUID dcCreator;
+  @JsonApiRelation
+  @DiffIgnore
+  private List<ObjectStoreMetadataDto> derivatives = new ArrayList<>();
+
+  @JsonApiExternalRelation(type = "person")
+  @JsonApiRelation
+  private ExternalRelationDto dcCreator;
 
   private boolean publiclyReleasable;
 
@@ -98,8 +108,13 @@ public class ObjectStoreMetadataDto {
   private String notPubliclyReleasableReason;
 
   @JsonInclude(Include.NON_EMPTY)
+  @CustomFieldResolver(setterMethod = "acSubTypeToDTO")
   private String acSubType;
-  
+
   private String group;
+
+  public static String acSubTypeToDTO(@NonNull ObjectStoreMetadata entity) {
+    return entity.getAcSubType() == null ? null : entity.getAcSubType().getAcSubtype();
+  }
 
 }

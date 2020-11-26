@@ -67,7 +67,7 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
   public static final URI SCHEMA_BASE_URI;
   
   private static final String SPEC_HOST = "raw.githubusercontent.com";
-  private static final String ROOT_SPEC_PATH = "DINA-Web/object-store-specs/master/schema/object-store-api.yaml";  
+  private static final String ROOT_SPEC_PATH = "DINA-Web/object-store-specs/master/schema/object-store-api.yml";
   
   static {
     URIBuilder uriBuilder = new URIBuilder();
@@ -86,6 +86,9 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
     IT_OBJECT_MAPPER.registerModule(DcTypeJsonSerDe.asModule());
     IT_OBJECT_MAPPER.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
     IT_OBJECT_MAPPER.setSerializationInclusion(Include.NON_NULL);
+
+    //TODO see ticket 20787
+    System.setProperty("testing.skip-remote-schema-validation", "true");
   }
 
   public static final String API_BASE_PATH = "/api/v1";
@@ -103,13 +106,7 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
     * @return
     */
   protected abstract String getSchemaName();
-   
-   /**
-    * Returns the Open API JSON Schema for resource under test.
-    * @return
-    */
-  protected abstract String getSchemaPath();
-     
+
 	 /**
    * Get the name of the resource under test without slash(es).
    * e.g. /api/region/1 -> resource = "region"
@@ -146,7 +143,7 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
    * @throws IOException
    * @throws URISyntaxException
    */
-  protected void validateJsonSchemaByURL(String schemaPath, String schemaName, String responseJson)
+  protected void validateJsonSchemaByURL(String schemaName, String responseJson)
       throws IOException, URISyntaxException, ResolutionException, ValidationException {
    
     URIBuilder uriBuilder = new URIBuilder();
@@ -155,8 +152,8 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
     
     uriBuilder.setPath(ROOT_SPEC_PATH);
   
-    log.info("Validating {} schema against the following response: {}", () -> schemaPath, () -> responseJson);
-    uriBuilder.setPath(schemaPath);
+    log.info("Validating {} schema against the following response: {}", () -> schemaName, () -> responseJson);
+    //uriBuilder.setPath(schemaPath);
     OpenAPI3Assertions.assertRemoteSchema(uriBuilder.build().toURL(), schemaName, responseJson); 
     
   }
@@ -228,16 +225,16 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
     ValidatableResponse responseCompact = given().header("crnk-compact", "true").when()
         .get(getResourceUnderTest() + "/" + id).then().statusCode(HttpStatus.OK.value());
     
-    if( getSchemaPath()!= null && getSchemaName() != null) {
-      validateJsonSchemaByURL(getSchemaPath(), getSchemaName(), responseCompact.extract().body().asString());
+    if( getSchemaName() != null) {
+      validateJsonSchemaByURL(getSchemaName(), responseCompact.extract().body().asString());
     }
     
     // Test without the crnk-compact header.
     ValidatableResponse response = given().when().get(getResourceUnderTest() + "/" + id).then()
         .statusCode(HttpStatus.OK.value());
     
-    if( getSchemaPath()!= null && getSchemaName() != null) {
-      validateJsonSchemaByURL(getSchemaPath(), getSchemaName(), response.extract().body().asString());
+    if(  getSchemaName() != null) {
+      validateJsonSchemaByURL(getSchemaName(), response.extract().body().asString());
     }
     
     validateIncludeRelationships(id, relationships);
@@ -298,16 +295,16 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
     ValidatableResponse responseCompact = given().header("crnk-compact", "true").when()
         .get(getResourceUnderTest()).then().statusCode(HttpStatus.OK.value());
 
-    if( getSchemaPath()!= null && getSchemaName() != null) {
-      validateJsonSchemaByURL(getSchemaPath(), getSchemaName(), responseCompact.extract().body().asString());
+    if( getSchemaName() != null) {
+      validateJsonSchemaByURL(getSchemaName(), responseCompact.extract().body().asString());
     }    
     
     // Test without the crnk-compact header.
     ValidatableResponse response = given().when().get(getResourceUnderTest()).then()
         .statusCode(HttpStatus.OK.value());
     
-    if( getSchemaPath()!= null && getSchemaName() != null) {
-      validateJsonSchemaByURL(getSchemaPath(), getSchemaName(), response.extract().body().asString());
+    if( getSchemaName() != null) {
+      validateJsonSchemaByURL(getSchemaName(), response.extract().body().asString());
     }    
 
     // cleanup

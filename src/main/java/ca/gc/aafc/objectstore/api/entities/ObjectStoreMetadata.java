@@ -2,30 +2,34 @@ package ca.gc.aafc.objectstore.api.entities;
 
 import ca.gc.aafc.dina.entity.DinaEntity;
 import ca.gc.aafc.dina.entity.SoftDeletable;
+import ca.gc.aafc.dina.mapper.CustomFieldResolver;
+import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import com.vladmihalcea.hibernate.type.array.StringArrayType;
 import com.vladmihalcea.hibernate.type.basic.PostgreSQLEnumType;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.NaturalIdCache;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotBlank;
@@ -86,10 +90,14 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
   private UUID dcCreator;
 
   private ObjectStoreMetadata acDerivedFrom;
+
+  @Builder.Default
+  private List<ObjectStoreMetadata> derivatives = new ArrayList<>();
   
   private boolean publiclyReleasable;
   private String notPubliclyReleasableReason;
-  
+
+  @CustomFieldResolver(setterMethod = "acSubTypeToEntity")
   private ObjectSubtype acSubType;
   
   /** Read-only field to get the ac_sub_type_id to allow filtering by null values. */
@@ -141,7 +149,7 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
   /**
    * Returns fileIdentifier + fileExtension
    * 
-   * @return
+   * @return fileIdentifier + fileExtension
    */
   @Transient
   public String getFilename() {
@@ -257,8 +265,7 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
     this.createdOn = createdDate;
   }
 
-  @OneToMany
-  @JoinColumn(name = "metadata_id")
+  @OneToMany(mappedBy = "objectStoreMetadata",  fetch = FetchType.LAZY)
   public List<MetadataManagedAttribute> getManagedAttribute() {
     return managedAttribute;
   }
@@ -310,14 +317,52 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
     this.xmpRightsOwner = xmpRightsOwner;
   }
 
-  @OneToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "ac_derived_from_id", referencedColumnName = "id")
   public ObjectStoreMetadata getAcDerivedFrom() {
     return acDerivedFrom;
   }
 
+  /**
+   * Sets the acDerived from value. Note to establish and remove a bi directional relationship, the
+   * {@link ObjectStoreMetadata#addDerivative} and {@link ObjectStoreMetadata#removeDerivative}
+   * methods should be called from the parent.
+   *
+   * @param acDerivedFrom - parent to set
+   */
   public void setAcDerivedFrom(ObjectStoreMetadata acDerivedFrom) {
     this.acDerivedFrom = acDerivedFrom;
+  }
+
+  @OneToMany(mappedBy = "acDerivedFrom", cascade = CascadeType.PERSIST)
+  public List<ObjectStoreMetadata> getDerivatives() {
+    return derivatives;
+  }
+
+  public void setDerivatives(List<ObjectStoreMetadata> derivatives) {
+    this.derivatives = derivatives;
+  }
+
+  /**
+   * Adds the given derivative to the list of derivatives. This method should be used to establish
+   * Bi directional JPA relations ships.
+   *
+   * @param derivative - derivative to add
+   */
+  public void addDerivative(ObjectStoreMetadata derivative) {
+    derivatives.add(derivative);
+    derivative.setAcDerivedFrom(this);
+  }
+
+  /**
+   * Adds the given derivative to the list of derivatives. This method should be used to remove Bi
+   * directional JPA relations ships.
+   *
+   * @param derivative - derivative to remove
+   */
+  public void removeDerivative(ObjectStoreMetadata derivative) {
+    derivatives.remove(derivative);
+    derivative.setAcDerivedFrom(null);
   }
 
   @Column(name = "publicly_releasable")
@@ -356,21 +401,6 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
 
   public void setAcSubTypeId(Integer acSubTypeId) {
     this.acSubTypeId = acSubTypeId;
-  }
-
-  // TODO: Fix dina-base-api modifyRelation method so it doesn't fail when the
-  // DTO has a relation that the entity doesn't.
-  @Deprecated
-  @Transient
-  public Object getManagedAttributeMap() {
-    return null;
-  }
-  
-  // TODO: Fix dina-base-api modifyRelation method so it doesn't fail when the
-  // DTO has a relation that the entity doesn't.
-  @Deprecated
-  @Transient
-  public void setManagedAttributeMap(Object object) {
   }
 
   @Column(name = "ac_metadata_creator_id")
@@ -435,8 +465,14 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
     this.createdOn = createdOn;
   }
 
-  @PrePersist
-  public void initUuid() {
-    this.uuid = UUID.randomUUID();
+  public static ObjectSubtype acSubTypeToEntity(@NonNull ObjectStoreMetadataDto dto) {
+    if (dto.getDcType() == null || StringUtils.isBlank(dto.getAcSubType())) {
+      return null;
+    }
+    return ObjectSubtype.builder()
+      .acSubtype(dto.getAcSubType().toUpperCase())
+      .dcType(dto.getDcType())
+      .build();
   }
+
 }

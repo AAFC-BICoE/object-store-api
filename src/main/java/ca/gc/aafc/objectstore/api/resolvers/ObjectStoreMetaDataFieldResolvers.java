@@ -41,7 +41,7 @@ public class ObjectStoreMetaDataFieldResolvers {
     return Arrays.asList(
       CustomFieldResolverSpec.<ObjectStoreMetadata>builder()
         .field("acSubType")
-        .resolver(metadata -> acSubTypeToDTO(metadata.getAcSubType()))
+        .resolver(ObjectStoreMetadataDto::acSubTypeToDTO)
         .build()
     );
   }
@@ -63,17 +63,6 @@ public class ObjectStoreMetaDataFieldResolvers {
   }
 
   /**
-   * Returns the AcSubType of the given {@link ObjectSubtype}. Null is returned if
-   * the given {@link ObjectSubtype} is null.
-   * 
-   * @param aSubtype - {@link ObjectSubtype} to map.
-   * @return AcSubType of the given {@link ObjectSubtype}
-   */
-  private static String acSubTypeToDTO(ObjectSubtype aSubtype) {
-    return aSubtype == null ? null : aSubtype.getAcSubtype();
-  }
-
-  /**
    * Returns an {@link ObjectSubtype} from the database with a given dcType and
    * acSubType. Null is returned if the dcType or acSubType is blank. Throws
    * {@link BadRequestException} If a match is not found.
@@ -83,7 +72,7 @@ public class ObjectStoreMetaDataFieldResolvers {
    * @throws BadRequestException If a match is not found.
    * @return {@link ObjectSubtype} from the database
    */
-  private ObjectSubtype acSubTypeToEntity(DcType dcType, String acSubType) {
+  public ObjectSubtype acSubTypeToEntity(DcType dcType, String acSubType) {
     if (dcType == null || StringUtils.isBlank(acSubType)) {
       return null;
     }

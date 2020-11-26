@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
+import io.crnk.core.exception.UnauthorizedException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
@@ -39,7 +40,7 @@ public class FileUploadIT extends BaseIntegrationTest {
   }
 
   @Test
-  public void fileUpload_onInvalidBucket_returnError() throws Exception {
+  public void fileUpload_onInvalidBucket_returnUnauthorizedException() throws Exception {
 
     MockMultipartFile file = new MockMultipartFile("file", "testfile", MediaType.TEXT_PLAIN_VALUE,
         "Test Content".getBytes());
@@ -52,7 +53,7 @@ public class FileUploadIT extends BaseIntegrationTest {
     }
     // NestedServletException is a generic exception so we want to do the assertion on the cause
     catch (NestedServletException nsEx) {
-      assertEquals(IllegalStateException.class, nsEx.getCause().getClass());
+      assertEquals(UnauthorizedException.class, nsEx.getCause().getClass());
     }
      
   }
