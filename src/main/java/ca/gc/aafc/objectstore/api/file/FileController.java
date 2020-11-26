@@ -197,7 +197,7 @@ public class FileController {
           .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
               "No metadata found for FileIdentifier " + fileUuid + " or bucket " + bucket, null));
 
-     String filename = metadata.getFilename();      
+      String filename = metadata.getFilename();      
     
       FileObjectInfo foi = minioService.getFileInfo(filename, bucket).orElseThrow(() -> {
         String errorMsg = messageSource.getMessage("minio.file_or_bucket_not_found",
@@ -206,11 +206,12 @@ public class FileController {
       });
 
       HttpHeaders respHeaders = new HttpHeaders();
-      respHeaders.setContentType(
-        org.springframework.http.MediaType.parseMediaType(
-          metadata.getDcFormat() 
-        )
-      );
+      if (metadata.getDcFormat() !=  null) {
+        respHeaders.setContentType(
+          org.springframework.http.MediaType.parseMediaType(
+            metadata.getDcFormat()
+        ));
+      }
       respHeaders.setContentLength(foi.getLength());
       respHeaders.setContentDispositionFormData("attachment", filename);
 

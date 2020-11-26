@@ -104,6 +104,7 @@ public class FileControllerIT extends BaseIntegrationTest {
       ObjectStoreMetadata metaData = ObjectStoreMetadataFactory.newObjectStoreMetadata()
         .fileIdentifier(uploadResponse.getFileIdentifier())
         .dcType(DcType.IMAGE)
+        .fileExtension(uploadResponse.getEvaluatedFileExtension())
         .build();
       entityManager.persist(metaData);
     });    
@@ -111,7 +112,7 @@ public class FileControllerIT extends BaseIntegrationTest {
    //wait for the meta to be persisted
     for (int attempts = 0; attempts <= 100; attempts++) {
       ObjectStoreMetadata metaData = objectStoreMetaDataService.findOne(uploadResponse.getFileIdentifier(), ObjectStoreMetadata.class);
-      if(metaData!=null &&  minioFileService.getFile(metaData.getFilename(), bucketUnderTest).isPresent()) {
+      if (metaData != null &&  minioFileService.getFile(metaData.getFilename(), bucketUnderTest).isPresent()) {
         break;
       }
       Thread.sleep(100);
