@@ -34,7 +34,7 @@ class ObjectStoreMetadataDtoTest {
       DcType.IMAGE,
       RandomStringUtils.randomAlphabetic(3));
 
-    ObjectSubtype result = ObjectStoreMetadataDto.acSubTypeToEntity(dto);
+    ObjectSubtype result = ObjectStoreMetadata.acSubTypeToEntity(dto);
     Assertions.assertNotNull(result);
     Assertions.assertEquals(dto.getDcType(), result.getDcType());
     Assertions.assertEquals(dto.getAcSubType().toUpperCase(), result.getAcSubtype());
@@ -46,7 +46,7 @@ class ObjectStoreMetadataDtoTest {
       null,
       RandomStringUtils.randomAlphabetic(3));
 
-    ObjectSubtype result = ObjectStoreMetadataDto.acSubTypeToEntity(dto);
+    ObjectSubtype result = ObjectStoreMetadata.acSubTypeToEntity(dto);
     Assertions.assertNull(result);
   }
 
@@ -54,7 +54,7 @@ class ObjectStoreMetadataDtoTest {
   @NullAndEmptySource
   void acSubTypeToEntity_BlankAcSubType_NullReturned(String ac) {
     ObjectStoreMetadataDto dto = getObjectStoreMetadataDto(DcType.IMAGE, ac);
-    ObjectSubtype result = ObjectStoreMetadataDto.acSubTypeToEntity(dto);
+    ObjectSubtype result = ObjectStoreMetadata.acSubTypeToEntity(dto);
     Assertions.assertNull(result);
   }
 

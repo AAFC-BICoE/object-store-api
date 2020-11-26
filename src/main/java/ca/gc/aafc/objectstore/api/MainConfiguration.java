@@ -3,6 +3,7 @@ package ca.gc.aafc.objectstore.api;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executor;
 
 import javax.inject.Inject;
 
@@ -13,6 +14,9 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.AsyncConfigurer;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import ca.gc.aafc.dina.DinaBaseApiAutoConfiguration;
 import ca.gc.aafc.dina.jpa.BaseDAO;
@@ -28,7 +32,8 @@ import io.minio.MinioClient;
 @EntityScan("ca.gc.aafc.objectstore.api.entities")
 @ComponentScan(basePackageClasses = DinaBaseApiAutoConfiguration.class)
 @ImportAutoConfiguration(DinaBaseApiAutoConfiguration.class)
-public class MainConfiguration {
+@EnableAsync
+public class MainConfiguration implements AsyncConfigurer {
 
   @Inject
   private ObjectStoreMetaDataFieldResolvers metaDataFieldResolver;
@@ -64,6 +69,17 @@ public class MainConfiguration {
       DtoEntityMapping.getDtoToEntityMapping(ObjectStoreMetadataDto.class),
       customFieldResolvers
     );
+  }
+
+  @Override
+  public Executor getAsyncExecutor() {
+    ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+    executor.setCorePoolSize(5);
+    executor.setMaxPoolSize(15);
+    executor.setQueueCapacity(1000);
+    executor.setThreadNamePrefix("AsyncExecutor-");
+    executor.initialize();
+    return executor;
   }
 
 }

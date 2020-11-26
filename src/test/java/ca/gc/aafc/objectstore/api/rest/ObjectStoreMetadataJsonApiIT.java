@@ -102,6 +102,7 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
     osMetadata.setPubliclyReleasable(true);
     osMetadata.setNotPubliclyReleasableReason("Classified");
     osMetadata.setXmpRightsUsageTerms(null);
+    osMetadata.setDerivatives(null);
     return osMetadata;
   }
 
