@@ -187,10 +187,8 @@ public class FileController {
   public ResponseEntity<InputStreamResource> downloadObject(@PathVariable String bucket,
       @PathVariable String fileId) throws IOException {
 
-    boolean thumbnailRequested = fileId.endsWith(".thumbnail");
-    String fileUuidString = thumbnailRequested ? fileId.replaceAll(".thumbnail$", "") : fileId;
-    UUID fileUuid = UUID.fromString(fileUuidString);
-    
+    UUID fileUuid = UUID.fromString(fileId);
+   
     try {
       Optional<ObjectStoreMetadata> loadedMetadata = objectStoreMetadataReadService
           .loadObjectStoreMetadataByFileId(fileUuid);
@@ -199,10 +197,8 @@ public class FileController {
           .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
               "No metadata found for FileIdentifier " + fileUuid + " or bucket " + bucket, null));
 
-      String filename = thumbnailRequested ? 
-          metadata.getFileIdentifier() + ".thumbnail" + ThumbnailService.THUMBNAIL_EXTENSION
-        : metadata.getFilename();      
-     
+     String filename = metadata.getFilename();      
+    
       FileObjectInfo foi = minioService.getFileInfo(filename, bucket).orElseThrow(() -> {
         String errorMsg = messageSource.getMessage("minio.file_or_bucket_not_found",
             new Object[] { fileUuid, bucket }, LocaleContextHolder.getLocale());
@@ -212,7 +208,7 @@ public class FileController {
       HttpHeaders respHeaders = new HttpHeaders();
       respHeaders.setContentType(
         org.springframework.http.MediaType.parseMediaType(
-          thumbnailRequested ? "image/jpeg" : metadata.getDcFormat()
+          metadata.getDcFormat() 
         )
       );
       respHeaders.setContentLength(foi.getLength());
