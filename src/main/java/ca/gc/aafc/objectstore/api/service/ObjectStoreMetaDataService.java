@@ -7,6 +7,7 @@ import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import io.crnk.core.exception.BadRequestException;
 import lombok.NonNull;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.Predicate;
@@ -78,16 +79,20 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
     @NonNull ObjectStoreMetadata metadata,
     @NonNull ObjectSubtype acSubType
   ) {
-    ObjectSubtype fetchedType = this.findAll(ObjectSubtype.class,
-      (criteriaBuilder, objectRoot) -> new Predicate[]{
-        criteriaBuilder.equal(objectRoot.get("acSubtype"), acSubType.getAcSubtype()),
-        criteriaBuilder.equal(objectRoot.get("dcType"), acSubType.getDcType()),
-      }
-      , null, 0, 1)
-      .stream()
-      .findFirst()
-      .orElseThrow(() -> throwBadRequest(acSubType));
-    metadata.setAcSubType(fetchedType);
+    if (acSubType.getDcType() == null || StringUtils.isBlank(acSubType.getAcSubtype())) {
+      metadata.setAcSubType(null);
+    } else {
+      ObjectSubtype fetchedType = this.findAll(ObjectSubtype.class,
+        (criteriaBuilder, objectRoot) -> new Predicate[]{
+          criteriaBuilder.equal(objectRoot.get("acSubtype"), acSubType.getAcSubtype()),
+          criteriaBuilder.equal(objectRoot.get("dcType"), acSubType.getDcType()),
+        }
+        , null, 0, 1)
+        .stream()
+        .findFirst()
+        .orElseThrow(() -> throwBadRequest(acSubType));
+      metadata.setAcSubType(fetchedType);
+    }
   }
 
   private BadRequestException throwBadRequest(ObjectSubtype acSubType) {
