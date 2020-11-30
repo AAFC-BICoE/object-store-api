@@ -25,6 +25,7 @@ import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
+import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
 import io.crnk.core.exception.MethodNotAllowedException;
 import io.crnk.core.queryspec.QuerySpec;
 import io.crnk.core.repository.ResourceRepositoryBase;
@@ -66,9 +67,11 @@ public class ManagedAttributeMapRepository extends ResourceRepositoryBase<Manage
   private final BaseDAO dao;
   private final AuditService auditService;
   private final DinaMappingLayer<ObjectStoreMetadataDto, ObjectStoreMetadata> mappingLayer;
+  private final ObjectStoreMetaDataService objectStoreMetaDataService;
 
   @Inject
-  public ManagedAttributeMapRepository(final BaseDAO baseDao, AuditService auditService) {
+  public ManagedAttributeMapRepository(final BaseDAO baseDao, AuditService auditService,
+  ObjectStoreMetaDataService objectStoreMetaDataService) {
     super(ManagedAttributeMapDto.class);
     this.dao = baseDao;
     this.auditService = auditService;
@@ -76,6 +79,7 @@ public class ManagedAttributeMapRepository extends ResourceRepositoryBase<Manage
       ObjectStoreMetadataDto.class,
       new DefaultDinaService<>(baseDao),
       new DinaMapper<>(ObjectStoreMetadataDto.class));
+    this.objectStoreMetaDataService = objectStoreMetaDataService;
   }
 
   @Override
@@ -136,6 +140,8 @@ public class ManagedAttributeMapRepository extends ResourceRepositoryBase<Manage
 
     // Crnk requires a created resource to have an ID. Create one here if the client did not provide one.
     resource.setId(Optional.ofNullable(resource.getId()).orElse("N/A"));
+
+    objectStoreMetaDataService.validateMetaManagedAttribute(metadata);
 
     // flush all jpa changes
     dao.update(metadata);

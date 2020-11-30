@@ -39,7 +39,7 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
     this.defaultValueSetterService = defaultValueSetterService;
   }
 
-  private void validateMetaManagedAttribute(ObjectStoreMetadata entity) {
+  public void validateMetaManagedAttribute(ObjectStoreMetadata entity) {
     if (entity.getManagedAttribute() == null) {
       return;
     }
