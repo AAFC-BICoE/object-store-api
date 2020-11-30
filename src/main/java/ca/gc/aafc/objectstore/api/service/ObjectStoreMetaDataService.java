@@ -4,26 +4,25 @@ import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.dina.service.DefaultDinaService;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
-import ca.gc.aafc.objectstore.api.resolvers.ObjectStoreMetaDataFieldResolvers;
+import io.crnk.core.exception.BadRequestException;
 import lombok.NonNull;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 
-import javax.inject.Inject;
+import javax.persistence.criteria.Predicate;
 import java.util.UUID;
 
 @Service
 public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMetadata> {
 
-  @Inject
-  private ObjectStoreMetaDataFieldResolvers metaDataFieldResolver;
-
   private final ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService;
 
   private final BaseDAO baseDAO;
 
-  public ObjectStoreMetaDataService(@NonNull BaseDAO baseDAO,
-                                    @NonNull ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService) {
+  public ObjectStoreMetaDataService(
+    @NonNull BaseDAO baseDAO,
+    @NonNull ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService
+  ) {
     super(baseDAO);
     this.baseDAO = baseDAO;
     this.defaultValueSetterService = defaultValueSetterService;
@@ -79,10 +78,22 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
     @NonNull ObjectStoreMetadata metadata,
     @NonNull ObjectSubtype acSubType
   ) {
-    ObjectSubtype fetchedType = metaDataFieldResolver.acSubTypeToEntity(
-      acSubType.getDcType(),
-      acSubType.getAcSubtype());
+    ObjectSubtype fetchedType = this.findAll(ObjectSubtype.class,
+      (criteriaBuilder, objectRoot) -> new Predicate[]{
+        criteriaBuilder.equal(objectRoot.get("acSubtype"), acSubType.getAcSubtype()),
+        criteriaBuilder.equal(objectRoot.get("dcType"), acSubType.getDcType()),
+      }
+      , null, 0, 1)
+      .stream()
+      .findFirst()
+      .orElseThrow(() -> throwBadRequest(acSubType));
     metadata.setAcSubType(fetchedType);
+  }
+
+  private BadRequestException throwBadRequest(ObjectSubtype acSubType) {
+    return new BadRequestException(
+      acSubType.getAcSubtype() + "/" + acSubType.getDcType()
+      + " is not a valid acSubType/dcType");
   }
 
 }

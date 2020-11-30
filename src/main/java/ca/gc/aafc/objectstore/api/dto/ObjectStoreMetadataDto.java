@@ -2,10 +2,14 @@ package ca.gc.aafc.objectstore.api.dto;
 
 import ca.gc.aafc.dina.dto.ExternalRelationDto;
 import ca.gc.aafc.dina.dto.RelatedEntity;
-import ca.gc.aafc.dina.mapper.CustomFieldResolver;
+import ca.gc.aafc.dina.mapper.CustomFieldAdapter;
+import ca.gc.aafc.dina.mapper.DerivedDtoField;
+import ca.gc.aafc.dina.mapper.DinaFieldAdapter;
 import ca.gc.aafc.dina.repository.meta.JsonApiExternalRelation;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
+import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -13,8 +17,9 @@ import io.crnk.core.resource.annotations.JsonApiId;
 import io.crnk.core.resource.annotations.JsonApiRelation;
 import io.crnk.core.resource.annotations.JsonApiResource;
 import io.crnk.core.resource.annotations.LookupIncludeBehavior;
+import lombok.AccessLevel;
 import lombok.Data;
-import lombok.NonNull;
+import lombok.Getter;
 import org.javers.core.metamodel.annotation.DiffIgnore;
 import org.javers.core.metamodel.annotation.Id;
 import org.javers.core.metamodel.annotation.PropertyName;
@@ -25,6 +30,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 @SuppressFBWarnings({"EI_EXPOSE_REP", "EI_EXPOSE_REP2"})
 @RelatedEntity(ObjectStoreMetadata.class)
@@ -108,13 +114,50 @@ public class ObjectStoreMetadataDto {
   private String notPubliclyReleasableReason;
 
   @JsonInclude(Include.NON_EMPTY)
-  @CustomFieldResolver(setterMethod = "acSubTypeToDTO")
+  @DerivedDtoField
   private String acSubType;
 
   private String group;
 
-  public static String acSubTypeToDTO(@NonNull ObjectStoreMetadata entity) {
-    return entity.getAcSubType() == null ? null : entity.getAcSubType().getAcSubtype();
+  @CustomFieldAdapter(adapter = AcSubTypeAdapter.class)
+  @JsonIgnore
+  @DiffIgnore
+  @Getter(AccessLevel.NONE)
+  private ObjectSubtype objectSubtype;
+
+  public ObjectSubtype getObjectSubtype() {
+    return ObjectSubtype.builder().dcType(this.dcType).acSubtype(this.acSubType).build();
+  }
+
+  public void applyObjectSubtype(ObjectSubtype objectSubtype) {
+    setObjectSubtype(objectSubtype);
+    if (objectSubtype != null) {
+      setAcSubType(objectSubtype.getAcSubtype());
+    }
+  }
+
+  public static class AcSubTypeAdapter
+    implements DinaFieldAdapter<ObjectStoreMetadataDto, ObjectStoreMetadata, ObjectSubtype, ObjectSubtype> {
+
+    @Override
+    public ObjectSubtype toDTO(ObjectSubtype value) {
+      return value;
+    }
+
+    @Override
+    public ObjectSubtype toEntity(ObjectSubtype value) {
+      return value;
+    }
+
+    @Override
+    public Consumer<ObjectSubtype> entityApplyMethod(ObjectStoreMetadata entityRef) {
+      return entityRef::setAcSubType;
+    }
+
+    @Override
+    public Consumer<ObjectSubtype> dtoApplyMethod(ObjectStoreMetadataDto dtoRef) {
+      return dtoRef::applyObjectSubtype;
+    }
   }
 
 }

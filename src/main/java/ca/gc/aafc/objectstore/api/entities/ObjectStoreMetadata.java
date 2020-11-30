@@ -2,16 +2,12 @@ package ca.gc.aafc.objectstore.api.entities;
 
 import ca.gc.aafc.dina.entity.DinaEntity;
 import ca.gc.aafc.dina.entity.SoftDeletable;
-import ca.gc.aafc.dina.mapper.CustomFieldResolver;
-import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import com.vladmihalcea.hibernate.type.array.StringArrayType;
 import com.vladmihalcea.hibernate.type.basic.PostgreSQLEnumType;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.NaturalIdCache;
 import org.hibernate.annotations.Type;
@@ -93,13 +89,12 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
 
   @Builder.Default
   private List<ObjectStoreMetadata> derivatives = new ArrayList<>();
-  
+
   private boolean publiclyReleasable;
   private String notPubliclyReleasableReason;
 
-  @CustomFieldResolver(setterMethod = "acSubTypeToEntity")
   private ObjectSubtype acSubType;
-  
+
   /** Read-only field to get the ac_sub_type_id to allow filtering by null values. */
   private Integer acSubTypeId;
 
@@ -148,7 +143,7 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
 
   /**
    * Returns fileIdentifier + fileExtension
-   * 
+   *
    * @return fileIdentifier + fileExtension
    */
   @Transient
@@ -273,7 +268,7 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
   public void setManagedAttribute(List<MetadataManagedAttribute> managedAttribute) {
     this.managedAttribute = managedAttribute;
   }
-  
+
   @NotNull
   @Column(name = "xmp_rights_web_statement")
   @Size(max = 250)
@@ -431,17 +426,17 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
   public void setXmpRightsUsageTerms(String xmpRightsUsageTerms) {
     this.xmpRightsUsageTerms = xmpRightsUsageTerms;
   }
-  
-  /** Transient field until base implementation is ready **/ 
-  @Transient  
+
+  /** Transient field until base implementation is ready **/
+  @Transient
   public String getGroup() {
     return bucket;
   }
-  
-  /** Empty setter method to avoid resource method error: missing accessor method until 
+
+  /** Empty setter method to avoid resource method error: missing accessor method until
    *  multiple custom field resolvers can be associated with single resource
    */
-  public void setGroup(String group) {    
+  public void setGroup(String group) {
   }
 
   @Override
@@ -465,14 +460,9 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
     this.createdOn = createdOn;
   }
 
-  public static ObjectSubtype acSubTypeToEntity(@NonNull ObjectStoreMetadataDto dto) {
-    if (dto.getDcType() == null || StringUtils.isBlank(dto.getAcSubType())) {
-      return null;
-    }
-    return ObjectSubtype.builder()
-      .acSubtype(dto.getAcSubType().toUpperCase())
-      .dcType(dto.getDcType())
-      .build();
+  @Transient
+  public ObjectSubtype getObjectSubtype() {
+    return this.getAcSubType();
   }
 
 }
