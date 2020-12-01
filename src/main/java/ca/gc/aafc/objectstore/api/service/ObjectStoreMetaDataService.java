@@ -25,9 +25,7 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
 
   @Inject
   private ObjectStoreMetaDataFieldResolvers metaDataFieldResolver;
-
-  @Inject
-  private MetadataManagedAttributeValidator metadataManagedAttributeValidator;
+  
   private final ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService;
 
   private final BaseDAO baseDAO;
@@ -38,31 +36,10 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
     this.baseDAO = baseDAO;
     this.defaultValueSetterService = defaultValueSetterService;
   }
-
-  public void validateMetaManagedAttribute(ObjectStoreMetadata entity) {
-    if (entity.getManagedAttribute() == null) {
-      return;
-    }
-
-    for (MetadataManagedAttribute mma : entity.getManagedAttribute()) {
-      Errors errors = new BeanPropertyBindingResult(mma, mma.getUuid().toString());
-      metadataManagedAttributeValidator.validate(mma, errors);
-      if (errors != null) {
-        String errorMsg = errors.getFieldError() != null ? errors.getFieldError().getDefaultMessage()
-            : errors.getAllErrors() != null && errors.getAllErrors().size() > 0
-                ? errors.getAllErrors().get(0).getDefaultMessage()
-                : null;
-        if (!StringUtils.isEmpty(errorMsg)) {
-          throw new IllegalArgumentException(errorMsg);
-        }
-      }
-    }
-  }
-
+  
   @Override
   protected void preCreate(ObjectStoreMetadata entity) {
-    validateMetaManagedAttribute(entity);
-
+   
     entity.setUuid(UUID.randomUUID());
 
     defaultValueSetterService.assignDefaultValues(entity);
@@ -78,7 +55,6 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
 
   @Override
   protected void preUpdate(ObjectStoreMetadata entity) {
-    validateMetaManagedAttribute(entity);
 
     ObjectSubtype temp = entity.getAcSubType();
 
