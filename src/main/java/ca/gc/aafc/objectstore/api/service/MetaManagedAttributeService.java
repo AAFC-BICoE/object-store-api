@@ -25,17 +25,17 @@ public class MetaManagedAttributeService extends DefaultDinaService<MetadataMana
   }
 
   public void validateMetaManagedAttribute(MetadataManagedAttribute entity) {
-      Errors errors = new BeanPropertyBindingResult(entity, entity.getUuid().toString());
-      metadataManagedAttributeValidator.validate(entity, errors);
-      if (errors != null) {
-        String errorMsg = errors.getFieldError() != null ? errors.getFieldError().getDefaultMessage()
+    Errors errors = new BeanPropertyBindingResult(entity, entity.getUuid().toString());
+    metadataManagedAttributeValidator.validate(entity, errors);
+    if (errors != null) {
+      String errorMsg = errors.getFieldError() != null ? errors.getFieldError().getDefaultMessage()
             : errors.getAllErrors() != null && errors.getAllErrors().size() > 0
                 ? errors.getAllErrors().get(0).getDefaultMessage()
                 : null;
-        if (!StringUtils.isEmpty(errorMsg)) {
-          throw new IllegalArgumentException(errorMsg);
-        }
+      if (!StringUtils.isEmpty(errorMsg)) {
+        throw new IllegalArgumentException(errorMsg);
       }
+    }
   }
 
   @Override

@@ -26,7 +26,6 @@ import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.service.MetaManagedAttributeService;
-import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
 import io.crnk.core.exception.MethodNotAllowedException;
 import io.crnk.core.queryspec.QuerySpec;
 import io.crnk.core.repository.ResourceRepositoryBase;
@@ -72,7 +71,7 @@ public class ManagedAttributeMapRepository extends ResourceRepositoryBase<Manage
 
   @Inject
   public ManagedAttributeMapRepository(final BaseDAO baseDao, AuditService auditService,
-  MetaManagedAttributeService metaManagedAttributeService) {
+    MetaManagedAttributeService metaManagedAttributeService) {
     super(ManagedAttributeMapDto.class);
     this.dao = baseDao;
     this.auditService = auditService;
