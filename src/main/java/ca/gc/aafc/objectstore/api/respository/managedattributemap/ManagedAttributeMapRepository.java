@@ -25,8 +25,6 @@ import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
-import ca.gc.aafc.objectstore.api.service.MetaManagedAttributeService;
-import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
 import io.crnk.core.exception.MethodNotAllowedException;
 import io.crnk.core.queryspec.QuerySpec;
 import io.crnk.core.repository.ResourceRepositoryBase;
@@ -68,13 +66,9 @@ public class ManagedAttributeMapRepository extends ResourceRepositoryBase<Manage
   private final BaseDAO dao;
   private final AuditService auditService;
   private final DinaMappingLayer<ObjectStoreMetadataDto, ObjectStoreMetadata> mappingLayer;
-  private final MetaManagedAttributeService metaManagedAttributeService;
-  private final ObjectStoreMetaDataService objectStoreMetaDataService;
 
   @Inject
-  public ManagedAttributeMapRepository(final BaseDAO baseDao, AuditService auditService,
-    MetaManagedAttributeService metaManagedAttributeService, 
-    ObjectStoreMetaDataService objectStoreMetaDataService) {
+  public ManagedAttributeMapRepository(final BaseDAO baseDao, AuditService auditService) {
     super(ManagedAttributeMapDto.class);
     this.dao = baseDao;
     this.auditService = auditService;
@@ -82,8 +76,6 @@ public class ManagedAttributeMapRepository extends ResourceRepositoryBase<Manage
       ObjectStoreMetadataDto.class,
       new DefaultDinaService<>(baseDao),
       new DinaMapper<>(ObjectStoreMetadataDto.class));
-    this.metaManagedAttributeService = metaManagedAttributeService;
-    this.objectStoreMetaDataService = objectStoreMetaDataService;
   }
 
   @Override
@@ -137,7 +129,7 @@ public class ManagedAttributeMapRepository extends ResourceRepositoryBase<Manage
           .assignedValue(newValue)
           .uuid(UUID.randomUUID())
           .build();
-        metaManagedAttributeService.create(newAttributeValue);        
+        dao.create(newAttributeValue);
         managedAttributeValues.add(newAttributeValue);
       }
     }
@@ -146,7 +138,7 @@ public class ManagedAttributeMapRepository extends ResourceRepositoryBase<Manage
     resource.setId(Optional.ofNullable(resource.getId()).orElse("N/A"));
 
     // flush all jpa changes
-    objectStoreMetaDataService.update(metadata);
+    dao.update(metadata);
     // map to dto and audit
     mapMetadata(metadata).ifPresent(dto -> {
       dto.setManagedAttributeMap(
