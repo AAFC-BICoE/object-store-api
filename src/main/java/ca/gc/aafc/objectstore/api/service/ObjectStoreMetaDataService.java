@@ -23,13 +23,17 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
   
   private final ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService;
 
+  private final MetaManagedAttributeService metaManagedAttributeService;
+
   private final BaseDAO baseDAO;
 
   public ObjectStoreMetaDataService(@NonNull BaseDAO baseDAO,
-      @NonNull ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService) {
+      @NonNull ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService,
+      @NonNull MetaManagedAttributeService metaManagedAttributeService) {
     super(baseDAO);
     this.baseDAO = baseDAO;
     this.defaultValueSetterService = defaultValueSetterService;
+    this.metaManagedAttributeService = metaManagedAttributeService;
   }
   
   @Override
@@ -50,6 +54,13 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
 
   @Override
   protected void preUpdate(ObjectStoreMetadata entity) {
+
+    if ( entity.getManagedAttribute() != null ) {
+      entity.getManagedAttribute().stream().forEach(
+        metaMA -> {
+          metaManagedAttributeService.validateMetaManagedAttribute(metaMA); }
+      );
+    }
 
     ObjectSubtype temp = entity.getAcSubType();
 
