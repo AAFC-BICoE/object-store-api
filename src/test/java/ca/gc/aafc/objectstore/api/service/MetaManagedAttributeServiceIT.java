@@ -75,7 +75,7 @@ public class MetaManagedAttributeServiceIT extends BaseIntegrationTest {
   }
 
   @Test
-  public void objectStoreMetaDataService_OnUpdate_InvalidMetadataManagedAttributeValues_throwException() {
+  public void metaManagedAttributeService_OnUpdate_InvalidValues_throwException() {
 
     testMetaManagedAttribute.setAssignedValue("c");
     Assertions.assertThrows(IllegalArgumentException.class, () -> metaManagedAttributeService.update(testMetaManagedAttribute));        
@@ -85,7 +85,7 @@ public class MetaManagedAttributeServiceIT extends BaseIntegrationTest {
   }  
 
   @Test
-  public void objectStoreMetaDataService_OnUpdate_ValidMetadataManagedAttributeValues_valueUpdated() {
+  public void metaManagedAttributeService_OnUpdate_ValidValues_valueUpdated() {
 
     testMetaManagedAttribute.setAssignedValue("b");
     MetadataManagedAttribute metaMA = metaManagedAttributeService.update(testMetaManagedAttribute);
@@ -97,4 +97,28 @@ public class MetaManagedAttributeServiceIT extends BaseIntegrationTest {
     Assertions.assertEquals(metaMA.getAssignedValue(), testMetaManagedAttribute2.getAssignedValue());        
     
   }    
+
+  @Test
+  public void metaManagedAttributeService_OnCreate_InvalidValues_throwException() {
+
+    testMetaManagedAttribute.setAssignedValue("c");
+    Assertions.assertThrows(IllegalArgumentException.class, () -> metaManagedAttributeService.create(testMetaManagedAttribute));        
+    testMetaManagedAttribute2.setAssignedValue("3");
+    Assertions.assertThrows(IllegalArgumentException.class, () -> metaManagedAttributeService.create(testMetaManagedAttribute2));        
+    
+  }  
+
+  @Test
+  public void metaManagedAttributeService_OnCreate_ValidValues_attributeCreated() {
+
+    testMetaManagedAttribute.setAssignedValue("b");
+    MetadataManagedAttribute metaMA = metaManagedAttributeService.create(testMetaManagedAttribute);
+    assertNotNull(metaMA);
+    Assertions.assertEquals(metaMA.getAssignedValue(), testMetaManagedAttribute.getAssignedValue());        
+    testMetaManagedAttribute2.setAssignedValue("1");
+    metaMA = metaManagedAttributeService.create(testMetaManagedAttribute2);
+    assertNotNull(metaMA);
+    Assertions.assertEquals(metaMA.getAssignedValue(), testMetaManagedAttribute2.getAssignedValue());        
+    
+  }      
 }
