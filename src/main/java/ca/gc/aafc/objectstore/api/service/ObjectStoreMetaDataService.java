@@ -38,7 +38,8 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
   
   @Override
   protected void preCreate(ObjectStoreMetadata entity) {
-   
+    validateMetaManagedAttribute(entity);  
+       
     entity.setUuid(UUID.randomUUID());
 
     defaultValueSetterService.assignDefaultValues(entity);
@@ -52,15 +53,18 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
     }
   }
 
-  @Override
-  protected void preUpdate(ObjectStoreMetadata entity) {
-
+  private void validateMetaManagedAttribute(ObjectStoreMetadata entity) { 
     if ( entity.getManagedAttribute() != null ) {
       entity.getManagedAttribute().stream().forEach(
         metaMA -> {
           metaManagedAttributeService.validateMetaManagedAttribute(metaMA); }
       );
     }
+  }
+
+  @Override
+  protected void preUpdate(ObjectStoreMetadata entity) {
+
 
     ObjectSubtype temp = entity.getAcSubType();
 
