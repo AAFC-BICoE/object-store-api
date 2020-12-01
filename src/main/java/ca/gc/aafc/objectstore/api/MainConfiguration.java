@@ -2,7 +2,6 @@ package ca.gc.aafc.objectstore.api;
 
 import ca.gc.aafc.dina.DinaBaseApiAutoConfiguration;
 import ca.gc.aafc.dina.jpa.BaseDAO;
-import ca.gc.aafc.dina.mapper.CustomFieldResolverSpec;
 import ca.gc.aafc.dina.mapper.JpaDtoMapper;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.respository.DtoEntityMapping;
@@ -19,8 +18,6 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executor;
 
 @Configuration
@@ -52,11 +49,9 @@ public class MainConfiguration implements AsyncConfigurer {
    */
   @Bean
   public JpaDtoMapper dtoJpaMapper(BaseDAO baseDAO) {
-    Map<Class<?>, List<CustomFieldResolverSpec<?>>> customFieldResolvers = new HashMap<>();
-
     return new JpaDtoMapper(
       DtoEntityMapping.getDtoToEntityMapping(ObjectStoreMetadataDto.class),
-      customFieldResolvers
+      new HashMap<>()
     );
   }
 

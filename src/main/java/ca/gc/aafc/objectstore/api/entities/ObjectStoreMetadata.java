@@ -460,9 +460,4 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
     this.createdOn = createdOn;
   }
 
-  @Transient
-  public ObjectSubtype getObjectSubtype() {
-    return this.getAcSubType();
-  }
-
 }
