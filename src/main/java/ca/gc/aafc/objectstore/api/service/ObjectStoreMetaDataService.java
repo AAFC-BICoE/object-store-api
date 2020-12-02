@@ -64,7 +64,7 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
 
   @Override
   protected void preUpdate(ObjectStoreMetadata entity) {
-
+    validateMetaManagedAttribute(entity);  
 
     ObjectSubtype temp = entity.getAcSubType();
 
