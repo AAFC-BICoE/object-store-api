@@ -94,8 +94,7 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
 
   private BadRequestException throwBadRequest(ObjectSubtype acSubType) {
     return new BadRequestException(
-      acSubType.getAcSubtype() + "/" + acSubType.getDcType()
-      + " is not a valid acSubType/dcType");
+      acSubType.getAcSubtype() + "/" + acSubType.getDcType() + " is not a valid acSubType/dcType");
   }
 
 }
