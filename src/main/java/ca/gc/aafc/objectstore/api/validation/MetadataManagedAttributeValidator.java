@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
@@ -16,7 +15,6 @@ import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute.ManagedAttributeType;
 import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
 
-@Component
 public class MetadataManagedAttributeValidator implements Validator {
 
   private final MessageSource messageSource;
