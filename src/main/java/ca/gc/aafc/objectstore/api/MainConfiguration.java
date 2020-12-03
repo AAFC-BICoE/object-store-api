@@ -57,13 +57,6 @@ public class MainConfiguration implements AsyncConfigurer {
     );
   }
 
-  @Bean
-  public BuildProperties buildProperties() {
-    Properties props = new Properties();
-    props.setProperty("version", "0.14");
-    return new BuildProperties(props);
-  }
-
   @Override
   public Executor getAsyncExecutor() {
     ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
