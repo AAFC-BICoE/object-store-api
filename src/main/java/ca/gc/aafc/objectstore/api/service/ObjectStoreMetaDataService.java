@@ -86,11 +86,8 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
         (criteriaBuilder, objectRoot) -> new Predicate[]{
           criteriaBuilder.equal(objectRoot.get("acSubtype"), acSubType.getAcSubtype()),
           criteriaBuilder.equal(objectRoot.get("dcType"), acSubType.getDcType()),
-        }
-        , null, 0, 1)
-        .stream()
-        .findFirst()
-        .orElseThrow(() -> throwBadRequest(acSubType));
+        }, null, 0, 1)
+        .stream().findFirst().orElseThrow(() -> throwBadRequest(acSubType));
       metadata.setAcSubType(fetchedType);
     }
   }
