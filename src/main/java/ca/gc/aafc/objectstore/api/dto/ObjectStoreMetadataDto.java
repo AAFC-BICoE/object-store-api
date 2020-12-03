@@ -120,25 +120,16 @@ public class ObjectStoreMetadataDto {
   private String group;
 
   public static class AcSubTypeAdapter
-    implements DinaFieldAdapter<ObjectStoreMetadataDto, ObjectStoreMetadata, String, ObjectSubtype> {
-
-    private static final String SPLITTER = "/";
+    implements DinaFieldAdapter<ObjectStoreMetadataDto, ObjectStoreMetadata, ObjectSubtype, ObjectSubtype> {
 
     @Override
-    public String toDTO(ObjectSubtype objectSubtype) {
-      return objectSubtype == null ? null : objectSubtype.getAcSubtype();
+    public ObjectSubtype toDTO(ObjectSubtype subtype) {
+      return subtype;
     }
 
     @Override
-    public ObjectSubtype toEntity(String s) {
-      if (StringUtils.isBlank(s)) {
-        return null;
-      }
-      String[] parts = s.split(SPLITTER);
-      return ObjectSubtype.builder()
-        .dcType(DcType.fromValue(parts[0]).orElse(null))
-        .acSubtype(parts[1])
-        .build();
+    public ObjectSubtype toEntity(ObjectSubtype subtype) {
+      return subtype;
     }
 
     @Override
@@ -147,8 +138,16 @@ public class ObjectStoreMetadataDto {
     }
 
     @Override
-    public Consumer<String> dtoApplyMethod(ObjectStoreMetadataDto dtoRef) {
-      return dtoRef::setAcSubType;
+    public Consumer<ObjectSubtype> dtoApplyMethod(ObjectStoreMetadataDto dtoRef) {
+      return objectSubtype -> {
+        if (objectSubtype != null &&
+            objectSubtype.getDcType() != null &&
+            StringUtils.isNotBlank(objectSubtype.getAcSubtype())) {
+          dtoRef.setAcSubType(objectSubtype.getAcSubtype());
+        } else {
+          dtoRef.setAcSubType(null);
+        }
+      };
     }
 
     @Override
@@ -157,11 +156,14 @@ public class ObjectStoreMetadataDto {
     }
 
     @Override
-    public Supplier<String> dtoSupplyMethod(ObjectStoreMetadataDto dtoRef) {
+    public Supplier<ObjectSubtype> dtoSupplyMethod(ObjectStoreMetadataDto dtoRef) {
       if (dtoRef.getDcType() == null || StringUtils.isBlank(dtoRef.getAcSubType())) {
         return () -> null;
       }
-      return () -> dtoRef.getDcType() + SPLITTER + dtoRef.getAcSubType();
+      return () -> ObjectSubtype.builder()
+        .dcType(dtoRef.getDcType())
+        .acSubtype(dtoRef.getAcSubType())
+        .build();
     }
   }
 
