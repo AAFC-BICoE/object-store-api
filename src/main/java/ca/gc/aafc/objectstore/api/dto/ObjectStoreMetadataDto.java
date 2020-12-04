@@ -119,6 +119,25 @@ public class ObjectStoreMetadataDto {
 
   private String group;
 
+  public void applyObjectSubtype(ObjectSubtype objectSubtype) {
+    if (objectSubtype != null &&
+        objectSubtype.getDcType() != null &&
+        StringUtils.isNotBlank(objectSubtype.getAcSubtype())) {
+      setAcSubType(objectSubtype.getAcSubtype());
+    } else {
+      setAcSubType(null);
+    }
+  }
+  public ObjectSubtype supplyObjectSubtype() {
+    if (getDcType() == null || StringUtils.isBlank(getAcSubType())) {
+      return null;
+    }
+    return ObjectSubtype.builder()
+        .dcType(getDcType())
+        .acSubtype(getAcSubType())
+        .build();
+  }
+
   public static class AcSubTypeAdapter
     implements DinaFieldAdapter<ObjectStoreMetadataDto, ObjectStoreMetadata, ObjectSubtype, ObjectSubtype> {
 
@@ -138,32 +157,18 @@ public class ObjectStoreMetadataDto {
     }
 
     @Override
-    public Consumer<ObjectSubtype> dtoApplyMethod(ObjectStoreMetadataDto dtoRef) {
-      return objectSubtype -> {
-        if (objectSubtype != null &&
-            objectSubtype.getDcType() != null &&
-            StringUtils.isNotBlank(objectSubtype.getAcSubtype())) {
-          dtoRef.setAcSubType(objectSubtype.getAcSubtype());
-        } else {
-          dtoRef.setAcSubType(null);
-        }
-      };
-    }
-
-    @Override
     public Supplier<ObjectSubtype> entitySupplyMethod(ObjectStoreMetadata entityRef) {
       return entityRef::getAcSubType;
     }
 
     @Override
+    public Consumer<ObjectSubtype> dtoApplyMethod(ObjectStoreMetadataDto dtoRef) {
+      return dtoRef::applyObjectSubtype;
+    }
+
+    @Override
     public Supplier<ObjectSubtype> dtoSupplyMethod(ObjectStoreMetadataDto dtoRef) {
-      if (dtoRef.getDcType() == null || StringUtils.isBlank(dtoRef.getAcSubType())) {
-        return () -> null;
-      }
-      return () -> ObjectSubtype.builder()
-        .dcType(dtoRef.getDcType())
-        .acSubtype(dtoRef.getAcSubType())
-        .build();
+      return dtoRef::supplyObjectSubtype;
     }
   }
 
