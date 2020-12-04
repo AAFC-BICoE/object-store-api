@@ -9,4 +9,9 @@
         <packageUrl regex="true">^pkg:maven/com\.carrotsearch\.thirdparty/simple\-xml\-safe@.*$</packageUrl>
         <cve>CVE-2017-1000190</cve>
     </suppress>
+    <suppress>
+        <!-- Keycloak 12.0.0 is not released and we are only using the adapter -->
+        <notes>file name: keycloak-core-11.0.2.jar</notes>
+        <cve>CVE-2020-14389</cve>
+    </suppress>
 </suppressions>
