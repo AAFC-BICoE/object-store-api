@@ -1,13 +1,5 @@
 package ca.gc.aafc.objectstore.api.respository;
 
-import java.util.Optional;
-
-import javax.transaction.Transactional;
-
-import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.stereotype.Repository;
-
 import ca.gc.aafc.dina.filter.DinaFilterResolver;
 import ca.gc.aafc.dina.mapper.DinaMapper;
 import ca.gc.aafc.dina.repository.DinaRepository;
@@ -17,6 +9,13 @@ import ca.gc.aafc.objectstore.api.dto.ObjectSubtypeDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import io.crnk.core.exception.ForbiddenException;
 import lombok.NonNull;
+import org.springframework.boot.info.BuildProperties;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.stereotype.Repository;
+
+import javax.transaction.Transactional;
+import java.util.Optional;
 
 @Repository
 @Transactional
@@ -31,7 +30,8 @@ public class ObjectSubtypeResourceRepository
     @NonNull DinaService<ObjectSubtype> dinaService,
     @NonNull DinaFilterResolver filterResolver,
     MessageSource messageSource,
-    Optional<DinaAuthenticatedUser> authenticatedUser
+    Optional<DinaAuthenticatedUser> authenticatedUser,
+    @NonNull BuildProperties props
   ) {
     super(
       dinaService,
@@ -41,7 +41,8 @@ public class ObjectSubtypeResourceRepository
       ObjectSubtypeDto.class,
       ObjectSubtype.class,
       filterResolver,
-      null);
+      null,
+      props);
     this.dinaService = dinaService;
     this.messageSource = messageSource;
     this.authenticatedUser = authenticatedUser;

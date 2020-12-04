@@ -4,23 +4,20 @@ import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.dina.service.DefaultDinaService;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
-import ca.gc.aafc.objectstore.api.resolvers.ObjectStoreMetaDataFieldResolvers;
+
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.crnk.core.exception.BadRequestException;
 import lombok.NonNull;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-
-import javax.inject.Inject;
-
+import javax.persistence.criteria.Predicate;
 import java.util.UUID;
 
 @Service
 @SuppressFBWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
 public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMetadata> {
 
-  @Inject
-  private ObjectStoreMetaDataFieldResolvers metaDataFieldResolver;
-  
   private final ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService;
 
   private final MetaManagedAttributeService metaManagedAttributeService;
@@ -100,10 +97,22 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
     @NonNull ObjectStoreMetadata metadata,
     @NonNull ObjectSubtype acSubType
   ) {
-    ObjectSubtype fetchedType = metaDataFieldResolver.acSubTypeToEntity(
-      acSubType.getDcType(),
-      acSubType.getAcSubtype());
-    metadata.setAcSubType(fetchedType);
+    if (acSubType.getDcType() == null || StringUtils.isBlank(acSubType.getAcSubtype())) {
+      metadata.setAcSubType(null);
+    } else {
+      ObjectSubtype fetchedType = this.findAll(ObjectSubtype.class,
+        (criteriaBuilder, objectRoot) -> new Predicate[]{
+          criteriaBuilder.equal(objectRoot.get("acSubtype"), acSubType.getAcSubtype()),
+          criteriaBuilder.equal(objectRoot.get("dcType"), acSubType.getDcType()),
+        }, null, 0, 1)
+        .stream().findFirst().orElseThrow(() -> throwBadRequest(acSubType));
+      metadata.setAcSubType(fetchedType);
+    }
+  }
+
+  private BadRequestException throwBadRequest(ObjectSubtype acSubType) {
+    return new BadRequestException(
+      acSubType.getAcSubtype() + "/" + acSubType.getDcType() + " is not a valid acSubType/dcType");
   }
 
 }

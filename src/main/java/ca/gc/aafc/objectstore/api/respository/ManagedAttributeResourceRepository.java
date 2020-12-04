@@ -9,6 +9,7 @@ import ca.gc.aafc.objectstore.api.dto.ManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
 import ca.gc.aafc.objectstore.api.service.ManagedAttributeAuthorizationService;
 import lombok.NonNull;
+import org.springframework.boot.info.BuildProperties;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -23,7 +24,8 @@ public class ManagedAttributeResourceRepository
     @NonNull DinaService<ManagedAttribute> dinaService,
     @NonNull DinaFilterResolver filterResolver,
     @NonNull ManagedAttributeAuthorizationService authorizationService,
-    Optional<DinaAuthenticatedUser> authenticatedUser
+    Optional<DinaAuthenticatedUser> authenticatedUser,
+    @NonNull BuildProperties props
   ) {
     super(
       dinaService,
@@ -31,7 +33,8 @@ public class ManagedAttributeResourceRepository
       Optional.empty(),
       new DinaMapper<>(ManagedAttributeDto.class),
       ManagedAttributeDto.class,
-      ManagedAttribute.class, filterResolver, null);
+      ManagedAttribute.class, filterResolver, null,
+      props);
     this.authenticatedUser = authenticatedUser;
   }
 
