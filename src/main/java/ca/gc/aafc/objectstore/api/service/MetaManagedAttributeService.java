@@ -8,9 +8,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class MetaManagedAttributeService extends DefaultDinaService<MetadataManagedAttribute> {
-
-  public MetaManagedAttributeService(@NonNull BaseDAO baseDAO,
-      @NonNull ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService) {
+  public MetaManagedAttributeService(@NonNull BaseDAO baseDAO) {
     super(baseDAO);
   }
 }
