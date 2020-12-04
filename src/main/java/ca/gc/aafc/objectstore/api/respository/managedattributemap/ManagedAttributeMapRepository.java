@@ -14,11 +14,9 @@ import javax.validation.ValidationException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Repository;
 
-import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.dina.mapper.DinaMapper;
 import ca.gc.aafc.dina.mapper.DinaMappingLayer;
 import ca.gc.aafc.dina.service.AuditService;
-import ca.gc.aafc.dina.service.DefaultDinaService;
 import ca.gc.aafc.objectstore.api.dto.ManagedAttributeMapDto;
 import ca.gc.aafc.objectstore.api.dto.ManagedAttributeMapDto.ManagedAttributeMapValue;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
@@ -101,8 +99,7 @@ public class ManagedAttributeMapRepository extends ResourceRepositoryBase<Manage
       .map(ObjectStoreMetadataDto::getUuid)
       .orElseThrow(() -> new ValidationException(
         "Metadata relationship required to add managed attributes map."));
-    final ObjectStoreMetadata metadata = objectStoreMetaDataService.findOneReferenceByNaturalId(      
-      ObjectStoreMetadata.class, metadataUuid);
+    final ObjectStoreMetadata metadata = objectStoreMetaDataService.findOne(metadataUuid,ObjectStoreMetadata.class);
 
     final List<MetadataManagedAttribute> managedAttributeValues =
       metadata.getManagedAttribute() == null ? new ArrayList<>() : metadata.getManagedAttribute();
@@ -111,9 +108,8 @@ public class ManagedAttributeMapRepository extends ResourceRepositoryBase<Manage
     // Loop through the changed attribute values:
     for (final Entry<String, ManagedAttributeMapValue> entry : resource.getValues().entrySet()) {
       final UUID changedAttributeUuid = UUID.fromString(entry.getKey());
-      final ManagedAttribute changedAttribute = managedAttributeService.findOneReferenceByNaturalId(
-        ManagedAttribute.class,
-        changedAttributeUuid );
+      final ManagedAttribute changedAttribute = managedAttributeService.findOne(changedAttributeUuid,
+          ManagedAttribute.class);
       final String newValue = entry.getValue().getValue();
 
       final Optional<MetadataManagedAttribute> existingAttributeValue = managedAttributeValues.stream()
