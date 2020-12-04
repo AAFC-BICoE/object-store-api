@@ -66,25 +66,23 @@ import io.crnk.core.resource.list.ResourceList;
 @Transactional
 public class ManagedAttributeMapRepository extends ResourceRepositoryBase<ManagedAttributeMapDto, UUID> {
 
-  private final BaseDAO dao;
   private final AuditService auditService;
   private final DinaMappingLayer<ObjectStoreMetadataDto, ObjectStoreMetadata> mappingLayer;
+
   private final MetaManagedAttributeService metaManagedAttributeService;
   private final ObjectStoreMetaDataService objectStoreMetaDataService;
   private final ManagedAttributeService managedAttributeService;
 
   @Inject
-  public ManagedAttributeMapRepository(final BaseDAO baseDao, AuditService auditService,
+  public ManagedAttributeMapRepository(AuditService auditService,
     MetaManagedAttributeService metaManagedAttributeService, 
     ObjectStoreMetaDataService objectStoreMetaDataService,
     ManagedAttributeService managedAttributeService
   ) {
     super(ManagedAttributeMapDto.class);
-    this.dao = baseDao;
     this.auditService = auditService;
     this.mappingLayer = new DinaMappingLayer<>(
-      ObjectStoreMetadataDto.class,
-      new DefaultDinaService<>(baseDao),
+      ObjectStoreMetadataDto.class, metaManagedAttributeService,
       new DinaMapper<>(ObjectStoreMetadataDto.class));
     this.metaManagedAttributeService = metaManagedAttributeService;
     this.objectStoreMetaDataService = objectStoreMetaDataService;
