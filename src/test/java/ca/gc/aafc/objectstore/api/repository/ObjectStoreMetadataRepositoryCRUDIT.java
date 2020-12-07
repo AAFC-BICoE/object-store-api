@@ -153,9 +153,9 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
     assertEquals(MinioTestConfiguration.TEST_BUCKET, thumbNailMetaResult.getBucket());
     assertEquals(MinioTestConfiguration.TEST_THUMBNAIL_IDENTIFIER, thumbNailMetaResult.getFileIdentifier());
     assertEquals(parentUuid, thumbNailMetaResult.getAcDerivedFrom().getUuid());
-    assertEquals(ThumbnailService.THUMBNAIL_AC_SUB_TYPE, thumbNailMetaResult.getAcSubType().getAcSubtype());
-    assertEquals(ThumbnailService.THUMBNAIL_DC_TYPE, thumbNailMetaResult.getAcSubType().getDcType());
-    assertEquals(MinioTestConfiguration.TEST_USAGE_TERMS, thumbNailMetaResult.getXmpRightsUsageTerms());
+    assertEquals(parentDTO.getAcSubType(), thumbNailMetaResult.getAcSubType().getAcSubtype());
+    assertEquals(parentDTO.getDcType(), thumbNailMetaResult.getAcSubType().getDcType());
+    assertEquals(parentDTO.getXmpRightsUsageTerms(), thumbNailMetaResult.getXmpRightsUsageTerms());
   }
 
   @Test
@@ -225,6 +225,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
     parentDTO.setBucket(MinioTestConfiguration.TEST_BUCKET);
     parentDTO.setFileIdentifier(MinioTestConfiguration.TEST_FILE_IDENTIFIER);
     parentDTO.setDcType(acSubType.getDcType());
+    parentDTO.setAcSubType(acSubType.getAcSubtype());
     parentDTO.setXmpRightsUsageTerms(MinioTestConfiguration.TEST_USAGE_TERMS);
     parentDTO.setCreatedBy(RandomStringUtils.random(4));
     return parentDTO;

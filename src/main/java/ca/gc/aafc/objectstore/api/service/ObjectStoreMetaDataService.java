@@ -115,11 +115,14 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
     ObjectUpload upload = findOne(
       parent.getFileIdentifier(),
       ObjectUpload.class);
+    if (upload == null) {
+      return;
+    }
     UUID thumbUuid = upload.getThumbnailIdentifier();
     if(thumbUuid != null ){
       ObjectStoreMetadata meta = new ObjectStoreMetadata();
       meta.setFileIdentifier(thumbUuid);
-      meta.setAcDerivedFrom(parent.getAcDerivedFrom());
+      meta.setAcDerivedFrom(parent);
       meta.setDcType(THUMBNAIL_DC_TYPE);
       meta.setAcSubType(parent.getAcSubType());
       meta.setBucket(parent.getBucket());
@@ -129,7 +132,7 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
       meta.setXmpRightsOwner(parent.getXmpRightsOwner());
       meta.setXmpRightsWebStatement(parent.getXmpRightsWebStatement());
       meta.setXmpRightsUsageTerms(parent.getXmpRightsUsageTerms());
-      meta.setCreatedBy(SYSTEM_GENERATED);      
+      meta.setCreatedBy(SYSTEM_GENERATED);   
       create(meta);
     }
   }  
