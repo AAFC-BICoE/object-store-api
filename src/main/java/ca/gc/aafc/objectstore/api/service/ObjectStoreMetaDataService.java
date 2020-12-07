@@ -2,8 +2,10 @@ package ca.gc.aafc.objectstore.api.service;
 
 import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.dina.service.DefaultDinaService;
+import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
+import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import io.crnk.core.exception.BadRequestException;
 import lombok.NonNull;
 import org.apache.commons.collections.CollectionUtils;
@@ -19,6 +21,12 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
   private final ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService;
 
   private final BaseDAO baseDAO;
+
+  public static final String THUMBNAIL_EXTENSION = ".jpg";
+  public static final String THUMBNAIL_AC_SUB_TYPE = "THUMBNAIL";
+  public static final DcType THUMBNAIL_DC_TYPE = DcType.IMAGE;
+  public static final String SYSTEM_GENERATED = "System Generated";
+  public static final String PDF_FILETYPE = "application/pdf";  
 
   public ObjectStoreMetaDataService(
     @NonNull BaseDAO baseDAO,
@@ -41,6 +49,7 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
     if (entity.getAcDerivedFrom() != null) {
       entity.getAcDerivedFrom().addDerivative(entity);
     }
+    createThrumbnailMeta(entity);   
   }
 
   @Override
@@ -96,5 +105,32 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
     return new BadRequestException(
       acSubType.getAcSubtype() + "/" + acSubType.getDcType() + " is not a valid acSubType/dcType");
   }
-
+/**
+   * Returns a {@link ObjectStoreMetadata} for a thumbnail based on the given
+   * parent resource and thumbnail identifier. 
+   * @param parent    - parent resource metadata of the thumbnail
+   * @return {@link ObjectStoreMetadata} for the thumbnail
+   */
+  private void createThrumbnailMeta(ObjectStoreMetadata parent) {
+    ObjectUpload upload = findOne(
+      parent.getFileIdentifier(),
+      ObjectUpload.class);
+    UUID thumbUuid = upload.getThumbnailIdentifier();
+    if(thumbUuid != null ){
+      ObjectStoreMetadata meta = new ObjectStoreMetadata();
+      meta.setFileIdentifier(thumbUuid);
+      meta.setAcDerivedFrom(parent.getAcDerivedFrom());
+      meta.setDcType(THUMBNAIL_DC_TYPE);
+      meta.setAcSubType(parent.getAcSubType());
+      meta.setBucket(parent.getBucket());
+      meta.setFileExtension(THUMBNAIL_EXTENSION);
+      meta.setOriginalFilename(parent.getOriginalFilename());
+      meta.setDcRights(parent.getDcRights());
+      meta.setXmpRightsOwner(parent.getXmpRightsOwner());
+      meta.setXmpRightsWebStatement(parent.getXmpRightsWebStatement());
+      meta.setXmpRightsUsageTerms(parent.getXmpRightsUsageTerms());
+      meta.setCreatedBy(SYSTEM_GENERATED);      
+      create(meta);
+    }
+  }  
 }

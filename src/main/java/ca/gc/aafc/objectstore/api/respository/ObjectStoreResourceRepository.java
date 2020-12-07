@@ -144,8 +144,6 @@ public class ObjectStoreResourceRepository
     resource.setCreatedBy(authenticatedUser.getUsername());
     ObjectStoreMetadataDto created = super.create(resource);
 
-    handleThumbNailMetaEntry(created);
-
     return this.findOne(
       created.getUuid(),
       new QuerySpec(ObjectStoreMetadataDto.class)
