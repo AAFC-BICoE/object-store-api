@@ -156,6 +156,11 @@ public class FileController {
           .bucket(bucket)
           .exif(exifData)
           .build());
+        if (thumbnailIsSupported) {
+            UUID thumbnailID = generateUUID();
+            objectUpload.setThumbnailIdentifier(thumbnailID);
+            objectUploadService.update(objectUpload);
+        }          
       return objectUpload;
     });
     
