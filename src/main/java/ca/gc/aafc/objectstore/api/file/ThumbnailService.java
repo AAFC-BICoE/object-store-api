@@ -45,6 +45,7 @@ public class ThumbnailService {
   private final MinioFileService minioService;
   private final ObjectUploadService objectUploadService;
   
+  
   @Transactional
   @Async
   public void generateThumbnail(
@@ -54,6 +55,7 @@ public class ThumbnailService {
   ) throws IOException {
     ObjectUpload objectUpload = objectUploadService.findOne(objectUploadUuid, ObjectUpload.class);
     String fileName = objectUpload.getThumbnailIdentifier() + ".thumbnail" + ThumbnailService.THUMBNAIL_EXTENSION;
+    
     
     try (
       InputStream originalFile = minioService
@@ -85,7 +87,7 @@ public class ThumbnailService {
       try (ByteArrayInputStream thumbnail = new ByteArrayInputStream(os.toByteArray())) {
         minioService.storeFile(fileName, thumbnail, "image/jpeg", objectUpload.getBucket());
       }
-    } catch (MinioException | IOException | GeneralSecurityException  e) {
+    } catch (MinioException | IOException | GeneralSecurityException e) {
       log.warn(() -> "A thumbnail could not be generated for file " + objectUpload.getOriginalFilename(), e);
     }
     

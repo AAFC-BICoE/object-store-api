@@ -119,7 +119,7 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
       return;
     }
     UUID thumbUuid = upload.getThumbnailIdentifier();
-    if(thumbUuid != null ){
+    if (thumbUuid != null ) {
       ObjectStoreMetadata meta = new ObjectStoreMetadata();
       meta.setFileIdentifier(thumbUuid);
       meta.setAcDerivedFrom(parent);

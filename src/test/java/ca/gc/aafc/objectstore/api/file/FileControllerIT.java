@@ -83,14 +83,14 @@ public class FileControllerIT extends BaseIntegrationTest {
     UUID uploadFileId = uploadResponse.getFileIdentifier();
     UUID thumbnailIdentifier ;
     String thumbnailFilename = "";
-    //Wait fo the thumbnail to be generated
+    //Wait for the thumbnail to be generated
     for (int attempts = 0; attempts <= 10; attempts++) {
       uploadResponse = objectUploadService.findOne(uploadFileId,  ObjectUpload.class);
       thumbnailIdentifier = uploadResponse.getThumbnailIdentifier();          
-        if( thumbnailIdentifier != null ){
-        thumbnailFilename = thumbnailIdentifier.toString() + ".thumbnail";
-        if(minioFileService.getFile(thumbnailFilename, uploadResponse.getBucket()).isPresent()) {
-          break;    
+        if ( thumbnailIdentifier != null ) {
+          thumbnailFilename = thumbnailIdentifier.toString() + ".thumbnail";
+          if ( minioFileService.getFile(thumbnailFilename + ThumbnailService.THUMBNAIL_EXTENSION, uploadResponse.getBucket()).isPresent()) {
+            break;    
         }       
       }   
 

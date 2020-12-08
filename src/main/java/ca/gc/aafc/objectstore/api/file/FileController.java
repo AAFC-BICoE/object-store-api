@@ -156,18 +156,18 @@ public class FileController {
           .bucket(bucket)
           .exif(exifData)
           .build());
-        if (thumbnailIsSupported) {
-            UUID thumbnailID = generateUUID();
-            objectUpload.setThumbnailIdentifier(thumbnailID);
-            objectUploadService.update(objectUpload);
-        }          
+      if (thumbnailIsSupported) {
+        UUID thumbnailID = generateUUID();
+        objectUpload.setThumbnailIdentifier(thumbnailID);
+        objectUploadService.update(objectUpload);
+      }          
       return objectUpload;
     });
     
     if (thumbnailIsSupported) {
       log.info("Generating a thumbnail for file with UUID of: {}", () -> createdObjectUpload.getFileIdentifier());
       // Create the thumbnail asynchronously so the client doesn't have to wait during file upload:
-      thumbnailService.generateThumbnail(uuid, filename, fileExtension, generateUUID());
+      thumbnailService.generateThumbnail(uuid, filename, fileExtension);
     }
 
     return createdObjectUpload;
