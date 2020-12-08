@@ -61,8 +61,6 @@ public class FileControllerIT extends BaseIntegrationTest {
   @Inject
   private TransactionTemplate transactionTemplate;
 
-  private final static UUID TEST_UUID_UPLOAD = UUID.randomUUID();
-
   private final static String bucketUnderTest = DinaAuthenticatedUserConfig.ROLES_PER_GROUPS.keySet().stream()
     .findFirst().get();
 
@@ -83,14 +81,14 @@ public class FileControllerIT extends BaseIntegrationTest {
     MockMultipartFile mockFile = getFileUnderTest();
     ObjectUpload uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
     UUID uploadFileId = uploadResponse.getFileIdentifier();
-    UUID thumbnailIdentifier = TEST_UUID_UPLOAD;
+    UUID thumbnailIdentifier ;
     String thumbnailFilename = "";
     //Wait fo the thumbnail to be generated
     for (int attempts = 0; attempts <= 10; attempts++) {
       uploadResponse = objectUploadService.findOne(uploadFileId,  ObjectUpload.class);
       thumbnailIdentifier = uploadResponse.getThumbnailIdentifier();          
-      if( thumbnailIdentifier != null &&  !thumbnailIdentifier.equals(TEST_UUID_UPLOAD)){
-        thumbnailFilename = thumbnailIdentifier.toString() + ".thumbnail" + ThumbnailService.THUMBNAIL_EXTENSION;
+        if( thumbnailIdentifier != null ){
+        thumbnailFilename = thumbnailIdentifier.toString() + ".thumbnail";
         if(minioFileService.getFile(thumbnailFilename, uploadResponse.getBucket()).isPresent()) {
           break;    
         }       
@@ -109,14 +107,11 @@ public class FileControllerIT extends BaseIntegrationTest {
       return objectStoreMetaDataService.create(objectStoreMetaUnderTest);
     });    
 
-    assertNotEquals(TEST_UUID_UPLOAD, thumbnailIdentifier);
-    assertNotEquals(null, thumbnailIdentifier);
     ResponseEntity<InputStreamResource> thumbnailDownloadResponse = fileController.downloadObject(
-        bucketUnderTest,
-        thumbnailIdentifier.toString()
-      );
-      assertEquals(HttpStatus.OK, thumbnailDownloadResponse.getStatusCode());
-  
+      bucketUnderTest,
+      thumbnailFilename
+    );
+    assertEquals(HttpStatus.OK, thumbnailDownloadResponse.getStatusCode());  
   }
 
   @Transactional
