@@ -13,6 +13,7 @@ import javax.transaction.Transactional;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.sl.usermodel.ObjectMetaData;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.Import;
@@ -28,17 +29,19 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
-import ca.gc.aafc.objectstore.api.MinioTestConfiguration;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.minio.MinioFileService;
+import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
 import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import io.crnk.core.exception.UnauthorizedException;
+import ca.gc.aafc.objectstore.api.MinioTestConfiguration;
+
 
 @Import(MinioTestConfiguration.class)
 public class FileControllerIT extends BaseIntegrationTest {
-
+  
   @Inject
   private ResourceLoader resourceLoader;
 
@@ -47,6 +50,9 @@ public class FileControllerIT extends BaseIntegrationTest {
 
   @Inject
   private MinioFileService minioFileService;
+
+  @Inject
+  private ObjectStoreMetaDataService objectStoreMetaDataService;
 
   @Inject
   private ObjectUploadService objectUploadService;
@@ -72,33 +78,38 @@ public class FileControllerIT extends BaseIntegrationTest {
   @Test
   public void fileUpload_whenImageIsUploaded_generateThumbnail() throws Exception {
     MockMultipartFile mockFile = getFileUnderTest();
-
     ObjectUpload uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
-    UUID thumbnailIdentifier = uploadResponse.getThumbnailIdentifier();
+    UUID uploadFileId = uploadResponse.getFileIdentifier();
+    UUID thumbnailIdentifier;
+    String thumbnailFilename = "";
+    //Wait fo the thumbnail to be generated
+    for (int attempts = 0; attempts <= 10; attempts++) {
+      uploadResponse = objectUploadService.findOne(uploadFileId,  ObjectUpload.class);
+      thumbnailIdentifier = uploadResponse.getThumbnailIdentifier();          
+      if( thumbnailIdentifier != null ){
+        thumbnailFilename = thumbnailIdentifier.toString() + ".thumbnail" + ThumbnailService.THUMBNAIL_EXTENSION;
+        if(minioFileService.getFile(thumbnailFilename, uploadResponse.getBucket()).isPresent()) {
+          break;    
+        }       
+      }   
 
-    // Persist the associated metadata and thumbnail meta separately:
-    service.runInNewTransaction(entityManager -> {
-      ObjectStoreMetadata thumbMetaData = ObjectStoreMetadataFactory.newObjectStoreMetadata()
-        .fileIdentifier(thumbnailIdentifier)
-        .build();
-      entityManager.persist(thumbMetaData);
-    });
-    
-    String thumbnailFilename = thumbnailIdentifier + ".thumbnail";
-
-    // Wait for the thumbnail to be asynchronously persisted:
-    for (int attempts = 0; attempts <= 100; attempts++) {
-      if (minioFileService.getFile(thumbnailFilename, bucketUnderTest).isPresent()) {
-        break;
-      }
       Thread.sleep(100);
-    }
+    }          
+    // Persist the metadata and thumbnail meta
+    transactionTemplate.execute(transactionStatus -> {
+      ObjectStoreMetadata objectStoreMetaUnderTest = ObjectStoreMetadataFactory
+      .newObjectStoreMetadata()
+      .acMetadataCreator(UUID.randomUUID())
+      .dcCreator(UUID.randomUUID())
+      .fileIdentifier(uploadFileId)
+      .build();
+      return objectStoreMetaDataService.create(objectStoreMetaUnderTest);
+    });    
 
     ResponseEntity<InputStreamResource> thumbnailDownloadResponse = fileController.downloadObject(
       bucketUnderTest,
       thumbnailFilename
     );
-
     assertEquals(HttpStatus.OK, thumbnailDownloadResponse.getStatusCode());
   }
 

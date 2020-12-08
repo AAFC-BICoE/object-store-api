@@ -44,7 +44,7 @@ public class ThumbnailService {
 
   private final MinioFileService minioService;
   private final ObjectUploadService objectUploadService;
-
+  
   @Transactional
   @Async
   public void generateThumbnail(
@@ -86,13 +86,13 @@ public class ThumbnailService {
       try (ByteArrayInputStream thumbnail = new ByteArrayInputStream(os.toByteArray())) {
         minioService.storeFile(fileName, thumbnail, "image/jpeg", objectUpload.getBucket());
         // Wait for the thumbnail to be asynchronously persisted:
-        for (int attempts = 0; attempts <= 100; attempts++) {
+        for (int attempts = 0; attempts <= 10; attempts++) {
           if (minioService.getFile(fileName,  objectUpload.getBucket()).isPresent()) {
             objectUpload.setThumbnailIdentifier(thumbnailID);
-            objectUploadService.update(objectUpload);            
+            objectUploadService.update(objectUpload); 
             break;
           }
-          Thread.sleep(10);
+          Thread.sleep(100);
         }
       }
 
