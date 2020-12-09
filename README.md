@@ -31,10 +31,10 @@ cp local/*.env .
 Start the app (default port is 8081):
 
 ```
-docker-compose up --build
+docker-compose up
 ```
 
-Once the services have started you can access the endpoints at http://localhost:8081/api/v1
+Once the services have started you can access metadata at http://localhost:8081/api/v1/metadata
 
 Cleanup:
 ```
