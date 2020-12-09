@@ -78,4 +78,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: aafcbicoe/object-store.api:${{ env.VERSION_TAG }}
+          tags: aafcbicoe/object-store-api:${{ env.VERSION_TAG }}
