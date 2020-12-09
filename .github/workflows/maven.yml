@@ -43,6 +43,7 @@ jobs:
           path: |
             version.txt
             target/object-store.api-*.jar
+            Dockerfile
 
   push:
     name: Build Docker Image and Push to DockerHub
