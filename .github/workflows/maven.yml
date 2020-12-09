@@ -24,8 +24,20 @@ jobs:
       - name: Run Checkstyle
         run: mvn checkstyle:check
       - name: Run SpotBugs
-        run: mvn com.github.spotbugs:spotbugs-maven-plugin:check
+        run: mvn spotbugs:check
+
       - name: Run OWASP dependency-check (only on dev)
         run: mvn org.owasp:dependency-check-maven:check
         if: ${{ github.ref == 'refs/heads/dev' }}
 
+      - name: Extract Version
+        run: |
+          mvn help:evaluate -Dexpression=project.version -q -DforceStdout > version.txt
+
+      - name: Store artifacts
+        uses: actions/upload-artifact@v2
+          with:
+            name: build-artifacts
+            path:
+              version.txt
+              target/object-store.api-*.jar
