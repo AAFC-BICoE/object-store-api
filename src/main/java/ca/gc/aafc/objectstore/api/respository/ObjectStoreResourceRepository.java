@@ -28,6 +28,7 @@ import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.boot.info.BuildProperties;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.criteria.Predicate;
@@ -63,7 +64,8 @@ public class ObjectStoreResourceRepository
     @NonNull DinaAuthenticatedUser authenticatedUser,
     @NonNull AuditService auditService,
     @NonNull MinioFileService minioService,
-    @NonNull ObjectUploadService objectUploadService
+    @NonNull ObjectUploadService objectUploadService,
+    @NonNull BuildProperties props
   ) {
     super(
       dinaService,
@@ -73,7 +75,8 @@ public class ObjectStoreResourceRepository
       ObjectStoreMetadataDto.class,
       ObjectStoreMetadata.class,
       filterResolver,
-      externalResourceProvider);
+      externalResourceProvider,
+      props);
     this.dinaService = dinaService;
     this.auditService = auditService;
     this.authenticatedUser = authenticatedUser;

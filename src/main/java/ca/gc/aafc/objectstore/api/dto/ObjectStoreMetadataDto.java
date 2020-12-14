@@ -2,10 +2,13 @@ package ca.gc.aafc.objectstore.api.dto;
 
 import ca.gc.aafc.dina.dto.ExternalRelationDto;
 import ca.gc.aafc.dina.dto.RelatedEntity;
-import ca.gc.aafc.dina.mapper.CustomFieldResolver;
+import ca.gc.aafc.dina.mapper.CustomFieldAdapter;
+import ca.gc.aafc.dina.mapper.DinaFieldAdapter;
+import ca.gc.aafc.dina.mapper.IgnoreDinaMapping;
 import ca.gc.aafc.dina.repository.meta.JsonApiExternalRelation;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
+import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -14,7 +17,7 @@ import io.crnk.core.resource.annotations.JsonApiRelation;
 import io.crnk.core.resource.annotations.JsonApiResource;
 import io.crnk.core.resource.annotations.LookupIncludeBehavior;
 import lombok.Data;
-import lombok.NonNull;
+import org.apache.commons.lang3.StringUtils;
 import org.javers.core.metamodel.annotation.DiffIgnore;
 import org.javers.core.metamodel.annotation.Id;
 import org.javers.core.metamodel.annotation.PropertyName;
@@ -22,14 +25,18 @@ import org.javers.core.metamodel.annotation.ShallowReference;
 import org.javers.core.metamodel.annotation.TypeName;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 @SuppressFBWarnings({"EI_EXPOSE_REP", "EI_EXPOSE_REP2"})
 @RelatedEntity(ObjectStoreMetadata.class)
 @Data
 @JsonApiResource(type = ObjectStoreMetadataDto.TYPENAME)
 @TypeName(ObjectStoreMetadataDto.TYPENAME)
+@CustomFieldAdapter(adapters = ObjectStoreMetadataDto.AcSubTypeAdapter.class)
 public class ObjectStoreMetadataDto {
 
   public static final String TYPENAME = "metadata";
@@ -93,6 +100,10 @@ public class ObjectStoreMetadataDto {
   @ShallowReference
   private ObjectStoreMetadataDto acDerivedFrom;
 
+  @JsonApiRelation
+  @DiffIgnore
+  private List<ObjectStoreMetadataDto> derivatives = new ArrayList<>();
+
   @JsonApiExternalRelation(type = "person")
   @JsonApiRelation
   private ExternalRelationDto dcCreator;
@@ -103,13 +114,62 @@ public class ObjectStoreMetadataDto {
   private String notPubliclyReleasableReason;
 
   @JsonInclude(Include.NON_EMPTY)
-  @CustomFieldResolver(setterMethod = "acSubTypeToDTO")
+  @IgnoreDinaMapping(reason = "Custom Resolved field")
   private String acSubType;
 
   private String group;
 
-  public static String acSubTypeToDTO(@NonNull ObjectStoreMetadata entity) {
-    return entity.getAcSubType() == null ? null : entity.getAcSubType().getAcSubtype();
+  public void applyObjectSubtype(ObjectSubtype objectSubtype) {
+    if (objectSubtype != null &&
+        objectSubtype.getDcType() != null &&
+        StringUtils.isNotBlank(objectSubtype.getAcSubtype())) {
+      setAcSubType(objectSubtype.getAcSubtype());
+    } else {
+      setAcSubType(null);
+    }
+  }
+  public ObjectSubtype supplyObjectSubtype() {
+    if (getDcType() == null || StringUtils.isBlank(getAcSubType())) {
+      return null;
+    }
+    return ObjectSubtype.builder()
+        .dcType(getDcType())
+        .acSubtype(getAcSubType())
+        .build();
+  }
+
+  public static class AcSubTypeAdapter
+    implements DinaFieldAdapter<ObjectStoreMetadataDto, ObjectStoreMetadata, ObjectSubtype, ObjectSubtype> {
+
+    @Override
+    public ObjectSubtype toDTO(ObjectSubtype subtype) {
+      return subtype;
+    }
+
+    @Override
+    public ObjectSubtype toEntity(ObjectSubtype subtype) {
+      return subtype;
+    }
+
+    @Override
+    public Consumer<ObjectSubtype> entityApplyMethod(ObjectStoreMetadata entityRef) {
+      return entityRef::setAcSubType;
+    }
+
+    @Override
+    public Supplier<ObjectSubtype> entitySupplyMethod(ObjectStoreMetadata entityRef) {
+      return entityRef::getAcSubType;
+    }
+
+    @Override
+    public Consumer<ObjectSubtype> dtoApplyMethod(ObjectStoreMetadataDto dtoRef) {
+      return dtoRef::applyObjectSubtype;
+    }
+
+    @Override
+    public Supplier<ObjectSubtype> dtoSupplyMethod(ObjectStoreMetadataDto dtoRef) {
+      return dtoRef::supplyObjectSubtype;
+    }
   }
 
 }
