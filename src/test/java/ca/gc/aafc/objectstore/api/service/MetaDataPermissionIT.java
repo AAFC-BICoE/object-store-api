@@ -71,10 +71,15 @@ public class MetaDataPermissionIT extends BaseIntegrationTest {
       "snap shot should still exist for this metadata");
     //second delete
     repo.delete(metadata.getUuid());
+    // meta removed
     Assertions.assertNull(fetchMetaById(metadata.getId()));
+    // object upload record removed
     Assertions.assertNull(service.find(ObjectUpload.class, objectUpload.getId()));
+    // thumbnail meta removed
     Assertions.assertNull(fetchMetaById(thumbMeta.getId()));
+    // child removed
     Assertions.assertNull(fetchMetaById(child.getId()).getAcDerivedFrom());
+    // auditing snap shots removed
     Assertions.assertTrue(
       javers.getLatestSnapshot(metadata.getUuid(), ObjectStoreMetadataDto.class).isEmpty(),
       "snapshot should be removed for this metadata");
