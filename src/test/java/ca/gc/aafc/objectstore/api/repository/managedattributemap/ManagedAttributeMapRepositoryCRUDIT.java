@@ -16,6 +16,7 @@ import com.google.common.collect.ImmutableMap;
 import io.crnk.core.queryspec.QuerySpec;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -79,7 +80,43 @@ public class ManagedAttributeMapRepositoryCRUDIT extends BaseRepositoryTest {
   }
 
   @Test
-  public void setAttributeValue_whenMMAExists_overwriteMMA() {
+  public void setAttributeValue_whenMMADoesntExist_addNewInvalidValue_validationThrowsException() {
+    testManagedAttribute2.setAcceptedValues(new String[]{"acceptable test value2"});
+    entityManager.persist(testManagedAttribute2);
+
+    entityManager.flush();
+    entityManager.refresh(testMetadata);
+    // Set attr2 with value not in accepted values list
+    assertThrows(InvalidDataAccessApiUsageException.class, ()-> managedAttributeMapRepository.create(ManagedAttributeMapDto.builder()
+      .metadata(metadataRepository.findOne(testMetadata.getUuid(), new QuerySpec(ObjectStoreMetadataDto.class)))
+      .values(ImmutableMap.<String, ManagedAttributeMapValue>builder().put(testManagedAttribute2.getUuid().toString(),
+        ManagedAttributeMapValue.builder().value("New attr2 value").build()).build())
+      .build()));
+  }  
+
+  @Test
+  public void setAttributeValue_whenMMAExists_overwriteMMAWithInvalidValue_validationThrowsException() {
+    testManagedAttribute1.setAcceptedValues(new String[]{"acceptable test value1"});
+    entityManager.persist(testManagedAttribute1);
+
+    entityManager.flush();
+    entityManager.refresh(testMetadata);
+
+    // Set attr1 value:
+    assertThrows(InvalidDataAccessApiUsageException.class, ()-> managedAttributeMapRepository.create(
+      ManagedAttributeMapDto.builder()
+        .metadata(metadataRepository.findOne(testMetadata.getUuid(), new QuerySpec(ObjectStoreMetadataDto.class)))
+        .values(ImmutableMap.<String, ManagedAttributeMapValue>builder()
+          .put(testManagedAttribute1.getUuid().toString(), ManagedAttributeMapValue.builder()
+            .value("New attr1 value")
+            .build())
+          .build())
+        .build()
+    ));
+  }
+
+  @Test
+  public void setAttributeValue_whenMMAExists_overwriteMMA_() {
     // Set attr1 value:
     managedAttributeMapRepository.create(
       ManagedAttributeMapDto.builder()

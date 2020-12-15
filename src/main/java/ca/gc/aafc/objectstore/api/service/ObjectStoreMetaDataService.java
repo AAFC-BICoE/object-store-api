@@ -4,12 +4,12 @@ import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.dina.service.DefaultDinaService;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
+
 import io.crnk.core.exception.BadRequestException;
 import lombok.NonNull;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-
 import javax.persistence.criteria.Predicate;
 import java.util.UUID;
 
@@ -18,19 +18,23 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
 
   private final ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService;
 
+  private final MetaManagedAttributeService metaManagedAttributeService;
+
   private final BaseDAO baseDAO;
 
-  public ObjectStoreMetaDataService(
-    @NonNull BaseDAO baseDAO,
-    @NonNull ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService
-  ) {
+  public ObjectStoreMetaDataService(@NonNull BaseDAO baseDAO,
+      @NonNull ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService,
+      @NonNull MetaManagedAttributeService metaManagedAttributeService) {
     super(baseDAO);
     this.baseDAO = baseDAO;
     this.defaultValueSetterService = defaultValueSetterService;
+    this.metaManagedAttributeService = metaManagedAttributeService;
   }
-
+  
   @Override
   protected void preCreate(ObjectStoreMetadata entity) {
+    validateMetaManagedAttribute(entity);  
+       
     entity.setUuid(UUID.randomUUID());
 
     defaultValueSetterService.assignDefaultValues(entity);
@@ -38,13 +42,24 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
     if (entity.getAcSubType() != null) {
       setAcSubType(entity, entity.getAcSubType());
     }
+
     if (entity.getAcDerivedFrom() != null) {
       entity.getAcDerivedFrom().addDerivative(entity);
     }
   }
 
+  private void validateMetaManagedAttribute(ObjectStoreMetadata entity) { 
+    if ( entity.getManagedAttribute() != null ) {
+      entity.getManagedAttribute().forEach(
+          metaManagedAttributeService::validateMetaManagedAttribute
+      );
+    }
+  }
+
   @Override
   protected void preUpdate(ObjectStoreMetadata entity) {
+    validateMetaManagedAttribute(entity);  
+
     ObjectSubtype temp = entity.getAcSubType();
 
     if (temp != null) {
