@@ -5,7 +5,6 @@ import ca.gc.aafc.dina.service.DefaultDinaService;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.crnk.core.exception.BadRequestException;
 import lombok.NonNull;
 import org.apache.commons.collections.CollectionUtils;
@@ -15,7 +14,6 @@ import javax.persistence.criteria.Predicate;
 import java.util.UUID;
 
 @Service
-@SuppressFBWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
 public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMetadata> {
 
   private final ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService;
@@ -52,9 +50,8 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
 
   private void validateMetaManagedAttribute(ObjectStoreMetadata entity) { 
     if ( entity.getManagedAttribute() != null ) {
-      entity.getManagedAttribute().stream().forEach(
-        metaMA -> {
-          metaManagedAttributeService.validateMetaManagedAttribute(metaMA); }
+      entity.getManagedAttribute().forEach(
+          metaManagedAttributeService::validateMetaManagedAttribute
       );
     }
   }
