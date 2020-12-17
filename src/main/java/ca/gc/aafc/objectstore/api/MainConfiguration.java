@@ -1,10 +1,6 @@
 package ca.gc.aafc.objectstore.api;
 
 import ca.gc.aafc.dina.DinaBaseApiAutoConfiguration;
-import ca.gc.aafc.dina.jpa.BaseDAO;
-import ca.gc.aafc.dina.mapper.JpaDtoMapper;
-import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
-import ca.gc.aafc.objectstore.api.respository.DtoEntityMapping;
 import io.minio.MinioClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
@@ -17,7 +13,6 @@ import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import java.util.HashMap;
 import java.util.concurrent.Executor;
 
 @Configuration
@@ -40,19 +35,6 @@ public class MainConfiguration implements AsyncConfigurer {
     return MinioClient.builder()
       .endpoint(endpoint, port, false)
       .credentials(accessKey, secretKey).build();
-  }
-
-  /**
-   * Configures DTO-to-Entity mappings.
-   *
-   * @return the DtoJpaMapper
-   */
-  @Bean
-  public JpaDtoMapper dtoJpaMapper(BaseDAO baseDAO) {
-    return new JpaDtoMapper(
-      DtoEntityMapping.getDtoToEntityMapping(ObjectStoreMetadataDto.class),
-      new HashMap<>()
-    );
   }
 
   @Override
