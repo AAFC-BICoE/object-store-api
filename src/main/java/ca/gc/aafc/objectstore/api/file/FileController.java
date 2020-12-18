@@ -13,6 +13,8 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 
+import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataDefaultValueSetterService;
+import lombok.NonNull;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MimeTypeException;
@@ -66,6 +68,8 @@ public class FileController {
   private final ThumbnailService thumbnailService;
   private final MessageSource messageSource;
   private final TransactionTemplate transactionTemplate;
+  private final ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService;
+
 
   // request scoped bean
   private DinaAuthenticatedUser authenticatedUser;
@@ -78,8 +82,9 @@ public class FileController {
       ThumbnailService thumbnailService,
       DinaAuthenticatedUser authenticatedUser,
       MessageSource messageSource,
-      TransactionTemplate transactionTemplate
-  ) {
+      TransactionTemplate transactionTemplate,
+      ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService
+   ) {
     this.minioService = minioService;
     this.objectUploadService = objectUploadService;
     this.objectStoreMetadataReadService = objectStoreMetadataReadService;
@@ -88,6 +93,7 @@ public class FileController {
     this.authenticatedUser = authenticatedUser;
     this.messageSource = messageSource;
     this.transactionTemplate = transactionTemplate;
+    this.defaultValueSetterService = defaultValueSetterService;
   }
 
   @PostMapping("/file/{bucket}")
@@ -155,6 +161,7 @@ public class FileController {
           .sizeInBytes(file.getSize())
           .bucket(bucket)
           .exif(exifData)
+          .dcType(defaultValueSetterService.dcTypeFromDcFormat(Objects.toString(mtdr.getDetectedMediaType())))
           .build());
 
       if (thumbnailIsSupported) {
