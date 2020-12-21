@@ -4,10 +4,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.ConstructorBinding;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
 
-@ConfigurationProperties(prefix = "objectstore")
+@ConfigurationProperties(prefix = "default-values")
 @ConstructorBinding
 @RequiredArgsConstructor
 @Getter

@@ -31,7 +31,7 @@ crnk:
   # query, so we don't let Crnk automatically call findOneTarget for each null relation.
   config.lookup.behavior.default: NONE
   jpa.enabled: false
-objectstore:
+default-values:
   defaultLicenceURL: https://open.canada.ca/en/open-government-licence-canada
   defaultCopyright: Copyright Government of Canada
   defaultCopyrightOwner: Government of Canada
