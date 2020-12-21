@@ -67,21 +67,21 @@ public class FileController {
   private final TransactionTemplate transactionTemplate;
   private final ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService;
 
-
   // request scoped bean
   private DinaAuthenticatedUser authenticatedUser;
 
   @Inject
-  public FileController(MinioFileService minioService,
-      ObjectUploadService objectUploadService,
-      ObjectStoreMetadataReadService objectStoreMetadataReadService,
-      MediaTypeDetectionStrategy mediaTypeDetectionStrategy, 
-      ThumbnailService thumbnailService,
-      DinaAuthenticatedUser authenticatedUser,
-      MessageSource messageSource,
-      TransactionTemplate transactionTemplate,
-      ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService
-   ) {
+  public FileController(
+    MinioFileService minioService,
+    ObjectUploadService objectUploadService,
+    ObjectStoreMetadataReadService objectStoreMetadataReadService,
+    MediaTypeDetectionStrategy mediaTypeDetectionStrategy,
+    ThumbnailService thumbnailService,
+    DinaAuthenticatedUser authenticatedUser,
+    MessageSource messageSource,
+    TransactionTemplate transactionTemplate,
+    ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService
+  ) {
     this.minioService = minioService;
     this.objectUploadService = objectUploadService;
     this.objectStoreMetadataReadService = objectStoreMetadataReadService;
