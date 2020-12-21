@@ -5,11 +5,11 @@ import ca.gc.aafc.objectstore.api.dto.DefaultValuesDto;
 import io.crnk.core.queryspec.QuerySpec;
 import io.crnk.core.repository.ReadOnlyResourceRepositoryBase;
 import io.crnk.core.resource.list.ResourceList;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Repository
+@Component
 public class DefaultValueRepository extends ReadOnlyResourceRepositoryBase<DefaultValuesDto, String> {
 
   private final DefaultValuesDto defaultResource;
