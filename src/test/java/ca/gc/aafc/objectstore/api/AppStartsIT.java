@@ -10,7 +10,7 @@ import static org.junit.Assert.assertNotNull;
 public class AppStartsIT extends BaseIntegrationTest {
   
   @Inject
-  private ObjectStoreConfiguration config;
+  private DefaultValueConfiguration config;
   
   @Inject
   private MediaTypeToDcTypeConfiguration mediaTypeToDcTypeConfig;

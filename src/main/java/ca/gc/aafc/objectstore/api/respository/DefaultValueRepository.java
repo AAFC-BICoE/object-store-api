@@ -1,6 +1,6 @@
 package ca.gc.aafc.objectstore.api.respository;
 
-import ca.gc.aafc.objectstore.api.ObjectStoreConfiguration;
+import ca.gc.aafc.objectstore.api.DefaultValueConfiguration;
 import ca.gc.aafc.objectstore.api.dto.DefaultValuesDto;
 import io.crnk.core.queryspec.QuerySpec;
 import io.crnk.core.repository.ReadOnlyResourceRepositoryBase;
@@ -14,7 +14,7 @@ public class DefaultValueRepository extends ReadOnlyResourceRepositoryBase<Defau
 
   private final DefaultValuesDto defaultResource;
 
-  protected DefaultValueRepository(ObjectStoreConfiguration configuration) {
+  protected DefaultValueRepository(DefaultValueConfiguration configuration) {
     super(DefaultValuesDto.class);
     defaultResource = new DefaultValuesDto();
     defaultResource.setId(1);

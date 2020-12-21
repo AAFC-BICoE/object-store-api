@@ -11,7 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import ca.gc.aafc.objectstore.api.MediaTypeToDcTypeConfiguration;
-import ca.gc.aafc.objectstore.api.ObjectStoreConfiguration;
+import ca.gc.aafc.objectstore.api.DefaultValueConfiguration;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import lombok.NonNull;
@@ -24,12 +24,12 @@ import lombok.NonNull;
 @Service
 public class ObjectStoreMetadataDefaultValueSetterService {
   
-  private final ObjectStoreConfiguration config;
+  private final DefaultValueConfiguration config;
   private final Set<Entry<DcType, LinkedList<Pattern>>> dcFormatToDcType;
   
   @Inject
-  public ObjectStoreMetadataDefaultValueSetterService(ObjectStoreConfiguration config,
-      MediaTypeToDcTypeConfiguration mediaTypeToDcTypeConfiguration) {
+  public ObjectStoreMetadataDefaultValueSetterService(DefaultValueConfiguration config,
+                                                      MediaTypeToDcTypeConfiguration mediaTypeToDcTypeConfiguration) {
     this.config = config;
     dcFormatToDcType = mediaTypeToDcTypeConfiguration.getToDcType().entrySet();
   }
@@ -38,8 +38,8 @@ public class ObjectStoreMetadataDefaultValueSetterService {
    * Assigns default values to a specific {@link ObjectStoreMetadata} instance.
    * Defaults values are only set if the current value is null or blank.
    * 
-   * @param objectMetadata
-   * @return
+   * @param objectMetadata meta data to set
+   * @return the meta data
    */
   public ObjectStoreMetadata assignDefaultValues(@NonNull ObjectStoreMetadata objectMetadata) {
     if (objectMetadata.getDcType() == null) {

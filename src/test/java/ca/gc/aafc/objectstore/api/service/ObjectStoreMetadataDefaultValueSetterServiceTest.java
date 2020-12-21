@@ -10,8 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import ca.gc.aafc.objectstore.api.MediaTypeToDcTypeConfiguration;
-import ca.gc.aafc.objectstore.api.ObjectStoreConfiguration;
-import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
+import ca.gc.aafc.objectstore.api.DefaultValueConfiguration;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 
 public class ObjectStoreMetadataDefaultValueSetterServiceTest {
@@ -20,7 +19,7 @@ public class ObjectStoreMetadataDefaultValueSetterServiceTest {
 
   @BeforeEach
   public void setup() {
-    ObjectStoreConfiguration config = new ObjectStoreConfiguration("a", "b", "c", "d");
+    DefaultValueConfiguration config = new DefaultValueConfiguration("a", "b", "c", "d");
     
     LinkedHashMap<String, LinkedList<String>> toDcType = new LinkedHashMap<>();
     LinkedList<String> patterns = new LinkedList<>();
