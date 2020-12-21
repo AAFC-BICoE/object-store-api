@@ -217,6 +217,7 @@ public class ObjectUpload implements DinaEntity {
 
   @Type(type = "pgsql_enum")
   @Enumerated(EnumType.STRING)
+  @NotNull
   @Column(name = "dc_type")
   public DcType getDcType() {
     return dcType;
