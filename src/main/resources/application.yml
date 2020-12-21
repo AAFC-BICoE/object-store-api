@@ -34,16 +34,16 @@ crnk:
 default-values:
   values:
     - type: metadata
-      attribute: defaultLicenceURL
+      attribute: licenceURL
       value: https://open.canada.ca/en/open-government-licence-canada
     - type: metadata
-      attribute: defaultCopyright
+      attribute: copyright
       value: Copyright Government of Canada
     - type: metadata
-      attribute: defaultCopyrightOwner
+      attribute: copyrightOwner
       value: Government of Canada
     - type: metadata
-      attribute: defaultUsageTerms
+      attribute: usageTerms
       value: Government of Canada Usage Term
 logging:
   level:
