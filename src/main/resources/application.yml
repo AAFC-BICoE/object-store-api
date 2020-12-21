@@ -32,10 +32,19 @@ crnk:
   config.lookup.behavior.default: NONE
   jpa.enabled: false
 default-values:
-  defaultLicenceURL: https://open.canada.ca/en/open-government-licence-canada
-  defaultCopyright: Copyright Government of Canada
-  defaultCopyrightOwner: Government of Canada
-  defaultUsageTerms: Government of Canada Usage Term
+  values:
+    - type: metadata
+      attribute: defaultLicenceURL
+      value: https://open.canada.ca/en/open-government-licence-canada
+    - type: metadata
+      attribute: defaultCopyright
+      value: Copyright Government of Canada
+    - type: metadata
+      attribute: defaultCopyrightOwner
+      value: Government of Canada
+    - type: metadata
+      attribute: defaultUsageTerms
+      value: Government of Canada Usage Term
 logging:
   level:
     Root: INFO
