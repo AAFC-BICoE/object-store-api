@@ -67,8 +67,8 @@ public class ObjectStoreMetadataDefaultValueSetterService {
     }
     return objectMetadata;
   }
-
-  private DcType dcTypeFromDcFormat(String dcFormat) {
+  
+  public DcType dcTypeFromDcFormat(String dcFormat) {
     if (StringUtils.isBlank(dcFormat)) {
       return DcType.UNDETERMINED;
     }

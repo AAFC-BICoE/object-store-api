@@ -119,6 +119,7 @@ public class FileControllerIT extends BaseIntegrationTest {
     ObjectUpload objUploaded = objectUploadService.findOne(uploadResponse.getFileIdentifier(), ObjectUpload.class);
 
     assertNotNull(objUploaded);
+    assertNotNull(objUploaded.getDcType());
     assertTrue(StringUtils.isNotBlank(objUploaded.getCreatedBy()));
   }
 
