@@ -5,7 +5,6 @@ import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.exif.ExifParser;
 import ca.gc.aafc.objectstore.api.minio.MinioFileService;
-import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataDefaultValueSetterService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataReadService;
 import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
 import io.crnk.core.exception.UnauthorizedException;
@@ -78,8 +77,7 @@ public class FileController {
     ThumbnailService thumbnailService,
     DinaAuthenticatedUser authenticatedUser,
     MessageSource messageSource,
-    TransactionTemplate transactionTemplate,
-    ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService
+    TransactionTemplate transactionTemplate
   ) {
     this.minioService = minioService;
     this.objectUploadService = objectUploadService;
@@ -156,7 +154,6 @@ public class FileController {
           .sizeInBytes(file.getSize())
           .bucket(bucket)
           .exif(exifData)
-          .dcType(objectUploadService.dcTypeFromDcFormat(Objects.toString(mtdr.getDetectedMediaType())))
           .build());
 
       if (thumbnailIsSupported) {

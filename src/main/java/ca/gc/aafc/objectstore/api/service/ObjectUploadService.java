@@ -1,13 +1,11 @@
 package ca.gc.aafc.objectstore.api.service;
 
-import ca.gc.aafc.objectstore.api.entities.DcType;
-import ca.gc.aafc.objectstore.api.exif.ExifParser;
-import org.springframework.stereotype.Service;
-
 import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.dina.service.DefaultDinaService;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
+import ca.gc.aafc.objectstore.api.exif.ExifParser;
 import lombok.NonNull;
+import org.springframework.stereotype.Service;
 
 @Service
 public class ObjectUploadService extends DefaultDinaService<ObjectUpload> {
@@ -28,9 +26,8 @@ public class ObjectUploadService extends DefaultDinaService<ObjectUpload> {
       ExifParser.parseDateTaken(entity.getExif())
         .ifPresent(dtd -> entity.setDateTimeDigitized(dtd.toString()));
     }
+
+    entity.setDcType(defaultValueSetterService.dcTypeFromDcFormat(entity.getDetectedMediaType()));
   }
 
-  public DcType dcTypeFromDcFormat(String string) {
-    return defaultValueSetterService.dcTypeFromDcFormat(string);
-  }
 }
