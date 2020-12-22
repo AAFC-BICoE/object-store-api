@@ -2,7 +2,6 @@ package ca.gc.aafc.objectstore.api.respository;
 
 import ca.gc.aafc.objectstore.api.FileUploadConfiguration;
 import ca.gc.aafc.objectstore.api.dto.FileUploadConfigDto;
-import ca.gc.aafc.objectstore.api.dto.LicenseDto;
 import io.crnk.core.queryspec.QuerySpec;
 import io.crnk.core.repository.ReadOnlyResourceRepositoryBase;
 import io.crnk.core.resource.list.ResourceList;
