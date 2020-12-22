@@ -29,7 +29,7 @@ public class ObjectStoreMetadataDefaultValueSetterService {
   private final Map<String, String> defaultMetaValues;
   private final Set<Entry<DcType, LinkedList<Pattern>>> dcFormatToDcType;
 
-  private static final String KEY_licenceUrl = "licenceUrl";
+  private static final String KEY_licenceUrl = "licenceURL";
   private static final String KEY_copyright = "copyright";
   private static final String KEY_copyrightOwner = "copyrightOwner";
   private static final String KEY_usageTerms = "usageTerms";
