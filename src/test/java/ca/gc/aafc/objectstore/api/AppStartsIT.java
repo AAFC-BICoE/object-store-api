@@ -7,10 +7,13 @@ import org.junit.jupiter.api.Test;
 import javax.inject.Inject;
 
 public class AppStartsIT extends BaseIntegrationTest {
-  
+
   @Inject
   private DefaultValueConfiguration defaultValueConfiguration;
-  
+
+  @Inject
+  private FileUploadConfiguration fileUploadConfiguration;
+
   @Inject
   private MediaTypeToDcTypeConfiguration mediaTypeToDcTypeConfig;
 
@@ -22,9 +25,11 @@ public class AppStartsIT extends BaseIntegrationTest {
    */
   @Test
   public void startApp_OnStartUp_NoErrorsThrown() {
-    
+
     //Make sure we can load the configuration files
     Assertions.assertEquals(4, defaultValueConfiguration.getValues().size());
+    Assertions.assertNotNull(fileUploadConfiguration.getMaxFileSize());
+    Assertions.assertNotNull(fileUploadConfiguration.getMaxRequestSize());
     Assertions.assertNotNull(mediaTypeToDcTypeConfig.getToDcType().get(DcType.IMAGE).get(0));
     Assertions.assertNotNull(supportedLicensesConfiguration.getLicenses().entrySet().iterator().next());
   }
