@@ -38,8 +38,8 @@ public class ObjectStoreMetadataDefaultValueSetterService {
     this.dcFormatToDcType = mediaTypeToDcTypeConfiguration.getToDcType().entrySet();
   }
 
-  private Map<String, String> initDefaultMeta(DefaultValueConfiguration config) {
-    HashMap<String, String> map = new HashMap<>();
+  private static Map<String, String> initDefaultMeta(DefaultValueConfiguration config) {
+    Map<String, String> map = new HashMap<>();
     if (config != null && CollectionUtils.isNotEmpty(config.getValues())) {
       config.getValues().stream()
         .filter(v -> StringUtils.equalsIgnoreCase(v.getType(), ObjectStoreMetadataDto.TYPENAME))
