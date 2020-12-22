@@ -7,9 +7,9 @@ import ca.gc.aafc.dina.service.DinaService;
 import ca.gc.aafc.objectstore.api.dto.ObjectUploadDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import org.springframework.boot.info.BuildProperties;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
-@Repository
+@Component
 public class ObjectUploadResourceRepository
   extends ReadOnlyDinaRepository<ObjectUploadDto, ObjectUpload> {
 
