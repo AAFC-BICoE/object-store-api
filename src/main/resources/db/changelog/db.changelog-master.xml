@@ -21,4 +21,5 @@
   <include file="db/changelog/migrations/18-Add_FileMetaEntry_to_object_upload_table.xml" />
   <include file="db/changelog/migrations/19-Add_exif_to_object_upload_table.xml" />
   <include file="db/changelog/migrations/20-Add_date_taken_to_object_upload_table.xml" />
+  <include file="db/changelog/migrations/21-Add_DcType_To_Object_Upload.xml" />
 </databaseChangeLog>

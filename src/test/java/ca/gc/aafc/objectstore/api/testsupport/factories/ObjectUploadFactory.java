@@ -1,6 +1,7 @@
 package ca.gc.aafc.objectstore.api.testsupport.factories;
 
 import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
+import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 
 import java.util.List;
@@ -24,6 +25,7 @@ public class ObjectUploadFactory implements TestableEntityFactory<ObjectUpload> 
   public static ObjectUpload.ObjectUploadBuilder newObjectUpload() {
     return ObjectUpload.builder()
         .fileIdentifier(UUID.randomUUID())
+        .dcType(DcType.IMAGE)
         .originalFilename("testFile")
         .sha1Hex("b52c98d49782a6ebb9c8e3bb1ad7aa2f03706481")
         .bucket("testBucket")
