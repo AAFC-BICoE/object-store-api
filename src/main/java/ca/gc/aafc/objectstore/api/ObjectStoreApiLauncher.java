@@ -9,7 +9,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
  */
 //CHECKSTYLE:OFF HideUtilityClassConstructor (Configuration class can not have invisible constructor, ignore the check style error for this case)
 @SpringBootApplication
-@EnableConfigurationProperties(ObjectStoreConfiguration.class)
+@EnableConfigurationProperties(DefaultValueConfiguration.class)
 public class ObjectStoreApiLauncher {
   public static void main(String[] args) {
     SpringApplication.run(ObjectStoreApiLauncher.class, args);

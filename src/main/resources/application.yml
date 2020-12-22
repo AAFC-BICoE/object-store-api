@@ -31,11 +31,20 @@ crnk:
   # query, so we don't let Crnk automatically call findOneTarget for each null relation.
   config.lookup.behavior.default: NONE
   jpa.enabled: false
-objectstore:
-  defaultLicenceURL: https://open.canada.ca/en/open-government-licence-canada
-  defaultCopyright: Copyright Government of Canada
-  defaultCopyrightOwner: Government of Canada
-  defaultUsageTerms: Government of Canada Usage Term
+default-values:
+  values:
+    - type: metadata
+      attribute: xmpRightsWebStatement
+      value: https://open.canada.ca/en/open-government-licence-canada
+    - type: metadata
+      attribute: dcRights
+      value: Copyright Government of Canada
+    - type: metadata
+      attribute: xmpRightsOwner
+      value: Government of Canada
+    - type: metadata
+      attribute: xmpRightsUsageTerms
+      value: Government of Canada Usage Term
 logging:
   level:
     Root: INFO
