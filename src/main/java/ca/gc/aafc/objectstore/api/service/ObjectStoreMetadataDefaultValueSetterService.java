@@ -29,10 +29,10 @@ public class ObjectStoreMetadataDefaultValueSetterService {
   private final Map<String, String> defaultMetaValues;
   private final Set<Entry<DcType, LinkedList<Pattern>>> dcFormatToDcType;
 
-  private static final String KEY_licenceUrl = "licenceURL";
-  private static final String KEY_copyright = "copyright";
-  private static final String KEY_copyrightOwner = "copyrightOwner";
-  private static final String KEY_usageTerms = "usageTerms";
+  private static final String KEY_LICENCE_URL = "licenceURL";
+  private static final String KEY_COPYRIGHT = "copyright";
+  private static final String KEY_COPYRIGHT_OWNER = "copyrightOwner";
+  private static final String KEY_USAGE_TERMS = "usageTerms";
 
   @Inject
   public ObjectStoreMetadataDefaultValueSetterService(
@@ -66,19 +66,19 @@ public class ObjectStoreMetadataDefaultValueSetterService {
     }
 
     if (StringUtils.isBlank(objectMetadata.getXmpRightsWebStatement())) {
-      objectMetadata.setXmpRightsWebStatement(defaultMetaValues.get(KEY_licenceUrl));
+      objectMetadata.setXmpRightsWebStatement(defaultMetaValues.get(KEY_LICENCE_URL));
     }
 
     if (StringUtils.isBlank(objectMetadata.getDcRights())) {
-      objectMetadata.setDcRights(defaultMetaValues.get(KEY_copyright));
+      objectMetadata.setDcRights(defaultMetaValues.get(KEY_COPYRIGHT));
     }
 
     if (StringUtils.isBlank(objectMetadata.getXmpRightsOwner())) {
-      objectMetadata.setXmpRightsOwner(defaultMetaValues.get(KEY_copyrightOwner));
+      objectMetadata.setXmpRightsOwner(defaultMetaValues.get(KEY_COPYRIGHT_OWNER));
     }
 
     if (StringUtils.isBlank(objectMetadata.getXmpRightsUsageTerms())) {
-      objectMetadata.setXmpRightsUsageTerms(defaultMetaValues.get(KEY_usageTerms));
+      objectMetadata.setXmpRightsUsageTerms(defaultMetaValues.get(KEY_USAGE_TERMS));
     }
 
     return objectMetadata;
