@@ -29,10 +29,10 @@ public class ObjectStoreMetadataDefaultValueSetterService {
   private final Map<String, String> defaultMetaValues;
   private final Set<Entry<DcType, LinkedList<Pattern>>> dcFormatToDcType;
 
-  private static final String KEY_LICENCE_URL = "licenceURL";
-  private static final String KEY_COPYRIGHT = "copyright";
-  private static final String KEY_COPYRIGHT_OWNER = "copyrightOwner";
-  private static final String KEY_USAGE_TERMS = "usageTerms";
+  private static final String KEY_LICENCE_URL = "xmpRightsWebStatement";
+  private static final String KEY_COPYRIGHT = "dcRights";
+  private static final String KEY_COPYRIGHT_OWNER = "xmpRightsOwner";
+  private static final String KEY_USAGE_TERMS = "xmpRightsUsageTerms";
 
   @Inject
   public ObjectStoreMetadataDefaultValueSetterService(

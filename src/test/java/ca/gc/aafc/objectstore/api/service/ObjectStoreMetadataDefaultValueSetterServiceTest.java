@@ -22,10 +22,10 @@ public class ObjectStoreMetadataDefaultValueSetterServiceTest {
   public static final String EXPECTED_USAGE_TERM = "test-USAGE";
   public static final String EXPECTED_OWNER = "test-OWNER";
   public static final List<DefaultValueConfiguration.DefaultValue> VALUES = List.of(
-    new DefaultValueConfiguration.DefaultValue(ObjectStoreMetadataDto.TYPENAME, "licenceURL", EXPECTED_LICENCE_VALUE),
-    new DefaultValueConfiguration.DefaultValue(ObjectStoreMetadataDto.TYPENAME, "copyright", EXPECTED_COPYRIGHT),
-    new DefaultValueConfiguration.DefaultValue(ObjectStoreMetadataDto.TYPENAME, "copyrightOwner", EXPECTED_OWNER),
-    new DefaultValueConfiguration.DefaultValue(ObjectStoreMetadataDto.TYPENAME, "usageTerms", EXPECTED_USAGE_TERM)
+    new DefaultValueConfiguration.DefaultValue(ObjectStoreMetadataDto.TYPENAME, "xmpRightsWebStatement", EXPECTED_LICENCE_VALUE),
+    new DefaultValueConfiguration.DefaultValue(ObjectStoreMetadataDto.TYPENAME, "dcRights", EXPECTED_COPYRIGHT),
+    new DefaultValueConfiguration.DefaultValue(ObjectStoreMetadataDto.TYPENAME, "xmpRightsOwner", EXPECTED_OWNER),
+    new DefaultValueConfiguration.DefaultValue(ObjectStoreMetadataDto.TYPENAME, "xmpRightsUsageTerms", EXPECTED_USAGE_TERM)
   );
 
   @BeforeEach
