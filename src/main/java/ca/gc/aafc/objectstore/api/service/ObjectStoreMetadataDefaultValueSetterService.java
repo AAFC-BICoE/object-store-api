@@ -47,8 +47,8 @@ public class ObjectStoreMetadataDefaultValueSetterService {
     HashMap<String, String> map = new HashMap<>();
     if (config != null && CollectionUtils.isNotEmpty(config.getValues())) {
       config.getValues().stream()
-        .filter(defaultValue -> StringUtils.equalsIgnoreCase(defaultValue.getType(), ObjectStoreMetadataDto.TYPENAME))
-        .forEach(defaultValue -> map.putIfAbsent(defaultValue.getAttribute(), defaultValue.getValue()));
+        .filter(v -> StringUtils.equalsIgnoreCase(v.getType(),ObjectStoreMetadataDto.TYPENAME))
+        .forEach(value -> map.putIfAbsent(value.getAttribute(), value.getValue()));
     }
     return map;
   }

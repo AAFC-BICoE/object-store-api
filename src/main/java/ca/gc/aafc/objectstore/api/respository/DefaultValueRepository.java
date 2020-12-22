@@ -15,7 +15,7 @@ import java.util.List;
 @Component
 public class DefaultValueRepository extends ReadOnlyResourceRepositoryBase<DefaultValuesDto, String> {
 
-  private final List<DefaultValuesDto> defaultResource;
+  private final List<DefaultValuesDto> defaultValuesList;
 
   protected DefaultValueRepository(DefaultValueConfiguration configuration) {
     super(DefaultValuesDto.class);
@@ -32,19 +32,19 @@ public class DefaultValueRepository extends ReadOnlyResourceRepositoryBase<Defau
         list.add(build);
       }
     }
-    defaultResource = list;
+    defaultValuesList = list;
   }
 
   @Override
   public ResourceList<DefaultValuesDto> findAll(QuerySpec querySpec) {
-    return querySpec.apply(defaultResource);
+    return querySpec.apply(defaultValuesList);
   }
 
   @Override
   public DefaultValuesDto findOne(String id, QuerySpec querySpec) {
-    return defaultResource.stream()
-      .filter(defaultValuesDto -> defaultValuesDto.getId().equals(Integer.valueOf(id))).findAny()
+    return defaultValuesList.stream()
+      .filter(dto -> dto.getId().equals(Integer.valueOf(id)))
+      .findAny()
       .orElseThrow(() -> new ResourceNotFoundException("Could not find a default value with id " + id));
-
   }
 }
