@@ -65,7 +65,6 @@ public class FileController {
   private final ThumbnailService thumbnailService;
   private final MessageSource messageSource;
   private final TransactionTemplate transactionTemplate;
-  private final ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService;
 
   // request scoped bean
   private DinaAuthenticatedUser authenticatedUser;
@@ -90,7 +89,6 @@ public class FileController {
     this.authenticatedUser = authenticatedUser;
     this.messageSource = messageSource;
     this.transactionTemplate = transactionTemplate;
-    this.defaultValueSetterService = defaultValueSetterService;
   }
 
   @PostMapping("/file/{bucket}")
@@ -158,7 +156,7 @@ public class FileController {
           .sizeInBytes(file.getSize())
           .bucket(bucket)
           .exif(exifData)
-          .dcType(defaultValueSetterService.dcTypeFromDcFormat(Objects.toString(mtdr.getDetectedMediaType())))
+          .dcType(objectUploadService.dcTypeFromDcFormat(Objects.toString(mtdr.getDetectedMediaType())))
           .build());
 
       if (thumbnailIsSupported) {
