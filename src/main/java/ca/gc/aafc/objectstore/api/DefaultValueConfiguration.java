@@ -16,7 +16,7 @@ public class DefaultValueConfiguration {
 
   private List<DefaultValue> values;
 
-  public Map<String, Object> getProperties(){
+  public Map<String, Object> getProperties() {
     return Map.copyOf(Map.of("values", values));
   }
 
