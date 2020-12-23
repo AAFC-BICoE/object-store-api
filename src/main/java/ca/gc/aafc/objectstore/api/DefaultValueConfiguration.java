@@ -7,6 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.ConstructorBinding;
 
 import java.util.List;
+import java.util.Map;
 
 @ConfigurationProperties(prefix = "default-values")
 @Getter
@@ -14,6 +15,10 @@ import java.util.List;
 public class DefaultValueConfiguration {
 
   private List<DefaultValue> values;
+
+  public Map<String, Object> getProperties() {
+    return Map.copyOf(Map.of("values", values));
+  }
 
   @ConstructorBinding
   @RequiredArgsConstructor

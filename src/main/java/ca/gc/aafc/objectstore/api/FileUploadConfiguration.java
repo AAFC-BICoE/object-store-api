@@ -5,13 +5,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.ConstructorBinding;
 
-@ConfigurationProperties(prefix = "spring.servlet.multipart")
+import java.util.Map;
+
+@ConfigurationProperties(prefix = "spring.servlet")
 @ConstructorBinding
 @RequiredArgsConstructor
 @Getter
 public class FileUploadConfiguration {
 
-  private final String maxFileSize;
-  private final String maxRequestSize;
+  private final Map<String, Object> multipart;
 
 }
