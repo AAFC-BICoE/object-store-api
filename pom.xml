@@ -14,7 +14,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.3.5.RELEASE</version>
+		<version>2.3.6.RELEASE</version>
 	</parent>
 
 	<properties>
@@ -22,7 +22,7 @@
 
 		<javax.interceptor-api>1.2.2</javax.interceptor-api>
 		<minio.version>7.1.4</minio.version>
-		<tika.version>1.24.1</tika.version>
+		<tika.version>1.25</tika.version>
 		<thumbnailator.version>0.4.12</thumbnailator.version>
 		<pdfbox.version>2.0.21</pdfbox.version>
 		<imageio.version>3.6</imageio.version>
