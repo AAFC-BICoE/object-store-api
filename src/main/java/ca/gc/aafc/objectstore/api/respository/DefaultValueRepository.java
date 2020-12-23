@@ -21,10 +21,9 @@ public class DefaultValueRepository extends ReadOnlyResourceRepositoryBase<Defau
     super(DefaultValuesDto.class);
     List<DefaultValuesDto> list = new ArrayList<>();
     if (CollectionUtils.isNotEmpty(configuration.getValues())) {
-      int index = 1;
       for (DefaultValueConfiguration.DefaultValue defaultValue : configuration.getValues()) {
         DefaultValuesDto build = DefaultValuesDto.builder()
-          .id(index++)
+          .id(defaultValue.getType() + "-" + defaultValue.getAttribute())
           .value(defaultValue.getValue())
           .type(defaultValue.getType())
           .attribute(defaultValue.getAttribute())
@@ -43,7 +42,7 @@ public class DefaultValueRepository extends ReadOnlyResourceRepositoryBase<Defau
   @Override
   public DefaultValuesDto findOne(String id, QuerySpec querySpec) {
     return defaultValuesList.stream()
-      .filter(dto -> dto.getId().equals(Integer.valueOf(id)))
+      .filter(dto -> dto.getId().equalsIgnoreCase(id))
       .findAny()
       .orElseThrow(() -> new ResourceNotFoundException("Could not find a default value with id " + id));
   }

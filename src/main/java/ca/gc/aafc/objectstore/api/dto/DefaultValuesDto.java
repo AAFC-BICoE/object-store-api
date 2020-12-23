@@ -10,7 +10,7 @@ import lombok.Data;
 @JsonApiResource(type = "default-values")
 public class DefaultValuesDto {
   @JsonApiId
-  private Integer id;
+  private String id;
   private final String type;
   private final String attribute;
   private final String value;
