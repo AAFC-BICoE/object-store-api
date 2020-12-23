@@ -18,7 +18,7 @@ public class FileConfigRepository extends ReadOnlyResourceRepositoryBase<FileUpl
   protected FileConfigRepository(@NotNull FileUploadConfiguration config) {
     super(FileUploadConfigDto.class);
     this.resource = FileUploadConfigDto.builder()
-      .id("1")
+      .id("values")
       .maxFileSize(config.getMaxFileSize())
       .maxRequestSize(config.getMaxRequestSize())
       .build();
