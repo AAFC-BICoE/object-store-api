@@ -1,17 +1,21 @@
 package ca.gc.aafc.objectstore.api;
 
 import ca.gc.aafc.objectstore.api.entities.DcType;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.Matchers;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
 
-import static org.junit.Assert.assertNotNull;
-
 public class AppStartsIT extends BaseIntegrationTest {
-  
+
   @Inject
-  private ObjectStoreConfiguration config;
-  
+  private DefaultValueConfiguration defaultValueConfiguration;
+
+  @Inject
+  private FileUploadConfiguration fileUploadConfiguration;
+
   @Inject
   private MediaTypeToDcTypeConfiguration mediaTypeToDcTypeConfig;
 
@@ -23,11 +27,17 @@ public class AppStartsIT extends BaseIntegrationTest {
    */
   @Test
   public void startApp_OnStartUp_NoErrorsThrown() {
-    
+
     //Make sure we can load the configuration files
-    assertNotNull(config.getDefaultCopyright());
-    assertNotNull(mediaTypeToDcTypeConfig.getToDcType().get(DcType.IMAGE).get(0));
-    assertNotNull(supportedLicensesConfiguration.getLicenses().entrySet().iterator().next());
+    Assertions.assertEquals(4, defaultValueConfiguration.getValues().size());
+    MatcherAssert.assertThat(
+      fileUploadConfiguration.getMultipart().keySet(),
+      Matchers.contains("max-file-size", "max-request-size"));
+    Assertions.assertNotNull(mediaTypeToDcTypeConfig.getToDcType().get(DcType.IMAGE).get(0));
+    Assertions.assertNotNull(supportedLicensesConfiguration.getLicenses()
+      .entrySet()
+      .iterator()
+      .next());
   }
 
 }

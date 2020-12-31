@@ -87,8 +87,6 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
     IT_OBJECT_MAPPER.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
     IT_OBJECT_MAPPER.setSerializationInclusion(Include.NON_NULL);
 
-    //TODO see ticket 20787
-    System.setProperty("testing.skip-remote-schema-validation", "true");
   }
 
   public static final String API_BASE_PATH = "/api/v1";
@@ -228,15 +226,7 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
     if( getSchemaName() != null) {
       validateJsonSchemaByURL(getSchemaName(), responseCompact.extract().body().asString());
     }
-    
-    // Test without the crnk-compact header.
-    ValidatableResponse response = given().when().get(getResourceUnderTest() + "/" + id).then()
-        .statusCode(HttpStatus.OK.value());
-    
-    if(  getSchemaName() != null) {
-      validateJsonSchemaByURL(getSchemaName(), response.extract().body().asString());
-    }
-    
+   
     validateIncludeRelationships(id, relationships);
     validateRelationshipEndpoints(id, relationships);
     

@@ -1,18 +1,21 @@
 package ca.gc.aafc.objectstore.api.file;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.DigestInputStream;
-import java.security.InvalidKeyException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
-
-import javax.inject.Inject;
-
+import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
+import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
+import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
+import ca.gc.aafc.objectstore.api.exif.ExifParser;
+import ca.gc.aafc.objectstore.api.minio.MinioFileService;
+import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataReadService;
+import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
+import io.crnk.core.exception.UnauthorizedException;
+import io.minio.errors.ErrorResponseException;
+import io.minio.errors.InsufficientDataException;
+import io.minio.errors.InternalException;
+import io.minio.errors.InvalidBucketNameException;
+import io.minio.errors.InvalidResponseException;
+import io.minio.errors.ServerException;
+import io.minio.errors.XmlParserException;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MimeTypeException;
@@ -33,22 +36,17 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
-import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
-import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
-import ca.gc.aafc.objectstore.api.exif.ExifParser;
-import ca.gc.aafc.objectstore.api.minio.MinioFileService;
-import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataReadService;
-import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
-import io.crnk.core.exception.UnauthorizedException;
-import io.minio.errors.ErrorResponseException;
-import io.minio.errors.InsufficientDataException;
-import io.minio.errors.InternalException;
-import io.minio.errors.InvalidBucketNameException;
-import io.minio.errors.InvalidResponseException;
-import io.minio.errors.ServerException;
-import io.minio.errors.XmlParserException;
-import lombok.extern.log4j.Log4j2;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.DigestInputStream;
+import java.security.InvalidKeyException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -71,14 +69,15 @@ public class FileController {
   private DinaAuthenticatedUser authenticatedUser;
 
   @Inject
-  public FileController(MinioFileService minioService,
-      ObjectUploadService objectUploadService,
-      ObjectStoreMetadataReadService objectStoreMetadataReadService,
-      MediaTypeDetectionStrategy mediaTypeDetectionStrategy, 
-      ThumbnailService thumbnailService,
-      DinaAuthenticatedUser authenticatedUser,
-      MessageSource messageSource,
-      TransactionTemplate transactionTemplate
+  public FileController(
+    MinioFileService minioService,
+    ObjectUploadService objectUploadService,
+    ObjectStoreMetadataReadService objectStoreMetadataReadService,
+    MediaTypeDetectionStrategy mediaTypeDetectionStrategy,
+    ThumbnailService thumbnailService,
+    DinaAuthenticatedUser authenticatedUser,
+    MessageSource messageSource,
+    TransactionTemplate transactionTemplate
   ) {
     this.minioService = minioService;
     this.objectUploadService = objectUploadService;

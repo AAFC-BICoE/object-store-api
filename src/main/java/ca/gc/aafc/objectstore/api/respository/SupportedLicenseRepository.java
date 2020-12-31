@@ -6,11 +6,11 @@ import io.crnk.core.queryspec.QuerySpec;
 import io.crnk.core.repository.ReadOnlyResourceRepositoryBase;
 import io.crnk.core.resource.list.ResourceList;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
-@Repository
+@Component
 public class SupportedLicenseRepository
-    extends ReadOnlyResourceRepositoryBase<LicenseDto, String> {
+  extends ReadOnlyResourceRepositoryBase<LicenseDto, String> {
 
   @Autowired
   private SupportedLicensesConfiguration licenses;

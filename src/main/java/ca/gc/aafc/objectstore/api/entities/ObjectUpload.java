@@ -13,6 +13,8 @@ import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -20,7 +22,6 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-
 import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.UUID;
@@ -37,6 +38,7 @@ public class ObjectUpload implements DinaEntity {
 
   private Integer id;
   private UUID fileIdentifier;
+  private DcType dcType;
   private String createdBy;
   private OffsetDateTime createdOn;
   private String originalFilename;
@@ -49,7 +51,6 @@ public class ObjectUpload implements DinaEntity {
   private long sizeInBytes;
   private UUID thumbnailIdentifier;
   private String bucket;
-
   private Map<String, String> exif;
   private String dateTimeDigitized;
 
@@ -96,7 +97,7 @@ public class ObjectUpload implements DinaEntity {
 
   @NotNull
   @Column(name = "original_filename")
-  @Size(max = 250)  
+  @Size(max = 250)
   public String getOriginalFilename() {
     return originalFilename;
   }
@@ -105,9 +106,9 @@ public class ObjectUpload implements DinaEntity {
     this.originalFilename = originalFilename;
   }
 
-  @NotNull  
+  @NotNull
   @Column(name = "sha1_hex")
-  @Size(max = 128)  
+  @Size(max = 128)
   public String getSha1Hex() {
     return sha1Hex;
   }
@@ -176,7 +177,7 @@ public class ObjectUpload implements DinaEntity {
   }
 
 
-  @Column(name = "thumbnail_identifier", unique = true)  
+  @Column(name = "thumbnail_identifier", unique = true)
   public UUID getThumbnailIdentifier() {
     return thumbnailIdentifier;
   }
@@ -212,5 +213,17 @@ public class ObjectUpload implements DinaEntity {
 
   public void setExif(Map<String, String> exif) {
     this.exif = exif;
+  }
+
+  @Type(type = "pgsql_enum")
+  @Enumerated(EnumType.STRING)
+  @NotNull
+  @Column(name = "dc_type")
+  public DcType getDcType() {
+    return dcType;
+  }
+
+  public void setDcType(DcType dcType) {
+    this.dcType = dcType;
   }
 }

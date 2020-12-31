@@ -18,8 +18,8 @@ A [Minio](https://min.io/) service is also required to run the project (not requ
 
 ## To Run
 
-For testing purpose or local development a [Docker Compose](https://docs.docker.com/compose/) example file is available in the `local` folder.
-Please note that the jar running in the container will be the jar currently available in the `target` folder.
+For testing purpose a [Docker Compose](https://docs.docker.com/compose/) example file is available in the `local` folder.
+Please note that the app will start without Keycloak and in `dev` mode.
 
 Create a new docker-compose.yml file and .env file from the example file in the local directory:
 
@@ -31,10 +31,10 @@ cp local/*.env .
 Start the app (default port is 8081):
 
 ```
-docker-compose up --build
+docker-compose up
 ```
 
-Once the services have started you can access the endpoints at http://localhost:8081/api/v1
+Once the services have started you can access metadata at http://localhost:8081/api/v1/metadata
 
 Cleanup:
 ```
