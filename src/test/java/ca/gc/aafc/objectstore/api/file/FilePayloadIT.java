@@ -20,10 +20,11 @@ import java.security.SecureRandom;
 
 @Import(MinioTestConfiguration.class)
 @SpringBootTest(
-  properties = "spring.servlet.multipart.max-file-size=1KB",
   webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
   classes = ObjectStoreApiLauncher.class)
-@TestPropertySource(properties = "spring.config.additional-location=classpath:application-test.yml")
+@TestPropertySource(properties = {
+  "spring.config.additional-location=classpath:application-test.yml",
+  "spring.servlet.multipart.max-file-size=1KB"})
 @Transactional
 @ContextConfiguration(initializers = {PostgresTestContainerInitializer.class})
 public class FilePayloadIT extends BaseRestAssuredTest {
