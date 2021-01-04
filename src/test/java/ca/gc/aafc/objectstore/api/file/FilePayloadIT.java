@@ -11,6 +11,7 @@ import io.restassured.http.Header;
 import io.restassured.specification.MultiPartSpecification;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
@@ -27,16 +28,15 @@ import java.security.SecureRandom;
   "spring.servlet.multipart.max-file-size=1KB"})
 @Transactional
 @ContextConfiguration(initializers = {PostgresTestContainerInitializer.class})
-public class FilePayloadIT extends BaseRestAssuredTest {
+public class FilePayloadIT {
+
+  @LocalServerPort
+  protected int testPort;
 
   private final static String bucketUnderTest = DinaAuthenticatedUserConfig.ROLES_PER_GROUPS.keySet()
     .stream()
     .findFirst()
     .get();
-
-  protected FilePayloadIT() {
-    super("");
-  }
 
   @Test
   public void fileUpload_WhenPayloadToLarge_ReturnsPayLoadToLarge() {
