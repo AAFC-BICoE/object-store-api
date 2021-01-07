@@ -27,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 @EnableAsync
 public class MainConfiguration implements AsyncConfigurer, WebMvcConfigurer {
 
+  private static final String[] cacheContolledPaths = new String[]{"/api/v1/license", "/api/v1/config"};
 
   @Bean
   @ConditionalOnMissingBean
@@ -64,7 +65,7 @@ public class MainConfiguration implements AsyncConfigurer, WebMvcConfigurer {
     WebContentInterceptor interceptor = getWebContentInterceptor();
     interceptor.addCacheMapping(CacheControl.maxAge(24, TimeUnit.HOURS)
       .noTransform()
-      .mustRevalidate(), "/api/v1/license", "/api/v1/config");
+      .mustRevalidate(), cacheContolledPaths);
     registry.addInterceptor(interceptor);
   }  
 
