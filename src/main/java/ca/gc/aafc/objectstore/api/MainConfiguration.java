@@ -9,18 +9,24 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.CacheControl;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.mvc.WebContentInterceptor;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 @Configuration
 @EntityScan("ca.gc.aafc.objectstore.api.entities")
 @ComponentScan(basePackageClasses = DinaBaseApiAutoConfiguration.class)
 @ImportAutoConfiguration(DinaBaseApiAutoConfiguration.class)
 @EnableAsync
-public class MainConfiguration implements AsyncConfigurer {
+public class MainConfiguration implements AsyncConfigurer, WebMvcConfigurer {
+
 
   @Bean
   @ConditionalOnMissingBean
@@ -47,5 +53,19 @@ public class MainConfiguration implements AsyncConfigurer {
     executor.initialize();
     return executor;
   }
+
+  @Bean 
+  public  WebContentInterceptor getWebContentInterceptor() {
+    return new WebContentInterceptor();
+  }
+
+  @Override
+  public void addInterceptors(InterceptorRegistry registry) {
+    WebContentInterceptor interceptor = getWebContentInterceptor();
+    interceptor.addCacheMapping(CacheControl.maxAge(24, TimeUnit.HOURS)
+      .noTransform()
+      .mustRevalidate(), "/api/v1/license", "/api/v1/config");
+    registry.addInterceptor(interceptor);
+  }  
 
 }
