@@ -15,8 +15,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootApplication
-@SpringBootTest(classes = {MainConfiguration.class})
 public class MainConfigurationTest extends BaseIntegrationTest{
 
   @Autowired
