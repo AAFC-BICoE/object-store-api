@@ -108,7 +108,7 @@ public class ObjectStoreMetadataDto {
   @JsonApiRelation
   private ExternalRelationDto dcCreator;
 
-  private boolean publiclyReleasable;
+  private Boolean publiclyReleasable;
 
   @JsonInclude(Include.NON_EMPTY)
   private String notPubliclyReleasableReason;
