@@ -10,6 +10,7 @@ import lombok.SneakyThrows;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -60,6 +61,18 @@ public class ObjectStoreMetadataDefaultValueSetterService {
     if (objectMetadata.getDcType() == null) {
       objectMetadata.setDcType(dcTypeFromDcFormat(objectMetadata.getDcFormat()));
     }
+
+    if (objectMetadata.getPubliclyReleasable() == null) {
+      Pair<Boolean, String> isPubliclyReleasable = isPubliclyReleasable(objectMetadata.getDcType());
+      if (isPubliclyReleasable.getLeft()) {
+        objectMetadata.setPubliclyReleasable(true);
+      }
+      else {
+        objectMetadata.setPubliclyReleasable(false);
+        objectMetadata.setNotPubliclyReleasableReason(isPubliclyReleasable.getRight());
+      }
+    }
+
     for (Entry<String, String> entry : defaultMetaValues.entrySet()) {
       if (StringUtils.isBlank(BeanUtils.getProperty(objectMetadata, entry.getKey()))) {
         BeanUtils.setProperty(objectMetadata, entry.getKey(), entry.getValue());
@@ -80,6 +93,18 @@ public class ObjectStoreMetadataDefaultValueSetterService {
       }
     }
     return DcType.UNDETERMINED;
+  }
+
+  /**
+   * Get the default value for "Publicly Releasable" based on DcType with the reason if isPubliclyReleasable is false.
+   * @param dcType dcType of the object
+   * @return is the object "Publicly Releasable" by default based on the current business rule with the reason if it's not
+   */
+  public static Pair<Boolean, String> isPubliclyReleasable(@NonNull DcType dcType) {
+    if (dcType == DcType.IMAGE) {
+      return Pair.of(Boolean.TRUE, null);
+    }
+    return Pair.of(Boolean.FALSE, "default based on Type : " + dcType.getValue());
   }
 
 }

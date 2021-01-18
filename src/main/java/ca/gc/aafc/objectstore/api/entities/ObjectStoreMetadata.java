@@ -90,7 +90,7 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
   @Builder.Default
   private List<ObjectStoreMetadata> derivatives = new ArrayList<>();
 
-  private boolean publiclyReleasable;
+  private Boolean publiclyReleasable;
   private String notPubliclyReleasableReason;
 
   private ObjectSubtype acSubType;
@@ -361,11 +361,11 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
   }
 
   @Column(name = "publicly_releasable")
-  public boolean getPubliclyReleasable() {
+  public Boolean getPubliclyReleasable() {
     return publiclyReleasable;
   }
 
-  public void setPubliclyReleasable(boolean publiclyReleasable) {
+  public void setPubliclyReleasable(Boolean publiclyReleasable) {
     this.publiclyReleasable = publiclyReleasable;
   }
 

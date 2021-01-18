@@ -13,6 +13,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ObjectStoreMetadataDefaultValueSetterServiceTest {
 
@@ -51,7 +53,7 @@ public class ObjectStoreMetadataDefaultValueSetterServiceTest {
   }
 
   @Test
-  public void assignDefaultValues_onDefualtValues_ValuesSet() {
+  public void assignDefaultValues_onDefaultValues_ValuesSet() {
     ObjectStoreMetadata osmd = new ObjectStoreMetadata();
     serviceUnderTest.assignDefaultValues(osmd);
     assertEquals(DcType.UNDETERMINED, osmd.getDcType());
@@ -74,6 +76,19 @@ public class ObjectStoreMetadataDefaultValueSetterServiceTest {
     ObjectStoreMetadata osmd = new ObjectStoreMetadata();
     serviceUnderTest.assignDefaultValues(osmd);
     assertEquals(DcType.UNDETERMINED, osmd.getDcType());
+  }
+
+  @Test
+  public void assignDefaultValues_onDcTypeImage_PubliclyReleasableCorrectlySet() {
+    ObjectStoreMetadata osmd = new ObjectStoreMetadata();
+    osmd.setDcType(DcType.IMAGE);
+    serviceUnderTest.assignDefaultValues(osmd);
+    assertTrue(osmd.getPubliclyReleasable());
+
+    osmd = new ObjectStoreMetadata();
+    osmd.setDcType(DcType.UNDETERMINED);
+    serviceUnderTest.assignDefaultValues(osmd);
+    assertFalse(osmd.getPubliclyReleasable());
   }
 
 }
