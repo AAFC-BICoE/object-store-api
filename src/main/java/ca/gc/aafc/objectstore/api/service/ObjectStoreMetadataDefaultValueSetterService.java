@@ -66,8 +66,7 @@ public class ObjectStoreMetadataDefaultValueSetterService {
       Pair<Boolean, String> isPubliclyReleasable = isPubliclyReleasable(objectMetadata.getDcType());
       if (isPubliclyReleasable.getLeft()) {
         objectMetadata.setPubliclyReleasable(true);
-      }
-      else {
+      } else {
         objectMetadata.setPubliclyReleasable(false);
         objectMetadata.setNotPubliclyReleasableReason(isPubliclyReleasable.getRight());
       }
