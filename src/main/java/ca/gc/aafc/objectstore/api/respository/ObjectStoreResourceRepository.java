@@ -46,6 +46,7 @@ public class ObjectStoreResourceRepository
 
   private final DinaService<ObjectStoreMetadata> dinaService;
   private final DinaAuthenticatedUser authenticatedUser;
+  private final GroupAuthorizationService groupAuthorizationService;
   private static final PathSpec DELETED_PATH_SPEC = PathSpec.of("softDeleted");
   private static final PathSpec DELETED_DATE = PathSpec.of(SoftDeletable.DELETED_DATE_FIELD_NAME);
   private static final FilterSpec SOFT_DELETED = DELETED_DATE.filter(FilterOperator.NEQ, null);
@@ -72,6 +73,7 @@ public class ObjectStoreResourceRepository
       props);
     this.dinaService = dinaService;
     this.authenticatedUser = authenticatedUser;
+    this.groupAuthorizationService = groupAuthorizationService;
   }
 
   /**
@@ -161,6 +163,7 @@ public class ObjectStoreResourceRepository
   public void delete(Serializable id) {
     ObjectStoreMetadata objectStoreMetadata = dinaService.findOne(id, ObjectStoreMetadata.class);
     if (objectStoreMetadata != null) {
+      groupAuthorizationService.authorizeDelete(objectStoreMetadata);
       objectStoreMetadata.setDeletedDate(OffsetDateTime.now());
     }
   }

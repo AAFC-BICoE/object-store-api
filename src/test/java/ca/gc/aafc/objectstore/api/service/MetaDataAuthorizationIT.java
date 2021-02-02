@@ -1,5 +1,6 @@
 package ca.gc.aafc.objectstore.api.service;
 
+import ca.gc.aafc.dina.repository.GoneException;
 import ca.gc.aafc.dina.testsupport.security.WithMockKeycloakUser;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.MinioTestConfiguration;
@@ -28,28 +29,22 @@ public class MetaDataAuthorizationIT extends BaseIntegrationTest {
   @Inject
   private ObjectStoreResourceRepository repo;
   private static final String GROUP_1 = "CNC";
-  public ObjectUpload TEST_OBJECT_UPLOAD = MinioTestConfiguration.buildTestObjectUpload();
+  public ObjectUpload testObjectUpload;
   private ObjectStoreMetadata persisted;
 
   @BeforeEach
   void setUp() {
-    service.save(TEST_OBJECT_UPLOAD);
-    setupPersisted();
-  }
-
-  private void setupPersisted() {
-    ObjectUpload objectUpload = ObjectUploadFactory.newObjectUpload().build();
-    service.save(objectUpload);
-    persisted = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
-    persisted.setBucket(GROUP_1);
-    persisted.setFileIdentifier(objectUpload.getFileIdentifier());
-    service.save(persisted);
+    testObjectUpload = ObjectUploadFactory.newObjectUpload().build();
+    testObjectUpload.setDcType(DcType.TEXT);
+    service.save(testObjectUpload);
+    persisted = persistMeta(GROUP_1);
   }
 
   @AfterEach
   void tearDown() {
-    service.deleteById(ObjectUpload.class, TEST_OBJECT_UPLOAD.getId());
-    repo.findAll(new QuerySpec(ObjectStoreMetadataDto.class)).forEach(m -> repo.delete(m.getUuid()));
+    service.deleteById(ObjectUpload.class, testObjectUpload.getId());
+    repo.findAll(new QuerySpec(ObjectStoreMetadataDto.class))
+      .forEach(m -> service.deleteByProperty(ObjectStoreMetadata.class, "uuid", m.getUuid()));
   }
 
   @Test
@@ -87,9 +82,25 @@ public class MetaDataAuthorizationIT extends BaseIntegrationTest {
     Assertions.assertEquals(expected, result.getAcCaption());
   }
 
+  @Test
+  @WithMockKeycloakUser(groupRole = {"CNC:STAFF"})
+  public void delete_AuthorizedGroup_UpdatesObject() {
+    repo.delete(persisted.getUuid());
+    Assertions.assertThrows(
+      GoneException.class,
+      () -> repo.findOne(persisted.getUuid(), new QuerySpec(ObjectStoreMetadataDto.class)));
+  }
+
+  @Test
+  @WithMockKeycloakUser(groupRole = {"Invalid:STAFF"})
+  public void delete_UnAuthorizedGroup_ThrowsAccessDeniedException() {
+    ObjectStoreMetadata group1 = persistMeta("Group1");
+    Assertions.assertThrows(AccessDeniedException.class, () -> repo.delete(group1.getUuid()));
+  }
+
   private ObjectStoreMetadataDto newMetaDto(String group) {
     ObjectStoreMetadataDto meta = new ObjectStoreMetadataDto();
-    meta.setFileIdentifier(MinioTestConfiguration.TEST_FILE_IDENTIFIER);
+    meta.setFileIdentifier(testObjectUpload.getFileIdentifier());
     meta.setDcType(DcType.IMAGE);
     meta.setBucket(group);
     meta.setXmpRightsUsageTerms(MinioTestConfiguration.TEST_USAGE_TERMS);
@@ -97,4 +108,13 @@ public class MetaDataAuthorizationIT extends BaseIntegrationTest {
     return meta;
   }
 
+  private ObjectStoreMetadata persistMeta(String group) {
+    ObjectUpload objectUpload = ObjectUploadFactory.newObjectUpload().build();
+    service.save(objectUpload);
+    ObjectStoreMetadata meta = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
+    meta.setBucket(group);
+    meta.setFileIdentifier(objectUpload.getFileIdentifier());
+    service.save(meta);
+    return meta;
+  }
 }
