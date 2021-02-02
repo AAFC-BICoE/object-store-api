@@ -9,6 +9,7 @@ import ca.gc.aafc.dina.repository.external.ExternalResourceProvider;
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.dina.service.AuditService;
 import ca.gc.aafc.dina.service.DinaService;
+import ca.gc.aafc.dina.service.GroupAuthorizationService;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
@@ -56,11 +57,12 @@ public class ObjectStoreResourceRepository
     @NonNull ExternalResourceProvider externalResourceProvider,
     @NonNull DinaAuthenticatedUser authenticatedUser,
     @NonNull AuditService auditService,
+    @NonNull GroupAuthorizationService groupAuthorizationService,
     @NonNull BuildProperties props
   ) {
     super(
       dinaService,
-      Optional.empty(),
+      Optional.of(groupAuthorizationService),
       Optional.of(auditService),
       new DinaMapper<>(ObjectStoreMetadataDto.class),
       ObjectStoreMetadataDto.class,
