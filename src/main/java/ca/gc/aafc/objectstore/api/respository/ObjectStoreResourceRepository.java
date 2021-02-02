@@ -58,12 +58,12 @@ public class ObjectStoreResourceRepository
     @NonNull ExternalResourceProvider externalResourceProvider,
     @NonNull DinaAuthenticatedUser authenticatedUser,
     @NonNull AuditService auditService,
-    @NonNull GroupAuthorizationService groupAuthorizationService,
+    Optional<GroupAuthorizationService> groupService,
     @NonNull BuildProperties props
   ) {
     super(
       dinaService,
-      Optional.of(groupAuthorizationService),
+      Optional.ofNullable(groupService.orElse(null)),
       Optional.of(auditService),
       new DinaMapper<>(ObjectStoreMetadataDto.class),
       ObjectStoreMetadataDto.class,
@@ -73,7 +73,7 @@ public class ObjectStoreResourceRepository
       props);
     this.dinaService = dinaService;
     this.authenticatedUser = authenticatedUser;
-    this.groupAuthorizationService = groupAuthorizationService;
+    this.groupAuthorizationService = groupService.orElse(null);
   }
 
   /**
@@ -163,7 +163,9 @@ public class ObjectStoreResourceRepository
   public void delete(Serializable id) {
     ObjectStoreMetadata objectStoreMetadata = dinaService.findOne(id, ObjectStoreMetadata.class);
     if (objectStoreMetadata != null) {
-      groupAuthorizationService.authorizeDelete(objectStoreMetadata);
+      if (groupAuthorizationService != null) {
+        groupAuthorizationService.authorizeDelete(objectStoreMetadata);
+      }
       objectStoreMetadata.setDeletedDate(OffsetDateTime.now());
     }
   }
