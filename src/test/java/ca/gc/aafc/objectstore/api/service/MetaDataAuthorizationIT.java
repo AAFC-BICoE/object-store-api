@@ -1,6 +1,5 @@
 package ca.gc.aafc.objectstore.api.service;
 
-import ca.gc.aafc.dina.repository.GoneException;
 import ca.gc.aafc.dina.testsupport.security.WithMockKeycloakUser;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.MinioTestConfiguration;
@@ -11,6 +10,7 @@ import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.respository.ObjectStoreResourceRepository;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
+import io.crnk.core.exception.ResourceNotFoundException;
 import io.crnk.core.queryspec.QuerySpec;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -84,11 +84,12 @@ public class MetaDataAuthorizationIT extends BaseIntegrationTest {
 
   @Test
   @WithMockKeycloakUser(groupRole = {"CNC:STAFF"})
-  public void delete_AuthorizedGroup_UpdatesObject() {
-    repo.delete(persisted.getUuid());
+  public void delete_AuthorizedGroup_DeletesObject() {
+    UUID id = repo.create(newMetaDto(GROUP_1)).getUuid();
+    repo.delete(id);
     Assertions.assertThrows(
-      GoneException.class,
-      () -> repo.findOne(persisted.getUuid(), new QuerySpec(ObjectStoreMetadataDto.class)));
+      ResourceNotFoundException.class,
+      () -> repo.findOne(id, new QuerySpec(ObjectStoreMetadataDto.class)));
   }
 
   @Test
