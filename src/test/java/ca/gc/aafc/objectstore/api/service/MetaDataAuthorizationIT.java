@@ -85,10 +85,11 @@ public class MetaDataAuthorizationIT extends BaseIntegrationTest {
   @Test
   @WithMockKeycloakUser(groupRole = {"CNC:STAFF"})
   public void delete_AuthorizedGroup_UpdatesObject() {
-    repo.delete(persisted.getUuid());
+    ObjectStoreMetadataDto dto = repo.create(newMetaDto(GROUP_1));
+    repo.delete(dto.getUuid());
     Assertions.assertThrows(
       GoneException.class,
-      () -> repo.findOne(persisted.getUuid(), new QuerySpec(ObjectStoreMetadataDto.class)));
+      () -> repo.findOne(dto.getUuid(), new QuerySpec(ObjectStoreMetadataDto.class)));
   }
 
   @Test
