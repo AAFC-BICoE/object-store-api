@@ -135,9 +135,10 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
     metaService.delete(parent);
 
     // Needed to force a flush, also proves amount of total meta in the db
-    Assertions.assertEquals(1, fetchAllMeta().size());
-
-    Assertions.assertNull(metaService.findOne(parent.getUuid(), ObjectStoreMetadata.class));
+    Assertions.assertEquals(2, fetchAllMeta().size());
+    //Parent is soft deleted
+    Assertions.assertNotNull(metaService.findOne(parent.getUuid(), ObjectStoreMetadata.class)
+      .getDeletedDate());
 
     ObjectStoreMetadata resultChild = metaService.findOne(
       child.getUuid(),

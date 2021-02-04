@@ -87,6 +87,7 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
 
   @Override
   public void delete(ObjectStoreMetadata entity) {
+    preDelete(entity);
     entity.setDeletedDate(OffsetDateTime.now());
   }
 
