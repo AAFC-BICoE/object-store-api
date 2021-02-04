@@ -32,6 +32,7 @@ import javax.persistence.criteria.Predicate;
 import javax.transaction.Transactional;
 import javax.validation.ValidationException;
 import java.io.Serializable;
+import java.time.OffsetDateTime;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -45,6 +46,7 @@ public class ObjectStoreResourceRepository
 
   private final DinaService<ObjectStoreMetadata> dinaService;
   private final DinaAuthenticatedUser authenticatedUser;
+  private final GroupAuthorizationService groupAuthorizationService;
   private static final PathSpec DELETED_PATH_SPEC = PathSpec.of("softDeleted");
   private static final PathSpec DELETED_DATE = PathSpec.of(SoftDeletable.DELETED_DATE_FIELD_NAME);
   private static final FilterSpec SOFT_DELETED = DELETED_DATE.filter(FilterOperator.NEQ, null);
@@ -71,6 +73,7 @@ public class ObjectStoreResourceRepository
       props);
     this.dinaService = dinaService;
     this.authenticatedUser = authenticatedUser;
+    this.groupAuthorizationService = groupService.orElse(null);
   }
 
   /**
@@ -154,12 +157,26 @@ public class ObjectStoreResourceRepository
   }
 
   /**
+   * Soft-delete using setDeletedDate instead of a hard delete.
+   */
+  @Override
+  public void delete(Serializable id) {
+    ObjectStoreMetadata objectStoreMetadata = dinaService.findOne(id, ObjectStoreMetadata.class);
+    if (objectStoreMetadata != null) {
+      if (groupAuthorizationService != null) {
+        groupAuthorizationService.authorizeDelete(objectStoreMetadata);
+      }
+      objectStoreMetadata.setDeletedDate(OffsetDateTime.now());
+    }
+  }
+
+  /**
    * Method responsible for dealing with validation and setting of data related to files.
    *
    * @param objectMetadata - The metadata of the data to set.
    * @throws ValidationException If a file identifier was not provided.
    */
-  private void handleFileRelatedData(ObjectStoreMetadataDto objectMetadata)
+  private ObjectStoreMetadataDto handleFileRelatedData(ObjectStoreMetadataDto objectMetadata)
     throws ValidationException {
     // we need to validate at least that bucket name and fileIdentifier are there
     if (StringUtils.isBlank(objectMetadata.getBucket())
@@ -180,6 +197,8 @@ public class ObjectStoreResourceRepository
     objectMetadata.setDcFormat(objectUpload.getDetectedMediaType());
     objectMetadata.setAcHashValue(objectUpload.getSha1Hex());
     objectMetadata.setAcHashFunction(FileController.DIGEST_ALGORITHM);
+
+    return objectMetadata;
   }
 
   /**
