@@ -9,6 +9,7 @@ import ca.gc.aafc.dina.repository.external.ExternalResourceProvider;
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.dina.service.AuditService;
 import ca.gc.aafc.dina.service.DinaService;
+import ca.gc.aafc.dina.service.GroupAuthorizationService;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
@@ -31,7 +32,6 @@ import javax.persistence.criteria.Predicate;
 import javax.transaction.Transactional;
 import javax.validation.ValidationException;
 import java.io.Serializable;
-import java.time.OffsetDateTime;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -56,11 +56,12 @@ public class ObjectStoreResourceRepository
     @NonNull ExternalResourceProvider externalResourceProvider,
     @NonNull DinaAuthenticatedUser authenticatedUser,
     @NonNull AuditService auditService,
+    Optional<GroupAuthorizationService> groupService,
     @NonNull BuildProperties props
   ) {
     super(
       dinaService,
-      Optional.empty(),
+      Optional.ofNullable(groupService.orElse(null)),
       Optional.of(auditService),
       new DinaMapper<>(ObjectStoreMetadataDto.class),
       ObjectStoreMetadataDto.class,
@@ -150,17 +151,6 @@ public class ObjectStoreResourceRepository
       created.getUuid(),
       new QuerySpec(ObjectStoreMetadataDto.class)
     );
-  }
-
-  /**
-   * Soft-delete using setDeletedDate instead of a hard delete.
-   */
-  @Override
-  public void delete(Serializable id) {
-    ObjectStoreMetadata objectStoreMetadata = dinaService.findOne(id, ObjectStoreMetadata.class);
-    if (objectStoreMetadata != null) {
-      objectStoreMetadata.setDeletedDate(OffsetDateTime.now());
-    }
   }
 
   /**
