@@ -85,6 +85,7 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
     }
   }
 
+  // Overriding to implement soft delete
   @Override
   public void delete(ObjectStoreMetadata entity) {
     preDelete(entity);
