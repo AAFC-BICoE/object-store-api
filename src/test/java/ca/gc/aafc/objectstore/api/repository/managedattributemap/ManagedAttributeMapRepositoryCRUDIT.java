@@ -6,7 +6,7 @@ import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
-import ca.gc.aafc.objectstore.api.exceptionmapping.ChildConflictException;
+import ca.gc.aafc.objectstore.api.exceptionmapping.ManagedAttributeChildConflictException;
 import ca.gc.aafc.objectstore.api.repository.BaseRepositoryTest;
 import ca.gc.aafc.objectstore.api.respository.ManagedAttributeResourceRepository;
 import ca.gc.aafc.objectstore.api.respository.ObjectStoreResourceRepository;
@@ -216,7 +216,7 @@ public class ManagedAttributeMapRepositoryCRUDIT extends BaseRepositoryTest {
     assertEquals("New attr2 value", testMetadata.getManagedAttribute().get(1).getAssignedValue());
 
     Assertions.assertThrows(
-      ChildConflictException.class,
+      ManagedAttributeChildConflictException.class,
       () -> managedResourceRepository.delete(testManagedAttribute2.getUuid()));
   }
 }

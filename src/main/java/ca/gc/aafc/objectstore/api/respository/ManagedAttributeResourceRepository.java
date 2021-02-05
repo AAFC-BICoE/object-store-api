@@ -1,6 +1,5 @@
 package ca.gc.aafc.objectstore.api.respository;
 
-import ca.gc.aafc.dina.entity.DinaEntity;
 import ca.gc.aafc.dina.filter.DinaFilterResolver;
 import ca.gc.aafc.dina.mapper.DinaMapper;
 import ca.gc.aafc.dina.repository.DinaRepository;
@@ -9,16 +8,16 @@ import ca.gc.aafc.dina.service.DinaService;
 import ca.gc.aafc.objectstore.api.dto.ManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
-import ca.gc.aafc.objectstore.api.exceptionmapping.ChildConflictException;
+import ca.gc.aafc.objectstore.api.exceptionmapping.ManagedAttributeChildConflictException;
 import ca.gc.aafc.objectstore.api.service.ManagedAttributeAuthorizationService;
 import io.crnk.core.exception.ResourceNotFoundException;
 import lombok.NonNull;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.client.HttpClientErrorException;
 
 import javax.persistence.criteria.Predicate;
 import java.io.Serializable;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -60,16 +59,14 @@ public class ManagedAttributeResourceRepository
       throw new ResourceNotFoundException("ManagedAttribute with id: " + id + ", not found.");
     }
 
-    if (hasChildren(entity)) {
-      throw new ChildConflictException();
+    List<MetadataManagedAttribute> children = dinaService.findAll(MetadataManagedAttribute.class,
+      (cb, root) -> new Predicate[]{cb.equal(root.get("managedAttribute"), entity)},
+      null, 0, Integer.MAX_VALUE);
+
+    if (children.size() > 0) {
+      throw new ManagedAttributeChildConflictException(entity, children);
     }
 
     super.delete(id);
-  }
-
-  private boolean hasChildren(@NonNull ManagedAttribute entity) {
-    return dinaService.findAll(MetadataManagedAttribute.class,
-      (cb, root) -> new Predicate[]{cb.equal(root.get("managedAttribute"), entity)},
-      null, 0, Integer.MAX_VALUE).size() > 0;
   }
 }
