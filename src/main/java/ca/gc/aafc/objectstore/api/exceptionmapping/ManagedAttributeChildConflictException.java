@@ -18,8 +18,8 @@ public class ManagedAttributeChildConflictException extends RuntimeException {
   @Override
   public String getMessage() {
     return "Managed attribute with identifier: " + managedAttribute.getUuid()
-      + ", is currently in use by metadata with the following identifiers:\n" + children.stream()
+      + ", is currently in use by metadata with the following identifiers: " + children.stream()
       .map(metadataManagedAttribute -> metadataManagedAttribute.getUuid().toString())
-      .collect(Collectors.joining("\n"));
+      .collect(Collectors.joining(" , "));
   }
 }
