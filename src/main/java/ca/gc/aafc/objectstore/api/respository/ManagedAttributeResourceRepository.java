@@ -9,6 +9,7 @@ import ca.gc.aafc.dina.service.DinaService;
 import ca.gc.aafc.objectstore.api.dto.ManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
+import ca.gc.aafc.objectstore.api.exceptionmapping.ChildConflictException;
 import ca.gc.aafc.objectstore.api.service.ManagedAttributeAuthorizationService;
 import io.crnk.core.exception.ResourceNotFoundException;
 import lombok.NonNull;
@@ -56,16 +57,19 @@ public class ManagedAttributeResourceRepository
   public void delete(Serializable id) {
     ManagedAttribute entity = this.dinaService.findOne(id, ManagedAttribute.class);
     if (entity == null) {
-      throw new ResourceNotFoundException("ManagedAttribute with id " + id + " not found.");
+      throw new ResourceNotFoundException("ManagedAttribute with id: " + id + ", not found.");
     }
 
-    int size = dinaService.findAll(
-      MetadataManagedAttribute.class,
-      (cb, root) -> new Predicate[]{cb.equal(root.get("managedAttribute"), entity)}, null, 0, 1000).size();
-    if (size > 0) {
-
+    if (hasChildren(entity)) {
+      throw new ChildConflictException();
     }
 
     super.delete(id);
+  }
+
+  private boolean hasChildren(@NonNull ManagedAttribute entity) {
+    return dinaService.findAll(MetadataManagedAttribute.class,
+      (cb, root) -> new Predicate[]{cb.equal(root.get("managedAttribute"), entity)},
+      null, 0, Integer.MAX_VALUE).size() > 0;
   }
 }

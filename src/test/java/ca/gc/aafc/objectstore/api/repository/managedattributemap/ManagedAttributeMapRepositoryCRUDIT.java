@@ -1,12 +1,12 @@
 package ca.gc.aafc.objectstore.api.repository.managedattributemap;
 
-import ca.gc.aafc.objectstore.api.dto.ManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.dto.ManagedAttributeMapDto;
 import ca.gc.aafc.objectstore.api.dto.ManagedAttributeMapDto.ManagedAttributeMapValue;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
+import ca.gc.aafc.objectstore.api.exceptionmapping.ChildConflictException;
 import ca.gc.aafc.objectstore.api.repository.BaseRepositoryTest;
 import ca.gc.aafc.objectstore.api.respository.ManagedAttributeResourceRepository;
 import ca.gc.aafc.objectstore.api.respository.ObjectStoreResourceRepository;
@@ -15,13 +15,11 @@ import ca.gc.aafc.objectstore.api.testsupport.factories.ManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MetadataManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import com.google.common.collect.ImmutableMap;
-import io.crnk.core.exception.ResourceNotFoundException;
 import io.crnk.core.queryspec.QuerySpec;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
-import org.springframework.web.client.HttpClientErrorException;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -217,7 +215,8 @@ public class ManagedAttributeMapRepositoryCRUDIT extends BaseRepositoryTest {
     assertEquals(2, testMetadata.getManagedAttribute().size());
     assertEquals("New attr2 value", testMetadata.getManagedAttribute().get(1).getAssignedValue());
 
-    managedResourceRepository.delete(testManagedAttribute2.getUuid());
-    Assertions.assertThrows(HttpClientErrorException.Conflict.class, () -> entityManager.flush());
+    Assertions.assertThrows(
+      ChildConflictException.class,
+      () -> managedResourceRepository.delete(testManagedAttribute2.getUuid()));
   }
 }
