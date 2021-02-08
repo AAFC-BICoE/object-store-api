@@ -7,19 +7,12 @@ import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.dina.service.DinaService;
 import ca.gc.aafc.objectstore.api.dto.ManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
-import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
-import ca.gc.aafc.objectstore.api.exceptionmapping.ManagedAttributeChildConflictException;
 import ca.gc.aafc.objectstore.api.service.ManagedAttributeAuthorizationService;
-import io.crnk.core.exception.ResourceNotFoundException;
 import lombok.NonNull;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.criteria.Predicate;
-import java.io.Serializable;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Repository
 public class ManagedAttributeResourceRepository
