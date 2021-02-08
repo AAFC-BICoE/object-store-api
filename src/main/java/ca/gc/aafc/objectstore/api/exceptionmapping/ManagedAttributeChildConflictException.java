@@ -4,11 +4,14 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
+/**
+ * SHOULD BE REPLACED
+ * This is a temporary class until a more generic approach is available where the message
+ * could also be translated.
+ */
 @RequiredArgsConstructor
 public class ManagedAttributeChildConflictException extends RuntimeException {
 
-  public static final String HTTP_CODE = "409";
-  public static final String ERROR_TITLE = "Conflict";
   public final String managedAttributeId;
   public final List<String> childrenIds;
 
