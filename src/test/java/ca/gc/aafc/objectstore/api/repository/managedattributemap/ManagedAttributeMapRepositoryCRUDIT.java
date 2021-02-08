@@ -6,7 +6,9 @@ import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
+import ca.gc.aafc.objectstore.api.exceptionmapping.ManagedAttributeChildConflictException;
 import ca.gc.aafc.objectstore.api.repository.BaseRepositoryTest;
+import ca.gc.aafc.objectstore.api.respository.ManagedAttributeResourceRepository;
 import ca.gc.aafc.objectstore.api.respository.ObjectStoreResourceRepository;
 import ca.gc.aafc.objectstore.api.respository.managedattributemap.ManagedAttributeMapRepository;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ManagedAttributeFactory;
@@ -14,6 +16,7 @@ import ca.gc.aafc.objectstore.api.testsupport.factories.MetadataManagedAttribute
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import com.google.common.collect.ImmutableMap;
 import io.crnk.core.queryspec.QuerySpec;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
@@ -29,6 +32,9 @@ public class ManagedAttributeMapRepositoryCRUDIT extends BaseRepositoryTest {
 
   @Inject
   private ManagedAttributeMapRepository managedAttributeMapRepository;
+
+  @Inject
+  private ManagedAttributeResourceRepository managedResourceRepository;
 
   @Inject
   private ObjectStoreResourceRepository metadataRepository;
@@ -92,7 +98,7 @@ public class ManagedAttributeMapRepositoryCRUDIT extends BaseRepositoryTest {
       .values(ImmutableMap.<String, ManagedAttributeMapValue>builder().put(testManagedAttribute2.getUuid().toString(),
         ManagedAttributeMapValue.builder().value("New attr2 value").build()).build())
       .build()));
-  }  
+  }
 
   @Test
   public void setAttributeValue_whenMMAExists_overwriteMMAWithInvalidValue_validationThrowsException() {
@@ -171,4 +177,29 @@ public class ManagedAttributeMapRepositoryCRUDIT extends BaseRepositoryTest {
     });
   }
 
+  @Test
+  void delete_WhenHasChildren_ReturnsConflict() {
+    ObjectStoreMetadataDto metadata = metadataRepository.findOne(
+      testMetadata.getUuid(),
+      new QuerySpec(ObjectStoreMetadataDto.class));
+
+    managedAttributeMapRepository.create(ManagedAttributeMapDto.builder()
+      .metadata(metadata)
+      .values(ImmutableMap.<String, ManagedAttributeMapValue>builder().put(
+        testManagedAttribute2.getUuid().toString(),
+        ManagedAttributeMapValue.builder().value("New attr2 value").build()).build())
+      .build());
+
+    entityManager.flush();
+    entityManager.refresh(testMetadata);
+
+    // The managed attribute value (MetadataManagedAttribute) should have been
+    // created:
+    assertEquals(2, testMetadata.getManagedAttribute().size());
+    assertEquals("New attr2 value", testMetadata.getManagedAttribute().get(1).getAssignedValue());
+
+    Assertions.assertThrows(
+      ManagedAttributeChildConflictException.class,
+      () -> managedResourceRepository.delete(testManagedAttribute2.getUuid()));
+  }
 }
