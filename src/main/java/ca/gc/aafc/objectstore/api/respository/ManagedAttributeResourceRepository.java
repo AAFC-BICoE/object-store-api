@@ -19,6 +19,7 @@ import javax.persistence.criteria.Predicate;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 public class ManagedAttributeResourceRepository
@@ -59,14 +60,20 @@ public class ManagedAttributeResourceRepository
       throw new ResourceNotFoundException("Managed attribute with id: " + id + ", not found.");
     }
 
-    List<MetadataManagedAttribute> children = dinaService.findAll(MetadataManagedAttribute.class,
-      (cb, root) -> new Predicate[]{cb.equal(root.get("managedAttribute"), entity)},
-      null, 0, Integer.MAX_VALUE);
-
-    if (children.size() > 0) {
-      throw new ManagedAttributeChildConflictException(entity, children);
-    }
+    validateChildConflict(entity);
 
     super.delete(id);
+  }
+
+  private void validateChildConflict(ManagedAttribute entity) {
+    List<String> childrenIds = dinaService.findAll(MetadataManagedAttribute.class,
+      (cb, root) -> new Predicate[]{cb.equal(root.get("managedAttribute"), entity)},
+      null, 0, Integer.MAX_VALUE).stream()
+      .map(metadataManagedAttribute -> metadataManagedAttribute.getObjectStoreMetadata().getUuid().toString())
+      .collect(Collectors.toList());
+
+    if (childrenIds.size() > 0) {
+      throw new ManagedAttributeChildConflictException(entity.getUuid().toString(), childrenIds);
+    }
   }
 }
