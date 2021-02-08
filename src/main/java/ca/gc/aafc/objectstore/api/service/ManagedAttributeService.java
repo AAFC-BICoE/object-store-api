@@ -21,9 +21,8 @@ public class ManagedAttributeService extends DefaultDinaService<ManagedAttribute
   }
 
   @Override
-  public void delete(ManagedAttribute entity) {
+  protected void preDelete(ManagedAttribute entity) {
     validateChildConflicts(entity);
-    super.delete(entity);
   }
 
   private void validateChildConflicts(ManagedAttribute entity) {
