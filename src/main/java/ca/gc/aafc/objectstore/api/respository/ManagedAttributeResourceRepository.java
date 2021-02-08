@@ -56,7 +56,7 @@ public class ManagedAttributeResourceRepository
   public void delete(Serializable id) {
     ManagedAttribute entity = this.dinaService.findOne(id, ManagedAttribute.class);
     if (entity == null) {
-      throw new ResourceNotFoundException("ManagedAttribute with id: " + id + ", not found.");
+      throw new ResourceNotFoundException("Managed attribute with id: " + id + ", not found.");
     }
 
     List<MetadataManagedAttribute> children = dinaService.findAll(MetadataManagedAttribute.class,
