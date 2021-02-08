@@ -26,7 +26,6 @@ public class ManagedAttributeResourceRepository
   extends DinaRepository<ManagedAttributeDto, ManagedAttribute> {
 
   private final Optional<DinaAuthenticatedUser> authenticatedUser;
-  private final DinaService<ManagedAttribute> dinaService;
 
   public ManagedAttributeResourceRepository(
     @NonNull DinaService<ManagedAttribute> dinaService,
@@ -44,7 +43,6 @@ public class ManagedAttributeResourceRepository
       ManagedAttribute.class, filterResolver, null,
       props);
     this.authenticatedUser = authenticatedUser;
-    this.dinaService = dinaService;
   }
 
   @Override
@@ -53,27 +51,4 @@ public class ManagedAttributeResourceRepository
     return super.create(resource);
   }
 
-  @Override
-  public void delete(Serializable id) {
-    ManagedAttribute entity = this.dinaService.findOne(id, ManagedAttribute.class);
-    if (entity == null) {
-      throw new ResourceNotFoundException("Managed attribute with id: " + id + ", not found.");
-    }
-
-    validateChildConflict(entity);
-
-    super.delete(id);
-  }
-
-  private void validateChildConflict(ManagedAttribute entity) {
-    List<String> childrenIds = dinaService.findAll(MetadataManagedAttribute.class,
-      (cb, root) -> new Predicate[]{cb.equal(root.get("managedAttribute"), entity)},
-      null, 0, Integer.MAX_VALUE).stream()
-      .map(metadataManagedAttribute -> metadataManagedAttribute.getObjectStoreMetadata().getUuid().toString())
-      .collect(Collectors.toList());
-
-    if (childrenIds.size() > 0) {
-      throw new ManagedAttributeChildConflictException(entity.getUuid().toString(), childrenIds);
-    }
-  }
 }
