@@ -127,22 +127,20 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
     parent.addDerivative(child);
     metaService.create(parent);
 
-    // Needed to force a flush, also proves amount of total meta in the db
-    Assertions.assertEquals(2, fetchAllMeta().size());
-
+    // Needed to force a flush
+    fetchAllMeta();
     Assertions.assertNotNull(metaService.findOne(child.getUuid(), ObjectStoreMetadata.class));
+    Assertions.assertNotNull(metaService.findOne(parent.getUuid(), ObjectStoreMetadata.class));
 
     metaService.delete(parent);
 
-    // Needed to force a flush, also proves amount of total meta in the db
-    Assertions.assertEquals(2, fetchAllMeta().size());
+    // Needed to force a flush
+    fetchAllMeta();
     //Parent is soft deleted
-    Assertions.assertNotNull(metaService.findOne(parent.getUuid(), ObjectStoreMetadata.class)
-      .getDeletedDate());
+    Assertions.assertNotNull(
+      metaService.findOne(parent.getUuid(), ObjectStoreMetadata.class).getDeletedDate());
 
-    ObjectStoreMetadata resultChild = metaService.findOne(
-      child.getUuid(),
-      ObjectStoreMetadata.class);
+    ObjectStoreMetadata resultChild = metaService.findOne(child.getUuid(), ObjectStoreMetadata.class);
     Assertions.assertNotNull(resultChild);
     Assertions.assertNull(resultChild.getAcDerivedFrom());
   }
