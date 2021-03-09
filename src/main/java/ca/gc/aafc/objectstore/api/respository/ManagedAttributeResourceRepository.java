@@ -1,6 +1,5 @@
 package ca.gc.aafc.objectstore.api.respository;
 
-import ca.gc.aafc.dina.filter.DinaFilterResolver;
 import ca.gc.aafc.dina.mapper.DinaMapper;
 import ca.gc.aafc.dina.repository.DinaRepository;
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
@@ -22,7 +21,6 @@ public class ManagedAttributeResourceRepository
 
   public ManagedAttributeResourceRepository(
     @NonNull DinaService<ManagedAttribute> dinaService,
-    @NonNull DinaFilterResolver filterResolver,
     @NonNull ManagedAttributeAuthorizationService authorizationService,
     Optional<DinaAuthenticatedUser> authenticatedUser,
     @NonNull BuildProperties props
@@ -33,7 +31,7 @@ public class ManagedAttributeResourceRepository
       Optional.empty(),
       new DinaMapper<>(ManagedAttributeDto.class),
       ManagedAttributeDto.class,
-      ManagedAttribute.class, filterResolver, null,
+      ManagedAttribute.class, null, null,
       props);
     this.authenticatedUser = authenticatedUser;
   }

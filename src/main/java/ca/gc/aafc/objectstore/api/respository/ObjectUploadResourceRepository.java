@@ -1,6 +1,5 @@
 package ca.gc.aafc.objectstore.api.respository;
 
-import ca.gc.aafc.dina.filter.DinaFilterResolver;
 import ca.gc.aafc.dina.mapper.DinaMapper;
 import ca.gc.aafc.dina.repository.ReadOnlyDinaRepository;
 import ca.gc.aafc.dina.service.DinaService;
@@ -15,15 +14,14 @@ public class ObjectUploadResourceRepository
 
   protected ObjectUploadResourceRepository(
     DinaService<ObjectUpload> service,
-    BuildProperties props,
-    DinaFilterResolver filterResolver
+    BuildProperties props
   ) {
     super(
       service,
       new DinaMapper<>(ObjectUploadDto.class),
       ObjectUploadDto.class,
       ObjectUpload.class,
-      filterResolver,
+      null,
       props);
   }
 }
