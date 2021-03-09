@@ -1,7 +1,6 @@
 package ca.gc.aafc.objectstore.api.respository;
 
 import ca.gc.aafc.dina.entity.SoftDeletable;
-import ca.gc.aafc.dina.filter.DinaFilterResolver;
 import ca.gc.aafc.dina.mapper.DinaMapper;
 import ca.gc.aafc.dina.repository.DinaRepository;
 import ca.gc.aafc.dina.repository.GoneException;
@@ -52,7 +51,6 @@ public class ObjectStoreResourceRepository
 
   public ObjectStoreResourceRepository(
     @NonNull DinaService<ObjectStoreMetadata> dinaService,
-    @NonNull DinaFilterResolver filterResolver,
     @NonNull ExternalResourceProvider externalResourceProvider,
     @NonNull DinaAuthenticatedUser authenticatedUser,
     @NonNull AuditService auditService,
@@ -66,7 +64,7 @@ public class ObjectStoreResourceRepository
       new DinaMapper<>(ObjectStoreMetadataDto.class),
       ObjectStoreMetadataDto.class,
       ObjectStoreMetadata.class,
-      filterResolver,
+      null,
       externalResourceProvider,
       props);
     this.dinaService = dinaService;

@@ -1,6 +1,5 @@
 package ca.gc.aafc.objectstore.api.respository;
 
-import ca.gc.aafc.dina.filter.DinaFilterResolver;
 import ca.gc.aafc.dina.mapper.DinaMapper;
 import ca.gc.aafc.dina.repository.DinaRepository;
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
@@ -28,7 +27,6 @@ public class ObjectSubtypeResourceRepository
 
   public ObjectSubtypeResourceRepository(
     @NonNull DinaService<ObjectSubtype> dinaService,
-    @NonNull DinaFilterResolver filterResolver,
     MessageSource messageSource,
     Optional<DinaAuthenticatedUser> authenticatedUser,
     @NonNull BuildProperties props
@@ -40,7 +38,7 @@ public class ObjectSubtypeResourceRepository
       new DinaMapper<>(ObjectSubtypeDto.class),
       ObjectSubtypeDto.class,
       ObjectSubtype.class,
-      filterResolver,
+      null,
       null,
       props);
     this.dinaService = dinaService;

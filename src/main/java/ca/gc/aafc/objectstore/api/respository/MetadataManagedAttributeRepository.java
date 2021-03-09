@@ -1,6 +1,5 @@
 package ca.gc.aafc.objectstore.api.respository;
 
-import ca.gc.aafc.dina.filter.DinaFilterResolver;
 import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.dina.mapper.DinaMapper;
 import ca.gc.aafc.dina.repository.DinaRepository;
@@ -22,7 +21,6 @@ public class MetadataManagedAttributeRepository
 
   public MetadataManagedAttributeRepository(
     @NonNull BaseDAO baseDAO,
-    @NonNull DinaFilterResolver filterResolver,
     @NonNull DinaAuthenticatedUser authenticatedUser,
     @NonNull BuildProperties props
   ) {
@@ -33,7 +31,7 @@ public class MetadataManagedAttributeRepository
       new DinaMapper<>(MetadataManagedAttributeDto.class),
       MetadataManagedAttributeDto.class,
       MetadataManagedAttribute.class,
-      filterResolver,
+      null,
       null,
       props);
     this.authenticatedUser = authenticatedUser;
