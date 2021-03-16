@@ -31,6 +31,7 @@
                 <constraints nullable="false"/>
             </column>
             <column name="object_subtype" type="INTEGER"/>
+            <column name="ac_derived_from" type="INTEGER"/>
         </createTable>
 
         <addForeignKeyConstraint
@@ -39,6 +40,12 @@
                 constraintName="fk_derivative_object_subtype"
                 referencedColumnNames="id"
                 referencedTableName="object_subtype"/>
+        <addForeignKeyConstraint
+                baseColumnNames="ac_derived_from"
+                baseTableName="derivative"
+                constraintName="fk_derivative_ac_derived_from"
+                referencedColumnNames="id"
+                referencedTableName="metadata"/>
     </changeSet>
 
 </databaseChangeLog>

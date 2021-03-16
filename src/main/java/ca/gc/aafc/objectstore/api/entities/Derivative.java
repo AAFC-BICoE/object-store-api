@@ -23,6 +23,7 @@ public class Derivative extends BaseObject implements DinaEntity {
 
   private Integer id;
   private ObjectSubtype objectSubtype;
+  private ObjectStoreMetadata acDerivedFrom;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,4 +45,15 @@ public class Derivative extends BaseObject implements DinaEntity {
   public void setObjectSubtype(ObjectSubtype objectSubtype) {
     this.objectSubtype = objectSubtype;
   }
+
+  @ManyToOne
+  @JoinColumn(name = "ac_derived_from", referencedColumnName = "id")
+  public ObjectStoreMetadata getAcDerivedFrom() {
+    return acDerivedFrom;
+  }
+
+  public void setAcDerivedFrom(ObjectStoreMetadata acDerivedFrom) {
+    this.acDerivedFrom = acDerivedFrom;
+  }
+
 }
