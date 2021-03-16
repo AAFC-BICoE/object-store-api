@@ -8,7 +8,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.annotations.NaturalId;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.NaturalIdCache;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
@@ -17,8 +17,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -28,7 +26,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.OffsetDateTime;
@@ -43,22 +40,16 @@ import java.util.UUID;
 @Table(name = "metadata")
 @TypeDef(name = "pgsql_enum", typeClass = PostgreSQLEnumType.class)
 @TypeDef(name = "string-array", typeClass = StringArrayType.class)
-@SuppressFBWarnings({ "EI_EXPOSE_REP", "EI_EXPOSE_REP2" })
-@Builder(toBuilder = true)
+@SuppressFBWarnings({"EI_EXPOSE_REP", "EI_EXPOSE_REP2"})
+@SuperBuilder
 @AllArgsConstructor
 @RequiredArgsConstructor
 @NaturalIdCache
-public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
+public class ObjectStoreMetadata extends BaseObject implements SoftDeletable, DinaEntity {
 
   private Integer id;
 
-  private UUID uuid;
-  private String bucket;
-  private UUID fileIdentifier;
-  private String fileExtension;
-
   private String dcFormat;
-  private DcType dcType;
   private String acCaption;
 
   private OffsetDateTime acDigitizationDate;
@@ -71,12 +62,8 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
 
   private String originalFilename;
 
-  private String acHashFunction;
-  private String acHashValue;
   private String[] acTags;
 
-  private String createdBy;
-  private OffsetDateTime createdOn;
   private OffsetDateTime deletedDate;
 
   @Builder.Default
@@ -95,7 +82,9 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
 
   private ObjectSubtype acSubType;
 
-  /** Read-only field to get the ac_sub_type_id to allow filtering by null values. */
+  /**
+   * Read-only field to get the ac_sub_type_id to allow filtering by null values.
+   */
   private Integer acSubTypeId;
 
   @Id
@@ -109,38 +98,6 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
     this.id = id;
   }
 
-  @NaturalId
-  @NotNull
-  @Column(name = "uuid", unique = true)
-  public UUID getUuid() {
-    return uuid;
-  }
-
-  public void setUuid(UUID uuid) {
-    this.uuid = uuid;
-  }
-
-  @NotNull
-  @Column(name = "file_identifier", unique = true)
-  public UUID getFileIdentifier() {
-    return fileIdentifier;
-  }
-
-  public void setFileIdentifier(UUID fileIdentifier) {
-    this.fileIdentifier = fileIdentifier;
-  }
-
-  @NotNull
-  @Column(name = "file_extension")
-  @Size(max = 10)
-  public String getFileExtension() {
-    return fileExtension;
-  }
-
-  public void setFileExtension(String fileExtension) {
-    this.fileExtension = fileExtension;
-  }
-
   /**
    * Returns fileIdentifier + fileExtension
    *
@@ -149,16 +106,6 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
   @Transient
   public String getFilename() {
     return fileIdentifier + fileExtension;
-  }
-
-  @NotNull
-  @Size(max = 50)
-  public String getBucket() {
-    return bucket;
-  }
-
-  public void setBucket(String bucket) {
-    this.bucket = bucket;
   }
 
   @Column(name = "ac_caption")
@@ -179,18 +126,6 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
 
   public void setDcFormat(String dcFormat) {
     this.dcFormat = dcFormat;
-  }
-
-  @NotNull
-  @Type(type = "pgsql_enum")
-  @Enumerated(EnumType.STRING)
-  @Column(name = "dc_type")
-  public DcType getDcType() {
-    return dcType;
-  }
-
-  public void setDcType(DcType dcType) {
-    this.dcType = dcType;
   }
 
   @Column(name = "ac_digitization_date")
@@ -221,24 +156,6 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
     this.originalFilename = originalFilename;
   }
 
-  @Column(name = "ac_hash_function")
-  public String getAcHashFunction() {
-    return acHashFunction;
-  }
-
-  public void setAcHashFunction(String acHashFunction) {
-    this.acHashFunction = acHashFunction;
-  }
-
-  @Column(name = "ac_hash_value")
-  public String getAcHashValue() {
-    return acHashValue;
-  }
-
-  public void setAcHashValue(String acHashValue) {
-    this.acHashValue = acHashValue;
-  }
-
   @Type(type = "string-array")
   @Column(name = "ac_tags", columnDefinition = "text[]")
   public String[] getAcTags() {
@@ -260,7 +177,7 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
     this.createdOn = createdDate;
   }
 
-  @OneToMany(mappedBy = "objectStoreMetadata",  fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "objectStoreMetadata", fetch = FetchType.LAZY)
   public List<MetadataManagedAttribute> getManagedAttribute() {
     return managedAttribute;
   }
@@ -319,9 +236,9 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
   }
 
   /**
-   * Sets the acDerived from value. Note to establish and remove a bi directional relationship, the
-   * {@link ObjectStoreMetadata#addDerivative} and {@link ObjectStoreMetadata#removeDerivative}
-   * methods should be called from the parent.
+   * Sets the acDerived from value. Note to establish and remove a bi directional relationship, the {@link
+   * ObjectStoreMetadata#addDerivative} and {@link ObjectStoreMetadata#removeDerivative} methods should be
+   * called from the parent.
    *
    * @param acDerivedFrom - parent to set
    */
@@ -339,8 +256,8 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
   }
 
   /**
-   * Adds the given derivative to the list of derivatives. This method should be used to establish
-   * Bi directional JPA relations ships.
+   * Adds the given derivative to the list of derivatives. This method should be used to establish Bi
+   * directional JPA relations ships.
    *
    * @param derivative - derivative to add
    */
@@ -350,8 +267,8 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
   }
 
   /**
-   * Adds the given derivative to the list of derivatives. This method should be used to remove Bi
-   * directional JPA relations ships.
+   * Adds the given derivative to the list of derivatives. This method should be used to remove Bi directional
+   * JPA relations ships.
    *
    * @param derivative - derivative to remove
    */
@@ -388,7 +305,9 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
     this.acSubType = acSubType;
   }
 
-  /** Read-only field to get the ac_derived_from_id to allow filtering by null values. */
+  /**
+   * Read-only field to get the ac_derived_from_id to allow filtering by null values.
+   */
   @Column(name = "ac_sub_type_id", updatable = false, insertable = false)
   public Integer getAcSubTypeId() {
     return acSubTypeId;
@@ -427,37 +346,19 @@ public class ObjectStoreMetadata implements SoftDeletable, DinaEntity {
     this.xmpRightsUsageTerms = xmpRightsUsageTerms;
   }
 
-  /** Transient field until base implementation is ready **/
+  /**
+   * Transient field until base implementation is ready
+   **/
   @Transient
   public String getGroup() {
     return bucket;
   }
 
-  /** Empty setter method to avoid resource method error: missing accessor method until
-   *  multiple custom field resolvers can be associated with single resource
+  /**
+   * Empty setter method to avoid resource method error: missing accessor method until multiple custom field
+   * resolvers can be associated with single resource
    */
   public void setGroup(String group) {
-  }
-
-  @Override
-  @NotBlank
-  @Column(name = "created_by", updatable = false)
-  public String getCreatedBy() {
-    return createdBy;
-  }
-
-  public void setCreatedBy(String createdBy) {
-    this.createdBy = createdBy;
-  }
-
-  @Override
-  @Column(name = "created_on", insertable = false, updatable = false)
-  public OffsetDateTime getCreatedOn() {
-    return createdOn;
-  }
-
-  public void setCreatedOn(OffsetDateTime createdOn) {
-    this.createdOn = createdOn;
   }
 
 }
