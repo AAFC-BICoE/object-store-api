@@ -30,7 +30,15 @@
             <column name="created_by" type="VARCHAR(250)">
                 <constraints nullable="false"/>
             </column>
+            <column name="object_subtype" type="INTEGER"/>
         </createTable>
+
+        <addForeignKeyConstraint
+                baseColumnNames="object_subtype"
+                baseTableName="derivative"
+                constraintName="fk_derivative_object_subtype"
+                referencedColumnNames="id"
+                referencedTableName="object_subtype"/>
     </changeSet>
 
 </databaseChangeLog>

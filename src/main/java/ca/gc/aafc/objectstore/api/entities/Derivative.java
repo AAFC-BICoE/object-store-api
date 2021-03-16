@@ -10,6 +10,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -20,6 +22,7 @@ import javax.persistence.Table;
 public class Derivative extends BaseObject implements DinaEntity {
 
   private Integer id;
+  private ObjectSubtype objectSubtype;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,5 +33,15 @@ public class Derivative extends BaseObject implements DinaEntity {
 
   public void setId(Integer id) {
     this.id = id;
+  }
+
+  @ManyToOne
+  @JoinColumn(name = "object_subtype", referencedColumnName = "id")
+  public ObjectSubtype getObjectSubtype() {
+    return objectSubtype;
+  }
+
+  public void setObjectSubtype(ObjectSubtype objectSubtype) {
+    this.objectSubtype = objectSubtype;
   }
 }
