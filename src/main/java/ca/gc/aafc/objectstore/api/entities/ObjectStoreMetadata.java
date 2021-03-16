@@ -43,7 +43,6 @@ import java.util.UUID;
 @SuperBuilder
 @AllArgsConstructor
 @RequiredArgsConstructor
-@NaturalIdCache
 public class ObjectStoreMetadata extends BaseObject implements SoftDeletable, DinaEntity {
 
   private Integer id;

@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.NaturalId;
+import org.hibernate.annotations.NaturalIdCache;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
@@ -23,6 +24,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @RequiredArgsConstructor
 @TypeDef(name = "pgsql_enum", typeClass = PostgreSQLEnumType.class)
+@NaturalIdCache
 public class BaseObject {
   protected UUID uuid;
   protected String bucket;
