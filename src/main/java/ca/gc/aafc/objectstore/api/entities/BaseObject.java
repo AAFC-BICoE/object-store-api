@@ -1,10 +1,12 @@
 package ca.gc.aafc.objectstore.api.entities;
 
+import com.vladmihalcea.hibernate.type.basic.PostgreSQLEnumType;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.Column;
 import javax.persistence.EnumType;
@@ -20,6 +22,7 @@ import java.util.UUID;
 @SuperBuilder
 @AllArgsConstructor
 @RequiredArgsConstructor
+@TypeDef(name = "pgsql_enum", typeClass = PostgreSQLEnumType.class)
 public class BaseObject {
   protected UUID uuid;
   protected String bucket;

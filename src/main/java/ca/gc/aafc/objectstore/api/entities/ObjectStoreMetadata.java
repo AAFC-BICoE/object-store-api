@@ -38,7 +38,6 @@ import java.util.UUID;
  */
 @Entity
 @Table(name = "metadata")
-@TypeDef(name = "pgsql_enum", typeClass = PostgreSQLEnumType.class)
 @TypeDef(name = "string-array", typeClass = StringArrayType.class)
 @SuppressFBWarnings({"EI_EXPOSE_REP", "EI_EXPOSE_REP2"})
 @SuperBuilder
