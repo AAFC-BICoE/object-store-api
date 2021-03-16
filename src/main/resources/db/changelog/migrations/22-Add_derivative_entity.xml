@@ -6,6 +6,9 @@
 
     <changeSet id="22-Add_derivative_entity" context="schema-change" author="KeyukJ">
         <createTable tableName="derivative">
+            <column autoIncrement="true" name="id" type="SERIAL">
+                <constraints primaryKey="true" primaryKeyName="pk_derivative_id"/>
+            </column>
             <column name="uuid" type="uuid">
                 <constraints nullable="false" unique="true"/>
             </column>
