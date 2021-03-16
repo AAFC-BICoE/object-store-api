@@ -2,11 +2,14 @@ package ca.gc.aafc.objectstore.api.crud;
 
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
+import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class DerivativeCRUDIT extends BaseEntityCRUDIT {
 
@@ -50,7 +53,9 @@ public class DerivativeCRUDIT extends BaseEntityCRUDIT {
 
   @Override
   public void testRemove() {
-
+    Integer id = derivative.getId();
+    service.deleteById(Derivative.class, id);
+    assertNull(service.find(Derivative.class, id));
   }
 
 }
