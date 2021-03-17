@@ -15,6 +15,7 @@ import io.minio.errors.InvalidBucketNameException;
 import io.minio.errors.InvalidResponseException;
 import io.minio.errors.ServerException;
 import io.minio.errors.XmlParserException;
+import liquibase.pro.packaged.O;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -87,6 +88,13 @@ public class FileController {
     this.authenticatedUser = authenticatedUser;
     this.messageSource = messageSource;
     this.transactionTemplate = transactionTemplate;
+  }
+
+  @PostMapping("/file/{bucket}/derivative")
+  public ObjectUpload handleDerivativeUpload(@PathVariable String bucket) {
+    ObjectUpload objectUpload = new ObjectUpload();
+    objectUpload.setBucket(bucket);
+    return objectUpload;
   }
 
   @PostMapping("/file/{bucket}")
