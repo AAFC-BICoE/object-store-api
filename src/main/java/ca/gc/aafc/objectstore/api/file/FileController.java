@@ -115,7 +115,8 @@ public class FileController {
     DigestInputStream dis = new DigestInputStream(prIs.getInputStream(), md);
 
     Map<String, String> exifData = extractExifData(file);
-    return ObjectUpload.builder()
+
+    return objectUploadService.create(ObjectUpload.builder()
       .fileIdentifier(uuid)
       .createdBy(authenticatedUser.getUsername())
       .originalFilename(file.getOriginalFilename())
@@ -129,7 +130,7 @@ public class FileController {
       .bucket(bucket)
       .exif(exifData)
       .isDerivative(true)
-      .build();
+      .build());
   }
 
   @PostMapping("/file/{bucket}")

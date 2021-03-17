@@ -165,6 +165,7 @@ public class FileControllerIT extends BaseIntegrationTest {
     ObjectUpload uploadResponse = fileController.handleDerivativeUpload(mockFile, bucketUnderTest);
     assertNotNull(uploadResponse);
     //TODO assert object upload and derivative entities persisted in DB
+    assertNotNull( objectUploadService.findOne(uploadResponse.getFileIdentifier(), ObjectUpload.class));
   }
 
 }
