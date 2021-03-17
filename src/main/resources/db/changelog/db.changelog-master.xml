@@ -21,7 +21,7 @@
   <include file="db/changelog/migrations/18-Add_FileMetaEntry_to_object_upload_table.xml" />
   <include file="db/changelog/migrations/19-Add_exif_to_object_upload_table.xml" />
   <include file="db/changelog/migrations/20-Add_date_taken_to_object_upload_table.xml" />
-  <include file="db/changelog/migrations/21-Add_DcType_To_Object_Upload.xml" />
-  <include file="db/changelog/migrations/22-Add_derivative_entity.xml"/>
-  <include file="db/changelog/migrations/22-Change-metadata-assignedValue-to-text.xml" />
+  <include file="db/changelog/migrations/21-Add_DcType_To_Object_Upload.xml"/>
+  <include file="db/changelog/migrations/22-Change-metadata-assignedValue-to-text.xml"/>
+  <include file="db/changelog/migrations/23-Add_derivative_entity.xml"/>
 </databaseChangeLog>
