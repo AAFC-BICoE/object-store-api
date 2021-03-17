@@ -4,10 +4,9 @@ import ca.gc.aafc.dina.entity.DinaEntity;
 import ca.gc.aafc.dina.entity.SoftDeletable;
 import com.vladmihalcea.hibernate.type.array.StringArrayType;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.SuperBuilder;
+import org.apache.commons.collections4.CollectionUtils;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -60,14 +59,14 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata implements 
 
   private OffsetDateTime deletedDate;
 
-  private List<MetadataManagedAttribute> managedAttribute = new ArrayList<>();
+  private List<MetadataManagedAttribute> managedAttribute;
 
   private UUID acMetadataCreator;
   private UUID dcCreator;
 
   private ObjectStoreMetadata acDerivedFrom;
 
-  private List<ObjectStoreMetadata> derivatives = new ArrayList<>();
+  private List<ObjectStoreMetadata> derivatives;
 
   private Boolean publiclyReleasable;
   private String notPubliclyReleasableReason;
@@ -134,11 +133,11 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata implements 
     this.originalFilename = originalFilename;
     this.acTags = acTags;
     this.deletedDate = deletedDate;
-    this.managedAttribute = managedAttribute;
+    this.managedAttribute = CollectionUtils.isNotEmpty(managedAttribute) ? managedAttribute : new ArrayList<>();
     this.acMetadataCreator = acMetadataCreator;
     this.dcCreator = dcCreator;
     this.acDerivedFrom = acDerivedFrom;
-    this.derivatives = derivatives;
+    this.derivatives = CollectionUtils.isNotEmpty(derivatives) ? derivatives : new ArrayList<>();
     this.publiclyReleasable = publiclyReleasable;
     this.notPubliclyReleasableReason = notPubliclyReleasableReason;
     this.acSubType = acSubType;
