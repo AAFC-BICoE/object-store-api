@@ -111,14 +111,15 @@ public class FileController {
       .detectMediaType(prIs.getReadAheadBuffer(), file.getContentType(), file.getOriginalFilename());
 
     String filename = uuid.toString() + mtdr.getEvaluatedExtension();
+    MessageDigest md = MessageDigest.getInstance(DIGEST_ALGORITHM);
+    DigestInputStream dis = new DigestInputStream(prIs.getInputStream(), md);
 
     Map<String, String> exifData = extractExifData(file);
-  //TODO fix sha1hex
     return ObjectUpload.builder()
       .fileIdentifier(uuid)
       .createdBy(authenticatedUser.getUsername())
       .originalFilename(file.getOriginalFilename())
-      .sha1Hex(DigestUtils.sha1Hex(MessageDigest.getInstance(DIGEST_ALGORITHM).digest()))
+      .sha1Hex(DigestUtils.sha1Hex(md.digest()))
       .receivedMediaType(file.getContentType())
       .detectedMediaType(Objects.toString(mtdr.getDetectedMediaType()))
       .detectedFileExtension(mtdr.getDetectedMimeType().getExtension())
