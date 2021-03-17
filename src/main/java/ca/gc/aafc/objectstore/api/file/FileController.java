@@ -90,7 +90,10 @@ public class FileController {
   }
 
   @PostMapping("/file/{bucket}/derivative")
-  public ObjectUpload handleDerivativeUpload(@PathVariable String bucket) throws IOException {
+  public ObjectUpload handleDerivativeUpload(
+    @RequestParam("file") MultipartFile file,
+    @PathVariable String bucket
+  ) throws IOException, MimeTypeException, NoSuchAlgorithmException {
     // make sure we have an authenticatedUser
     checkAuthenticatedUser();
     authenticateBucket(bucket);
@@ -101,10 +104,30 @@ public class FileController {
     // Safe get unique UUID
     UUID uuid = safeGenerateUuid();
 
-    ObjectUpload objectUpload = new ObjectUpload();
-    objectUpload.setFileIdentifier(uuid);
-    objectUpload.setBucket(bucket);
-    return objectUpload;
+    // We need access to the first bytes in a form that we can reset the InputStream
+    ReadAheadInputStream prIs = ReadAheadInputStream.from(file.getInputStream(), READ_AHEAD_BUFFER_SIZE);
+
+    MediaTypeDetectionStrategy.MediaTypeDetectionResult mtdr = mediaTypeDetectionStrategy
+      .detectMediaType(prIs.getReadAheadBuffer(), file.getContentType(), file.getOriginalFilename());
+
+    String filename = uuid.toString() + mtdr.getEvaluatedExtension();
+
+    Map<String, String> exifData = extractExifData(file);
+  //TODO fix sha1hex
+    return ObjectUpload.builder()
+      .fileIdentifier(uuid)
+      .createdBy(authenticatedUser.getUsername())
+      .originalFilename(file.getOriginalFilename())
+      .sha1Hex(DigestUtils.sha1Hex(MessageDigest.getInstance(DIGEST_ALGORITHM).digest()))
+      .receivedMediaType(file.getContentType())
+      .detectedMediaType(Objects.toString(mtdr.getDetectedMediaType()))
+      .detectedFileExtension(mtdr.getDetectedMimeType().getExtension())
+      .evaluatedMediaType(mtdr.getEvaluatedMediaType())
+      .evaluatedFileExtension(mtdr.getEvaluatedExtension())
+      .sizeInBytes(file.getSize())
+      .bucket(bucket)
+      .exif(exifData)
+      .build();
   }
 
   @PostMapping("/file/{bucket}")
@@ -129,6 +152,8 @@ public class FileController {
         .detectMediaType(prIs.getReadAheadBuffer(), file.getContentType(), file.getOriginalFilename());
 
     String fileExtension = mtdr.getEvaluatedMediaType();
+
+    // Safe get unique UUID
     UUID uuid = safeGenerateUuid();
 
     // Decorate the InputStream in order to compute the hash
@@ -145,10 +170,7 @@ public class FileController {
 
     String sha1Hex = DigestUtils.sha1Hex(md.digest());
 
-    Map<String, String> exifData;
-    try (InputStream exifIs = file.getInputStream()) {
-      exifData = ExifParser.extractExifTags(exifIs);
-    }
+    Map<String, String> exifData = extractExifData(file);
 
     boolean thumbnailIsSupported = thumbnailService.isSupported(fileExtension);
 
@@ -184,15 +206,6 @@ public class FileController {
     }
 
     return createdObjectUpload;
-  }
-
-  private UUID safeGenerateUuid() {
-    // Safe get unique UUID
-    UUID uuid = transactionTemplate.execute(transactionStatus -> generateUUID());
-    if (uuid == null) {
-      throw new IllegalStateException("Can't assign unique UUID.");
-    }
-    return uuid;
   }
 
   /**
@@ -298,4 +311,19 @@ public class FileController {
     }
   }
 
+  private UUID safeGenerateUuid() {
+    UUID uuid = transactionTemplate.execute(transactionStatus -> generateUUID());
+    if (uuid == null) {
+      throw new IllegalStateException("Can't assign unique UUID.");
+    }
+    return uuid;
+  }
+
+  private Map<String, String> extractExifData(@RequestParam("file") MultipartFile file) throws IOException {
+    Map<String, String> exifData;
+    try (InputStream exifIs = file.getInputStream()) {
+      exifData = ExifParser.extractExifTags(exifIs);
+    }
+    return exifData;
+  }
 }
