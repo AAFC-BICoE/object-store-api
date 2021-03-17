@@ -38,7 +38,6 @@ import java.util.UUID;
 @Table(name = "metadata")
 @TypeDef(name = "string-array", typeClass = StringArrayType.class)
 @SuppressFBWarnings({"EI_EXPOSE_REP", "EI_EXPOSE_REP2"})
-@SuperBuilder
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class ObjectStoreMetadata extends AbstractObjectStoreMetadata implements SoftDeletable, DinaEntity {
@@ -62,7 +61,6 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata implements 
 
   private OffsetDateTime deletedDate;
 
-  @Builder.Default
   private List<MetadataManagedAttribute> managedAttribute = new ArrayList<>();
 
   private UUID acMetadataCreator;
@@ -70,7 +68,6 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata implements 
 
   private ObjectStoreMetadata acDerivedFrom;
 
-  @Builder.Default
   private List<ObjectStoreMetadata> derivatives = new ArrayList<>();
 
   private Boolean publiclyReleasable;
@@ -82,6 +79,72 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata implements 
    * Read-only field to get the ac_sub_type_id to allow filtering by null values.
    */
   private Integer acSubTypeId;
+
+  @Builder
+  public ObjectStoreMetadata(
+    UUID uuid,
+    String bucket,
+    UUID fileIdentifier,
+    String fileExtension,
+    DcType dcType,
+    String acHashFunction,
+    String acHashValue,
+    String createdBy,
+    OffsetDateTime createdOn,
+    Integer id,
+    String dcFormat,
+    String acCaption,
+    OffsetDateTime acDigitizationDate,
+    OffsetDateTime xmpMetadataDate,
+    String xmpRightsWebStatement,
+    String dcRights,
+    String xmpRightsOwner,
+    String xmpRightsUsageTerms,
+    String originalFilename,
+    String[] acTags,
+    OffsetDateTime deletedDate,
+    List<MetadataManagedAttribute> managedAttribute,
+    UUID acMetadataCreator,
+    UUID dcCreator,
+    ObjectStoreMetadata acDerivedFrom,
+    List<ObjectStoreMetadata> derivatives,
+    Boolean publiclyReleasable,
+    String notPubliclyReleasableReason,
+    ObjectSubtype acSubType,
+    Integer acSubTypeId
+  ) {
+    super(
+      uuid,
+      bucket,
+      fileIdentifier,
+      fileExtension,
+      dcType,
+      acHashFunction,
+      acHashValue,
+      createdBy,
+      createdOn);
+    this.id = id;
+    this.dcFormat = dcFormat;
+    this.acCaption = acCaption;
+    this.acDigitizationDate = acDigitizationDate;
+    this.xmpMetadataDate = xmpMetadataDate;
+    this.xmpRightsWebStatement = xmpRightsWebStatement;
+    this.dcRights = dcRights;
+    this.xmpRightsOwner = xmpRightsOwner;
+    this.xmpRightsUsageTerms = xmpRightsUsageTerms;
+    this.originalFilename = originalFilename;
+    this.acTags = acTags;
+    this.deletedDate = deletedDate;
+    this.managedAttribute = managedAttribute;
+    this.acMetadataCreator = acMetadataCreator;
+    this.dcCreator = dcCreator;
+    this.acDerivedFrom = acDerivedFrom;
+    this.derivatives = derivatives;
+    this.publiclyReleasable = publiclyReleasable;
+    this.notPubliclyReleasableReason = notPubliclyReleasableReason;
+    this.acSubType = acSubType;
+    this.acSubTypeId = acSubTypeId;
+  }
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

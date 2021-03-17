@@ -22,7 +22,6 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @MappedSuperclass
-@SuperBuilder
 @AllArgsConstructor
 @RequiredArgsConstructor
 @TypeDef(name = "pgsql_enum", typeClass = PostgreSQLEnumType.class)

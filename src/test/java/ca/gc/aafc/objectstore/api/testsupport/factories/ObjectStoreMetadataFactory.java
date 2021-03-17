@@ -22,7 +22,7 @@ public class ObjectStoreMetadataFactory implements TestableEntityFactory<ObjectS
    * 
    * @return Pre-configured builder with all mandatory fields set
    */
-  public static ObjectStoreMetadata.ObjectStoreMetadataBuilder<?,?> newObjectStoreMetadata() {
+  public static ObjectStoreMetadata.ObjectStoreMetadataBuilder newObjectStoreMetadata() {
     
     return  ObjectStoreMetadata.builder()
         .uuid(UUID.randomUUID())

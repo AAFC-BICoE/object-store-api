@@ -2,6 +2,7 @@ package ca.gc.aafc.objectstore.api.entities;
 
 import ca.gc.aafc.dina.entity.DinaEntity;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
@@ -13,10 +14,11 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import java.time.OffsetDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "derivative")
-@SuperBuilder
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class Derivative extends AbstractObjectStoreMetadata implements DinaEntity {
@@ -24,6 +26,36 @@ public class Derivative extends AbstractObjectStoreMetadata implements DinaEntit
   private Integer id;
   private ObjectSubtype objectSubtype;
   private ObjectStoreMetadata acDerivedFrom;
+
+  @Builder
+  public Derivative(
+    UUID uuid,
+    String bucket,
+    UUID fileIdentifier,
+    String fileExtension,
+    DcType dcType,
+    String acHashFunction,
+    String acHashValue,
+    String createdBy,
+    OffsetDateTime createdOn,
+    Integer id,
+    ObjectSubtype objectSubtype,
+    ObjectStoreMetadata acDerivedFrom
+  ) {
+    super(
+      uuid,
+      bucket,
+      fileIdentifier,
+      fileExtension,
+      dcType,
+      acHashFunction,
+      acHashValue,
+      createdBy,
+      createdOn);
+    this.id = id;
+    this.objectSubtype = objectSubtype;
+    this.acDerivedFrom = acDerivedFrom;
+  }
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
