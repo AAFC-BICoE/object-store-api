@@ -157,4 +157,14 @@ public class FileControllerIT extends BaseIntegrationTest {
     return new MockMultipartFile("file", "testfile", mediaType, bytes);
   }
 
+  @Transactional
+  @Test
+  public void derivativeUpload_OnValidUpload() throws Exception {
+    MockMultipartFile mockFile = getFileUnderTest();
+
+    ObjectUpload uploadResponse = fileController.handleDerivativeUpload(mockFile, bucketUnderTest);
+    assertNotNull(uploadResponse);
+    //TODO assert object upload and derivative entities persisted in DB
+  }
+
 }
