@@ -19,7 +19,7 @@ import javax.persistence.Table;
 @SuperBuilder
 @AllArgsConstructor
 @RequiredArgsConstructor
-public class Derivative extends BaseObject implements DinaEntity {
+public class Derivative extends AbstractObjectStoreMetadata implements DinaEntity {
 
   private Integer id;
   private ObjectSubtype objectSubtype;

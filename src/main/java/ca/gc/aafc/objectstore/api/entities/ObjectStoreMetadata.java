@@ -41,7 +41,7 @@ import java.util.UUID;
 @SuperBuilder
 @AllArgsConstructor
 @RequiredArgsConstructor
-public class ObjectStoreMetadata extends BaseObject implements SoftDeletable, DinaEntity {
+public class ObjectStoreMetadata extends AbstractObjectStoreMetadata implements SoftDeletable, DinaEntity {
 
   private Integer id;
 

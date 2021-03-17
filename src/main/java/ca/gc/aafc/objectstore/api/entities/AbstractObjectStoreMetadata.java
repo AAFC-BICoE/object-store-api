@@ -27,7 +27,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @TypeDef(name = "pgsql_enum", typeClass = PostgreSQLEnumType.class)
 @NaturalIdCache
-public class BaseObject {
+public class AbstractObjectStoreMetadata {
   protected UUID uuid;
   protected String bucket;
   protected UUID fileIdentifier;
