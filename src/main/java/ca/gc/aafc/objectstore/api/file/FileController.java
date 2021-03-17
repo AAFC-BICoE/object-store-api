@@ -1,6 +1,8 @@
 package ca.gc.aafc.objectstore.api.file;
 
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
+import ca.gc.aafc.objectstore.api.entities.DcType;
+import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.exif.ExifParser;
@@ -113,14 +115,26 @@ public class FileController {
     String filename = uuid.toString() + mtdr.getEvaluatedExtension();
     MessageDigest md = MessageDigest.getInstance(DIGEST_ALGORITHM);
     DigestInputStream dis = new DigestInputStream(prIs.getInputStream(), md);
-
+    String sha1Hex = DigestUtils.sha1Hex(md.digest());
     Map<String, String> exifData = extractExifData(file);
+
+    Derivative derivative = Derivative.builder()
+      .bucket(bucket)
+      .fileIdentifier(uuid)
+      .fileExtension(mtdr.getEvaluatedExtension())
+      .createdBy(authenticatedUser.getUsername())
+      .acHashFunction(FileController.DIGEST_ALGORITHM)
+      .acHashFunction(sha1Hex)
+      .dcType(DcType.UNDETERMINED)//TODO dctype?
+      .build();
+
+    //TODO - Persist derivative, store file in minio
 
     return objectUploadService.create(ObjectUpload.builder()
       .fileIdentifier(uuid)
       .createdBy(authenticatedUser.getUsername())
       .originalFilename(file.getOriginalFilename())
-      .sha1Hex(DigestUtils.sha1Hex(md.digest()))
+      .sha1Hex(sha1Hex)
       .receivedMediaType(file.getContentType())
       .detectedMediaType(Objects.toString(mtdr.getDetectedMediaType()))
       .detectedFileExtension(mtdr.getDetectedMimeType().getExtension())
