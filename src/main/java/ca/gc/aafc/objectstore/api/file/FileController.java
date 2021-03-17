@@ -128,6 +128,7 @@ public class FileController {
       .sizeInBytes(file.getSize())
       .bucket(bucket)
       .exif(exifData)
+      .isDerivative(true)
       .build();
   }
 
@@ -190,6 +191,7 @@ public class FileController {
           .sizeInBytes(file.getSize())
           .bucket(bucket)
           .exif(exifData)
+        .isDerivative(false)
           .build());
 
       if (thumbnailIsSupported) {
