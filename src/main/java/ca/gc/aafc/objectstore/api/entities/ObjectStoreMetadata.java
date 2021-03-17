@@ -1,6 +1,5 @@
 package ca.gc.aafc.objectstore.api.entities;
 
-import ca.gc.aafc.dina.entity.DinaEntity;
 import ca.gc.aafc.dina.entity.SoftDeletable;
 import com.vladmihalcea.hibernate.type.array.StringArrayType;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
