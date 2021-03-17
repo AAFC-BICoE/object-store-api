@@ -53,6 +53,7 @@ public class ObjectUpload implements DinaEntity {
   private String bucket;
   private Map<String, String> exif;
   private String dateTimeDigitized;
+  private boolean isDerivative;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -225,5 +226,15 @@ public class ObjectUpload implements DinaEntity {
 
   public void setDcType(DcType dcType) {
     this.dcType = dcType;
+  }
+
+  @NotNull
+  @Column(name = "is_derivative")
+  public boolean isDerivative() {
+    return isDerivative;
+  }
+
+  public void setDerivative(boolean derivative) {
+    isDerivative = derivative;
   }
 }

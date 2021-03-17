@@ -1,11 +1,9 @@
 package ca.gc.aafc.objectstore.api.crud;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ObjectUploadCRUDIT extends BaseEntityCRUDIT {
 
@@ -26,6 +24,7 @@ public class ObjectUploadCRUDIT extends BaseEntityCRUDIT {
     assertEquals(objectUploadUnderTest.getId(), fetchedAcSubtype.getId());
     assertEquals(objectUploadUnderTest.getFileIdentifier(), fetchedAcSubtype.getFileIdentifier());
     assertEquals(objectUploadUnderTest.getCreatedBy(), fetchedAcSubtype.getCreatedBy());
+    assertEquals(objectUploadUnderTest.isDerivative(), fetchedAcSubtype.isDerivative());
   }
 
   @Override
