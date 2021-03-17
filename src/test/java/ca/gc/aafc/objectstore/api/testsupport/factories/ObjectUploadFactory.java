@@ -31,6 +31,7 @@ public class ObjectUploadFactory implements TestableEntityFactory<ObjectUpload> 
         .bucket("testBucket")
         .exif(Map.of("ex1", "exVal1"))
         .evaluatedFileExtension(".jpg")
+        .isDerivative(false)
         .createdBy("createdBy");
   }
 
