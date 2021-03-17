@@ -15,7 +15,6 @@ import io.minio.errors.InvalidBucketNameException;
 import io.minio.errors.InvalidResponseException;
 import io.minio.errors.ServerException;
 import io.minio.errors.XmlParserException;
-import liquibase.pro.packaged.O;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -91,8 +90,19 @@ public class FileController {
   }
 
   @PostMapping("/file/{bucket}/derivative")
-  public ObjectUpload handleDerivativeUpload(@PathVariable String bucket) {
+  public ObjectUpload handleDerivativeUpload(@PathVariable String bucket) throws IOException {
+    // make sure we have an authenticatedUser
+    checkAuthenticatedUser();
+    authenticateBucket(bucket);
+
+    // make bucket if it does not exist
+    minioService.ensureBucketExists(bucket);
+
+    // Safe get unique UUID
+    UUID uuid = safeGenerateUuid();
+
     ObjectUpload objectUpload = new ObjectUpload();
+    objectUpload.setFileIdentifier(uuid);
     objectUpload.setBucket(bucket);
     return objectUpload;
   }
@@ -119,12 +129,7 @@ public class FileController {
         .detectMediaType(prIs.getReadAheadBuffer(), file.getContentType(), file.getOriginalFilename());
 
     String fileExtension = mtdr.getEvaluatedMediaType();
-
-    // Safe get unique UUID
-    UUID uuid = transactionTemplate.execute(transactionStatus -> generateUUID());
-    if (uuid == null) {
-      throw new IllegalStateException("Can't assign unique UUID.");
-    }
+    UUID uuid = safeGenerateUuid();
 
     // Decorate the InputStream in order to compute the hash
     MessageDigest md = MessageDigest.getInstance(DIGEST_ALGORITHM);
@@ -179,6 +184,15 @@ public class FileController {
     }
 
     return createdObjectUpload;
+  }
+
+  private UUID safeGenerateUuid() {
+    // Safe get unique UUID
+    UUID uuid = transactionTemplate.execute(transactionStatus -> generateUUID());
+    if (uuid == null) {
+      throw new IllegalStateException("Can't assign unique UUID.");
+    }
+    return uuid;
   }
 
   /**
