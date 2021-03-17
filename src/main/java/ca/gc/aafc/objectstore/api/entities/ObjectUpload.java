@@ -230,11 +230,11 @@ public class ObjectUpload implements DinaEntity {
 
   @NotNull
   @Column(name = "is_derivative")
-  public boolean isDerivative() {
+  public boolean getIsDerivative() {
     return isDerivative;
   }
 
-  public void setDerivative(boolean derivative) {
+  public void setIsDerivative(boolean derivative) {
     isDerivative = derivative;
   }
 }

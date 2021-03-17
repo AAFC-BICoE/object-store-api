@@ -24,7 +24,7 @@ public class ObjectUploadCRUDIT extends BaseEntityCRUDIT {
     assertEquals(objectUploadUnderTest.getId(), fetchedAcSubtype.getId());
     assertEquals(objectUploadUnderTest.getFileIdentifier(), fetchedAcSubtype.getFileIdentifier());
     assertEquals(objectUploadUnderTest.getCreatedBy(), fetchedAcSubtype.getCreatedBy());
-    assertEquals(objectUploadUnderTest.isDerivative(), fetchedAcSubtype.isDerivative());
+    assertEquals(objectUploadUnderTest.getIsDerivative(), fetchedAcSubtype.getIsDerivative());
   }
 
   @Override
