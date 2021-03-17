@@ -38,7 +38,7 @@ import java.util.UUID;
 @TypeDef(name = "string-array", typeClass = StringArrayType.class)
 @SuppressFBWarnings({"EI_EXPOSE_REP", "EI_EXPOSE_REP2"})
 @RequiredArgsConstructor
-public class ObjectStoreMetadata extends AbstractObjectStoreMetadata implements SoftDeletable, DinaEntity {
+public class ObjectStoreMetadata extends AbstractObjectStoreMetadata implements SoftDeletable {
 
   private Integer id;
 

@@ -1,5 +1,6 @@
 package ca.gc.aafc.objectstore.api.entities;
 
+import ca.gc.aafc.dina.entity.DinaEntity;
 import com.vladmihalcea.hibernate.type.basic.PostgreSQLEnumType;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @TypeDef(name = "pgsql_enum", typeClass = PostgreSQLEnumType.class)
 @NaturalIdCache
-public abstract class AbstractObjectStoreMetadata {
+public abstract class AbstractObjectStoreMetadata implements DinaEntity {
   protected UUID uuid;
   protected String bucket;
   protected UUID fileIdentifier;
