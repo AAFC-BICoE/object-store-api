@@ -3,7 +3,6 @@ package ca.gc.aafc.objectstore.api.entities;
 import com.vladmihalcea.hibernate.type.basic.PostgreSQLEnumType;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
 import org.hibernate.annotations.NaturalId;
