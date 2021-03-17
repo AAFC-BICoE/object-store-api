@@ -24,4 +24,5 @@
   <include file="db/changelog/migrations/21-Add_DcType_To_Object_Upload.xml"/>
   <include file="db/changelog/migrations/22-Change-metadata-assignedValue-to-text.xml"/>
   <include file="db/changelog/migrations/23-Add_derivative_entity.xml"/>
+  <include file="db/changelog/migrations/24-ObjectUpload_track_isDerivative.xml"/>
 </databaseChangeLog>

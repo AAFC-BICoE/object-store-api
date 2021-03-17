@@ -64,5 +64,6 @@ public class ObjectUploadRepositoryCRUDIT extends BaseRepositoryTest {
     assertEquals(testObjectUpload.getCreatedBy(), objectUploadDto.getCreatedBy());
     assertEquals(testObjectUpload.getBucket(), objectUploadDto.getBucket());
     assertEquals(testObjectUpload.getDcType(), objectUploadDto.getDcType());
+    assertEquals(testObjectUpload.getIsDerivative(), objectUploadDto.getIsDerivative());
   }    
 }

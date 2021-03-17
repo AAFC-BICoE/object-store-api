@@ -41,4 +41,14 @@ public class ObjectUploadDto {
   private String bucket;
   private String dateTimeDigitized;
   private Map<String, String> exif;
+  private boolean isDerivative;
+
+  public boolean getIsDerivative() {
+    return isDerivative;
+  }
+
+  public void setIsDerivative(boolean derivative) {
+    isDerivative = derivative;
+  }
+
 }
