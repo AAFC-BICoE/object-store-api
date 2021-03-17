@@ -1,10 +1,8 @@
 package ca.gc.aafc.objectstore.api.entities;
 
 import ca.gc.aafc.dina.entity.DinaEntity;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.SuperBuilder;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -19,7 +17,6 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "derivative")
-@AllArgsConstructor
 @RequiredArgsConstructor
 public class Derivative extends AbstractObjectStoreMetadata implements DinaEntity {
 
