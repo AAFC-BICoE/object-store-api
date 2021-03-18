@@ -21,6 +21,7 @@ import io.minio.errors.XmlParserException;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.tika.mime.MediaType;
 import org.apache.tika.mime.MimeTypeException;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -119,8 +120,10 @@ public class FileController {
     String filename = uuid.toString() + mtdr.getEvaluatedExtension();
     MessageDigest md = MessageDigest.getInstance(DIGEST_ALGORITHM);
     DigestInputStream dis = new DigestInputStream(prIs.getInputStream(), md);
+
     String sha1Hex = DigestUtils.sha1Hex(md.digest());
     Map<String, String> exifData = extractExifData(file);
+    MediaType detectedMediaType = mtdr.getDetectedMediaType();
 
     Derivative derivative = Derivative.builder()
       .bucket(bucket)
@@ -129,7 +132,8 @@ public class FileController {
       .createdBy(authenticatedUser.getUsername())
       .acHashFunction(FileController.DIGEST_ALGORITHM)
       .acHashFunction(sha1Hex)
-      .dcType(DcType.UNDETERMINED)//TODO dctype? objectSubtype, acDerivedFrom
+      .dcType(DcType.fromValue(detectedMediaType.getType()).orElse(DcType.UNDETERMINED))
+      //TODO objectSubtype, acDerivedFrom
       .build();
 
     //TODO store file in minio
@@ -141,7 +145,7 @@ public class FileController {
       .originalFilename(file.getOriginalFilename())
       .sha1Hex(sha1Hex)
       .receivedMediaType(file.getContentType())
-      .detectedMediaType(Objects.toString(mtdr.getDetectedMediaType()))
+      .detectedMediaType(Objects.toString(detectedMediaType))
       .detectedFileExtension(mtdr.getDetectedMimeType().getExtension())
       .evaluatedMediaType(mtdr.getEvaluatedMediaType())
       .evaluatedFileExtension(mtdr.getEvaluatedExtension())
