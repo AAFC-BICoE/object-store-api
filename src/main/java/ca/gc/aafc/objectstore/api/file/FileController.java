@@ -4,6 +4,7 @@ import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
+import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.exif.ExifParser;
 import ca.gc.aafc.objectstore.api.minio.MinioFileService;
@@ -123,7 +124,11 @@ public class FileController {
 
     String sha1Hex = DigestUtils.sha1Hex(md.digest());
     Map<String, String> exifData = extractExifData(file);
+
     MediaType detectedMediaType = mtdr.getDetectedMediaType();
+    DcType dcType = DcType.fromValue(detectedMediaType.getType()).orElse(DcType.UNDETERMINED);
+    ObjectSubtype subtype = derivativeService.fetchObjectSubtype(detectedMediaType.getSubtype(), dcType)
+      .orElse(null);
 
     Derivative derivative = Derivative.builder()
       .bucket(bucket)
@@ -132,8 +137,9 @@ public class FileController {
       .createdBy(authenticatedUser.getUsername())
       .acHashFunction(FileController.DIGEST_ALGORITHM)
       .acHashFunction(sha1Hex)
-      .dcType(DcType.fromValue(detectedMediaType.getType()).orElse(DcType.UNDETERMINED))
-      //TODO objectSubtype, acDerivedFrom
+      .dcType(dcType)
+      //TODO acDerivedFrom
+      .objectSubtype(subtype)
       .build();
 
     //TODO store file in minio
