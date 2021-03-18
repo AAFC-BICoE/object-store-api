@@ -22,7 +22,6 @@ import io.minio.errors.RegionConflictException;
 import io.minio.errors.ServerException;
 import io.minio.errors.XmlParserException;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -104,45 +103,16 @@ public class MinioFileService implements FileInformationService {
    * @throws IOException
    */
   public void storeFile(String fileName, InputStream iStream, String contentType, String bucket)
-    throws InvalidKeyException, ErrorResponseException, IllegalArgumentException,
-    InsufficientDataException, InternalException, InvalidBucketNameException,
-    InvalidResponseException, NoSuchAlgorithmException, XmlParserException, IOException, ServerException {
-    storeFile(null, fileName, iStream, contentType, bucket);
-  }
-
-  /**
-   * Store a file (received as an InputStream) on Minio into a specific bucket. The bucket is expected to
-   * exist.
-   *
-   * @param folder   folder the file will be saved.
-   * @param fileName filename to be used in Minio
-   * @param iStream  inputStream to send to Minio (won't be closed)
-   * @param bucket   name of the bucket (will NOT be created if doesn't exist)
-   */
-  public void storeFile(
-    String folder,
-    String fileName,
-    InputStream iStream,
-    String contentType,
-    String bucket
-  )
-    throws InvalidKeyException, ErrorResponseException, IllegalArgumentException,
-    InsufficientDataException, InternalException, InvalidBucketNameException,
-    InvalidResponseException, NoSuchAlgorithmException, XmlParserException, IOException, ServerException {
-
-    String fileLocation;
-    if (StringUtils.isNotBlank(folder)) {
-      fileLocation = StringUtils.appendIfMissing(folder, "/") + getFileLocation(fileName);
-    } else {
-      fileLocation = getFileLocation(fileName);
-    }
+      throws InvalidKeyException, ErrorResponseException, IllegalArgumentException,
+      InsufficientDataException, InternalException, InvalidBucketNameException,
+      InvalidResponseException, NoSuchAlgorithmException, XmlParserException, IOException, ServerException {
 
     minioClient.putObject(PutObjectArgs.builder()
-      .bucket(bucket)
-      .object(fileLocation)
-      .stream(iStream, UNKNOWN_OBJECT_SIZE, DEFAULT_PART_SIZE)
-      .contentType(contentType)
-      .build());
+        .bucket(bucket)
+        .object(getFileLocation(fileName))
+        .stream(iStream, UNKNOWN_OBJECT_SIZE, DEFAULT_PART_SIZE)
+        .contentType(contentType)
+        .build());
   }
 
   /**
