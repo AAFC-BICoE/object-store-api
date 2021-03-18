@@ -138,7 +138,6 @@ public class FileController {
       .acHashFunction(FileController.DIGEST_ALGORITHM)
       .acHashFunction(sha1Hex)
       .dcType(dcType)
-      //TODO acDerivedFrom
       .objectSubtype(subtype)
       .build();
 
