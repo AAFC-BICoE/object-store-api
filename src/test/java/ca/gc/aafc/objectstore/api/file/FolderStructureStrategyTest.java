@@ -1,12 +1,11 @@
 package ca.gc.aafc.objectstore.api.file;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import java.nio.file.Path;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests related to {@link FolderStructureStrategy}
@@ -29,6 +28,12 @@ public class FolderStructureStrategyTest {
     // at least one folder should be generated
     assertNotNull(generatedPath.getParent());
     
+  }
+
+  @Test
+  public void getPathFor_onFolderPath_pathReturned() {
+    Path generatedPath = FOLDER_STRUCT_STRATEGY.getPathFor("derivative/aabbcc.txt");
+    assertEquals("derivative/aa/bb/aabbcc.txt", generatedPath.toString());
   }
 
 }
