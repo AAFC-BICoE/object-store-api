@@ -42,6 +42,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.DigestInputStream;
@@ -98,10 +99,13 @@ public class FileController {
   }
 
   @PostMapping("/file/{bucket}/derivative")
+  @Transactional
   public ObjectUpload handleDerivativeUpload(
     @RequestParam("file") MultipartFile file,
     @PathVariable String bucket
-  ) throws IOException, MimeTypeException, NoSuchAlgorithmException {
+  ) throws IOException, MimeTypeException, NoSuchAlgorithmException, ServerException, ErrorResponseException,
+    InternalException, XmlParserException, InvalidResponseException, InvalidBucketNameException,
+    InsufficientDataException, InvalidKeyException {
     // make sure we have an authenticatedUser
     checkAuthenticatedUser();
     authenticateBucket(bucket);
@@ -143,6 +147,7 @@ public class FileController {
 
     //TODO store file in minio
     derivativeService.create(derivative);
+    minioService.storeFile("derivative", filename, dis, mtdr.getEvaluatedMediaType(), bucket);
 
     return objectUploadService.create(ObjectUpload.builder()
       .fileIdentifier(uuid)
