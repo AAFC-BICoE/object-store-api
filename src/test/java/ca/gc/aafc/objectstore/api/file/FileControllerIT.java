@@ -9,8 +9,10 @@ import java.io.IOException;
 import java.util.UUID;
 
 import javax.inject.Inject;
+import javax.persistence.criteria.Predicate;
 import javax.transaction.Transactional;
 
+import ca.gc.aafc.objectstore.api.entities.Derivative;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -164,8 +166,13 @@ public class FileControllerIT extends BaseIntegrationTest {
 
     ObjectUpload uploadResponse = fileController.handleDerivativeUpload(mockFile, bucketUnderTest);
     assertNotNull(uploadResponse);
-    //TODO assert object upload and derivative entities persisted in DB
-    assertNotNull( objectUploadService.findOne(uploadResponse.getFileIdentifier(), ObjectUpload.class));
+
+    //Assert object upload created
+    assertNotNull(objectUploadService.findOne(uploadResponse.getFileIdentifier(), ObjectUpload.class));
+    //Assert derivative created
+    assertNotNull(objectUploadService.findAll(Derivative.class,
+      (cb, root) -> new Predicate[]{cb.equal(root.get("fileIdentifier"), uploadResponse.getFileIdentifier())},
+      null, 0, 1).get(0));
   }
 
 }

@@ -7,6 +7,7 @@ import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.exif.ExifParser;
 import ca.gc.aafc.objectstore.api.minio.MinioFileService;
+import ca.gc.aafc.objectstore.api.service.DerivativeService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataReadService;
 import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
 import io.crnk.core.exception.UnauthorizedException;
@@ -61,6 +62,7 @@ public class FileController {
 
   private final ObjectUploadService objectUploadService;
   private final MinioFileService minioService;
+  private final DerivativeService derivativeService;
   private final ObjectStoreMetadataReadService objectStoreMetadataReadService;
   private final MediaTypeDetectionStrategy mediaTypeDetectionStrategy;
   private final ThumbnailService thumbnailService;
@@ -77,6 +79,7 @@ public class FileController {
     ObjectStoreMetadataReadService objectStoreMetadataReadService,
     MediaTypeDetectionStrategy mediaTypeDetectionStrategy,
     ThumbnailService thumbnailService,
+    DerivativeService derivativeService,
     DinaAuthenticatedUser authenticatedUser,
     MessageSource messageSource,
     TransactionTemplate transactionTemplate
@@ -89,6 +92,7 @@ public class FileController {
     this.authenticatedUser = authenticatedUser;
     this.messageSource = messageSource;
     this.transactionTemplate = transactionTemplate;
+    this.derivativeService = derivativeService;
   }
 
   @PostMapping("/file/{bucket}/derivative")
@@ -125,10 +129,11 @@ public class FileController {
       .createdBy(authenticatedUser.getUsername())
       .acHashFunction(FileController.DIGEST_ALGORITHM)
       .acHashFunction(sha1Hex)
-      .dcType(DcType.UNDETERMINED)//TODO dctype?
+      .dcType(DcType.UNDETERMINED)//TODO dctype? objectSubtype, acDerivedFrom
       .build();
 
-    //TODO - Persist derivative, store file in minio
+    //TODO store file in minio
+    derivativeService.create(derivative);
 
     return objectUploadService.create(ObjectUpload.builder()
       .fileIdentifier(uuid)
