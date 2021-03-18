@@ -1,14 +1,10 @@
 package ca.gc.aafc.objectstore.api.file;
 
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
-import ca.gc.aafc.objectstore.api.entities.DcType;
-import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
-import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.exif.ExifParser;
 import ca.gc.aafc.objectstore.api.minio.MinioFileService;
-import ca.gc.aafc.objectstore.api.service.DerivativeService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataReadService;
 import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
 import io.crnk.core.exception.UnauthorizedException;
@@ -22,7 +18,6 @@ import io.minio.errors.XmlParserException;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.tika.mime.MediaType;
 import org.apache.tika.mime.MimeTypeException;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -65,7 +60,6 @@ public class FileController {
 
   private final ObjectUploadService objectUploadService;
   private final MinioFileService minioService;
-  private final DerivativeService derivativeService;
   private final ObjectStoreMetadataReadService objectStoreMetadataReadService;
   private final MediaTypeDetectionStrategy mediaTypeDetectionStrategy;
   private final ThumbnailService thumbnailService;
@@ -82,7 +76,6 @@ public class FileController {
     ObjectStoreMetadataReadService objectStoreMetadataReadService,
     MediaTypeDetectionStrategy mediaTypeDetectionStrategy,
     ThumbnailService thumbnailService,
-    DerivativeService derivativeService,
     DinaAuthenticatedUser authenticatedUser,
     MessageSource messageSource,
     TransactionTemplate transactionTemplate
@@ -95,7 +88,6 @@ public class FileController {
     this.authenticatedUser = authenticatedUser;
     this.messageSource = messageSource;
     this.transactionTemplate = transactionTemplate;
-    this.derivativeService = derivativeService;
   }
 
   @PostMapping("/file/{bucket}/derivative")
@@ -129,24 +121,6 @@ public class FileController {
     String sha1Hex = DigestUtils.sha1Hex(md.digest());
     Map<String, String> exifData = extractExifData(file);
 
-    MediaType detectedMediaType = mtdr.getDetectedMediaType();
-    DcType dcType = DcType.fromValue(detectedMediaType.getType()).orElse(DcType.UNDETERMINED);
-    ObjectSubtype subtype = derivativeService.fetchObjectSubtype(detectedMediaType.getSubtype(), dcType)
-      .orElse(null);
-
-    Derivative derivative = Derivative.builder()
-      .bucket(bucket)
-      .fileIdentifier(uuid)
-      .fileExtension(mtdr.getEvaluatedExtension())
-      .createdBy(authenticatedUser.getUsername())
-      .acHashFunction(FileController.DIGEST_ALGORITHM)
-      .acHashFunction(sha1Hex)
-      .dcType(dcType)
-      .objectSubtype(subtype)
-      .build();
-
-    //TODO store file in minio
-    derivativeService.create(derivative);
     minioService.storeFile("derivative", filename, dis, mtdr.getEvaluatedMediaType(), bucket);
 
     return objectUploadService.create(ObjectUpload.builder()
@@ -155,7 +129,7 @@ public class FileController {
       .originalFilename(file.getOriginalFilename())
       .sha1Hex(sha1Hex)
       .receivedMediaType(file.getContentType())
-      .detectedMediaType(Objects.toString(detectedMediaType))
+      .detectedMediaType(Objects.toString(mtdr.getDetectedMediaType()))
       .detectedFileExtension(mtdr.getDetectedMimeType().getExtension())
       .evaluatedMediaType(mtdr.getEvaluatedMediaType())
       .evaluatedFileExtension(mtdr.getEvaluatedExtension())
