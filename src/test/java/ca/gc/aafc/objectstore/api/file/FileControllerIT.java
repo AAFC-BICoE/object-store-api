@@ -169,10 +169,6 @@ public class FileControllerIT extends BaseIntegrationTest {
 
     //Assert object upload created
     assertNotNull(objectUploadService.findOne(uploadResponse.getFileIdentifier(), ObjectUpload.class));
-    //Assert derivative created
-    assertNotNull(objectUploadService.findAll(Derivative.class,
-      (cb, root) -> new Predicate[]{cb.equal(root.get("fileIdentifier"), uploadResponse.getFileIdentifier())},
-      null, 0, 1).get(0));
   }
 
 }
