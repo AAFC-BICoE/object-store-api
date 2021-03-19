@@ -176,7 +176,8 @@ public class FileController {
       filename,
       dis,
       mtdr.getEvaluatedMediaType(),
-      bucket);
+      bucket,
+        false);
 
     String sha1Hex = DigestUtils.sha1Hex(md.digest());
 
@@ -248,7 +249,7 @@ public class FileController {
           metadata.getFileIdentifier() + ".thumbnail" + ThumbnailService.THUMBNAIL_EXTENSION
         : metadata.getFilename();      
      
-      FileObjectInfo foi = minioService.getFileInfo(filename, bucket).orElseThrow(() -> {
+      FileObjectInfo foi = minioService.getFileInfo(filename, bucket, false).orElseThrow(() -> {
         String errorMsg = messageSource.getMessage("minio.file_or_bucket_not_found",
             new Object[] { fileUuid, bucket }, LocaleContextHolder.getLocale());
         return new ResponseStatusException(HttpStatus.NOT_FOUND, errorMsg, null);
@@ -263,7 +264,7 @@ public class FileController {
       respHeaders.setContentLength(foi.getLength());
       respHeaders.setContentDispositionFormData("attachment", filename);
 
-      InputStream is = minioService.getFile(filename, bucket).orElseThrow( () -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+      InputStream is = minioService.getFile(filename, bucket, false).orElseThrow( () -> new ResponseStatusException(HttpStatus.NOT_FOUND,
           "FileIdentifier " + fileUuid + " or bucket " + bucket + " Not Found", null));
 
       InputStreamResource isr = new InputStreamResource(is);

@@ -22,7 +22,6 @@ import io.minio.errors.RegionConflictException;
 import io.minio.errors.ServerException;
 import io.minio.errors.XmlParserException;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -72,8 +71,8 @@ public class MinioFileService implements FileInformationService {
    * @param filename
    * @return
    */
-  private String getFileLocation(String filename) {
-    return toMinioObjectName(folderStructureStrategy.getPathFor(filename));
+  private String getFileLocation(String filename, boolean isDerivative) {
+    return toMinioObjectName(folderStructureStrategy.getPathFor(filename, isDerivative));
   }
 
   private static boolean isNotFoundException(ErrorResponseException erEx) {
@@ -103,46 +102,17 @@ public class MinioFileService implements FileInformationService {
    * @throws XmlParserException
    * @throws IOException
    */
-  public void storeFile(String fileName, InputStream iStream, String contentType, String bucket)
-    throws InvalidKeyException, ErrorResponseException, IllegalArgumentException,
-    InsufficientDataException, InternalException, InvalidBucketNameException,
-    InvalidResponseException, NoSuchAlgorithmException, XmlParserException, IOException, ServerException {
-    storeFile(null, fileName, iStream, contentType, bucket);
-  }
-
-  /**
-   * Store a file (received as an InputStream) on Minio into a specific bucket. The bucket is expected to
-   * exist.
-   *
-   * @param folder   folder the file will be saved.
-   * @param fileName filename to be used in Minio
-   * @param iStream  inputStream to send to Minio (won't be closed)
-   * @param bucket   name of the bucket (will NOT be created if doesn't exist)
-   */
-  public void storeFile(
-    String folder,
-    String fileName,
-    InputStream iStream,
-    String contentType,
-    String bucket
-  )
-    throws InvalidKeyException, ErrorResponseException, IllegalArgumentException,
-    InsufficientDataException, InternalException, InvalidBucketNameException,
-    InvalidResponseException, NoSuchAlgorithmException, XmlParserException, IOException, ServerException {
-
-    String fileLocation;
-    if (StringUtils.isNotBlank(folder)) {
-      fileLocation = StringUtils.appendIfMissing(folder, "/") + getFileLocation(fileName);
-    } else {
-      fileLocation = getFileLocation(fileName);
-    }
+  public void storeFile(String fileName, InputStream iStream, String contentType, String bucket, boolean isDerivative)
+      throws InvalidKeyException, ErrorResponseException, IllegalArgumentException,
+      InsufficientDataException, InternalException, InvalidBucketNameException,
+      InvalidResponseException, NoSuchAlgorithmException, XmlParserException, IOException, ServerException {
 
     minioClient.putObject(PutObjectArgs.builder()
-      .bucket(bucket)
-      .object(fileLocation)
-      .stream(iStream, UNKNOWN_OBJECT_SIZE, DEFAULT_PART_SIZE)
-      .contentType(contentType)
-      .build());
+        .bucket(bucket)
+        .object(getFileLocation(fileName, isDerivative))
+        .stream(iStream, UNKNOWN_OBJECT_SIZE, DEFAULT_PART_SIZE)
+        .contentType(contentType)
+        .build());
   }
 
   /**
@@ -179,13 +149,13 @@ public class MinioFileService implements FileInformationService {
     return false;
   }
 
-  public Optional<InputStream> getFile(String fileName, String bucketName) throws IOException {
+  public Optional<InputStream> getFile(String fileName, String bucketName, boolean isDerivative) throws IOException {
     try {
       return Optional.ofNullable(
           minioClient.getObject(
               GetObjectArgs.builder()
                   .bucket(bucketName)
-                  .object(getFileLocation(fileName))
+                  .object(getFileLocation(fileName, isDerivative))
                   .build()));
     } catch (ErrorResponseException erEx) {
       if (isNotFoundException(erEx)) {
@@ -202,13 +172,13 @@ public class MinioFileService implements FileInformationService {
   /**
    * See {@link FileInformationService#getFileInfo(String, String)}
    */
-  public Optional<FileObjectInfo> getFileInfo(String fileName, String bucketName) throws IOException {
+  public Optional<FileObjectInfo> getFileInfo(String fileName, String bucketName, boolean isDerivative) throws IOException {
     ObjectStat objectStat;
     try {
       objectStat = minioClient.statObject(
           StatObjectArgs.builder()
               .bucket(bucketName)
-              .object(getFileLocation(fileName)).build());
+              .object(getFileLocation(fileName, isDerivative)).build());
       
       return Optional.of(FileObjectInfo.builder()
           .length(objectStat.length())

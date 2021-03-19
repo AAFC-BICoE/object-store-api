@@ -90,7 +90,7 @@ public class FileControllerIT extends BaseIntegrationTest {
 
     // Wait for the thumbnail to be asynchronously persisted:
     for (int attempts = 0; attempts <= 100; attempts++) {
-      if (minioFileService.getFile(thumbnailFilename, bucketUnderTest).isPresent()) {
+      if (minioFileService.getFile(thumbnailFilename, bucketUnderTest, false).isPresent()) {
         break;
       }
       Thread.sleep(100);

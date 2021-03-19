@@ -57,7 +57,7 @@ public class ThumbnailService {
     
     try (
       InputStream originalFile = minioService
-        .getFile(sourceFilename, objectUpload.getBucket())
+        .getFile(sourceFilename, objectUpload.getBucket(), false)
         .orElseThrow(() -> new IllegalArgumentException("file not found: " + objectUpload.getFileIdentifier()));
       ByteArrayOutputStream os = new ByteArrayOutputStream() 
     ) {
@@ -83,7 +83,7 @@ public class ThumbnailService {
         .toOutputStream(os);
 
       try (ByteArrayInputStream thumbnail = new ByteArrayInputStream(os.toByteArray())) {
-        minioService.storeFile(fileName, thumbnail, "image/jpeg", objectUpload.getBucket());
+        minioService.storeFile(fileName, thumbnail, "image/jpeg", objectUpload.getBucket(), false);
       }
 
     } catch (MinioException | IOException | GeneralSecurityException e) {
