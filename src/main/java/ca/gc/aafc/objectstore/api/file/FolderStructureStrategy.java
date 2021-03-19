@@ -41,7 +41,7 @@ public class FolderStructureStrategy {
     Path path = Paths.get(filename.substring(0, 2), filename.substring(2, 4),
         filename);
 
-    if(isDerivative){
+    if (isDerivative) {
       return Paths.get(DERIVATIVES_ROOT_FOLDER).resolve(path);
     }
 
