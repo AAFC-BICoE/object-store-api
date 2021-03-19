@@ -247,7 +247,7 @@ public class FileController {
     String bucket,
     UUID uuid,
     MediaTypeDetectionStrategy.MediaTypeDetectionResult mtdr,
-    DigestInputStream iStream,
+    InputStream iStream,
     boolean isDerivative
   ) throws IOException, InvalidKeyException, ErrorResponseException, InsufficientDataException, InternalException,
     InvalidBucketNameException, InvalidResponseException, NoSuchAlgorithmException, XmlParserException, ServerException {
@@ -307,7 +307,7 @@ public class FileController {
    * @return returns a map of exif data, or empty map.
    * @throws IOException if an error occurs reading the file
    */
-  private Map<String, String> extractExifData(@RequestParam("file") MultipartFile file) throws IOException {
+  private Map<String, String> extractExifData(MultipartFile file) throws IOException {
     Map<String, String> exifData;
     try (InputStream exifIs = file.getInputStream()) {
       exifData = ExifParser.extractExifTags(exifIs);
