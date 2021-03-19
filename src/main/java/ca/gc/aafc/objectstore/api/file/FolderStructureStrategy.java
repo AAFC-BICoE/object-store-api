@@ -1,23 +1,24 @@
 package ca.gc.aafc.objectstore.api.file;
 
+import com.google.common.base.Preconditions;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
-
-import com.google.common.base.Preconditions;
-
 /**
- * A FolderStructureStrategy allows to return a folder structure based on a filename. The main
- * purpose is to avoid storing too many files in a single folder.
- *
+ * A FolderStructureStrategy allows to return a folder structure based on a filename. The main purpose is to
+ * avoid storing too many files in a single folder.
+ * <p>
  * This class could be turned into an interface later if more than 1 strategy is implemented.
- *
- * The current strategy will use the first 4 characters to determine 1 folder and 1 sub-folder.
- * "abdcefg.txt" will return the following path: "ab/dc/abdcefg.txt
- *
+ * <p>
+ * The current strategy will use the first 4 characters to determine 1 folder and 1 sub-folder. "abdcefg.txt"
+ * will return the following path: "ab/dc/abdcefg.txt
+ * <p>
+ * The current strategy will allow any leading path structures untouched. Ex. "myLeadingPath/aabb.txt" will
+ * translate to "myLeadingPath/aa/bb/aabb.txt"
  */
 @Service
 public class FolderStructureStrategy {
@@ -30,9 +31,9 @@ public class FolderStructureStrategy {
     String folderPrefix;
     String fileNameToProcess;
     int folderSeparatorIndex = filename.lastIndexOf(FOLDER_SEPARATOR);
-    if (filename.contains(FOLDER_SEPARATOR)) {
-      folderPrefix = filename.substring(0,folderSeparatorIndex);
-      fileNameToProcess = filename.substring(folderSeparatorIndex +1);
+    if (folderSeparatorIndex != -1) {
+      folderPrefix = filename.substring(0, folderSeparatorIndex);
+      fileNameToProcess = filename.substring(folderSeparatorIndex + 1);
     } else {
       folderPrefix = "";
       fileNameToProcess = filename;
