@@ -71,8 +71,8 @@ public class MinioFileService implements FileInformationService {
    * @param filename
    * @return
    */
-  private String getFileLocation(String filename) {
-    return toMinioObjectName(folderStructureStrategy.getPathFor(filename));
+  private String getFileLocation(String filename, boolean isDerivative) {
+    return toMinioObjectName(folderStructureStrategy.getPathFor(filename, isDerivative));
   }
 
   private static boolean isNotFoundException(ErrorResponseException erEx) {
@@ -102,14 +102,14 @@ public class MinioFileService implements FileInformationService {
    * @throws XmlParserException
    * @throws IOException
    */
-  public void storeFile(String fileName, InputStream iStream, String contentType, String bucket)
+  public void storeFile(String fileName, InputStream iStream, String contentType, String bucket, boolean isDerivative)
       throws InvalidKeyException, ErrorResponseException, IllegalArgumentException,
       InsufficientDataException, InternalException, InvalidBucketNameException,
       InvalidResponseException, NoSuchAlgorithmException, XmlParserException, IOException, ServerException {
 
     minioClient.putObject(PutObjectArgs.builder()
         .bucket(bucket)
-        .object(getFileLocation(fileName))
+        .object(getFileLocation(fileName, isDerivative))
         .stream(iStream, UNKNOWN_OBJECT_SIZE, DEFAULT_PART_SIZE)
         .contentType(contentType)
         .build());
@@ -149,13 +149,13 @@ public class MinioFileService implements FileInformationService {
     return false;
   }
 
-  public Optional<InputStream> getFile(String fileName, String bucketName) throws IOException {
+  public Optional<InputStream> getFile(String fileName, String bucketName, boolean isDerivative) throws IOException {
     try {
       return Optional.ofNullable(
           minioClient.getObject(
               GetObjectArgs.builder()
                   .bucket(bucketName)
-                  .object(getFileLocation(fileName))
+                  .object(getFileLocation(fileName, isDerivative))
                   .build()));
     } catch (ErrorResponseException erEx) {
       if (isNotFoundException(erEx)) {
@@ -172,13 +172,13 @@ public class MinioFileService implements FileInformationService {
   /**
    * See {@link FileInformationService#getFileInfo(String, String)}
    */
-  public Optional<FileObjectInfo> getFileInfo(String fileName, String bucketName) throws IOException {
+  public Optional<FileObjectInfo> getFileInfo(String fileName, String bucketName, boolean isDerivative) throws IOException {
     ObjectStat objectStat;
     try {
       objectStat = minioClient.statObject(
           StatObjectArgs.builder()
               .bucket(bucketName)
-              .object(getFileLocation(fileName)).build());
+              .object(getFileLocation(fileName, isDerivative)).build());
       
       return Optional.of(FileObjectInfo.builder()
           .length(objectStat.length())

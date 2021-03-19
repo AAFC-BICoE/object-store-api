@@ -28,6 +28,6 @@ public interface FileInformationService {
    *         don't exist
    * @throws IOException
    */
-  Optional<FileObjectInfo> getFileInfo(String fileName, String bucketName) throws IOException;
+  Optional<FileObjectInfo> getFileInfo(String fileName, String bucketName, boolean isDerivative) throws IOException;
 
 }
