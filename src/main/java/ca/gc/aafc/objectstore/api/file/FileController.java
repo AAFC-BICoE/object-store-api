@@ -121,7 +121,7 @@ public class FileController {
     String sha1Hex = DigestUtils.sha1Hex(md.digest());
     Map<String, String> exifData = extractExifData(file);
 
-    minioService.storeFile("derivative", filename, dis, mtdr.getEvaluatedMediaType(), bucket);
+    minioService.storeFile(filename, dis, mtdr.getEvaluatedMediaType(), bucket,true);
 
     return objectUploadService.create(ObjectUpload.builder()
       .fileIdentifier(uuid)

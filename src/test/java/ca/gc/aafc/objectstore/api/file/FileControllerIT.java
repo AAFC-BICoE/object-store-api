@@ -1,18 +1,14 @@
 package ca.gc.aafc.objectstore.api.file;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.io.IOException;
-import java.util.UUID;
-
-import javax.inject.Inject;
-import javax.persistence.criteria.Predicate;
-import javax.transaction.Transactional;
-
-import ca.gc.aafc.objectstore.api.entities.Derivative;
+import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
+import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
+import ca.gc.aafc.objectstore.api.MinioTestConfiguration;
+import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
+import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
+import ca.gc.aafc.objectstore.api.minio.MinioFileService;
+import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
+import io.crnk.core.exception.UnauthorizedException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -28,15 +24,12 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
-import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
-import ca.gc.aafc.objectstore.api.MinioTestConfiguration;
-import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
-import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
-import ca.gc.aafc.objectstore.api.minio.MinioFileService;
-import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
-import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
-import io.crnk.core.exception.UnauthorizedException;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @Import(MinioTestConfiguration.class)
 public class FileControllerIT extends BaseIntegrationTest {
