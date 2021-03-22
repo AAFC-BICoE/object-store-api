@@ -98,6 +98,9 @@ public class FileController {
   ) throws IOException, MimeTypeException, NoSuchAlgorithmException, ServerException, ErrorResponseException,
     InternalException, XmlParserException, InvalidResponseException, InvalidBucketNameException,
     InsufficientDataException, InvalidKeyException {
+    //Authenticate before anything else
+    handleAuthentication(bucket);
+
     // Safe get unique UUID
     UUID uuid = safeGenerateUuid();
 
@@ -111,9 +114,14 @@ public class FileController {
 
     storeFile(bucket, uuid, mtdr, new DigestInputStream(prIs.getInputStream(), md), true);
 
-    String sha1Hex = DigestUtils.sha1Hex(md.digest());
-    Map<String, String> exifData = extractExifData(file);
-    return createObjectUpload(file, bucket, mtdr, uuid, sha1Hex, exifData, true);
+    return createObjectUpload(
+      file,
+      bucket,
+      mtdr,
+      uuid,
+      DigestUtils.sha1Hex(md.digest()),
+      extractExifData(file),
+      true);
   }
 
   @PostMapping("/file/{bucket}")
@@ -123,6 +131,9 @@ public class FileController {
   ) throws InvalidKeyException, NoSuchAlgorithmException, InvalidBucketNameException, ErrorResponseException,
     InternalException, InsufficientDataException, InvalidResponseException, MimeTypeException, XmlParserException,
     IOException, ServerException {
+    //Authenticate before anything else
+    handleAuthentication(bucket);
+
     // Safe get unique UUID
     UUID uuid = safeGenerateUuid();
 
@@ -243,40 +254,14 @@ public class FileController {
     throw new IllegalStateException("Can't assign unique UUID. Giving up.");
   }
 
-  /**
-   * Checks that there is an authenticatedUser available or throw a {@link AccessDeniedException}.
-   */
-  private void checkAuthenticatedUser() {
-    if (authenticatedUser == null) {
-      throw new AccessDeniedException("no authenticatedUser found");
-    }
-  }
-
-  /**
-   * Authenticates the DinaAuthenticatedUser for a given bucket.
-   *
-   * @param bucket - bucket to validate.
-   * @throws UnauthorizedException If the DinaAuthenticatedUser does not have access to the given bucket
-   */
-  private void authenticateBucket(String bucket) {
-    if (!authenticatedUser.getGroups().contains(bucket)) {
-      throw new UnauthorizedException(
-        "You are not authorized for bucket: " + bucket
-          + ". Expected buckets: " + StringUtils.join(authenticatedUser.getGroups(), ", "));
-    }
-  }
-
   private void storeFile(
     String bucket,
     UUID uuid,
     MediaTypeDetectionStrategy.MediaTypeDetectionResult mtdr,
     DigestInputStream iStream,
     boolean isDerivative
-  ) throws IOException, InvalidKeyException, ErrorResponseException, InsufficientDataException, InternalException, InvalidBucketNameException, InvalidResponseException, NoSuchAlgorithmException, XmlParserException, ServerException {
-    // make sure we have an authenticatedUser
-    checkAuthenticatedUser();
-    authenticateBucket(bucket);
-
+  ) throws IOException, InvalidKeyException, ErrorResponseException, InsufficientDataException, InternalException,
+    InvalidBucketNameException, InvalidResponseException, NoSuchAlgorithmException, XmlParserException, ServerException {
     // make bucket if it does not exist
     minioService.ensureBucketExists(bucket);
 
@@ -287,6 +272,7 @@ public class FileController {
       bucket,
       isDerivative);
   }
+
 
   private ObjectUpload createObjectUpload(
     MultipartFile file,
@@ -328,6 +314,34 @@ public class FileController {
       exifData = ExifParser.extractExifTags(exifIs);
     }
     return exifData;
+  }
+
+  private void handleAuthentication(String bucket) {
+    checkAuthenticatedUser();
+    authenticateBucket(bucket);
+  }
+
+  /**
+   * Checks that there is an authenticatedUser available or throw a {@link AccessDeniedException}.
+   */
+  private void checkAuthenticatedUser() {
+    if (authenticatedUser == null) {
+      throw new AccessDeniedException("no authenticatedUser found");
+    }
+  }
+
+  /**
+   * Authenticates the DinaAuthenticatedUser for a given bucket.
+   *
+   * @param bucket - bucket to validate.
+   * @throws UnauthorizedException If the DinaAuthenticatedUser does not have access to the given bucket
+   */
+  private void authenticateBucket(String bucket) {
+    if (!authenticatedUser.getGroups().contains(bucket)) {
+      throw new UnauthorizedException(
+        "You are not authorized for bucket: " + bucket
+          + ". Expected buckets: " + StringUtils.join(authenticatedUser.getGroups(), ", "));
+    }
   }
 
 }
