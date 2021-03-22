@@ -16,6 +16,7 @@ import io.minio.errors.InvalidBucketNameException;
 import io.minio.errors.InvalidResponseException;
 import io.minio.errors.ServerException;
 import io.minio.errors.XmlParserException;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MimeTypeException;
@@ -179,7 +180,9 @@ public class FileControllerIT extends BaseIntegrationTest {
     assertNotNull(headers.getContentType());
     assertEquals(mockFile.getContentType(),headers.getContentType().toString());
     // Assert File Content
-    //TODO assert file the same
+    InputStreamResource body = result.getBody();
+    assertNotNull(body);
+    assertTrue(IOUtils.contentEquals(mockFile.getInputStream(),body.getInputStream()));
   }
 
   @Transactional
