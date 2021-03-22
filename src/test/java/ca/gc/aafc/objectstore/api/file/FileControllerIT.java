@@ -35,6 +35,7 @@ import ca.gc.aafc.objectstore.api.minio.MinioFileService;
 import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import io.crnk.core.exception.UnauthorizedException;
+import org.springframework.web.server.ResponseStatusException;
 
 @Import(MinioTestConfiguration.class)
 public class FileControllerIT extends BaseIntegrationTest {
@@ -144,6 +145,13 @@ public class FileControllerIT extends BaseIntegrationTest {
     ObjectUpload objUploaded = objectUploadService.findOne(uploadResponse.getFileIdentifier(), ObjectUpload.class);
 
     assertNotNull(objUploaded);
+  }
+
+  @Transactional
+  @Test
+  public void downloadDerivative_WhenDerivativeDoesNotExist_ThrowsNotFound() throws Exception {
+    assertThrows(ResponseStatusException.class,
+      () -> fileController.downloadDerivative(bucketUnderTest, UUID.randomUUID().toString()));
   }
 
   private MockMultipartFile getFileUnderTest() throws IOException {
