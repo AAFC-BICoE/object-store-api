@@ -6,11 +6,21 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
+import ca.gc.aafc.objectstore.api.entities.DcType;
+import io.minio.errors.ErrorResponseException;
+import io.minio.errors.InsufficientDataException;
+import io.minio.errors.InternalException;
+import io.minio.errors.InvalidBucketNameException;
+import io.minio.errors.InvalidResponseException;
+import io.minio.errors.ServerException;
+import io.minio.errors.XmlParserException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -149,9 +159,38 @@ public class FileControllerIT extends BaseIntegrationTest {
 
   @Transactional
   @Test
-  public void downloadDerivative_WhenDerivativeDoesNotExist_ThrowsNotFound() throws Exception {
+  public void downloadDerivative_WhenDerivativeDoesNotExist_ThrowsNotFound() {
     assertThrows(ResponseStatusException.class,
       () -> fileController.downloadDerivative(bucketUnderTest, UUID.randomUUID().toString()));
+  }
+
+  @Transactional
+  @Test
+  public void downloadDerivative() throws IOException, InvalidResponseException, InvalidKeyException, NoSuchAlgorithmException,
+    ServerException, InternalException, XmlParserException, InvalidBucketNameException, InsufficientDataException,
+    ErrorResponseException {
+    MockMultipartFile mockFile = getFileUnderTest();
+    UUID uuid = UUID.randomUUID();
+
+    minioFileService.storeFile(uuid + ".txt", mockFile.getInputStream(), "text", bucketUnderTest, true);
+    objectUploadService.create(ObjectUpload.builder()
+      .isDerivative(true)
+      .bucket(bucketUnderTest)
+      .evaluatedFileExtension("dsdf")
+      .dcType(DcType.TEXT)
+      .createdBy("dfaf")
+      .detectedFileExtension(".txt")
+      .detectedMediaType("text")
+      .evaluatedMediaType("text")
+      .fileIdentifier(uuid)
+      .originalFilename("dsfasdf")
+      .receivedMediaType("dafadf")
+      .build());
+
+    ResponseEntity<InputStreamResource> result = fileController.downloadDerivative(
+      bucketUnderTest,
+      uuid.toString());
+    assertEquals(200, result.getStatusCode().value());
   }
 
   private MockMultipartFile getFileUnderTest() throws IOException {
