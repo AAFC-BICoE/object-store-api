@@ -216,8 +216,7 @@ public class FileController {
         foi.getLength());
 
       InputStream is = minioService.getFile(filename, bucket, false)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-          "FileIdentifier " + fileUuid + " or bucket " + bucket + " Not Found", null));
+        .orElseThrow(() -> getNotFoundException(bucket, fileId));
 
       InputStreamResource isr = new InputStreamResource(is);
       return new ResponseEntity<>(isr, respHeaders, HttpStatus.OK);
