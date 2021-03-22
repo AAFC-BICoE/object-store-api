@@ -233,27 +233,6 @@ public class FileController {
       HttpStatus.INTERNAL_SERVER_ERROR, null);
   }
 
-  /**
-   * Even if it's almost impossible, we need to make sure that the UUID is not already in use otherwise we
-   * will overwrite the previous file.
-   *
-   * @return the generated UUID
-   * @throws IllegalStateException if a uuid cannot be assigned.
-   */
-  private UUID generateUUID() throws IllegalStateException {
-    int numberOfAttempt = 0;
-    while (numberOfAttempt < MAX_NUMBER_OF_ATTEMPT_RANDOM_UUID) {
-      UUID uuid = UUID.randomUUID();
-      // this would be better with an exists() function
-      if (objectUploadService.findOne(uuid, ObjectUpload.class) == null) {
-        return uuid;
-      }
-      log.warn("Could not get a unique uuid for file");
-      numberOfAttempt++;
-    }
-    throw new IllegalStateException("Can't assign unique UUID. Giving up.");
-  }
-
   private void storeFile(
     String bucket,
     UUID uuid,
@@ -300,13 +279,7 @@ public class FileController {
       .build());
   }
 
-  private UUID safeGenerateUuid() {
-    UUID uuid = transactionTemplate.execute(transactionStatus -> generateUUID());
-    if (uuid == null) {
-      throw new IllegalStateException("Can't assign unique UUID.");
-    }
-    return uuid;
-  }
+
 
   private Map<String, String> extractExifData(@RequestParam("file") MultipartFile file) throws IOException {
     Map<String, String> exifData;
@@ -319,6 +292,35 @@ public class FileController {
   private void handleAuthentication(String bucket) {
     checkAuthenticatedUser();
     authenticateBucket(bucket);
+  }
+
+  private UUID safeGenerateUuid() {
+    UUID uuid = transactionTemplate.execute(transactionStatus -> generateUUID());
+    if (uuid == null) {
+      throw new IllegalStateException("Can't assign unique UUID.");
+    }
+    return uuid;
+  }
+
+  /**
+   * Even if it's almost impossible, we need to make sure that the UUID is not already in use otherwise we
+   * will overwrite the previous file.
+   *
+   * @return the generated UUID
+   * @throws IllegalStateException if a uuid cannot be assigned.
+   */
+  private UUID generateUUID() throws IllegalStateException {
+    int numberOfAttempt = 0;
+    while (numberOfAttempt < MAX_NUMBER_OF_ATTEMPT_RANDOM_UUID) {
+      UUID uuid = UUID.randomUUID();
+      // this would be better with an exists() function
+      if (objectUploadService.findOne(uuid, ObjectUpload.class) == null) {
+        return uuid;
+      }
+      log.warn("Could not get a unique uuid for file");
+      numberOfAttempt++;
+    }
+    throw new IllegalStateException("Can't assign unique UUID. Giving up.");
   }
 
   /**
