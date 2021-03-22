@@ -1,6 +1,7 @@
 package ca.gc.aafc.objectstore.api.file;
 
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
+import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.exif.ExifParser;
@@ -37,6 +38,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.inject.Inject;
+import javax.persistence.criteria.Predicate;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.io.InputStream;
@@ -235,7 +237,7 @@ public class FileController {
     @PathVariable UUID fileId
   ) throws IOException {
 
-    if (!objectUploadService.exists(ObjectUpload.class, fileId)) {
+    if (!objectUploadService.exists(ObjectUpload.class, fileId) || hasNoDerivativeRecord(fileId)) {
       throw getNotFoundException(bucket, fileId);
     }
 
@@ -248,6 +250,18 @@ public class FileController {
     HttpHeaders headers = getHttpHeaders(
       fileName, uploadRecord.getDetectedMediaType(), uploadRecord.getSizeInBytes());
     return new ResponseEntity<>(new InputStreamResource(is), headers, HttpStatus.OK);
+  }
+
+  /**
+   * Returns true if a given file id is not an identifier for a existing Derivative record.
+   *
+   * @param fileId id to validate
+   * @return true if a given file id is not an identifier for a existing Derivative record.
+   */
+  private boolean hasNoDerivativeRecord(UUID fileId) {
+    return objectUploadService.findAll(Derivative.class, (criteriaBuilder, root) -> new Predicate[]{
+      criteriaBuilder.equal(root.get("fileIdentifier"), fileId)}, null, 0, 1)
+      .size() == 0;
   }
 
   /**
