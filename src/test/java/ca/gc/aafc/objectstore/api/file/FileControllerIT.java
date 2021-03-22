@@ -190,13 +190,13 @@ public class FileControllerIT extends BaseIntegrationTest {
     assertEquals(200, result.getStatusCode().value());
     // Assert Headers
     HttpHeaders headers = result.getHeaders();
-    assertEquals(mockFile.getSize(),headers.getContentLength());
+    assertEquals(mockFile.getSize(), headers.getContentLength());
     assertNotNull(headers.getContentType());
-    assertEquals(mockFile.getContentType(),headers.getContentType().toString());
+    assertEquals(mockFile.getContentType(), headers.getContentType().toString());
     // Assert File Content
     InputStreamResource body = result.getBody();
     assertNotNull(body);
-    assertTrue(IOUtils.contentEquals(mockFile.getInputStream(),body.getInputStream()));
+    assertTrue(IOUtils.contentEquals(mockFile.getInputStream(), body.getInputStream()));
   }
 
   @Transactional
