@@ -247,9 +247,10 @@ public class FileController {
 
     ObjectUpload uploadRecord = objectUploadService.findOne(uuid, ObjectUpload.class);
 
-    InputStream is = minioService.getFile(uploadRecord.getOriginalFilename(), bucket, true)
-      .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-        "FileIdentifier " + fileId + " or bucket " + bucket + " Not Found", null));
+    String fileName = uploadRecord.getFileIdentifier() + uploadRecord.getEvaluatedFileExtension();
+    InputStream is = minioService.getFile(fileName, bucket, true).orElseThrow(
+      () -> new ResponseStatusException(
+        HttpStatus.NOT_FOUND, "FileIdentifier " + fileId + " or bucket " + bucket + " Not Found", null));
 
     return new ResponseEntity<>(new InputStreamResource(is), new HttpHeaders(), HttpStatus.OK);
   }
