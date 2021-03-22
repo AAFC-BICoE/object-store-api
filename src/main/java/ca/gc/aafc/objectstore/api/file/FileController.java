@@ -210,14 +210,10 @@ public class FileController {
         return new ResponseStatusException(HttpStatus.NOT_FOUND, errorMsg, null);
       });
 
-      HttpHeaders respHeaders = new HttpHeaders();
-      respHeaders.setContentType(
-        org.springframework.http.MediaType.parseMediaType(
-          thumbnailRequested ? "image/jpeg" : metadata.getDcFormat()
-        )
-      );
-      respHeaders.setContentLength(foi.getLength());
-      respHeaders.setContentDispositionFormData("attachment", filename);
+      HttpHeaders respHeaders = getHttpHeaders(
+        filename,
+        thumbnailRequested ? "image/jpeg" : metadata.getDcFormat(),
+        foi.getLength());
 
       InputStream is = minioService.getFile(filename, bucket, false)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
@@ -252,7 +248,20 @@ public class FileController {
       () -> new ResponseStatusException(
         HttpStatus.NOT_FOUND, "FileIdentifier " + fileId + " or bucket " + bucket + " Not Found", null));
 
-    return new ResponseEntity<>(new InputStreamResource(is), new HttpHeaders(), HttpStatus.OK);
+    HttpHeaders headers = getHttpHeaders(fileName, uploadRecord.getDetectedMediaType(), uploadRecord.getSizeInBytes());
+    return new ResponseEntity<>(new InputStreamResource(is), headers, HttpStatus.OK);
+  }
+
+  private static HttpHeaders getHttpHeaders(String filename, String mediaType, long contentLength) {
+    HttpHeaders respHeaders = new HttpHeaders();
+    respHeaders.setContentType(
+      org.springframework.http.MediaType.parseMediaType(
+        mediaType
+      )
+    );
+    respHeaders.setContentLength(contentLength);
+    respHeaders.setContentDispositionFormData("attachment", filename);
+    return respHeaders;
   }
 
   /**
