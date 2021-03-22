@@ -233,6 +233,16 @@ public class FileController {
       HttpStatus.INTERNAL_SERVER_ERROR, null);
   }
 
+  /**
+   * Stores a given input stream
+   *
+   * @param bucket       bucket to store the object
+   * @param uuid         uuid of the object
+   * @param mtdr         detected media result of the object
+   * @param iStream      input stream of the object
+   * @param isDerivative boolean indicating if the stored file is a derivative, this alters the object path to
+   *                     be prefixed with /derivative.
+   */
   private void storeFile(
     String bucket,
     UUID uuid,
@@ -252,6 +262,18 @@ public class FileController {
       isDerivative);
   }
 
+  /**
+   * Persists and returns an object upload based on the given parameters.
+   *
+   * @param file         file of the object upload
+   * @param bucket       bucket of the file
+   * @param mtdr         detected media result
+   * @param uuid         uui of the file
+   * @param sha1Hex      sha 1 hex of the file
+   * @param exifData     exif data
+   * @param isDerivative boolean indicating if the object was a derivative.
+   * @return the persisted object upload
+   */
   private ObjectUpload createObjectUpload(
     MultipartFile file,
     String bucket,
@@ -278,6 +300,13 @@ public class FileController {
       .build());
   }
 
+  /**
+   * Returns a map of exif data if extraction is possible, otherwise an empty map is returned.
+   *
+   * @param file file to extract from
+   * @return returns a map of exif data, or empty map.
+   * @throws IOException if an error occurs reading the file
+   */
   private Map<String, String> extractExifData(@RequestParam("file") MultipartFile file) throws IOException {
     Map<String, String> exifData;
     try (InputStream exifIs = file.getInputStream()) {
@@ -286,11 +315,21 @@ public class FileController {
     return exifData;
   }
 
+  /**
+   * Ensures an authenticated user is present and authorized for a given bucket.
+   *
+   * @param bucket bucket to authorize.
+   */
   private void handleAuthentication(String bucket) {
     checkAuthenticatedUser();
     authenticateBucket(bucket);
   }
 
+  /**
+   * Returns a generated UUID.
+   *
+   * @return Returns a generated UUID.
+   */
   private UUID safeGenerateUuid() {
     UUID uuid = transactionTemplate.execute(transactionStatus -> generateUUID());
     if (uuid == null) {
