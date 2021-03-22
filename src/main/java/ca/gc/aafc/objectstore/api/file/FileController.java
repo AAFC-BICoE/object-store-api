@@ -123,21 +123,7 @@ public class FileController {
 
     minioService.storeFile(filename, dis, mtdr.getEvaluatedMediaType(), bucket,true);
 
-    return objectUploadService.create(ObjectUpload.builder()
-      .fileIdentifier(uuid)
-      .createdBy(authenticatedUser.getUsername())
-      .originalFilename(file.getOriginalFilename())
-      .sha1Hex(sha1Hex)
-      .receivedMediaType(file.getContentType())
-      .detectedMediaType(Objects.toString(mtdr.getDetectedMediaType()))
-      .detectedFileExtension(mtdr.getDetectedMimeType().getExtension())
-      .evaluatedMediaType(mtdr.getEvaluatedMediaType())
-      .evaluatedFileExtension(mtdr.getEvaluatedExtension())
-      .sizeInBytes(file.getSize())
-      .bucket(bucket)
-      .exif(exifData)
-      .isDerivative(true)
-      .build());
+    return createObjectUpload(file, bucket, mtdr, uuid, sha1Hex, exifData, true);
   }
 
   @PostMapping("/file/{bucket}")
@@ -149,7 +135,6 @@ public class FileController {
 
     // make sure we have an authenticatedUser
     checkAuthenticatedUser();
-
     authenticateBucket(bucket);
 
     // Temporary, we will need to check if the user is an admin
@@ -187,21 +172,7 @@ public class FileController {
 
     ObjectUpload createdObjectUpload = transactionTemplate.execute(transactionStatus -> {
       // record the uploaded object to ensure we eventually get the metadata for it
-      ObjectUpload objectUpload = objectUploadService.create(ObjectUpload.builder()
-          .fileIdentifier(uuid)
-          .createdBy(authenticatedUser.getUsername())
-          .originalFilename(file.getOriginalFilename())
-          .sha1Hex(sha1Hex)
-          .receivedMediaType(file.getContentType())
-          .detectedMediaType(Objects.toString(mtdr.getDetectedMediaType()))
-          .detectedFileExtension(mtdr.getDetectedMimeType().getExtension())
-          .evaluatedMediaType(mtdr.getEvaluatedMediaType())
-          .evaluatedFileExtension(mtdr.getEvaluatedExtension())
-          .sizeInBytes(file.getSize())
-          .bucket(bucket)
-          .exif(exifData)
-        .isDerivative(false)
-          .build());
+      ObjectUpload objectUpload = createObjectUpload(file, bucket, mtdr, uuid, sha1Hex, exifData, false);
 
       if (thumbnailIsSupported) {
         UUID thumbnailID = generateUUID();
@@ -338,4 +309,31 @@ public class FileController {
     }
     return exifData;
   }
+
+  private ObjectUpload createObjectUpload(
+    MultipartFile file,
+    String bucket,
+    MediaTypeDetectionStrategy.MediaTypeDetectionResult mtdr,
+    UUID uuid,
+    String sha1Hex,
+    Map<String, String> exifData,
+    boolean isDerivative
+  ) {
+    return objectUploadService.create(ObjectUpload.builder()
+      .fileIdentifier(uuid)
+      .createdBy(authenticatedUser.getUsername())
+      .originalFilename(file.getOriginalFilename())
+      .sha1Hex(sha1Hex)
+      .receivedMediaType(file.getContentType())
+      .detectedMediaType(Objects.toString(mtdr.getDetectedMediaType()))
+      .detectedFileExtension(mtdr.getDetectedMimeType().getExtension())
+      .evaluatedMediaType(mtdr.getEvaluatedMediaType())
+      .evaluatedFileExtension(mtdr.getEvaluatedExtension())
+      .sizeInBytes(file.getSize())
+      .bucket(bucket)
+      .exif(exifData)
+      .isDerivative(isDerivative)
+      .build());
+  }
+
 }
