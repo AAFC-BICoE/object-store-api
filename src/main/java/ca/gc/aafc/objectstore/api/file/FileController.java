@@ -250,11 +250,26 @@ public class FileController {
     return new ResponseEntity<>(new InputStreamResource(is), headers, HttpStatus.OK);
   }
 
-  private ResponseStatusException getNotFoundException(String bucket, String fileId) {
+  /**
+   * Utility method to generate a NOT_FOUND ResponseStatusException based on the given parameters.
+   *
+   * @param bucket the bucket
+   * @param fileId the file id
+   * @return a ResponseStatusException Not found
+   */
+  private static ResponseStatusException getNotFoundException(String bucket, String fileId) {
     return new ResponseStatusException(
       HttpStatus.NOT_FOUND, "FileIdentifier " + fileId + " or bucket " + bucket + " Not Found", null);
   }
 
+  /**
+   * Utility method to generate HttpHeaders based on the given parameters
+   *
+   * @param filename      name of the file
+   * @param mediaType     media type of the file
+   * @param contentLength length of the file
+   * @return HttpHeaders based on the given parameters
+   */
   private static HttpHeaders getHttpHeaders(String filename, String mediaType, long contentLength) {
     HttpHeaders respHeaders = new HttpHeaders();
     respHeaders.setContentType(
