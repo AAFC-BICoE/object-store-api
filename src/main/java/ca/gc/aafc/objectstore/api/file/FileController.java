@@ -216,7 +216,7 @@ public class FileController {
         foi.getLength());
 
       InputStream is = minioService.getFile(filename, bucket, false)
-        .orElseThrow(() -> getNotFoundException(bucket, fileId));
+        .orElseThrow(() -> getNotFoundException(bucket, fileUuid));
 
       InputStreamResource isr = new InputStreamResource(is);
       return new ResponseEntity<>(isr, respHeaders, HttpStatus.OK);
@@ -232,15 +232,14 @@ public class FileController {
   @Transactional
   public ResponseEntity<InputStreamResource> downloadDerivative(
     @PathVariable String bucket,
-    @PathVariable String fileId
+    @PathVariable UUID fileId
   ) throws IOException {
-    UUID uuid = UUID.fromString(fileId);
 
-    if (!objectUploadService.exists(ObjectUpload.class, uuid)) {
+    if (!objectUploadService.exists(ObjectUpload.class, fileId)) {
       throw getNotFoundException(bucket, fileId);
     }
 
-    ObjectUpload uploadRecord = objectUploadService.findOne(uuid, ObjectUpload.class);
+    ObjectUpload uploadRecord = objectUploadService.findOne(fileId, ObjectUpload.class);
 
     String fileName = uploadRecord.getFileIdentifier() + uploadRecord.getEvaluatedFileExtension();
     InputStream is = minioService.getFile(fileName, bucket, true)
@@ -258,7 +257,7 @@ public class FileController {
    * @param fileId the file id
    * @return a ResponseStatusException Not found
    */
-  private static ResponseStatusException getNotFoundException(String bucket, String fileId) {
+  private static ResponseStatusException getNotFoundException(String bucket, UUID fileId) {
     return new ResponseStatusException(
       HttpStatus.NOT_FOUND, "FileIdentifier " + fileId + " or bucket " + bucket + " Not Found", null);
   }

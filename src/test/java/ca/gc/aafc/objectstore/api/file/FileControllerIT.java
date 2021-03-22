@@ -158,7 +158,7 @@ public class FileControllerIT extends BaseIntegrationTest {
   @Test
   public void downloadDerivative_WhenDerivativeDoesNotExist_ThrowsNotFound() {
     assertThrows(ResponseStatusException.class,
-      () -> fileController.downloadDerivative(bucketUnderTest, UUID.randomUUID().toString()));
+      () -> fileController.downloadDerivative(bucketUnderTest, UUID.randomUUID()));
   }
 
   @Transactional
@@ -171,7 +171,7 @@ public class FileControllerIT extends BaseIntegrationTest {
 
     ResponseEntity<InputStreamResource> result = fileController.downloadDerivative(
       bucketUnderTest,
-      uploadResponse.getFileIdentifier().toString());
+      uploadResponse.getFileIdentifier());
     // Assert Response
     assertEquals(200, result.getStatusCode().value());
     // Assert Headers
