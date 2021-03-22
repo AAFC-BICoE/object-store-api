@@ -18,9 +18,12 @@ import com.google.common.collect.ImmutableMap;
 
 import io.minio.BucketExistsArgs;
 import io.minio.GetObjectArgs;
+import io.minio.GetObjectResponse;
+import io.minio.MinioClient;
 import io.minio.ObjectWriteResponse;
 import io.minio.PutObjectArgs;
 import io.minio.StatObjectArgs;
+import io.minio.StatObjectResponse;
 import io.minio.errors.ServerException;
 import org.apache.commons.io.IOUtils;
 import org.springframework.context.annotation.Bean;
@@ -29,14 +32,10 @@ import org.springframework.http.MediaType;
 
 import ca.gc.aafc.objectstore.api.file.FolderStructureStrategy;
 import ca.gc.aafc.objectstore.api.minio.MinioFileService;
-import io.minio.MinioClient;
-import io.minio.ObjectStat;
+import io.minio.MinioClient.*;
 import io.minio.errors.ErrorResponseException;
 import io.minio.errors.InsufficientDataException;
 import io.minio.errors.InternalException;
-import io.minio.errors.InvalidBucketNameException;
-import io.minio.errors.InvalidEndpointException;
-import io.minio.errors.InvalidPortException;
 import io.minio.errors.InvalidResponseException;
 import io.minio.errors.XmlParserException;
 import okhttp3.Headers;
@@ -86,16 +85,16 @@ public class MinioTestConfiguration {
       MinioClient minioClient = new MinioClientStub();
       setupFile(minioClient);
       return minioClient;
-    } catch (InvalidKeyException | InvalidBucketNameException | NoSuchAlgorithmException | ErrorResponseException |
+    } catch (InvalidKeyException | NoSuchAlgorithmException | ErrorResponseException |
         InternalException | InsufficientDataException | InvalidResponseException | IOException |
-        InvalidEndpointException | InvalidPortException | IllegalArgumentException | XmlParserException |
+        IllegalArgumentException | XmlParserException |
         ServerException e) {
       throw new RuntimeException("Can't setup Minio client for testing", e);
     }
   }
   
   private void setupFile(MinioClient minioClient) throws InvalidKeyException,
-      InvalidBucketNameException, NoSuchAlgorithmException, ErrorResponseException,
+      NoSuchAlgorithmException, ErrorResponseException,
       InternalException, InsufficientDataException, InvalidResponseException, IOException,
       IllegalArgumentException, XmlParserException, ServerException {
 
@@ -113,8 +112,7 @@ public class MinioTestConfiguration {
    * @param id
    * @param objExt
    * @param objStream
-   * @throws InvalidKeyException
-   * @throws InvalidBucketNameException
+   * @throws InvalidKeyException   
    * @throws NoSuchAlgorithmException
    * @throws ErrorResponseException
    * @throws InternalException
@@ -126,7 +124,7 @@ public class MinioTestConfiguration {
    */
   private void storeTestObject(MinioClient minioClient, UUID id, String objExt,
       InputStream objStream) throws InvalidKeyException,
-      InvalidBucketNameException, NoSuchAlgorithmException, ErrorResponseException,
+      NoSuchAlgorithmException, ErrorResponseException,
       InternalException, InsufficientDataException, InvalidResponseException, IOException,
       IllegalArgumentException, XmlParserException, ServerException {
     minioClient.putObject(
@@ -145,8 +143,8 @@ public class MinioTestConfiguration {
     
     private final Map<String, byte[]> INTERNAL_OBJECTS = new HashMap<>();
 
-    public MinioClientStub() throws InvalidEndpointException, InvalidPortException {
-      super("localhost");
+    public MinioClientStub() {
+      super(MinioClient.builder().build());      
     }
     
     @Override
@@ -167,19 +165,20 @@ public class MinioTestConfiguration {
     }
 
     @Override
-    public InputStream getObject(GetObjectArgs args) {
+    public GetObjectResponse getObject(GetObjectArgs args) {
       byte[] buf = INTERNAL_OBJECTS.get(args.bucket() + args.object());
-      return buf == null ? null : new ByteArrayInputStream(buf);
+      return buf == null ? null
+        : new GetObjectResponse(null, args.bucket(), args.region(), args.object(), new ByteArrayInputStream(buf));
     }
 
     @Override
-    public ObjectStat statObject(StatObjectArgs args) {
+    public StatObjectResponse  statObject(StatObjectArgs args) {
       Headers head = Headers.of(
           ImmutableMap.of(
               "Content-Type", TEST_FILE_MEDIA_TYPE,
               "Last-Modified", "Tue, 15 Nov 1994 12:45:26 GMT",
               "Content-Length", "1234"));
-      return new ObjectStat(args.bucket(), args.bucket(), head);
+      return new StatObjectResponse (head, args.bucket(), args.region(), args.object());
     }
   }
 
