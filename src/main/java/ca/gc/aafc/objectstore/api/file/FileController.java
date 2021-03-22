@@ -229,6 +229,7 @@ public class FileController {
   }
 
   @GetMapping("/file/{bucket}/derivative/{fileId}")
+  @Transactional
   public ResponseEntity<InputStreamResource> downloadDerivative(
     @PathVariable String bucket,
     @PathVariable String fileId
