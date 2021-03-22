@@ -67,7 +67,7 @@ public class FileController {
   private final TransactionTemplate transactionTemplate;
 
   // request scoped bean
-  private DinaAuthenticatedUser authenticatedUser;
+  private final DinaAuthenticatedUser authenticatedUser;
 
   @Inject
   public FileController(
@@ -98,13 +98,6 @@ public class FileController {
   ) throws IOException, MimeTypeException, NoSuchAlgorithmException, ServerException, ErrorResponseException,
     InternalException, XmlParserException, InvalidResponseException, InvalidBucketNameException,
     InsufficientDataException, InvalidKeyException {
-    // make sure we have an authenticatedUser
-    checkAuthenticatedUser();
-    authenticateBucket(bucket);
-
-    // make bucket if it does not exist
-    minioService.ensureBucketExists(bucket);
-
     // Safe get unique UUID
     UUID uuid = safeGenerateUuid();
 
@@ -114,58 +107,37 @@ public class FileController {
     MediaTypeDetectionStrategy.MediaTypeDetectionResult mtdr = mediaTypeDetectionStrategy
       .detectMediaType(prIs.getReadAheadBuffer(), file.getContentType(), file.getOriginalFilename());
 
-    String filename = uuid.toString() + mtdr.getEvaluatedExtension();
     MessageDigest md = MessageDigest.getInstance(DIGEST_ALGORITHM);
-    DigestInputStream dis = new DigestInputStream(prIs.getInputStream(), md);
+
+    storeFile(bucket, uuid, mtdr, new DigestInputStream(prIs.getInputStream(), md), true);
 
     String sha1Hex = DigestUtils.sha1Hex(md.digest());
     Map<String, String> exifData = extractExifData(file);
-
-    minioService.storeFile(filename, dis, mtdr.getEvaluatedMediaType(), bucket,true);
-
     return createObjectUpload(file, bucket, mtdr, uuid, sha1Hex, exifData, true);
   }
 
   @PostMapping("/file/{bucket}")
-  public ObjectUpload handleFileUpload(@RequestParam("file") MultipartFile file,
-      @PathVariable String bucket) throws InvalidKeyException, NoSuchAlgorithmException,
-      InvalidBucketNameException, ErrorResponseException, InternalException,
-      InsufficientDataException, InvalidResponseException, 
-      MimeTypeException, XmlParserException, IOException, ServerException {
-
-    // make sure we have an authenticatedUser
-    checkAuthenticatedUser();
-    authenticateBucket(bucket);
-
-    // Temporary, we will need to check if the user is an admin
-    minioService.ensureBucketExists(bucket);
-
-    // We need access to the first bytes in a form that we can reset the InputStream
-    ReadAheadInputStream prIs = ReadAheadInputStream.from(file.getInputStream(), READ_AHEAD_BUFFER_SIZE);
-  
-    MediaTypeDetectionStrategy.MediaTypeDetectionResult mtdr = mediaTypeDetectionStrategy
-        .detectMediaType(prIs.getReadAheadBuffer(), file.getContentType(), file.getOriginalFilename());
-
-    String fileExtension = mtdr.getEvaluatedMediaType();
-
+  public ObjectUpload handleFileUpload(
+    @RequestParam("file") MultipartFile file,
+    @PathVariable String bucket
+  ) throws InvalidKeyException, NoSuchAlgorithmException, InvalidBucketNameException, ErrorResponseException,
+    InternalException, InsufficientDataException, InvalidResponseException, MimeTypeException, XmlParserException,
+    IOException, ServerException {
     // Safe get unique UUID
     UUID uuid = safeGenerateUuid();
 
-    // Decorate the InputStream in order to compute the hash
+    // We need access to the first bytes in a form that we can reset the InputStream
+    ReadAheadInputStream prIs = ReadAheadInputStream.from(file.getInputStream(), READ_AHEAD_BUFFER_SIZE);
+
+    MediaTypeDetectionStrategy.MediaTypeDetectionResult mtdr = mediaTypeDetectionStrategy
+      .detectMediaType(prIs.getReadAheadBuffer(), file.getContentType(), file.getOriginalFilename());
+
     MessageDigest md = MessageDigest.getInstance(DIGEST_ALGORITHM);
-    DigestInputStream dis = new DigestInputStream(prIs.getInputStream(), md);
 
-    String filename = uuid.toString() + mtdr.getEvaluatedExtension();
-
-    minioService.storeFile(
-      filename,
-      dis,
-      mtdr.getEvaluatedMediaType(),
-      bucket,
-        false);
+    storeFile(bucket, uuid, mtdr, new DigestInputStream(prIs.getInputStream(), md), false);
 
     String sha1Hex = DigestUtils.sha1Hex(md.digest());
-
+    String fileExtension = mtdr.getEvaluatedMediaType();
     Map<String, String> exifData = extractExifData(file);
 
     boolean thumbnailIsSupported = thumbnailService.isSupported(fileExtension);
@@ -181,48 +153,49 @@ public class FileController {
       }
       return objectUpload;
     });
-    
-    if (thumbnailIsSupported) {
-      log.info("Generating a thumbnail for file with UUID of: {}", () -> createdObjectUpload.getFileIdentifier());
+
+    if (thumbnailIsSupported && createdObjectUpload != null) {
+      log.info("Generating a thumbnail for file with UUID of: {}", createdObjectUpload::getFileIdentifier);
       // Create the thumbnail asynchronously so the client doesn't have to wait during file upload:
-      thumbnailService.generateThumbnail(uuid, filename, fileExtension);
+      thumbnailService.generateThumbnail(uuid, uuid.toString() + mtdr.getEvaluatedExtension(), fileExtension);
     }
 
     return createdObjectUpload;
   }
 
   /**
-   * Triggers a download of a file. Note that the file requires a metadata entry in the database to
-   * be available for download.
-   * 
-   * @param bucket
-   * @param fileId
-   * @return
-   * @throws IOException
+   * Triggers a download of a file. Note that the file requires a metadata entry in the database to be
+   * available for download.
+   *
+   * @param bucket the bucket
+   * @param fileId the file id
+   * @return a response entity
    */
   @GetMapping("/file/{bucket}/{fileId}")
-  public ResponseEntity<InputStreamResource> downloadObject(@PathVariable String bucket,
-      @PathVariable String fileId) throws IOException {
+  public ResponseEntity<InputStreamResource> downloadObject(
+    @PathVariable String bucket,
+    @PathVariable String fileId
+  ) {
 
     boolean thumbnailRequested = fileId.endsWith(".thumbnail");
     String fileUuidString = thumbnailRequested ? fileId.replaceAll(".thumbnail$", "") : fileId;
     UUID fileUuid = UUID.fromString(fileUuidString);
-    
+
     try {
       Optional<ObjectStoreMetadata> loadedMetadata = objectStoreMetadataReadService
-          .loadObjectStoreMetadataByFileId(fileUuid);
+        .loadObjectStoreMetadataByFileId(fileUuid);
 
       ObjectStoreMetadata metadata = loadedMetadata
-          .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-              "No metadata found for FileIdentifier " + fileUuid + " or bucket " + bucket, null));
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+          "No metadata found for FileIdentifier " + fileUuid + " or bucket " + bucket, null));
 
-      String filename = thumbnailRequested ? 
-          metadata.getFileIdentifier() + ".thumbnail" + ThumbnailService.THUMBNAIL_EXTENSION
-        : metadata.getFilename();      
-     
+      String filename = thumbnailRequested ?
+        metadata.getFileIdentifier() + ".thumbnail" + ThumbnailService.THUMBNAIL_EXTENSION
+        : metadata.getFilename();
+
       FileObjectInfo foi = minioService.getFileInfo(filename, bucket, false).orElseThrow(() -> {
         String errorMsg = messageSource.getMessage("minio.file_or_bucket_not_found",
-            new Object[] { fileUuid, bucket }, LocaleContextHolder.getLocale());
+          new Object[]{fileUuid, bucket}, LocaleContextHolder.getLocale());
         return new ResponseStatusException(HttpStatus.NOT_FOUND, errorMsg, null);
       });
 
@@ -235,7 +208,8 @@ public class FileController {
       respHeaders.setContentLength(foi.getLength());
       respHeaders.setContentDispositionFormData("attachment", filename);
 
-      InputStream is = minioService.getFile(filename, bucket, false).orElseThrow( () -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+      InputStream is = minioService.getFile(filename, bucket, false)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
           "FileIdentifier " + fileUuid + " or bucket " + bucket + " Not Found", null));
 
       InputStreamResource isr = new InputStreamResource(is);
@@ -243,16 +217,17 @@ public class FileController {
     } catch (IOException e) {
       log.warn("Can't download object", e);
     }
-   
+
     throw new ResponseStatusException(
-        HttpStatus.INTERNAL_SERVER_ERROR, null);
+      HttpStatus.INTERNAL_SERVER_ERROR, null);
   }
 
   /**
-   * Even if it's almost impossible, we need to make sure that the UUID is not already in use otherwise we will
-   * overwrite the previous file.
-   * @return
-   * @throws IllegalStateException
+   * Even if it's almost impossible, we need to make sure that the UUID is not already in use otherwise we
+   * will overwrite the previous file.
+   *
+   * @return the generated UUID
+   * @throws IllegalStateException if a uuid cannot be assigned.
    */
   private UUID generateUUID() throws IllegalStateException {
     int numberOfAttempt = 0;
@@ -279,35 +254,38 @@ public class FileController {
 
   /**
    * Authenticates the DinaAuthenticatedUser for a given bucket.
-   * 
-   * @param bucket
-   *                 - bucket to validate.
-   * @throws UnauthorizedException
-   *                                 If the DinaAuthenticatedUser does not have
-   *                                 access to the given bucket
+   *
+   * @param bucket - bucket to validate.
+   * @throws UnauthorizedException If the DinaAuthenticatedUser does not have access to the given bucket
    */
   private void authenticateBucket(String bucket) {
     if (!authenticatedUser.getGroups().contains(bucket)) {
       throw new UnauthorizedException(
-          "You are not authorized for bucket: " + bucket
+        "You are not authorized for bucket: " + bucket
           + ". Expected buckets: " + StringUtils.join(authenticatedUser.getGroups(), ", "));
     }
   }
 
-  private UUID safeGenerateUuid() {
-    UUID uuid = transactionTemplate.execute(transactionStatus -> generateUUID());
-    if (uuid == null) {
-      throw new IllegalStateException("Can't assign unique UUID.");
-    }
-    return uuid;
-  }
+  private void storeFile(
+    String bucket,
+    UUID uuid,
+    MediaTypeDetectionStrategy.MediaTypeDetectionResult mtdr,
+    DigestInputStream iStream,
+    boolean isDerivative
+  ) throws IOException, InvalidKeyException, ErrorResponseException, InsufficientDataException, InternalException, InvalidBucketNameException, InvalidResponseException, NoSuchAlgorithmException, XmlParserException, ServerException {
+    // make sure we have an authenticatedUser
+    checkAuthenticatedUser();
+    authenticateBucket(bucket);
 
-  private Map<String, String> extractExifData(@RequestParam("file") MultipartFile file) throws IOException {
-    Map<String, String> exifData;
-    try (InputStream exifIs = file.getInputStream()) {
-      exifData = ExifParser.extractExifTags(exifIs);
-    }
-    return exifData;
+    // make bucket if it does not exist
+    minioService.ensureBucketExists(bucket);
+
+    minioService.storeFile(
+      uuid.toString() + mtdr.getEvaluatedExtension(),
+      iStream,
+      mtdr.getEvaluatedMediaType(),
+      bucket,
+      isDerivative);
   }
 
   private ObjectUpload createObjectUpload(
@@ -334,6 +312,22 @@ public class FileController {
       .exif(exifData)
       .isDerivative(isDerivative)
       .build());
+  }
+
+  private UUID safeGenerateUuid() {
+    UUID uuid = transactionTemplate.execute(transactionStatus -> generateUUID());
+    if (uuid == null) {
+      throw new IllegalStateException("Can't assign unique UUID.");
+    }
+    return uuid;
+  }
+
+  private Map<String, String> extractExifData(@RequestParam("file") MultipartFile file) throws IOException {
+    Map<String, String> exifData;
+    try (InputStream exifIs = file.getInputStream()) {
+      exifData = ExifParser.extractExifTags(exifIs);
+    }
+    return exifData;
   }
 
 }
