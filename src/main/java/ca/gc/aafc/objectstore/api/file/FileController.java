@@ -6,6 +6,7 @@ import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.exif.ExifParser;
 import ca.gc.aafc.objectstore.api.minio.MinioFileService;
+import ca.gc.aafc.objectstore.api.service.DerivativeService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataReadService;
 import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
 import io.crnk.core.exception.UnauthorizedException;
@@ -61,6 +62,7 @@ public class FileController {
   private static final int READ_AHEAD_BUFFER_SIZE = 10 * 1024;
 
   private final ObjectUploadService objectUploadService;
+  private final DerivativeService derivativeService;
   private final MinioFileService minioService;
   private final ObjectStoreMetadataReadService objectStoreMetadataReadService;
   private final MediaTypeDetectionStrategy mediaTypeDetectionStrategy;
@@ -75,6 +77,7 @@ public class FileController {
   public FileController(
     MinioFileService minioService,
     ObjectUploadService objectUploadService,
+    DerivativeService derivativeService,
     ObjectStoreMetadataReadService objectStoreMetadataReadService,
     MediaTypeDetectionStrategy mediaTypeDetectionStrategy,
     ThumbnailService thumbnailService,
@@ -90,6 +93,7 @@ public class FileController {
     this.authenticatedUser = authenticatedUser;
     this.messageSource = messageSource;
     this.transactionTemplate = transactionTemplate;
+    this.derivativeService = derivativeService;
   }
 
   @PostMapping("/file/{bucket}/derivative")
@@ -206,11 +210,8 @@ public class FileController {
         metadata.getFileIdentifier() + ".thumbnail" + ThumbnailService.THUMBNAIL_EXTENSION
         : metadata.getFilename();
 
-      FileObjectInfo foi = minioService.getFileInfo(filename, bucket, false).orElseThrow(() -> {
-        String errorMsg = messageSource.getMessage("minio.file_or_bucket_not_found",
-          new Object[]{fileUuid, bucket}, LocaleContextHolder.getLocale());
-        return new ResponseStatusException(HttpStatus.NOT_FOUND, errorMsg, null);
-      });
+      FileObjectInfo foi = minioService.getFileInfo(filename, bucket, false)
+        .orElseThrow(() -> getNotFoundException(bucket, fileUuid));
 
       HttpHeaders respHeaders = getHttpHeaders(
         filename,
@@ -237,31 +238,23 @@ public class FileController {
     @PathVariable UUID fileId
   ) throws IOException {
 
-    if (!objectUploadService.exists(ObjectUpload.class, fileId) || hasNoDerivativeRecord(fileId)) {
+    Optional<Derivative> derivativeOptional = derivativeService.findByFileId(fileId);
+
+    if (derivativeOptional.isEmpty()) {
       throw getNotFoundException(bucket, fileId);
     }
 
-    ObjectUpload uploadRecord = objectUploadService.findOne(fileId, ObjectUpload.class);
+    Derivative derivative = derivativeOptional.get();
+    String fileName = derivative.getFileIdentifier() + derivative.getFileExtension();
 
-    String fileName = uploadRecord.getFileIdentifier() + uploadRecord.getEvaluatedFileExtension();
+    FileObjectInfo foi = minioService.getFileInfo(fileName, bucket, true)
+      .orElseThrow(() -> getNotFoundException(bucket, fileId));
+
     InputStream is = minioService.getFile(fileName, bucket, true)
       .orElseThrow(() -> getNotFoundException(bucket, fileId));
 
-    HttpHeaders headers = getHttpHeaders(
-      fileName, uploadRecord.getDetectedMediaType(), uploadRecord.getSizeInBytes());
+    HttpHeaders headers = getHttpHeaders(fileName, foi.getContentType(), foi.getLength());
     return new ResponseEntity<>(new InputStreamResource(is), headers, HttpStatus.OK);
-  }
-
-  /**
-   * Returns true if a given file id is not an identifier for a existing Derivative record.
-   *
-   * @param fileId id to validate
-   * @return true if a given file id is not an identifier for a existing Derivative record.
-   */
-  private boolean hasNoDerivativeRecord(UUID fileId) {
-    return objectUploadService.findAll(Derivative.class, (criteriaBuilder, root) -> new Predicate[]{
-      criteriaBuilder.equal(root.get("fileIdentifier"), fileId)}, null, 0, 1)
-      .size() == 0;
   }
 
   /**
@@ -271,9 +264,12 @@ public class FileController {
    * @param fileId the file id
    * @return a ResponseStatusException Not found
    */
-  private static ResponseStatusException getNotFoundException(String bucket, UUID fileId) {
+  private ResponseStatusException getNotFoundException(String bucket, UUID fileId) {
     return new ResponseStatusException(
-      HttpStatus.NOT_FOUND, "FileIdentifier " + fileId + " or bucket " + bucket + " Not Found", null);
+      HttpStatus.NOT_FOUND,
+      messageSource.getMessage(
+        "minio.file_or_bucket_not_found", new Object[]{fileId, bucket}, LocaleContextHolder.getLocale()),
+      null);
   }
 
   /**

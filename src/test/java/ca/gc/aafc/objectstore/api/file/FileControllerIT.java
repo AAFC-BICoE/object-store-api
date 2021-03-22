@@ -178,7 +178,7 @@ public class FileControllerIT extends BaseIntegrationTest {
     derivativeService.create(Derivative.builder()
       .fileIdentifier(uploadResponse.getFileIdentifier())
       .bucket(uploadResponse.getBucket())
-      .fileExtension(uploadResponse.getDetectedFileExtension())
+      .fileExtension(uploadResponse.getEvaluatedFileExtension())
       .dcType(DcType.IMAGE)
       .createdBy("dina")
       .build());
