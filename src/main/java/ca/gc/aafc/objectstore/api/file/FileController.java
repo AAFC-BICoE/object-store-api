@@ -252,7 +252,6 @@ public class FileController {
       isDerivative);
   }
 
-
   private ObjectUpload createObjectUpload(
     MultipartFile file,
     String bucket,
@@ -278,8 +277,6 @@ public class FileController {
       .isDerivative(isDerivative)
       .build());
   }
-
-
 
   private Map<String, String> extractExifData(@RequestParam("file") MultipartFile file) throws IOException {
     Map<String, String> exifData;
