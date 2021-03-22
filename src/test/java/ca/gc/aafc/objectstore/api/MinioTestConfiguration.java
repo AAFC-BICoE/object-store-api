@@ -144,7 +144,7 @@ public class MinioTestConfiguration {
     private final Map<String, byte[]> INTERNAL_OBJECTS = new HashMap<>();
 
     public MinioClientStub() {
-      super(MinioClient.builder().build());      
+      super(MinioClient.builder().endpoint("http://localhost").build());      
     }
     
     @Override
