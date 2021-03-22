@@ -11,7 +11,6 @@ import io.crnk.core.exception.UnauthorizedException;
 import io.minio.errors.ErrorResponseException;
 import io.minio.errors.InsufficientDataException;
 import io.minio.errors.InternalException;
-import io.minio.errors.InvalidBucketNameException;
 import io.minio.errors.InvalidResponseException;
 import io.minio.errors.ServerException;
 import io.minio.errors.XmlParserException;
@@ -96,8 +95,7 @@ public class FileController {
     @RequestParam("file") MultipartFile file,
     @PathVariable String bucket
   ) throws IOException, MimeTypeException, NoSuchAlgorithmException, ServerException, ErrorResponseException,
-    InternalException, XmlParserException, InvalidResponseException, InvalidBucketNameException,
-    InsufficientDataException, InvalidKeyException {
+    InternalException, XmlParserException, InvalidResponseException, InsufficientDataException, InvalidKeyException {
     //Authenticate before anything else
     handleAuthentication(bucket);
 
@@ -128,7 +126,7 @@ public class FileController {
   public ObjectUpload handleFileUpload(
     @RequestParam("file") MultipartFile file,
     @PathVariable String bucket
-  ) throws InvalidKeyException, NoSuchAlgorithmException, InvalidBucketNameException, ErrorResponseException,
+  ) throws InvalidKeyException, NoSuchAlgorithmException, ErrorResponseException,
     InternalException, InsufficientDataException, InvalidResponseException, MimeTypeException, XmlParserException,
     IOException, ServerException {
     //Authenticate before anything else
@@ -250,7 +248,7 @@ public class FileController {
     InputStream iStream,
     boolean isDerivative
   ) throws IOException, InvalidKeyException, ErrorResponseException, InsufficientDataException, InternalException,
-    InvalidBucketNameException, InvalidResponseException, NoSuchAlgorithmException, XmlParserException, ServerException {
+    InvalidResponseException, NoSuchAlgorithmException, XmlParserException, ServerException {
     // make bucket if it does not exist
     minioService.ensureBucketExists(bucket);
 

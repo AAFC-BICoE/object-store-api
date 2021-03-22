@@ -5,20 +5,17 @@ import ca.gc.aafc.objectstore.api.file.FileObjectInfo;
 import ca.gc.aafc.objectstore.api.file.FolderStructureStrategy;
 import com.google.common.collect.Streams;
 import io.minio.BucketExistsArgs;
-import io.minio.ErrorCode;
 import io.minio.GetObjectArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
-import io.minio.ObjectStat;
 import io.minio.PutObjectArgs;
 import io.minio.RemoveObjectArgs;
 import io.minio.StatObjectArgs;
+import io.minio.StatObjectResponse;
 import io.minio.errors.ErrorResponseException;
 import io.minio.errors.InsufficientDataException;
 import io.minio.errors.InternalException;
-import io.minio.errors.InvalidBucketNameException;
 import io.minio.errors.InvalidResponseException;
-import io.minio.errors.RegionConflictException;
 import io.minio.errors.ServerException;
 import io.minio.errors.XmlParserException;
 import lombok.extern.log4j.Log4j2;
@@ -76,9 +73,7 @@ public class MinioFileService implements FileInformationService {
   }
 
   private static boolean isNotFoundException(ErrorResponseException erEx) {
-    return ErrorCode.NO_SUCH_KEY == erEx.errorResponse().errorCode()
-        || ErrorCode.NO_SUCH_OBJECT == erEx.errorResponse().errorCode()
-        || ErrorCode.NO_SUCH_BUCKET == erEx.errorResponse().errorCode();
+    return "NO_SUCH_BUCKET" == erEx.errorResponse().code()
   }
 
   /**
@@ -96,7 +91,6 @@ public class MinioFileService implements FileInformationService {
    * @throws IllegalArgumentException
    * @throws InsufficientDataException
    * @throws InternalException
-   * @throws InvalidBucketNameException
    * @throws InvalidResponseException
    * @throws NoSuchAlgorithmException
    * @throws XmlParserException
@@ -104,8 +98,7 @@ public class MinioFileService implements FileInformationService {
    */
   public void storeFile(String fileName, InputStream iStream, String contentType, String bucket, boolean isDerivative)
       throws InvalidKeyException, ErrorResponseException, IllegalArgumentException,
-      InsufficientDataException, InternalException, InvalidBucketNameException,
-      InvalidResponseException, NoSuchAlgorithmException, XmlParserException, IOException, ServerException {
+      InsufficientDataException, InternalException, InvalidResponseException, NoSuchAlgorithmException, XmlParserException, IOException, ServerException {
 
     minioClient.putObject(PutObjectArgs.builder()
         .bucket(bucket)
@@ -129,11 +122,9 @@ public class MinioFileService implements FileInformationService {
       }
     } catch (InvalidKeyException | ErrorResponseException | IllegalArgumentException
         | InsufficientDataException | InternalException
-        | InvalidResponseException | NoSuchAlgorithmException | RegionConflictException
+        | InvalidResponseException | NoSuchAlgorithmException 
         | XmlParserException | ServerException e) {
       throw new IOException(e);
-    } catch (InvalidBucketNameException ibnEx) {
-      throw new IllegalStateException(ibnEx);
     }
   }
 
@@ -142,7 +133,7 @@ public class MinioFileService implements FileInformationService {
     try {
       return minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build());
     } catch (InvalidKeyException | ErrorResponseException | IllegalArgumentException | InsufficientDataException
-        | InternalException | InvalidBucketNameException | InvalidResponseException | NoSuchAlgorithmException |
+        | InternalException | InvalidResponseException | NoSuchAlgorithmException |
         XmlParserException | IOException | ServerException e) {
       log.warn("bucketExists exception", e);
     }
@@ -163,7 +154,7 @@ public class MinioFileService implements FileInformationService {
       }
       throw new IOException(erEx);
     } catch (InvalidKeyException | IllegalArgumentException | InsufficientDataException
-        | InternalException | InvalidBucketNameException | InvalidResponseException
+        | InternalException | InvalidResponseException
         | NoSuchAlgorithmException | XmlParserException | ServerException e) {
       throw new IOException(e);
     }
@@ -173,7 +164,7 @@ public class MinioFileService implements FileInformationService {
    * See {@link FileInformationService#getFileInfo(String, String)}
    */
   public Optional<FileObjectInfo> getFileInfo(String fileName, String bucketName, boolean isDerivative) throws IOException {
-    ObjectStat objectStat;
+    StatObjectResponse objectStat;
     try {
       objectStat = minioClient.statObject(
           StatObjectArgs.builder()
@@ -181,19 +172,18 @@ public class MinioFileService implements FileInformationService {
               .object(getFileLocation(fileName, isDerivative)).build());
       
       return Optional.of(FileObjectInfo.builder()
-          .length(objectStat.length())
+          .length(objectStat.size())
           .contentType(objectStat.contentType())
-          .headerMap(objectStat.httpHeaders())
+          .headerMap(objectStat.headers())
           .build());
     } catch (ErrorResponseException erEx) {
-      if (ErrorCode.NO_SUCH_KEY == erEx.errorResponse().errorCode()
-          || ErrorCode.NO_SUCH_BUCKET == erEx.errorResponse().errorCode()) {
+      if ("NO_SUCH_BUCKET" == erEx.errorResponse().code()) {
         log.debug("file: {}, bucket: {} : not found", () -> fileName, () -> bucketName);
         return Optional.empty();
       }
       throw new IOException(erEx);
     } catch (InvalidKeyException | IllegalArgumentException | InsufficientDataException
-        | InternalException | InvalidBucketNameException | InvalidResponseException
+        | InternalException | InvalidResponseException
         | NoSuchAlgorithmException | XmlParserException | ServerException e) {
       throw new IOException(e);
     }
@@ -202,7 +192,7 @@ public class MinioFileService implements FileInformationService {
   public void removeFile(String bucket, String fileName) throws IOException {
     try {
       minioClient.removeObject(RemoveObjectArgs.builder().bucket(bucket).object(fileName).build());
-    } catch (ErrorResponseException | InvalidBucketNameException | InsufficientDataException
+    } catch (ErrorResponseException | InsufficientDataException
       | InternalException | InvalidKeyException | InvalidResponseException |
       NoSuchAlgorithmException | ServerException | XmlParserException e) {
       throw new IOException(e);
