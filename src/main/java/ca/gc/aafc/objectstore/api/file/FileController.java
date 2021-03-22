@@ -237,19 +237,23 @@ public class FileController {
     UUID uuid = UUID.fromString(fileId);
 
     if (!objectUploadService.exists(ObjectUpload.class, uuid)) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-        "FileIdentifier " + fileId + " or bucket " + bucket + " Not Found", null);
+      throw getNotFoundException(bucket, fileId);
     }
 
     ObjectUpload uploadRecord = objectUploadService.findOne(uuid, ObjectUpload.class);
 
     String fileName = uploadRecord.getFileIdentifier() + uploadRecord.getEvaluatedFileExtension();
-    InputStream is = minioService.getFile(fileName, bucket, true).orElseThrow(
-      () -> new ResponseStatusException(
-        HttpStatus.NOT_FOUND, "FileIdentifier " + fileId + " or bucket " + bucket + " Not Found", null));
+    InputStream is = minioService.getFile(fileName, bucket, true)
+      .orElseThrow(() -> getNotFoundException(bucket, fileId));
 
-    HttpHeaders headers = getHttpHeaders(fileName, uploadRecord.getDetectedMediaType(), uploadRecord.getSizeInBytes());
+    HttpHeaders headers = getHttpHeaders(
+      fileName, uploadRecord.getDetectedMediaType(), uploadRecord.getSizeInBytes());
     return new ResponseEntity<>(new InputStreamResource(is), headers, HttpStatus.OK);
+  }
+
+  private ResponseStatusException getNotFoundException(String bucket, String fileId) {
+    return new ResponseStatusException(
+      HttpStatus.NOT_FOUND, "FileIdentifier " + fileId + " or bucket " + bucket + " Not Found", null);
   }
 
   private static HttpHeaders getHttpHeaders(String filename, String mediaType, long contentLength) {
