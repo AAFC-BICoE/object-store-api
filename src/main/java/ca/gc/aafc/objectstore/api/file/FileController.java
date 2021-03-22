@@ -233,6 +233,27 @@ public class FileController {
       HttpStatus.INTERNAL_SERVER_ERROR, null);
   }
 
+  @GetMapping("/file/{bucket}/derivative/{fileId}")
+  public ResponseEntity<InputStreamResource> downloadDerivative(
+    @PathVariable String bucket,
+    @PathVariable String fileId
+  ) throws IOException {
+    UUID uuid = UUID.fromString(fileId);
+
+    if (!objectUploadService.exists(ObjectUpload.class, uuid)) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+        "FileIdentifier " + fileId + " or bucket " + bucket + " Not Found", null);
+    }
+
+    ObjectUpload uploadRecord = objectUploadService.findOne(uuid, ObjectUpload.class);
+
+    InputStream is = minioService.getFile(uploadRecord.getOriginalFilename(), bucket, true)
+      .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+        "FileIdentifier " + fileId + " or bucket " + bucket + " Not Found", null));
+
+    return new ResponseEntity<>(new InputStreamResource(is), new HttpHeaders(), HttpStatus.OK);
+  }
+
   /**
    * Stores a given input stream
    *
@@ -336,27 +357,6 @@ public class FileController {
       throw new IllegalStateException("Can't assign unique UUID.");
     }
     return uuid;
-  }
-
-  @GetMapping("/file/{bucket}/derivative/{fileId}")
-  public ResponseEntity<InputStreamResource> downloadDerivative(
-    @PathVariable String bucket,
-    @PathVariable String fileId
-  ) throws IOException {
-    UUID uuid = UUID.fromString(fileId);
-
-    if (!objectUploadService.exists(ObjectUpload.class, uuid)) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-        "FileIdentifier " + fileId + " or bucket " + bucket + " Not Found", null);
-    }
-
-    ObjectUpload uploadRecord = objectUploadService.findOne(uuid, ObjectUpload.class);
-
-    InputStream is = minioService.getFile(uploadRecord.getOriginalFilename(), bucket, true)
-      .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-        "FileIdentifier " + fileId + " or bucket " + bucket + " Not Found", null));
-
-    return new ResponseEntity<>(new InputStreamResource(is), new HttpHeaders(), HttpStatus.OK);
   }
 
   /**
