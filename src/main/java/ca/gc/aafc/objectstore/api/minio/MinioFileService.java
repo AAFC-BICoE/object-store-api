@@ -73,7 +73,7 @@ public class MinioFileService implements FileInformationService {
   }
 
   private static boolean isNotFoundException(ErrorResponseException erEx) {
-    return "NO_SUCH_BUCKET" == erEx.errorResponse().code()
+    return "NO_SUCH_BUCKET" == erEx.errorResponse().code();
   }
 
   /**
@@ -174,7 +174,7 @@ public class MinioFileService implements FileInformationService {
       return Optional.of(FileObjectInfo.builder()
           .length(objectStat.size())
           .contentType(objectStat.contentType())
-          .headerMap(objectStat.headers())
+          .headerMap(objectStat.headers().toMultimap())
           .build());
     } catch (ErrorResponseException erEx) {
       if ("NO_SUCH_BUCKET" == erEx.errorResponse().code()) {
