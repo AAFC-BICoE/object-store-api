@@ -17,6 +17,7 @@ import io.minio.errors.InvalidBucketNameException;
 import io.minio.errors.InvalidResponseException;
 import io.minio.errors.ServerException;
 import io.minio.errors.XmlParserException;
+import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -116,8 +117,8 @@ public class FileController {
   }
 
   private ObjectUpload handleUpload(
-    @RequestParam("file") MultipartFile file,
-    @PathVariable String bucket,
+    @NonNull MultipartFile file,
+    @NonNull String bucket,
     boolean isDerivative
   ) throws IOException, MimeTypeException, NoSuchAlgorithmException, InvalidKeyException, ErrorResponseException,
     InsufficientDataException, InternalException, InvalidBucketNameException, InvalidResponseException,
