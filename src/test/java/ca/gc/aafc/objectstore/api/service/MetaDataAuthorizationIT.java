@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
 
 import javax.inject.Inject;
@@ -36,6 +37,7 @@ public class MetaDataAuthorizationIT extends BaseIntegrationTest {
   void setUp() {
     testObjectUpload = ObjectUploadFactory.newObjectUpload().build();
     testObjectUpload.setDcType(DcType.TEXT);
+    testObjectUpload.setEvaluatedMediaType(MediaType.TEXT_PLAIN_VALUE);
     service.save(testObjectUpload);
     persisted = persistMeta(GROUP_1);
   }
