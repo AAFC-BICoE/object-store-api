@@ -149,6 +149,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
       null, 0, 1).stream().findFirst().orElse(null);
     assertNotNull(child);
     assertNotNull(child.getAcDerivedFrom());
+    assertNotNull(child.getObjectSubtype());
     assertEquals(parentUuid, child.getAcDerivedFrom().getUuid());
   }
 
