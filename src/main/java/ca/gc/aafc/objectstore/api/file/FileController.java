@@ -147,31 +147,14 @@ public class FileController {
 
     storeFile(bucket, uuid, mtdr, new DigestInputStream(prIs.getInputStream(), md), false);
 
-    String sha1Hex = DigestUtils.sha1Hex(md.digest());
-    String fileExtension = mtdr.getEvaluatedMediaType();
-    Map<String, String> exifData = extractExifData(file);
-
-    boolean thumbnailIsSupported = thumbnailService.isSupported(fileExtension);
-
-    ObjectUpload createdObjectUpload = transactionTemplate.execute(transactionStatus -> {
-      // record the uploaded object to ensure we eventually get the metadata for it
-      ObjectUpload objectUpload = createObjectUpload(file, bucket, mtdr, uuid, sha1Hex, exifData, false);
-
-      if (thumbnailIsSupported) {
-        UUID thumbnailID = generateUUID();
-        objectUpload.setThumbnailIdentifier(thumbnailID);
-        objectUploadService.update(objectUpload);
-      }
-      return objectUpload;
-    });
-
-    if (thumbnailIsSupported && createdObjectUpload != null) {
-      log.info("Generating a thumbnail for file with UUID of: {}", createdObjectUpload::getFileIdentifier);
-      // Create the thumbnail asynchronously so the client doesn't have to wait during file upload:
-      thumbnailService.generateThumbnail(uuid, uuid.toString() + mtdr.getEvaluatedExtension(), fileExtension);
-    }
-
-    return createdObjectUpload;
+    return createObjectUpload(
+      file,
+      bucket,
+      mtdr,
+      uuid,
+      DigestUtils.sha1Hex(md.digest()),
+      extractExifData(file),
+      false);
   }
 
   /**
