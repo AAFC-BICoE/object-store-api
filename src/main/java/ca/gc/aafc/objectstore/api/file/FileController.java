@@ -39,6 +39,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.inject.Inject;
+import javax.persistence.criteria.Predicate;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.io.InputStream;
@@ -218,6 +219,24 @@ public class FileController {
 
     HttpHeaders headers = buildHttpHeaders(fileName, foi.getContentType(), foi.getLength());
     return new ResponseEntity<>(new InputStreamResource(is), headers, HttpStatus.OK);
+  }
+
+  @GetMapping("/file/{bucket}/{fileId}/thumbnail")
+  @Transactional
+  public ResponseEntity<InputStreamResource> downloadThumbNail(
+    @PathVariable String bucket,
+    @PathVariable UUID fileId
+  ) throws IOException {
+    ObjectStoreMetadata objectStoreMetadata = objectStoreMetadataReadService
+      .loadObjectStoreMetadataByFileId(fileId)
+      .orElseThrow(() -> buildNotFoundException(bucket, fileId));
+
+    Derivative derivative = derivativeService.findAll(Derivative.class,
+      (criteriaBuilder, root) -> new Predicate[]{
+        criteriaBuilder.equal(root.get("acDerivedFrom"), objectStoreMetadata)},
+      null, 0, 1).stream().findFirst()
+      .orElseThrow(() -> buildNotFoundException(bucket, fileId));
+    return downloadDerivative(bucket, derivative.getFileIdentifier());
   }
 
   /**
