@@ -39,6 +39,12 @@ public class MinioFileService implements FileInformationService {
   // 10MiB
   private static final int DEFAULT_PART_SIZE = 10 * 1024 * 1024;
 
+  //Minio client constants for not found category
+  private static final String NO_SUCH_BUCKET = "NO_SUCH_BUCKET";
+  private static final String NO_SUCH_KEY = "NoSuchKey";
+  private static final String NO_SUCH_OBJECT = "ResourceNotFound";
+
+
   private final MinioClient minioClient;
   private final FolderStructureStrategy folderStructureStrategy;
 
@@ -73,7 +79,8 @@ public class MinioFileService implements FileInformationService {
   }
 
   private static boolean isNotFoundException(ErrorResponseException erEx) {
-    return "NO_SUCH_BUCKET".equals(erEx.errorResponse().code());
+    return NO_SUCH_BUCKET.equals(erEx.errorResponse().code()) || NO_SUCH_KEY.equals(erEx.errorResponse().code())
+        || NO_SUCH_OBJECT.equals(erEx.errorResponse().code());
   }
 
   /**
