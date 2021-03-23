@@ -21,7 +21,7 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
     entity.setUuid(UUID.randomUUID());
   }
 
-  public Optional<Derivative> findByFileId(UUID fileId){
+  public Optional<Derivative> findByFileId(UUID fileId) {
     return this.findAll(Derivative.class, (criteriaBuilder, root) -> new Predicate[]{
       criteriaBuilder.equal(root.get("fileIdentifier"), fileId)}, null, 0, 1).stream().findFirst();
   }
