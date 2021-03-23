@@ -203,7 +203,7 @@ public class ObjectStoreResourceRepository
       UUID uuid = UUID.randomUUID();
       String bucket = objectUpload.getBucket();
 
-      Derivative derivative = Derivative.builder()
+      derivativeService.create(Derivative.builder()
         .createdBy(ThumbnailService.SYSTEM_GENERATED)
         .dcType(ThumbnailService.THUMBNAIL_DC_TYPE)
         .fileExtension(ThumbnailService.THUMBNAIL_EXTENSION)
@@ -213,9 +213,8 @@ public class ObjectStoreResourceRepository
         .acDerivedFrom(
           derivativeService.getReferenceByNaturalId(ObjectStoreMetadata.class, resource.getUuid()))
         .objectSubtype(derivativeService.getThumbNailSubType())
-        .build();
+        .build());
 
-      derivativeService.create(derivative);
       thumbnailService.generateThumbnail(
         uuid,
         objectUpload.getFileIdentifier() + objectUpload.getEvaluatedFileExtension(),
