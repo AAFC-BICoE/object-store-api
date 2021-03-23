@@ -1,10 +1,12 @@
 package ca.gc.aafc.objectstore.api.file;
 
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
+import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.exif.ExifParser;
 import ca.gc.aafc.objectstore.api.minio.MinioFileService;
+import ca.gc.aafc.objectstore.api.service.DerivativeService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataReadService;
 import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
 import io.crnk.core.exception.UnauthorizedException;
@@ -59,6 +61,7 @@ public class FileController {
   private static final int READ_AHEAD_BUFFER_SIZE = 10 * 1024;
 
   private final ObjectUploadService objectUploadService;
+  private final DerivativeService derivativeService;
   private final MinioFileService minioService;
   private final ObjectStoreMetadataReadService objectStoreMetadataReadService;
   private final MediaTypeDetectionStrategy mediaTypeDetectionStrategy;
@@ -73,6 +76,7 @@ public class FileController {
   public FileController(
     MinioFileService minioService,
     ObjectUploadService objectUploadService,
+    DerivativeService derivativeService,
     ObjectStoreMetadataReadService objectStoreMetadataReadService,
     MediaTypeDetectionStrategy mediaTypeDetectionStrategy,
     ThumbnailService thumbnailService,
@@ -88,6 +92,7 @@ public class FileController {
     this.authenticatedUser = authenticatedUser;
     this.messageSource = messageSource;
     this.transactionTemplate = transactionTemplate;
+    this.derivativeService = derivativeService;
   }
 
   @PostMapping("/file/{bucket}/derivative")
@@ -204,24 +209,16 @@ public class FileController {
         metadata.getFileIdentifier() + ".thumbnail" + ThumbnailService.THUMBNAIL_EXTENSION
         : metadata.getFilename();
 
-      FileObjectInfo foi = minioService.getFileInfo(filename, bucket, false).orElseThrow(() -> {
-        String errorMsg = messageSource.getMessage("minio.file_or_bucket_not_found",
-          new Object[]{fileUuid, bucket}, LocaleContextHolder.getLocale());
-        return new ResponseStatusException(HttpStatus.NOT_FOUND, errorMsg, null);
-      });
+      FileObjectInfo foi = minioService.getFileInfo(filename, bucket, false)
+        .orElseThrow(() -> buildNotFoundException(bucket, fileUuid));
 
-      HttpHeaders respHeaders = new HttpHeaders();
-      respHeaders.setContentType(
-        org.springframework.http.MediaType.parseMediaType(
-          thumbnailRequested ? "image/jpeg" : metadata.getDcFormat()
-        )
-      );
-      respHeaders.setContentLength(foi.getLength());
-      respHeaders.setContentDispositionFormData("attachment", filename);
+      HttpHeaders respHeaders = buildHttpHeaders(
+        filename,
+        thumbnailRequested ? "image/jpeg" : metadata.getDcFormat(),
+        foi.getLength());
 
       InputStream is = minioService.getFile(filename, bucket, false)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-          "FileIdentifier " + fileUuid + " or bucket " + bucket + " Not Found", null));
+        .orElseThrow(() -> buildNotFoundException(bucket, fileUuid));
 
       InputStreamResource isr = new InputStreamResource(is);
       return new ResponseEntity<>(isr, respHeaders, HttpStatus.OK);
@@ -231,6 +228,63 @@ public class FileController {
 
     throw new ResponseStatusException(
       HttpStatus.INTERNAL_SERVER_ERROR, null);
+  }
+
+  @GetMapping("/file/{bucket}/derivative/{fileId}")
+  @Transactional
+  public ResponseEntity<InputStreamResource> downloadDerivative(
+    @PathVariable String bucket,
+    @PathVariable UUID fileId
+  ) throws IOException {
+
+    Derivative derivative = derivativeService.findByFileId(fileId)
+        .orElseThrow(() -> buildNotFoundException(bucket, fileId));
+
+    String fileName = derivative.getFileIdentifier() + derivative.getFileExtension();
+
+    FileObjectInfo foi = minioService.getFileInfo(fileName, bucket, true)
+      .orElseThrow(() -> buildNotFoundException(bucket, fileId));
+
+    InputStream is = minioService.getFile(fileName, bucket, true)
+      .orElseThrow(() -> buildNotFoundException(bucket, fileId));
+
+    HttpHeaders headers = buildHttpHeaders(fileName, foi.getContentType(), foi.getLength());
+    return new ResponseEntity<>(new InputStreamResource(is), headers, HttpStatus.OK);
+  }
+
+  /**
+   * Utility method to generate a NOT_FOUND ResponseStatusException based on the given parameters.
+   *
+   * @param bucket the bucket
+   * @param fileId the file id
+   * @return a ResponseStatusException Not found
+   */
+  private ResponseStatusException buildNotFoundException(String bucket, UUID fileId) {
+    return new ResponseStatusException(
+      HttpStatus.NOT_FOUND,
+      messageSource.getMessage(
+        "minio.file_or_bucket_not_found", new Object[]{fileId, bucket}, LocaleContextHolder.getLocale()),
+      null);
+  }
+
+  /**
+   * Utility method to generate HttpHeaders based on the given parameters
+   *
+   * @param filename      name of the file
+   * @param mediaType     media type of the file
+   * @param contentLength length of the file
+   * @return HttpHeaders based on the given parameters
+   */
+  private static HttpHeaders buildHttpHeaders(String filename, String mediaType, long contentLength) {
+    HttpHeaders respHeaders = new HttpHeaders();
+    respHeaders.setContentType(
+      org.springframework.http.MediaType.parseMediaType(
+        mediaType
+      )
+    );
+    respHeaders.setContentLength(contentLength);
+    respHeaders.setContentDispositionFormData("attachment", filename);
+    return respHeaders;
   }
 
   /**
