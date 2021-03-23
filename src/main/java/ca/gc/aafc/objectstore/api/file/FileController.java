@@ -158,46 +158,16 @@ public class FileController {
    * @return a response entity
    */
   @GetMapping("/file/{bucket}/{fileId}")
+  @Transactional
   public ResponseEntity<InputStreamResource> downloadObject(
     @PathVariable String bucket,
-    @PathVariable String fileId
-  ) {
-
-    boolean thumbnailRequested = fileId.endsWith(".thumbnail");
-    String fileUuidString = thumbnailRequested ? fileId.replaceAll(".thumbnail$", "") : fileId;
-    UUID fileUuid = UUID.fromString(fileUuidString);
-
-    try {
-      Optional<ObjectStoreMetadata> loadedMetadata = objectStoreMetadataReadService
-        .loadObjectStoreMetadataByFileId(fileUuid);
-
-      ObjectStoreMetadata metadata = loadedMetadata
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-          "No metadata found for FileIdentifier " + fileUuid + " or bucket " + bucket, null));
-
-      String filename = thumbnailRequested ?
-        metadata.getFileIdentifier() + ".thumbnail" + ThumbnailService.THUMBNAIL_EXTENSION
-        : metadata.getFilename();
-
-      FileObjectInfo foi = minioService.getFileInfo(filename, bucket, false)
-        .orElseThrow(() -> buildNotFoundException(bucket, fileUuid));
-
-      HttpHeaders respHeaders = buildHttpHeaders(
-        filename,
-        thumbnailRequested ? "image/jpeg" : metadata.getDcFormat(),
-        foi.getLength());
-
-      InputStream is = minioService.getFile(filename, bucket, false)
-        .orElseThrow(() -> buildNotFoundException(bucket, fileUuid));
-
-      InputStreamResource isr = new InputStreamResource(is);
-      return new ResponseEntity<>(isr, respHeaders, HttpStatus.OK);
-    } catch (IOException e) {
-      log.warn("Can't download object", e);
-    }
-
-    throw new ResponseStatusException(
-      HttpStatus.INTERNAL_SERVER_ERROR, null);
+    @PathVariable UUID fileId
+  ) throws IOException {
+    ObjectStoreMetadata metadata = objectStoreMetadataReadService
+      .loadObjectStoreMetadataByFileId(fileId)
+      .orElseThrow(() -> buildNotFoundException(bucket, fileId));
+    String filename = metadata.getFilename();
+    return download(bucket, fileId, filename, false);
   }
 
   @GetMapping("/file/{bucket}/derivative/{fileId}")
@@ -206,20 +176,10 @@ public class FileController {
     @PathVariable String bucket,
     @PathVariable UUID fileId
   ) throws IOException {
-
     Derivative derivative = derivativeService.findByFileId(fileId)
-        .orElseThrow(() -> buildNotFoundException(bucket, fileId));
-
+      .orElseThrow(() -> buildNotFoundException(bucket, fileId));
     String fileName = derivative.getFileIdentifier() + derivative.getFileExtension();
-
-    FileObjectInfo foi = minioService.getFileInfo(fileName, bucket, true)
-      .orElseThrow(() -> buildNotFoundException(bucket, fileId));
-
-    InputStream is = minioService.getFile(fileName, bucket, true)
-      .orElseThrow(() -> buildNotFoundException(bucket, fileId));
-
-    HttpHeaders headers = buildHttpHeaders(fileName, foi.getContentType(), foi.getLength());
-    return new ResponseEntity<>(new InputStreamResource(is), headers, HttpStatus.OK);
+    return download(bucket, fileId, fileName, true);
   }
 
   @GetMapping("/file/{bucket}/{fileId}/thumbnail")
@@ -238,6 +198,22 @@ public class FileController {
       null, 0, 1).stream().findFirst()
       .orElseThrow(() -> buildNotFoundException(bucket, fileId));
     return downloadDerivative(bucket, derivative.getFileIdentifier());
+  }
+
+  private ResponseEntity<InputStreamResource> download(
+    @NonNull String bucket,
+    @NonNull UUID fileId,
+    @NonNull String fileName,
+    boolean isDerivative
+  ) throws IOException {
+    FileObjectInfo foi = minioService.getFileInfo(fileName, bucket, isDerivative)
+      .orElseThrow(() -> buildNotFoundException(bucket, fileId));
+    InputStream is = minioService.getFile(fileName, bucket, isDerivative)
+      .orElseThrow(() -> buildNotFoundException(bucket, fileId));
+    return new ResponseEntity<>(
+      new InputStreamResource(is),
+      buildHttpHeaders(fileName, foi.getContentType(), foi.getLength()),
+      HttpStatus.OK);
   }
 
   /**
