@@ -151,7 +151,7 @@ public class FileControllerIT extends BaseIntegrationTest {
   @Transactional
   @Test
   public void fileUpload_OnValidLargerUpload_ObjectUploadEntryCreated() throws Exception {
-    MockMultipartFile mockFile = getMockMultipartFile("cc0_test_image.jpg", MediaType.IMAGE_JPEG_VALUE);
+    MockMultipartFile mockFile = createMockMultipartFile("cc0_test_image.jpg", MediaType.IMAGE_JPEG_VALUE);
     ObjectUpload uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
     ObjectUpload objUploaded = objectUploadService.findOne(uploadResponse.getFileIdentifier(), ObjectUpload.class);
 
@@ -205,10 +205,10 @@ public class FileControllerIT extends BaseIntegrationTest {
   }
 
   private MockMultipartFile getFileUnderTest() throws IOException {
-    return getMockMultipartFile("drawing.png", MediaType.IMAGE_PNG_VALUE);
+    return createMockMultipartFile("drawing.png", MediaType.IMAGE_PNG_VALUE);
   }
 
-  private MockMultipartFile getMockMultipartFile(
+  private MockMultipartFile createMockMultipartFile(
     String fileNameInClasspath,
     String mediaType
   ) throws IOException {

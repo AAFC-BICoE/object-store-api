@@ -210,15 +210,15 @@ public class FileController {
         : metadata.getFilename();
 
       FileObjectInfo foi = minioService.getFileInfo(filename, bucket, false)
-        .orElseThrow(() -> getNotFoundException(bucket, fileUuid));
+        .orElseThrow(() -> buildNotFoundException(bucket, fileUuid));
 
-      HttpHeaders respHeaders = getHttpHeaders(
+      HttpHeaders respHeaders = buildHttpHeaders(
         filename,
         thumbnailRequested ? "image/jpeg" : metadata.getDcFormat(),
         foi.getLength());
 
       InputStream is = minioService.getFile(filename, bucket, false)
-        .orElseThrow(() -> getNotFoundException(bucket, fileUuid));
+        .orElseThrow(() -> buildNotFoundException(bucket, fileUuid));
 
       InputStreamResource isr = new InputStreamResource(is);
       return new ResponseEntity<>(isr, respHeaders, HttpStatus.OK);
@@ -237,22 +237,18 @@ public class FileController {
     @PathVariable UUID fileId
   ) throws IOException {
 
-    Optional<Derivative> derivativeOptional = derivativeService.findByFileId(fileId);
+    Derivative derivative = derivativeService.findByFileId(fileId)
+        .orElseThrow(() -> buildNotFoundException(bucket, fileId));
 
-    if (derivativeOptional.isEmpty()) {
-      throw getNotFoundException(bucket, fileId);
-    }
-
-    Derivative derivative = derivativeOptional.get();
     String fileName = derivative.getFileIdentifier() + derivative.getFileExtension();
 
     FileObjectInfo foi = minioService.getFileInfo(fileName, bucket, true)
-      .orElseThrow(() -> getNotFoundException(bucket, fileId));
+      .orElseThrow(() -> buildNotFoundException(bucket, fileId));
 
     InputStream is = minioService.getFile(fileName, bucket, true)
-      .orElseThrow(() -> getNotFoundException(bucket, fileId));
+      .orElseThrow(() -> buildNotFoundException(bucket, fileId));
 
-    HttpHeaders headers = getHttpHeaders(fileName, foi.getContentType(), foi.getLength());
+    HttpHeaders headers = buildHttpHeaders(fileName, foi.getContentType(), foi.getLength());
     return new ResponseEntity<>(new InputStreamResource(is), headers, HttpStatus.OK);
   }
 
@@ -263,7 +259,7 @@ public class FileController {
    * @param fileId the file id
    * @return a ResponseStatusException Not found
    */
-  private ResponseStatusException getNotFoundException(String bucket, UUID fileId) {
+  private ResponseStatusException buildNotFoundException(String bucket, UUID fileId) {
     return new ResponseStatusException(
       HttpStatus.NOT_FOUND,
       messageSource.getMessage(
@@ -279,7 +275,7 @@ public class FileController {
    * @param contentLength length of the file
    * @return HttpHeaders based on the given parameters
    */
-  private static HttpHeaders getHttpHeaders(String filename, String mediaType, long contentLength) {
+  private static HttpHeaders buildHttpHeaders(String filename, String mediaType, long contentLength) {
     HttpHeaders respHeaders = new HttpHeaders();
     respHeaders.setContentType(
       org.springframework.http.MediaType.parseMediaType(
