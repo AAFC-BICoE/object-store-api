@@ -34,6 +34,7 @@ public class ThumbnailService {
   public static final String THUMBNAIL_EXTENSION = ".jpg";
   public static final String THUMBNAIL_AC_SUB_TYPE = "THUMBNAIL";
   public static final DcType THUMBNAIL_DC_TYPE = DcType.IMAGE;
+  public static final String SYSTEM_GENERATED = "System Generated";
   public static final String PDF_FILETYPE = "application/pdf";
 
   private final MinioFileService minioService;
