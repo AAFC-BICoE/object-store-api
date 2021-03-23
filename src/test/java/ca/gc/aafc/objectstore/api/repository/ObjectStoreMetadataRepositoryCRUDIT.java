@@ -12,12 +12,14 @@ import ca.gc.aafc.objectstore.api.file.ThumbnailService;
 import ca.gc.aafc.objectstore.api.respository.ObjectStoreResourceRepository;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import io.crnk.core.queryspec.QuerySpec;
 import io.crnk.core.resource.list.ResourceList;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.MediaType;
 
 import javax.inject.Inject;
 import javax.persistence.criteria.Predicate;
@@ -141,12 +143,20 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
 
   @Test
   public void create_ValidResource_ThumbNailMetaDerivesFromParent() {
-    UUID parentUuid = objectStoreResourceRepository.create(newMetaDto()).getUuid();
+    // Resource needs an evaluated media type that supports thumbnails
+    ObjectUpload objectUpload = ObjectUploadFactory.newObjectUpload().build();
+    objectUpload.setEvaluatedMediaType(MediaType.IMAGE_JPEG_VALUE);
+    persist(objectUpload);
+    ObjectStoreMetadataDto resource = newMetaDto();
+    resource.setFileIdentifier(objectUpload.getFileIdentifier());
+
+    UUID parentUuid = objectStoreResourceRepository.create(resource).getUuid();
     Derivative child = metaService.findAll(Derivative.class,
       (criteriaBuilder, root) -> new Predicate[]{criteriaBuilder.equal(
         root.get("acDerivedFrom"),
         metaService.findOne(parentUuid, ObjectStoreMetadata.class))},
       null, 0, 1).stream().findFirst().orElse(null);
+    //Assert values
     assertNotNull(child);
     assertNotNull(child.getAcDerivedFrom());
     assertNotNull(child.getObjectSubtype());
