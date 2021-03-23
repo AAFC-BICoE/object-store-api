@@ -196,7 +196,7 @@ public class ObjectStoreResourceRepository
    * @param resource - parent resource metadata of the thumbnail
    */
   private void handleThumbNailGeneration(ObjectStoreMetadataDto resource) {
-    ObjectUpload objectUpload = dinaService.findOne(resource.getFileIdentifier(), ObjectUpload.class);
+    ObjectUpload objectUpload = derivativeService.findOne(resource.getFileIdentifier(), ObjectUpload.class);
     String evaluatedMediaType = objectUpload.getEvaluatedMediaType();
 
     if (thumbnailService.isSupported(evaluatedMediaType)) {
@@ -212,6 +212,7 @@ public class ObjectStoreResourceRepository
         .bucket(bucket)
         .acDerivedFrom(
           derivativeService.getReferenceByNaturalId(ObjectStoreMetadata.class, resource.getUuid()))
+        .objectSubtype(derivativeService.getThumbNailSubType())
         .build();
 
       derivativeService.create(derivative);
