@@ -16,6 +16,7 @@ import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.file.FileController;
 import ca.gc.aafc.objectstore.api.file.ThumbnailService;
 import ca.gc.aafc.objectstore.api.respository.managedattributemap.MetadataToManagedAttributeMapRepository;
+import ca.gc.aafc.objectstore.api.service.DerivativeService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataReadService;
 import io.crnk.core.queryspec.FilterOperator;
 import io.crnk.core.queryspec.FilterSpec;
@@ -46,6 +47,7 @@ public class ObjectStoreResourceRepository
   private final DinaService<ObjectStoreMetadata> dinaService;
   private final DinaAuthenticatedUser authenticatedUser;
   private final ThumbnailService thumbnailService;
+  private final DerivativeService derivativeService;
   private static final PathSpec DELETED_PATH_SPEC = PathSpec.of("softDeleted");
   private static final PathSpec DELETED_DATE = PathSpec.of(SoftDeletable.DELETED_DATE_FIELD_NAME);
   private static final FilterSpec SOFT_DELETED = DELETED_DATE.filter(FilterOperator.NEQ, null);
@@ -58,7 +60,8 @@ public class ObjectStoreResourceRepository
     @NonNull AuditService auditService,
     @NonNull ThumbnailService thumbnailService,
     Optional<GroupAuthorizationService> groupService,
-    @NonNull BuildProperties props
+    @NonNull BuildProperties props,
+    @NonNull DerivativeService derivativeService
   ) {
     super(
       dinaService,
@@ -73,6 +76,7 @@ public class ObjectStoreResourceRepository
     this.dinaService = dinaService;
     this.authenticatedUser = authenticatedUser;
     this.thumbnailService = thumbnailService;
+    this.derivativeService = derivativeService;
   }
 
   /**
@@ -147,7 +151,7 @@ public class ObjectStoreResourceRepository
     resource.setCreatedBy(authenticatedUser.getUsername());
     ObjectStoreMetadataDto created = super.create(resource);
 
-    handleThumbNailMetaEntry(created);
+    handleThumbNailGeneration(created);
 
     return this.findOne(
       created.getUuid(),
@@ -187,37 +191,36 @@ public class ObjectStoreResourceRepository
   }
 
   /**
-   * Persists a thumbnail Metadata based off a given resource if the resource has an associated
-   * thumbnail.
+   * Generates a thumbnail for the given resource.
    *
    * @param resource - parent resource metadata of the thumbnail
    */
-  private void handleThumbNailMetaEntry(ObjectStoreMetadataDto resource) {
+  private void handleThumbNailGeneration(ObjectStoreMetadataDto resource) {
     ObjectUpload objectUpload = dinaService.findOne(resource.getFileIdentifier(), ObjectUpload.class);
+    String evaluatedMediaType = objectUpload.getEvaluatedMediaType();
 
-    if (thumbnailService.isSupported(objectUpload.getEvaluatedMediaType())) {
-
-      //Temporary until Branch 22108 which add the derivative service
+    if (thumbnailService.isSupported(evaluatedMediaType)) {
       UUID uuid = UUID.randomUUID();
       String bucket = objectUpload.getBucket();
 
       Derivative derivative = Derivative.builder()
-        .createdBy("System Generated")
+        .createdBy(ThumbnailService.SYSTEM_GENERATED)
         .dcType(ThumbnailService.THUMBNAIL_DC_TYPE)
         .fileExtension(ThumbnailService.THUMBNAIL_EXTENSION)
         .dcType(ThumbnailService.THUMBNAIL_DC_TYPE)
         .fileIdentifier(uuid)
         .bucket(bucket)
-        .uuid(UUID.randomUUID())
+        .acDerivedFrom(
+          derivativeService.getReferenceByNaturalId(ObjectStoreMetadata.class, resource.getUuid()))
         .build();
 
+      derivativeService.create(derivative);
       thumbnailService.generateThumbnail(
         uuid,
         objectUpload.getOriginalFilename(),
-        objectUpload.getEvaluatedMediaType(),
+        evaluatedMediaType,
         bucket);
-
     }
-
   }
+
 }
