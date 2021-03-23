@@ -62,7 +62,6 @@ public class FileController {
   private final MinioFileService minioService;
   private final ObjectStoreMetadataReadService objectStoreMetadataReadService;
   private final MediaTypeDetectionStrategy mediaTypeDetectionStrategy;
-  private final ThumbnailService thumbnailService;
   private final MessageSource messageSource;
   private final TransactionTemplate transactionTemplate;
 
@@ -75,7 +74,6 @@ public class FileController {
     ObjectUploadService objectUploadService,
     ObjectStoreMetadataReadService objectStoreMetadataReadService,
     MediaTypeDetectionStrategy mediaTypeDetectionStrategy,
-    ThumbnailService thumbnailService,
     DinaAuthenticatedUser authenticatedUser,
     MessageSource messageSource,
     TransactionTemplate transactionTemplate
@@ -84,7 +82,6 @@ public class FileController {
     this.objectUploadService = objectUploadService;
     this.objectStoreMetadataReadService = objectStoreMetadataReadService;
     this.mediaTypeDetectionStrategy = mediaTypeDetectionStrategy;
-    this.thumbnailService = thumbnailService;
     this.authenticatedUser = authenticatedUser;
     this.messageSource = messageSource;
     this.transactionTemplate = transactionTemplate;
@@ -98,30 +95,7 @@ public class FileController {
   ) throws IOException, MimeTypeException, NoSuchAlgorithmException, ServerException, ErrorResponseException,
     InternalException, XmlParserException, InvalidResponseException, InvalidBucketNameException,
     InsufficientDataException, InvalidKeyException {
-    //Authenticate before anything else
-    handleAuthentication(bucket);
-
-    // Safe get unique UUID
-    UUID uuid = safeGenerateUuid();
-
-    // We need access to the first bytes in a form that we can reset the InputStream
-    ReadAheadInputStream prIs = ReadAheadInputStream.from(file.getInputStream(), READ_AHEAD_BUFFER_SIZE);
-
-    MediaTypeDetectionStrategy.MediaTypeDetectionResult mtdr = mediaTypeDetectionStrategy
-      .detectMediaType(prIs.getReadAheadBuffer(), file.getContentType(), file.getOriginalFilename());
-
-    MessageDigest md = MessageDigest.getInstance(DIGEST_ALGORITHM);
-
-    storeFile(bucket, uuid, mtdr, new DigestInputStream(prIs.getInputStream(), md), true);
-
-    return createObjectUpload(
-      file,
-      bucket,
-      mtdr,
-      uuid,
-      DigestUtils.sha1Hex(md.digest()),
-      extractExifData(file),
-      true);
+    return handleUpload(file, bucket, true);
   }
 
   @PostMapping("/file/{bucket}")
@@ -131,6 +105,16 @@ public class FileController {
   ) throws InvalidKeyException, NoSuchAlgorithmException, InvalidBucketNameException, ErrorResponseException,
     InternalException, InsufficientDataException, InvalidResponseException, MimeTypeException, XmlParserException,
     IOException, ServerException {
+    return handleUpload(file, bucket, false);
+  }
+
+  private ObjectUpload handleUpload(
+    @RequestParam("file") MultipartFile file,
+    @PathVariable String bucket,
+    boolean isDerivative
+  ) throws IOException, MimeTypeException, NoSuchAlgorithmException, InvalidKeyException, ErrorResponseException,
+    InsufficientDataException, InternalException, InvalidBucketNameException, InvalidResponseException,
+    XmlParserException, ServerException {
     //Authenticate before anything else
     handleAuthentication(bucket);
 
@@ -145,7 +129,7 @@ public class FileController {
 
     MessageDigest md = MessageDigest.getInstance(DIGEST_ALGORITHM);
 
-    storeFile(bucket, uuid, mtdr, new DigestInputStream(prIs.getInputStream(), md), false);
+    storeFile(bucket, uuid, mtdr, new DigestInputStream(prIs.getInputStream(), md), isDerivative);
 
     return createObjectUpload(
       file,
@@ -154,7 +138,7 @@ public class FileController {
       uuid,
       DigestUtils.sha1Hex(md.digest()),
       extractExifData(file),
-      false);
+      isDerivative);
   }
 
   /**
