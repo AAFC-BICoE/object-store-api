@@ -3,11 +3,22 @@ package ca.gc.aafc.objectstore.api.file;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.MinioTestConfiguration;
+import ca.gc.aafc.objectstore.api.entities.DcType;
+import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
+import ca.gc.aafc.objectstore.api.service.DerivativeService;
 import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
 import io.crnk.core.exception.UnauthorizedException;
+import io.minio.errors.ErrorResponseException;
+import io.minio.errors.InsufficientDataException;
+import io.minio.errors.InternalException;
+import io.minio.errors.InvalidBucketNameException;
+import io.minio.errors.InvalidResponseException;
+import io.minio.errors.ServerException;
+import io.minio.errors.XmlParserException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.tika.mime.MimeTypeException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.Import;
@@ -16,10 +27,14 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -34,6 +49,10 @@ public class FileControllerIT extends BaseIntegrationTest {
 
   @Inject
   private ObjectUploadService objectUploadService;
+
+
+  @Inject
+  private DerivativeService derivativeService;
 
   @Inject
   private TransactionTemplate transactionTemplate;
@@ -89,22 +108,45 @@ public class FileControllerIT extends BaseIntegrationTest {
   @Transactional
   @Test
   public void fileUpload_OnValidLargerUpload_ObjectUploadEntryCreated() throws Exception {
-    MockMultipartFile mockFile = getMockMultipartFile("cc0_test_image.jpg", MediaType.IMAGE_JPEG_VALUE);
+    MockMultipartFile mockFile = createMockMultipartFile("cc0_test_image.jpg", MediaType.IMAGE_JPEG_VALUE);
     ObjectUpload uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
     ObjectUpload objUploaded = objectUploadService.findOne(uploadResponse.getFileIdentifier(), ObjectUpload.class);
 
     assertNotNull(objUploaded);
   }
 
-  private MockMultipartFile getFileUnderTest() throws IOException {
-    return getMockMultipartFile("drawing.png", MediaType.IMAGE_PNG_VALUE);
+  @Transactional
+  @Test
+  public void downloadDerivative_WhenDerivativeDoesNotExist_ThrowsNotFound() {
+    assertThrows(ResponseStatusException.class,
+      () -> fileController.downloadDerivative(bucketUnderTest, UUID.randomUUID()));
   }
 
-  private MockMultipartFile getMockMultipartFile(String fileNameInClasspath, String mediaType) throws IOException {
-    Resource imageFile = resourceLoader.getResource("classpath:" + fileNameInClasspath);
-    byte[] bytes = IOUtils.toByteArray(imageFile.getInputStream());
+  @Transactional
+  @Test
+  public void downloadDerivative() throws IOException, InvalidKeyException, NoSuchAlgorithmException,
+    XmlParserException, InvalidResponseException, ServerException, InternalException, MimeTypeException,
+    InvalidBucketNameException, InsufficientDataException, ErrorResponseException {
+    MockMultipartFile mockFile = getFileUnderTest();
+    ObjectUpload uploadResponse = fileController.handleDerivativeUpload(mockFile, bucketUnderTest);
+    // A derivative requires a Derivative record to download
+    derivativeService.create(Derivative.builder()
+      .fileIdentifier(uploadResponse.getFileIdentifier())
+      .bucket(uploadResponse.getBucket())
+      .fileExtension(uploadResponse.getEvaluatedFileExtension())
+      .dcType(DcType.IMAGE)
+      .createdBy("dina")
+      .build());
 
-    return new MockMultipartFile("file", "testfile", mediaType, bytes);
+    ResponseEntity<InputStreamResource> result = fileController.downloadDerivative(
+      bucketUnderTest,
+      uploadResponse.getFileIdentifier());
+    // Assert Response
+    assertEquals(200, result.getStatusCode().value());
+    // Assert File Content
+    InputStreamResource body = result.getBody();
+    assertNotNull(body);
+    assertTrue(IOUtils.contentEquals(mockFile.getInputStream(), body.getInputStream()));
   }
 
   @Transactional
@@ -119,4 +161,17 @@ public class FileControllerIT extends BaseIntegrationTest {
     assertNotNull(objectUploadService.findOne(uploadResponse.getFileIdentifier(), ObjectUpload.class));
   }
 
+  private MockMultipartFile getFileUnderTest() throws IOException {
+    return createMockMultipartFile("drawing.png", MediaType.IMAGE_PNG_VALUE);
+  }
+
+  private MockMultipartFile createMockMultipartFile(
+    String fileNameInClasspath,
+    String mediaType
+  ) throws IOException {
+    Resource imageFile = resourceLoader.getResource("classpath:" + fileNameInClasspath);
+    byte[] bytes = IOUtils.toByteArray(imageFile.getInputStream());
+
+    return new MockMultipartFile("file", "testfile", mediaType, bytes);
+  }
 }
