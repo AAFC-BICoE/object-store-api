@@ -57,7 +57,7 @@ public class MinioTestConfiguration {
   public static final UUID TEST_FILE_IDENTIFIER = UUID.randomUUID();
   public static final UUID TEST_THUMBNAIL_IDENTIFIER = UUID.randomUUID();
   public static final String TEST_FILE_EXT = ".txt";
-  public static final String TEST_FILE_MEDIA_TYPE = MediaType.IMAGE_PNG_VALUE;
+  public static final String TEST_FILE_MEDIA_TYPE = MediaType.TEXT_PLAIN_VALUE;
   public static final String TEST_ORIGINAL_FILENAME = "myfile" + TEST_FILE_EXT;
   public static final String ILLEGAL_BUCKET_CHAR = "~";
 
