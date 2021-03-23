@@ -104,6 +104,7 @@ public class FileController {
   }
 
   @PostMapping("/file/{bucket}")
+  @Transactional
   public ObjectUpload handleFileUpload(
     @RequestParam("file") MultipartFile file,
     @PathVariable String bucket
