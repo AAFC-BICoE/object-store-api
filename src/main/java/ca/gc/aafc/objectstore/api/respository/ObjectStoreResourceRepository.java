@@ -218,7 +218,7 @@ public class ObjectStoreResourceRepository
       derivativeService.create(derivative);
       thumbnailService.generateThumbnail(
         uuid,
-        objectUpload.getOriginalFilename(),
+        objectUpload.getFileIdentifier() + objectUpload.getEvaluatedFileExtension(),
         evaluatedMediaType,
         bucket);
     }
