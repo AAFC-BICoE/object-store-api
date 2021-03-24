@@ -193,7 +193,8 @@ public class FileController {
 
     Derivative derivative = derivativeService.findAll(Derivative.class,
       (criteriaBuilder, root) -> new Predicate[]{
-        criteriaBuilder.equal(root.get("acDerivedFrom"), objectStoreMetadata)},
+        criteriaBuilder.equal(root.get("acDerivedFrom"), objectStoreMetadata),
+        criteriaBuilder.equal(root.get("objectSubtype"), derivativeService.getThumbNailSubType())},
       null, 0, 1).stream().findFirst()
       .orElseThrow(() -> buildNotFoundException(bucket, fileId));
     return downloadDerivative(bucket, derivative.getFileIdentifier());
