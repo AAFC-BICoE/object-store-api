@@ -2,11 +2,9 @@ package ca.gc.aafc.objectstore.api.service;
 
 import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.dina.service.DefaultDinaService;
-import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
-import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.file.ThumbnailService;
 import io.crnk.core.exception.BadRequestException;
 import lombok.NonNull;
@@ -56,6 +54,13 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
     if (entity.getAcDerivedFrom() != null) {
       entity.getAcDerivedFrom().addDerivative(entity);
     }
+  }
+
+  @Override
+  public ObjectStoreMetadata create(ObjectStoreMetadata entity) {
+    ObjectStoreMetadata objectStoreMetadata = super.create(entity);
+    handleThumbNailGeneration(objectStoreMetadata);
+    return objectStoreMetadata;
   }
 
   private void validateMetaManagedAttribute(ObjectStoreMetadata entity) {
@@ -134,7 +139,7 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
    *
    * @param resource - parent resource metadata of the thumbnail
    */
-  public void handleThumbNailGeneration(ObjectStoreMetadataDto resource) {
+  private void handleThumbNailGeneration(ObjectStoreMetadata resource) {
     String evaluatedMediaType = resource.getDcFormat();
 
     if (thumbnailService.isSupported(evaluatedMediaType)) {
