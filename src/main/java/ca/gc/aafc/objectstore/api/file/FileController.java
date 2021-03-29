@@ -6,6 +6,7 @@ import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.exif.ExifParser;
 import ca.gc.aafc.objectstore.api.minio.MinioFileService;
+import ca.gc.aafc.objectstore.api.service.DerivativeService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataReadService;
 import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
@@ -62,6 +63,7 @@ public class FileController {
 
   private final ObjectUploadService objectUploadService;
   private final ObjectStoreMetaDataService objectStoreMetaDataService;
+  private final DerivativeService derivativeService;
   private final MinioFileService minioService;
   private final ObjectStoreMetadataReadService objectStoreMetadataReadService;
   private final MediaTypeDetectionStrategy mediaTypeDetectionStrategy;
@@ -75,6 +77,7 @@ public class FileController {
     MinioFileService minioService,
     ObjectUploadService objectUploadService,
     ObjectStoreMetaDataService objectStoreMetaDataService,
+    DerivativeService derivativeService,
     ObjectStoreMetadataReadService objectStoreMetadataReadService,
     MediaTypeDetectionStrategy mediaTypeDetectionStrategy,
     DinaAuthenticatedUser authenticatedUser,
@@ -87,6 +90,7 @@ public class FileController {
     this.authenticatedUser = authenticatedUser;
     this.messageSource = messageSource;
     this.objectStoreMetaDataService = objectStoreMetaDataService;
+    this.derivativeService = derivativeService;
   }
 
   @PostMapping("/file/{bucket}/derivative")
@@ -169,10 +173,8 @@ public class FileController {
     @PathVariable String bucket,
     @PathVariable UUID fileId
   ) throws IOException {
-    Derivative derivative = objectStoreMetaDataService
-      .findAll(Derivative.class, (criteriaBuilder, root) -> new Predicate[]{
-        criteriaBuilder.equal(root.get("fileIdentifier"), fileId)}, null, 0, 1)
-      .stream().findFirst().orElseThrow(() -> buildNotFoundException(bucket, fileId));
+    Derivative derivative = derivativeService
+      .findByFileId(fileId).orElseThrow(() -> buildNotFoundException(bucket, fileId));
     String fileName = derivative.getFileIdentifier() + derivative.getFileExtension();
     return download(bucket, fileId, fileName, true);
   }
