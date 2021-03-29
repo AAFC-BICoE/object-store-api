@@ -142,7 +142,7 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
   private void handleThumbNailGeneration(ObjectStoreMetadata resource) {
     String evaluatedMediaType = resource.getDcFormat();
 
-    if (thumbnailService.isSupported(evaluatedMediaType)) {
+    if (StringUtils.isNotBlank(evaluatedMediaType) && thumbnailService.isSupported(evaluatedMediaType)) {
       UUID uuid = UUID.randomUUID();
       String bucket = resource.getBucket();
 
