@@ -67,7 +67,6 @@ public class FileController {
   private final ObjectStoreMetadataReadService objectStoreMetadataReadService;
   private final MediaTypeDetectionStrategy mediaTypeDetectionStrategy;
   private final MessageSource messageSource;
-  private final TransactionTemplate transactionTemplate;
 
   // request scoped bean
   private final DinaAuthenticatedUser authenticatedUser;
@@ -89,7 +88,6 @@ public class FileController {
     this.mediaTypeDetectionStrategy = mediaTypeDetectionStrategy;
     this.authenticatedUser = authenticatedUser;
     this.messageSource = messageSource;
-    this.transactionTemplate = transactionTemplate;
     this.derivativeService = derivativeService;
   }
 
@@ -126,7 +124,7 @@ public class FileController {
     handleAuthentication(bucket);
 
     // Safe get unique UUID
-    UUID uuid = safeGenerateUuid();
+    UUID uuid = generateUUID();
 
     // We need access to the first bytes in a form that we can reset the InputStream
     ReadAheadInputStream prIs = ReadAheadInputStream.from(file.getInputStream(), READ_AHEAD_BUFFER_SIZE);
@@ -341,19 +339,6 @@ public class FileController {
   private void handleAuthentication(String bucket) {
     checkAuthenticatedUser();
     authenticateBucket(bucket);
-  }
-
-  /**
-   * Returns a generated UUID.
-   *
-   * @return Returns a generated UUID.
-   */
-  private UUID safeGenerateUuid() {
-    UUID uuid = transactionTemplate.execute(transactionStatus -> generateUUID());
-    if (uuid == null) {
-      throw new IllegalStateException("Can't assign unique UUID.");
-    }
-    return uuid;
   }
 
   /**
