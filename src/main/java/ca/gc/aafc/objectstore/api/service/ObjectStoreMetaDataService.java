@@ -135,12 +135,11 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
    * @param resource - parent resource metadata of the thumbnail
    */
   public void handleThumbNailGeneration(ObjectStoreMetadataDto resource) {
-    ObjectUpload objectUpload = this.findOne(resource.getFileIdentifier(), ObjectUpload.class);
-    String evaluatedMediaType = objectUpload.getEvaluatedMediaType();
+    String evaluatedMediaType = resource.getDcFormat();
 
     if (thumbnailService.isSupported(evaluatedMediaType)) {
       UUID uuid = UUID.randomUUID();
-      String bucket = objectUpload.getBucket();
+      String bucket = resource.getBucket();
 
       baseDAO.create(Derivative.builder()
         .uuid(UUID.randomUUID())
@@ -157,7 +156,7 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
 
       thumbnailService.generateThumbnail(
         uuid,
-        objectUpload.getFileIdentifier() + objectUpload.getEvaluatedFileExtension(),
+        resource.getFileIdentifier() + resource.getFileExtension(),
         evaluatedMediaType,
         bucket);
     }

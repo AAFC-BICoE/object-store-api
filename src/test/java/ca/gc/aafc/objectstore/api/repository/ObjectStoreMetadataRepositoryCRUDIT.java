@@ -16,6 +16,7 @@ import io.crnk.core.queryspec.QuerySpec;
 import io.crnk.core.resource.list.ResourceList;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -26,7 +27,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -143,9 +143,9 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
 
   @Test
   public void create_ValidResource_ThumbNailMetaDerivesFromParent() {
-    // Resource needs an evaluated media type that supports thumbnails
+    // Resource needs an detected media type that supports thumbnails
     ObjectUpload objectUpload = ObjectUploadFactory.newObjectUpload().build();
-    objectUpload.setEvaluatedMediaType(MediaType.IMAGE_JPEG_VALUE);
+    objectUpload.setDetectedMediaType(MediaType.IMAGE_JPEG_VALUE);
     persist(objectUpload);
     ObjectStoreMetadataDto resource = newMetaDto();
     resource.setFileIdentifier(objectUpload.getFileIdentifier());
@@ -203,8 +203,8 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
 
     ObjectStoreMetadata result = service.findUnique(
       ObjectStoreMetadata.class, "uuid", updateMetadataDto.getUuid());
-    assertNull(result.getAcDerivedFrom());
-    assertNull(result.getAcSubType());
+    Assertions.assertNull(result.getAcDerivedFrom());
+    Assertions.assertNull(result.getAcSubType());
   }
 
   private ObjectStoreMetadataDto newMetaDto() {
