@@ -4,19 +4,22 @@ import ca.gc.aafc.dina.service.DinaService;
 import ca.gc.aafc.objectstore.api.MinioTestConfiguration;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectSubtypeDto;
+import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
-import ca.gc.aafc.objectstore.api.file.ThumbnailService;
 import ca.gc.aafc.objectstore.api.respository.ObjectStoreResourceRepository;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import io.crnk.core.queryspec.QuerySpec;
 import io.crnk.core.resource.list.ResourceList;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.MediaType;
 
 import javax.inject.Inject;
 import javax.persistence.criteria.Predicate;
@@ -24,7 +27,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -141,39 +143,24 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
 
   @Test
   public void create_ValidResource_ThumbNailMetaDerivesFromParent() {
-    ObjectStoreMetadataDto parentDTO = newMetaDto();
+    // Resource needs an detected media type that supports thumbnails
+    ObjectUpload objectUpload = ObjectUploadFactory.newObjectUpload().build();
+    objectUpload.setDetectedMediaType(MediaType.IMAGE_JPEG_VALUE);
+    persist(objectUpload);
+    ObjectStoreMetadataDto resource = newMetaDto();
+    resource.setFileIdentifier(objectUpload.getFileIdentifier());
 
-    UUID parentUuid = objectStoreResourceRepository.create(parentDTO).getUuid();
-
-    ObjectStoreMetadata thumbNailMetaResult = service.findUnique(
-      ObjectStoreMetadata.class,
-      "fileIdentifier",
-      MinioTestConfiguration.TEST_THUMBNAIL_IDENTIFIER);
-
-    assertEquals(MinioTestConfiguration.TEST_BUCKET, thumbNailMetaResult.getBucket());
-    assertEquals(MinioTestConfiguration.TEST_THUMBNAIL_IDENTIFIER, thumbNailMetaResult.getFileIdentifier());
-    assertEquals(parentUuid, thumbNailMetaResult.getAcDerivedFrom().getUuid());
-    assertEquals(ThumbnailService.THUMBNAIL_AC_SUB_TYPE, thumbNailMetaResult.getAcSubType().getAcSubtype());
-    assertEquals(ThumbnailService.THUMBNAIL_DC_TYPE, thumbNailMetaResult.getAcSubType().getDcType());
-    assertEquals(MinioTestConfiguration.TEST_USAGE_TERMS, thumbNailMetaResult.getXmpRightsUsageTerms());
-  }
-
-  @Test
-  public void create_ThumbNailReturnedAsDerivative() {
-    UUID parentUuid = objectStoreResourceRepository.create(newMetaDto()).getUuid();
-
-    ObjectStoreMetadata child = service.findUnique(
-      ObjectStoreMetadata.class,
-      "fileIdentifier",
-      MinioTestConfiguration.TEST_THUMBNAIL_IDENTIFIER);
-
-    QuerySpec querySpec = new QuerySpec(ObjectStoreMetadataDto.class);
-    querySpec.includeRelation(Collections.singletonList("derivatives"));
-
-    ObjectStoreMetadataDto fetchedParent =
-      objectStoreResourceRepository.findOne(parentUuid, querySpec);
-    assertEquals(1, fetchedParent.getDerivatives().size());
-    assertEquals(child.getUuid(), fetchedParent.getDerivatives().get(0).getUuid());
+    UUID parentUuid = objectStoreResourceRepository.create(resource).getUuid();
+    Derivative child = metaService.findAll(Derivative.class,
+      (criteriaBuilder, root) -> new Predicate[]{criteriaBuilder.equal(
+        root.get("acDerivedFrom"),
+        metaService.findOne(parentUuid, ObjectStoreMetadata.class))},
+      null, 0, 1).stream().findFirst().orElse(null);
+    //Assert values
+    assertNotNull(child);
+    assertNotNull(child.getAcDerivedFrom());
+    assertNotNull(child.getObjectSubtype());
+    assertEquals(parentUuid, child.getAcDerivedFrom().getUuid());
   }
 
   @Test
@@ -216,8 +203,8 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
 
     ObjectStoreMetadata result = service.findUnique(
       ObjectStoreMetadata.class, "uuid", updateMetadataDto.getUuid());
-    assertNull(result.getAcDerivedFrom());
-    assertNull(result.getAcSubType());
+    Assertions.assertNull(result.getAcDerivedFrom());
+    Assertions.assertNull(result.getAcSubType());
   }
 
   private ObjectStoreMetadataDto newMetaDto() {

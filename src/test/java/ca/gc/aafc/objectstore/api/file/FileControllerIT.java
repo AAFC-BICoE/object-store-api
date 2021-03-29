@@ -5,12 +5,9 @@ import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.MinioTestConfiguration;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
-import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
-import ca.gc.aafc.objectstore.api.minio.MinioFileService;
 import ca.gc.aafc.objectstore.api.service.DerivativeService;
 import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
-import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import io.crnk.core.exception.UnauthorizedException;
 import io.minio.errors.ErrorResponseException;
 import io.minio.errors.InsufficientDataException;
@@ -28,11 +25,9 @@ import org.springframework.context.annotation.Import;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -55,14 +50,12 @@ public class FileControllerIT extends BaseIntegrationTest {
   private FileController fileController;
 
   @Inject
-  private MinioFileService minioFileService;
-
-  @Inject
   private ObjectUploadService objectUploadService;
+
 
   @Inject
   private DerivativeService derivativeService;
-  
+
   @Inject
   private TransactionTemplate transactionTemplate;
 
@@ -78,40 +71,6 @@ public class FileControllerIT extends BaseIntegrationTest {
         service.deleteByProperty(ObjectUpload.class, "bucket", bucketUnderTest);
         return null;
       });
-  }
-
-  @org.springframework.transaction.annotation.Transactional(propagation = Propagation.NEVER)
-  @Test
-  public void fileUpload_whenImageIsUploaded_generateThumbnail() throws Exception {
-    MockMultipartFile mockFile = getFileUnderTest();
-
-    ObjectUpload uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
-    UUID thumbnailIdentifier = uploadResponse.getThumbnailIdentifier();
-
-    // Persist the associated metadata and thumbnail meta separately:
-    service.runInNewTransaction(entityManager -> {
-      ObjectStoreMetadata thumbMetaData = ObjectStoreMetadataFactory.newObjectStoreMetadata()
-        .fileIdentifier(thumbnailIdentifier)
-        .build();
-      entityManager.persist(thumbMetaData);
-    });
-    
-    String thumbnailFilename = thumbnailIdentifier + ".thumbnail";
-
-    // Wait for the thumbnail to be asynchronously persisted:
-    for (int attempts = 0; attempts <= 100; attempts++) {
-      if (minioFileService.getFile(thumbnailFilename, bucketUnderTest, false).isPresent()) {
-        break;
-      }
-      Thread.sleep(100);
-    }
-
-    ResponseEntity<InputStreamResource> thumbnailDownloadResponse = fileController.downloadObject(
-      bucketUnderTest,
-      thumbnailFilename
-    );
-
-    assertEquals(HttpStatus.OK, thumbnailDownloadResponse.getStatusCode());
   }
 
   @Transactional
@@ -158,14 +117,12 @@ public class FileControllerIT extends BaseIntegrationTest {
     assertNotNull(objUploaded);
   }
 
-  @Transactional
   @Test
   public void downloadDerivative_WhenDerivativeDoesNotExist_ThrowsNotFound() {
     assertThrows(ResponseStatusException.class,
       () -> fileController.downloadDerivative(bucketUnderTest, UUID.randomUUID()));
   }
 
-  @Transactional
   @Test
   public void downloadDerivative() throws IOException, InvalidKeyException, NoSuchAlgorithmException,
     XmlParserException, InvalidResponseException, ServerException, InternalException, MimeTypeException,
@@ -192,7 +149,6 @@ public class FileControllerIT extends BaseIntegrationTest {
     assertTrue(IOUtils.contentEquals(mockFile.getInputStream(), body.getInputStream()));
   }
 
-  @Transactional
   @Test
   public void derivativeUpload_OnValidUpload() throws Exception {
     MockMultipartFile mockFile = getFileUnderTest();

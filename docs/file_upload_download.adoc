@@ -65,22 +65,6 @@ curl http:/localhost:8081/api/v1/file/mybucket/0050559c-beae-48d6-a2b0-91f5a666f
 
 == File Thumbnail Download
 
-A thumbnail is automatically generated when an image file is uploaded.
+To download a thumbnail, send a GET request to the `/api/v1/file/{bucket}/{fileId}/thumbnail` endpoint.
 
-A thumbnails metadata is automatically generated when an image file's metadata is uploaded. 
-
-The thumbnails metadata contains the thumbnails file identifier and the UUID of the original resources metada.
-
-To download the thumbnail:
-
-. Get the UUID of the original resouces metadata
-. Send a request to get the thumbnails meta data 
-
-```
-/metadata?filter[acDerivedFrom.id][EQ]={UUID_OF_ORIGINAL_RESOUCE_METADATA}
-```
-. Use the thumbnails metadata's file identifier value to download the thumbnail
-
-```
-/file/mybucket/{THUMBNAIL_FILE_IDENTIFIER}
-```
+A thumbnail is automatically generated after an image file's metadata is uploaded.

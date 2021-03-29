@@ -7,14 +7,13 @@ import ca.gc.aafc.dina.repository.GoneException;
 import ca.gc.aafc.dina.repository.external.ExternalResourceProvider;
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.dina.service.AuditService;
-import ca.gc.aafc.dina.service.DinaService;
 import ca.gc.aafc.dina.service.GroupAuthorizationService;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.file.FileController;
-import ca.gc.aafc.objectstore.api.file.ThumbnailService;
 import ca.gc.aafc.objectstore.api.respository.managedattributemap.MetadataToManagedAttributeMapRepository;
+import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataReadService;
 import io.crnk.core.queryspec.FilterOperator;
 import io.crnk.core.queryspec.FilterSpec;
@@ -42,7 +41,7 @@ public class ObjectStoreResourceRepository
   extends DinaRepository<ObjectStoreMetadataDto, ObjectStoreMetadata>
   implements ObjectStoreMetadataReadService {
 
-  private final DinaService<ObjectStoreMetadata> dinaService;
+  private final ObjectStoreMetaDataService dinaService;
   private final DinaAuthenticatedUser authenticatedUser;
   private static final PathSpec DELETED_PATH_SPEC = PathSpec.of("softDeleted");
   private static final PathSpec DELETED_DATE = PathSpec.of(SoftDeletable.DELETED_DATE_FIELD_NAME);
@@ -50,7 +49,7 @@ public class ObjectStoreResourceRepository
   private static final FilterSpec NOT_DELETED_FILTER = DELETED_DATE.filter(FilterOperator.EQ, null);
 
   public ObjectStoreResourceRepository(
-    @NonNull DinaService<ObjectStoreMetadata> dinaService,
+    @NonNull ObjectStoreMetaDataService dinaService,
     @NonNull ExternalResourceProvider externalResourceProvider,
     @NonNull DinaAuthenticatedUser authenticatedUser,
     @NonNull AuditService auditService,
@@ -143,8 +142,6 @@ public class ObjectStoreResourceRepository
     resource.setCreatedBy(authenticatedUser.getUsername());
     ObjectStoreMetadataDto created = super.create(resource);
 
-    handleThumbNailMetaEntry(created);
-
     return this.findOne(
       created.getUuid(),
       new QuerySpec(ObjectStoreMetadataDto.class)
@@ -182,21 +179,4 @@ public class ObjectStoreResourceRepository
     return objectMetadata;
   }
 
-  /**
-   * Persists a thumbnail Metadata based off a given resource if the resource has an associated
-   * thumbnail.
-   *
-   * @param resource - parent resource metadata of the thumbnail
-   */
-  private void handleThumbNailMetaEntry(ObjectStoreMetadataDto resource) {
-    ObjectUpload objectUpload = dinaService.findOne(
-      resource.getFileIdentifier(),
-      ObjectUpload.class);
-    if (objectUpload.getThumbnailIdentifier() != null) {
-      ObjectStoreMetadataDto thumbnailMetadataDto = ThumbnailService.generateThumbMetaData(
-        resource,
-        objectUpload.getThumbnailIdentifier());
-      super.create(thumbnailMetadataDto);
-    }
-  }
 }

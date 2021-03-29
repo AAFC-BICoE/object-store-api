@@ -22,7 +22,11 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
   }
 
   public Optional<Derivative> findByFileId(UUID fileId) {
-    return this.findAll(Derivative.class, (criteriaBuilder, root) -> new Predicate[]{
-      criteriaBuilder.equal(root.get("fileIdentifier"), fileId)}, null, 0, 1).stream().findFirst();
+    return findAll(Derivative.class,
+        (cb, root) -> new Predicate[] { cb.equal(root.get("fileIdentifier"), fileId) },
+        null, 0, 1)
+        .stream().findFirst();
   }
+
+
 }
