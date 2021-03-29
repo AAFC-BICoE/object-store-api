@@ -8,6 +8,7 @@ import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.Thumbnails.Builder;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
@@ -88,6 +89,11 @@ public class ThumbnailService {
   }
 
   public boolean isSupported(String fileType) {
+
+    if(StringUtils.isBlank(fileType)) {
+      return false;
+    }
+
     // PDFs are handled as a special case:
     if (PDF_FILETYPE.equals(fileType)) {
       return true;

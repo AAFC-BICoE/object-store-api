@@ -24,19 +24,23 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
   private final MetaManagedAttributeService metaManagedAttributeService;
 
   private final BaseDAO baseDAO;
+
+  private final DerivativeService derivativeService;
   private final ThumbnailService thumbnailService;
 
   public ObjectStoreMetaDataService(
     @NonNull ThumbnailService thumbnailService,
     @NonNull BaseDAO baseDAO,
     @NonNull ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService,
-    @NonNull MetaManagedAttributeService metaManagedAttributeService
+    @NonNull MetaManagedAttributeService metaManagedAttributeService,
+    @NonNull DerivativeService derivativeService
   ) {
     super(baseDAO);
     this.baseDAO = baseDAO;
     this.defaultValueSetterService = defaultValueSetterService;
     this.metaManagedAttributeService = metaManagedAttributeService;
     this.thumbnailService = thumbnailService;
+    this.derivativeService = derivativeService;
   }
 
   @Override
@@ -142,16 +146,15 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
   private void handleThumbNailGeneration(ObjectStoreMetadata resource) {
     String evaluatedMediaType = resource.getDcFormat();
 
-    if (StringUtils.isNotBlank(evaluatedMediaType) && thumbnailService.isSupported(evaluatedMediaType)) {
+    if (thumbnailService.isSupported(evaluatedMediaType)) {
       UUID uuid = UUID.randomUUID();
       String bucket = resource.getBucket();
 
-      baseDAO.create(Derivative.builder()
+      derivativeService.create(Derivative.builder()
         .uuid(UUID.randomUUID())
         .createdBy(ThumbnailService.SYSTEM_GENERATED)
         .dcType(ThumbnailService.THUMBNAIL_DC_TYPE)
         .fileExtension(ThumbnailService.THUMBNAIL_EXTENSION)
-        .dcType(ThumbnailService.THUMBNAIL_DC_TYPE)
         .fileIdentifier(uuid)
         .bucket(bucket)
         .acDerivedFrom(
