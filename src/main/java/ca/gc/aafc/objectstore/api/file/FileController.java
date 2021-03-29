@@ -29,7 +29,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -79,8 +78,7 @@ public class FileController {
     ObjectStoreMetadataReadService objectStoreMetadataReadService,
     MediaTypeDetectionStrategy mediaTypeDetectionStrategy,
     DinaAuthenticatedUser authenticatedUser,
-    MessageSource messageSource,
-    TransactionTemplate transactionTemplate
+    MessageSource messageSource
   ) {
     this.minioService = minioService;
     this.objectUploadService = objectUploadService;
