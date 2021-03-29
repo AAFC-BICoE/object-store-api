@@ -117,14 +117,12 @@ public class FileControllerIT extends BaseIntegrationTest {
     assertNotNull(objUploaded);
   }
 
-  @Transactional
   @Test
   public void downloadDerivative_WhenDerivativeDoesNotExist_ThrowsNotFound() {
     assertThrows(ResponseStatusException.class,
       () -> fileController.downloadDerivative(bucketUnderTest, UUID.randomUUID()));
   }
 
-  @Transactional
   @Test
   public void downloadDerivative() throws IOException, InvalidKeyException, NoSuchAlgorithmException,
     XmlParserException, InvalidResponseException, ServerException, InternalException, MimeTypeException,
@@ -151,7 +149,6 @@ public class FileControllerIT extends BaseIntegrationTest {
     assertTrue(IOUtils.contentEquals(mockFile.getInputStream(), body.getInputStream()));
   }
 
-  @Transactional
   @Test
   public void derivativeUpload_OnValidUpload() throws Exception {
     MockMultipartFile mockFile = getFileUnderTest();

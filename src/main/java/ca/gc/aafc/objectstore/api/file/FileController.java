@@ -153,7 +153,6 @@ public class FileController {
    * @return a response entity
    */
   @GetMapping("/file/{bucket}/{fileId}")
-  @Transactional
   public ResponseEntity<InputStreamResource> downloadObject(
     @PathVariable String bucket,
     @PathVariable UUID fileId
@@ -166,7 +165,6 @@ public class FileController {
   }
 
   @GetMapping("/file/{bucket}/derivative/{fileId}")
-  @Transactional
   public ResponseEntity<InputStreamResource> downloadDerivative(
     @PathVariable String bucket,
     @PathVariable UUID fileId
@@ -180,7 +178,6 @@ public class FileController {
   }
 
   @GetMapping("/file/{bucket}/{fileId}/thumbnail")
-  @Transactional
   public ResponseEntity<InputStreamResource> downloadThumbNail(
     @PathVariable String bucket,
     @PathVariable UUID fileId
