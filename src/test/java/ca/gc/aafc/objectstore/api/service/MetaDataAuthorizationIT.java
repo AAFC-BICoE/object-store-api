@@ -37,7 +37,7 @@ public class MetaDataAuthorizationIT extends BaseIntegrationTest {
   void setUp() {
     testObjectUpload = ObjectUploadFactory.newObjectUpload().build();
     testObjectUpload.setDcType(DcType.TEXT);
-    testObjectUpload.setEvaluatedMediaType(MediaType.TEXT_PLAIN_VALUE);
+    testObjectUpload.setDetectedMediaType(MediaType.TEXT_PLAIN_VALUE);
     service.save(testObjectUpload);
     persisted = persistMeta(GROUP_1);
   }
