@@ -2,14 +2,18 @@ package ca.gc.aafc.objectstore.api.service;
 
 import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.dina.service.DefaultDinaService;
+import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
+import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
-
+import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
+import ca.gc.aafc.objectstore.api.file.ThumbnailService;
 import io.crnk.core.exception.BadRequestException;
 import lombok.NonNull;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+
 import javax.persistence.criteria.Predicate;
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -22,20 +26,25 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
   private final MetaManagedAttributeService metaManagedAttributeService;
 
   private final BaseDAO baseDAO;
+  private final ThumbnailService thumbnailService;
 
-  public ObjectStoreMetaDataService(@NonNull BaseDAO baseDAO,
-      @NonNull ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService,
-      @NonNull MetaManagedAttributeService metaManagedAttributeService) {
+  public ObjectStoreMetaDataService(
+    @NonNull ThumbnailService thumbnailService,
+    @NonNull BaseDAO baseDAO,
+    @NonNull ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService,
+    @NonNull MetaManagedAttributeService metaManagedAttributeService
+  ) {
     super(baseDAO);
     this.baseDAO = baseDAO;
     this.defaultValueSetterService = defaultValueSetterService;
     this.metaManagedAttributeService = metaManagedAttributeService;
+    this.thumbnailService = thumbnailService;
   }
-  
+
   @Override
   protected void preCreate(ObjectStoreMetadata entity) {
-    validateMetaManagedAttribute(entity);  
-       
+    validateMetaManagedAttribute(entity);
+
     entity.setUuid(UUID.randomUUID());
 
     defaultValueSetterService.assignDefaultValues(entity);
@@ -49,17 +58,17 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
     }
   }
 
-  private void validateMetaManagedAttribute(ObjectStoreMetadata entity) { 
-    if ( entity.getManagedAttribute() != null ) {
+  private void validateMetaManagedAttribute(ObjectStoreMetadata entity) {
+    if (entity.getManagedAttribute() != null) {
       entity.getManagedAttribute().forEach(
-          metaManagedAttributeService::validateMetaManagedAttribute
+        metaManagedAttributeService::validateMetaManagedAttribute
       );
     }
   }
 
   @Override
   protected void preUpdate(ObjectStoreMetadata entity) {
-    validateMetaManagedAttribute(entity);  
+    validateMetaManagedAttribute(entity);
 
     ObjectSubtype temp = entity.getAcSubType();
 
@@ -120,4 +129,48 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
       acSubType.getAcSubtype() + "/" + acSubType.getDcType() + " is not a valid acSubType/dcType");
   }
 
+  /**
+   * Generates a thumbnail for the given resource.
+   *
+   * @param resource - parent resource metadata of the thumbnail
+   */
+  public void handleThumbNailGeneration(ObjectStoreMetadataDto resource) {
+    ObjectUpload objectUpload = this.findOne(resource.getFileIdentifier(), ObjectUpload.class);
+    String evaluatedMediaType = objectUpload.getEvaluatedMediaType();
+
+    if (thumbnailService.isSupported(evaluatedMediaType)) {
+      UUID uuid = UUID.randomUUID();
+      String bucket = objectUpload.getBucket();
+
+      baseDAO.create(Derivative.builder()
+        .uuid(UUID.randomUUID())
+        .createdBy(ThumbnailService.SYSTEM_GENERATED)
+        .dcType(ThumbnailService.THUMBNAIL_DC_TYPE)
+        .fileExtension(ThumbnailService.THUMBNAIL_EXTENSION)
+        .dcType(ThumbnailService.THUMBNAIL_DC_TYPE)
+        .fileIdentifier(uuid)
+        .bucket(bucket)
+        .acDerivedFrom(
+          this.getReferenceByNaturalId(ObjectStoreMetadata.class, resource.getUuid()))
+        .objectSubtype(this.getThumbNailSubType())
+        .build());
+
+      thumbnailService.generateThumbnail(
+        uuid,
+        objectUpload.getFileIdentifier() + objectUpload.getEvaluatedFileExtension(),
+        evaluatedMediaType,
+        bucket);
+    }
+  }
+
+  public ObjectSubtype getThumbNailSubType() {
+    return this.findAll(ObjectSubtype.class,
+      (criteriaBuilder, objectRoot) -> new Predicate[]{
+        criteriaBuilder.equal(objectRoot.get("acSubtype"), ThumbnailService.THUMBNAIL_AC_SUB_TYPE),
+        criteriaBuilder.equal(objectRoot.get("dcType"), ThumbnailService.THUMBNAIL_DC_TYPE),
+      }, null, 0, 1)
+      .stream()
+      .findFirst()
+      .orElseThrow(() -> new IllegalArgumentException("A thumbnail subtype is not present"));
+  }
 }

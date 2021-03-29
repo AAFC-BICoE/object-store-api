@@ -7,16 +7,13 @@ import ca.gc.aafc.dina.repository.GoneException;
 import ca.gc.aafc.dina.repository.external.ExternalResourceProvider;
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.dina.service.AuditService;
-import ca.gc.aafc.dina.service.DinaService;
 import ca.gc.aafc.dina.service.GroupAuthorizationService;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
-import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.file.FileController;
-import ca.gc.aafc.objectstore.api.file.ThumbnailService;
 import ca.gc.aafc.objectstore.api.respository.managedattributemap.MetadataToManagedAttributeMapRepository;
-import ca.gc.aafc.objectstore.api.service.DerivativeService;
+import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataReadService;
 import io.crnk.core.queryspec.FilterOperator;
 import io.crnk.core.queryspec.FilterSpec;
@@ -44,24 +41,20 @@ public class ObjectStoreResourceRepository
   extends DinaRepository<ObjectStoreMetadataDto, ObjectStoreMetadata>
   implements ObjectStoreMetadataReadService {
 
-  private final DinaService<ObjectStoreMetadata> dinaService;
+  private final ObjectStoreMetaDataService dinaService;
   private final DinaAuthenticatedUser authenticatedUser;
-  private final ThumbnailService thumbnailService;
-  private final DerivativeService derivativeService;
   private static final PathSpec DELETED_PATH_SPEC = PathSpec.of("softDeleted");
   private static final PathSpec DELETED_DATE = PathSpec.of(SoftDeletable.DELETED_DATE_FIELD_NAME);
   private static final FilterSpec SOFT_DELETED = DELETED_DATE.filter(FilterOperator.NEQ, null);
   private static final FilterSpec NOT_DELETED_FILTER = DELETED_DATE.filter(FilterOperator.EQ, null);
 
   public ObjectStoreResourceRepository(
-    @NonNull DinaService<ObjectStoreMetadata> dinaService,
+    @NonNull ObjectStoreMetaDataService dinaService,
     @NonNull ExternalResourceProvider externalResourceProvider,
     @NonNull DinaAuthenticatedUser authenticatedUser,
     @NonNull AuditService auditService,
-    @NonNull ThumbnailService thumbnailService,
     Optional<GroupAuthorizationService> groupService,
-    @NonNull BuildProperties props,
-    @NonNull DerivativeService derivativeService
+    @NonNull BuildProperties props
   ) {
     super(
       dinaService,
@@ -75,8 +68,6 @@ public class ObjectStoreResourceRepository
       props);
     this.dinaService = dinaService;
     this.authenticatedUser = authenticatedUser;
-    this.thumbnailService = thumbnailService;
-    this.derivativeService = derivativeService;
   }
 
   /**
@@ -151,7 +142,7 @@ public class ObjectStoreResourceRepository
     resource.setCreatedBy(authenticatedUser.getUsername());
     ObjectStoreMetadataDto created = super.create(resource);
 
-    handleThumbNailGeneration(created);
+    dinaService.handleThumbNailGeneration(created);
 
     return this.findOne(
       created.getUuid(),
@@ -188,39 +179,6 @@ public class ObjectStoreResourceRepository
     objectMetadata.setAcHashFunction(FileController.DIGEST_ALGORITHM);
 
     return objectMetadata;
-  }
-
-  /**
-   * Generates a thumbnail for the given resource.
-   *
-   * @param resource - parent resource metadata of the thumbnail
-   */
-  private void handleThumbNailGeneration(ObjectStoreMetadataDto resource) {
-    ObjectUpload objectUpload = derivativeService.findOne(resource.getFileIdentifier(), ObjectUpload.class);
-    String evaluatedMediaType = objectUpload.getEvaluatedMediaType();
-
-    if (thumbnailService.isSupported(evaluatedMediaType)) {
-      UUID uuid = UUID.randomUUID();
-      String bucket = objectUpload.getBucket();
-
-      derivativeService.create(Derivative.builder()
-        .createdBy(ThumbnailService.SYSTEM_GENERATED)
-        .dcType(ThumbnailService.THUMBNAIL_DC_TYPE)
-        .fileExtension(ThumbnailService.THUMBNAIL_EXTENSION)
-        .dcType(ThumbnailService.THUMBNAIL_DC_TYPE)
-        .fileIdentifier(uuid)
-        .bucket(bucket)
-        .acDerivedFrom(
-          derivativeService.getReferenceByNaturalId(ObjectStoreMetadata.class, resource.getUuid()))
-        .objectSubtype(derivativeService.getThumbNailSubType())
-        .build());
-
-      thumbnailService.generateThumbnail(
-        uuid,
-        objectUpload.getFileIdentifier() + objectUpload.getEvaluatedFileExtension(),
-        evaluatedMediaType,
-        bucket);
-    }
   }
 
 }
