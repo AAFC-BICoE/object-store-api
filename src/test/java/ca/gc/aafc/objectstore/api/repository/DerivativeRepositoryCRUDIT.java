@@ -18,10 +18,7 @@ public class DerivativeRepositoryCRUDIT extends BaseRepositoryTest {
   @Test
   void create() {
     //TODO cannot create without a upload present, handle file related data
-    DerivativeDto resource = derivativeRepository.create(DerivativeDto.builder()
-      .bucket("dina bucket")
-      .fileIdentifier(UUID.randomUUID())
-      .build());
+    DerivativeDto resource = derivativeRepository.create(newDerivative());
     DerivativeDto result = derivativeRepository.findOne(
       resource.getUuid(),
       new QuerySpec(DerivativeDto.class));
@@ -40,11 +37,13 @@ public class DerivativeRepositoryCRUDIT extends BaseRepositoryTest {
 
   @Test
   void create_WhenNoObjectUpload_ThrowsValidationException() {
-    Assertions.assertThrows(
-      ValidationException.class,
-      () -> derivativeRepository.create(DerivativeDto.builder()
-        .bucket("dina bucket")
-        .fileIdentifier(UUID.randomUUID())
-        .build()));
+    Assertions.assertThrows(ValidationException.class, () -> derivativeRepository.create(newDerivative()));
+  }
+
+  private static DerivativeDto newDerivative() {
+    return DerivativeDto.builder()
+      .bucket("dina bucket")
+      .fileIdentifier(UUID.randomUUID())
+      .build();
   }
 }
