@@ -5,6 +5,9 @@ import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.Tag;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
+
+import org.apache.commons.lang3.StringUtils;
+
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 
@@ -54,7 +57,7 @@ public final class ExifParser {
     if (directory == null) {
       return Collections.emptyMap();
     }
-    return directory.getTags().stream().filter(tag -> tag.getDescription() != null)
+    return directory.getTags().stream().filter(tag -> StringUtils.isNotBlank(tag.getDescription()))
       .collect(Collectors.toMap(Tag::getTagName, Tag::getDescription));
   }
 
