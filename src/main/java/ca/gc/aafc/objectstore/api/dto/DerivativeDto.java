@@ -4,8 +4,9 @@ import ca.gc.aafc.dina.dto.RelatedEntity;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
-import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.crnk.core.resource.annotations.JsonApiId;
+import io.crnk.core.resource.annotations.JsonApiRelation;
 import io.crnk.core.resource.annotations.JsonApiResource;
 import lombok.Builder;
 import lombok.Data;
@@ -19,7 +20,10 @@ import java.util.UUID;
 @Builder
 @JsonApiResource(type = DerivativeDto.TYPENAME)
 public class DerivativeDto {
+
   public static final String TYPENAME = "derivative";
+
+  @JsonApiId
   private UUID uuid;
   private String bucket;
   private UUID fileIdentifier;
@@ -29,6 +33,8 @@ public class DerivativeDto {
   private String acHashValue;
   private String createdBy;
   private OffsetDateTime createdOn;
-  private ObjectSubtype objectSubtype;
+  private ObjectSubtypeDto objectSubtype;
+
+  @JsonApiRelation
   private ObjectStoreMetadata acDerivedFrom;
 }
