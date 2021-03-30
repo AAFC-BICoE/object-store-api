@@ -37,4 +37,14 @@ public class DerivativeRepositoryCRUDIT extends BaseRepositoryTest {
       ValidationException.class,
       () -> derivativeRepository.create(DerivativeDto.builder().fileIdentifier(UUID.randomUUID()).build()));
   }
+
+  @Test
+  void create_WhenNoObjectUpload_ThrowsValidationException() {
+    Assertions.assertThrows(
+      ValidationException.class,
+      () -> derivativeRepository.create(DerivativeDto.builder()
+        .bucket("dina bucket")
+        .fileIdentifier(UUID.randomUUID())
+        .build()));
+  }
 }
