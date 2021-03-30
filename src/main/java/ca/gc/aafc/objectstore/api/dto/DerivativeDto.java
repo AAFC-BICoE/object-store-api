@@ -37,5 +37,5 @@ public class DerivativeDto {
   @JsonApiRelation
   private ObjectSubtypeDto objectSubtype;
   @JsonApiRelation
-  private ObjectStoreMetadata acDerivedFrom;
+  private ObjectStoreMetadataDto acDerivedFrom;
 }

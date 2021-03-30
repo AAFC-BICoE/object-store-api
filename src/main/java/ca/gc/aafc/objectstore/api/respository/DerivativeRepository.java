@@ -8,10 +8,12 @@ import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.service.DerivativeService;
 import lombok.NonNull;
 import org.springframework.boot.info.BuildProperties;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-public class DerivativeRepository  extends DinaRepository<DerivativeDto, Derivative> {
+@Repository
+public class DerivativeRepository extends DinaRepository<DerivativeDto, Derivative> {
   public DerivativeRepository(
     @NonNull DerivativeService derivativeService,
     ExternalResourceProvider externalResourceProvider,
