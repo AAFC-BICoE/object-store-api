@@ -28,15 +28,15 @@ public class DerivativeRepositoryCRUDIT extends BaseRepositoryTest {
   }
 
   @Test
-  void create() {
+  void create() {//TODO must be a derivative upload
     DerivativeDto resource = derivativeRepository.create(newDerivative(upload.getFileIdentifier()));
     DerivativeDto result = derivativeRepository.findOne(
       resource.getUuid(),
       new QuerySpec(DerivativeDto.class));
-    Assertions.assertEquals(resource.getBucket(), result.getBucket());
     Assertions.assertEquals(resource.getDcType(), result.getDcType());
     Assertions.assertEquals(resource.getFileIdentifier(), result.getFileIdentifier());
     // Auto generated fields
+    Assertions.assertNotNull(result.getBucket());
     Assertions.assertNotNull(result.getFileExtension());
     Assertions.assertNotNull(result.getAcHashValue());
     Assertions.assertNotNull(result.getAcHashFunction());
@@ -44,12 +44,9 @@ public class DerivativeRepositoryCRUDIT extends BaseRepositoryTest {
   }
 
   @Test
-  void create_WhenNoBucketOrFileId_ThrowsValidationException() {
-    DerivativeDto noBucket = newDerivative(upload.getFileIdentifier());
-    noBucket.setBucket(null);
+  void create_WhenNoFileId_ThrowsValidationException() {
     DerivativeDto noFileId = newDerivative(upload.getFileIdentifier());
     noFileId.setFileIdentifier(null);
-    Assertions.assertThrows(ValidationException.class, () -> derivativeRepository.create(noBucket));
     Assertions.assertThrows(ValidationException.class, () -> derivativeRepository.create(noFileId));
   }
 
@@ -62,7 +59,6 @@ public class DerivativeRepositoryCRUDIT extends BaseRepositoryTest {
 
   private static DerivativeDto newDerivative(UUID fileIdentifier) {
     DerivativeDto dto = new DerivativeDto();
-    dto.setBucket("dina bucket");
     dto.setDcType(DcType.IMAGE);//TODO does user submit this?
     dto.setFileIdentifier(fileIdentifier);
     return dto;

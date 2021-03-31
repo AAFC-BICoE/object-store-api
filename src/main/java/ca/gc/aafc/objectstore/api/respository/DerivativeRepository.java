@@ -10,13 +10,12 @@ import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.file.FileController;
 import ca.gc.aafc.objectstore.api.service.DerivativeService;
 import lombok.NonNull;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.stereotype.Repository;
 
 import javax.validation.ValidationException;
-import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public class DerivativeRepository extends DinaRepository<DerivativeDto, Derivative> {
@@ -46,25 +45,24 @@ public class DerivativeRepository extends DinaRepository<DerivativeDto, Derivati
 
   @Override
   public <S extends DerivativeDto> S create(S resource) {
-    // Validate bucket and file Id
-    if (StringUtils.isBlank(resource.getBucket())
-      || StringUtils.isBlank(Objects.toString(resource.getFileIdentifier(), ""))) {
+    UUID fileIdentifier = resource.getFileIdentifier();
+    if (fileIdentifier == null) {
       throw new ValidationException("fileIdentifier and bucket should be provided");
     }
 
     ObjectUpload objectUpload = derivativeService.findOne(
-      resource.getFileIdentifier(),
+      fileIdentifier,
       ObjectUpload.class);
 
     if (objectUpload == null) {
-      throw new ValidationException("fileIdentifier not found");
+      throw new ValidationException("Upload with fileIdentifier:" + fileIdentifier + " not found");
     }
 
+    // Auto populated fields based on object upload for given File Id
     resource.setFileExtension(objectUpload.getEvaluatedFileExtension());
     resource.setAcHashValue(objectUpload.getSha1Hex());
     resource.setAcHashFunction(FileController.DIGEST_ALGORITHM);
-
-
+    resource.setBucket(objectUpload.getBucket());
     resource.setCreatedBy(authenticatedUser.getUsername());
 
     return super.create(resource);
