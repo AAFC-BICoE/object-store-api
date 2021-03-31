@@ -34,6 +34,13 @@ public class DerivativeRepositoryCRUDIT extends BaseRepositoryTest {
       resource.getUuid(),
       new QuerySpec(DerivativeDto.class));
     Assertions.assertEquals(resource.getBucket(), result.getBucket());
+    Assertions.assertEquals(resource.getDcType(), result.getDcType());
+    Assertions.assertEquals(resource.getFileIdentifier(), result.getFileIdentifier());
+    // Auto generated fields
+    Assertions.assertNotNull(result.getFileExtension());
+    Assertions.assertNotNull(result.getAcHashValue());
+    Assertions.assertNotNull(result.getAcHashFunction());
+    Assertions.assertNotNull(result.getCreatedBy());
   }
 
   @Test
@@ -57,7 +64,6 @@ public class DerivativeRepositoryCRUDIT extends BaseRepositoryTest {
     DerivativeDto dto = new DerivativeDto();
     dto.setBucket("dina bucket");
     dto.setDcType(DcType.IMAGE);//TODO does user submit this?
-    dto.setFileExtension(".something");//TODO does user submit this?
     dto.setFileIdentifier(fileIdentifier);
     return dto;
   }
