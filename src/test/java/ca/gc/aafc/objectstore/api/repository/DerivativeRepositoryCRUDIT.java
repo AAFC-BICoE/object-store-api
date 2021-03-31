@@ -70,7 +70,7 @@ public class DerivativeRepositoryCRUDIT extends BaseRepositoryTest {
 
   private static DerivativeDto newDerivative(UUID fileIdentifier) {
     DerivativeDto dto = new DerivativeDto();
-    dto.setDcType(DcType.IMAGE);//TODO does user submit this?
+    dto.setDcType(DcType.IMAGE);
     dto.setFileIdentifier(fileIdentifier);
     return dto;
   }
