@@ -47,18 +47,21 @@ public class DerivativeRepository extends DinaRepository<DerivativeDto, Derivati
   @Override
   public <S extends DerivativeDto> S create(S resource) {
     UUID fileIdentifier = resource.getFileIdentifier();
+    // File id required on submission
     if (fileIdentifier == null) {
-      throw new ValidationException("fileIdentifier and bucket should be provided");
+      throw new ValidationException("fileIdentifier should be provided");
     }
 
     ObjectUpload objectUpload = derivativeService.findOne(
       fileIdentifier,
       ObjectUpload.class);
 
+    // Object Upload must be present, signals a real file has been previously uploaded.
     if (objectUpload == null) {
       throw new ValidationException("Upload with fileIdentifier:" + fileIdentifier + " not found");
     }
 
+    // Object Upload must be a derivative
     if (!objectUpload.getIsDerivative()) {
       throw new BadRequestException("Upload with fileIdentifier:" + fileIdentifier + " is not a derivative");
     }
