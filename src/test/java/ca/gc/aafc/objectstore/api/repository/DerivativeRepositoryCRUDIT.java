@@ -5,6 +5,7 @@ import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.respository.DerivativeRepository;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
+import io.crnk.core.exception.BadRequestException;
 import io.crnk.core.queryspec.QuerySpec;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,7 +29,7 @@ public class DerivativeRepositoryCRUDIT extends BaseRepositoryTest {
   }
 
   @Test
-  void create() {//TODO must be a derivative upload
+  void create() {
     DerivativeDto resource = derivativeRepository.create(newDerivative(upload.getFileIdentifier()));
     DerivativeDto result = derivativeRepository.findOne(
       resource.getUuid(),
@@ -55,6 +56,16 @@ public class DerivativeRepositoryCRUDIT extends BaseRepositoryTest {
     Assertions.assertThrows(
       ValidationException.class,
       () -> derivativeRepository.create(newDerivative(UUID.randomUUID())));
+  }
+
+  @Test
+  void create_WhenNotDerivative_ThrowsBadRequest() {
+    ObjectUpload notDerivative = ObjectUploadFactory.newObjectUpload().build();
+    notDerivative.setIsDerivative(false);
+    this.service.save(notDerivative);
+    Assertions.assertThrows(
+      BadRequestException.class,
+      () -> derivativeRepository.create(newDerivative(notDerivative.getFileIdentifier())));
   }
 
   private static DerivativeDto newDerivative(UUID fileIdentifier) {

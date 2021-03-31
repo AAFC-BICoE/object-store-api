@@ -9,6 +9,7 @@ import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.file.FileController;
 import ca.gc.aafc.objectstore.api.service.DerivativeService;
+import io.crnk.core.exception.BadRequestException;
 import lombok.NonNull;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.stereotype.Repository;
@@ -56,6 +57,10 @@ public class DerivativeRepository extends DinaRepository<DerivativeDto, Derivati
 
     if (objectUpload == null) {
       throw new ValidationException("Upload with fileIdentifier:" + fileIdentifier + " not found");
+    }
+
+    if (!objectUpload.getIsDerivative()) {
+      throw new BadRequestException("Upload with fileIdentifier:" + fileIdentifier + " is not a derivative");
     }
 
     // Auto populated fields based on object upload for given File Id
