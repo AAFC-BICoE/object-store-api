@@ -3,6 +3,7 @@ package ca.gc.aafc.objectstore.api.respository;
 import ca.gc.aafc.dina.mapper.DinaMapper;
 import ca.gc.aafc.dina.repository.DinaRepository;
 import ca.gc.aafc.dina.repository.external.ExternalResourceProvider;
+import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.objectstore.api.dto.DerivativeDto;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
@@ -21,11 +22,13 @@ import java.util.Optional;
 public class DerivativeRepository extends DinaRepository<DerivativeDto, Derivative> {
 
   private final DerivativeService derivativeService;
+  private final DinaAuthenticatedUser authenticatedUser;
 
   public DerivativeRepository(
     @NonNull DerivativeService derivativeService,
     ExternalResourceProvider externalResourceProvider,
-    @NonNull BuildProperties buildProperties
+    @NonNull BuildProperties buildProperties,
+    @NonNull DinaAuthenticatedUser authenticatedUser
   ) {
     super(
       derivativeService,
@@ -38,6 +41,7 @@ public class DerivativeRepository extends DinaRepository<DerivativeDto, Derivati
       externalResourceProvider,
       buildProperties);
     this.derivativeService = derivativeService;
+    this.authenticatedUser = authenticatedUser;
   }
 
   @Override
@@ -59,6 +63,9 @@ public class DerivativeRepository extends DinaRepository<DerivativeDto, Derivati
     resource.setFileExtension(objectUpload.getEvaluatedFileExtension());
     resource.setAcHashValue(objectUpload.getSha1Hex());
     resource.setAcHashFunction(FileController.DIGEST_ALGORITHM);
+
+
+    resource.setCreatedBy(authenticatedUser.getUsername());
 
     return super.create(resource);
   }
