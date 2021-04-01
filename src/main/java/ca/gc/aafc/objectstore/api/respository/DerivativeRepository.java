@@ -10,6 +10,7 @@ import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.file.FileController;
 import ca.gc.aafc.objectstore.api.service.DerivativeService;
 import io.crnk.core.exception.BadRequestException;
+import io.crnk.core.exception.MethodNotAllowedException;
 import lombok.NonNull;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.stereotype.Repository;
@@ -74,6 +75,11 @@ public class DerivativeRepository extends DinaRepository<DerivativeDto, Derivati
     resource.setCreatedBy(authenticatedUser.getUsername());
 
     return super.create(resource);
+  }
+
+  @Override
+  public <S extends DerivativeDto> S save(S resource) {
+    throw new MethodNotAllowedException("Updating a derivative is prohibited");
   }
 
 }

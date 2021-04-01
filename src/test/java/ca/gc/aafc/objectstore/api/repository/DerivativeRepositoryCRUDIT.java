@@ -6,6 +6,7 @@ import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.respository.DerivativeRepository;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import io.crnk.core.exception.BadRequestException;
+import io.crnk.core.exception.MethodNotAllowedException;
 import io.crnk.core.queryspec.QuerySpec;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -66,6 +67,13 @@ public class DerivativeRepositoryCRUDIT extends BaseRepositoryTest {
     Assertions.assertThrows(
       BadRequestException.class,
       () -> derivativeRepository.create(newDerivative(notDerivative.getFileIdentifier())));
+  }
+
+  @Test
+  void save_ThrowsMethodNotAllowed() {
+    Assertions.assertThrows(
+      MethodNotAllowedException.class,
+      () -> derivativeRepository.save(newDerivative(UUID.randomUUID())));
   }
 
   private static DerivativeDto newDerivative(UUID fileIdentifier) {
