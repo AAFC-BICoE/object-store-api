@@ -19,6 +19,18 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
   @Override
   protected void preCreate(Derivative entity) {
     entity.setUuid(UUID.randomUUID());
+    establishBiDirectionalAssociation(entity);
+  }
+
+  @Override
+  protected void preUpdate(Derivative entity) {
+    establishBiDirectionalAssociation(entity);
+  }
+
+  private static void establishBiDirectionalAssociation(Derivative entity) {
+    if (entity.getAcDerivedFrom() != null) {
+      entity.getAcDerivedFrom().addDerivative(entity);
+    }
   }
 
   public Optional<Derivative> findByFileId(UUID fileId) {
@@ -27,6 +39,5 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
         null, 0, 1)
         .stream().findFirst();
   }
-
 
 }

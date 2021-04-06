@@ -1,29 +1,26 @@
 package ca.gc.aafc.objectstore.api.rest;
 
+import ca.gc.aafc.objectstore.api.MinioTestConfiguration;
+import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
+import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
+import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
+import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
+import io.restassured.response.ValidatableResponse;
+import org.hamcrest.Matchers;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
+
 import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.hamcrest.Matchers;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import ca.gc.aafc.objectstore.api.MinioTestConfiguration;
-import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
-import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
-import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
-import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
-import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
-import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
-import io.restassured.response.ValidatableResponse;
-import org.springframework.http.HttpStatus;
-
 public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
 
-  private static final String METADATA_DERIVED_PROPERTY_NAME = "acDerivedFrom";
   private static final String SCHEMA_NAME = "Metadata";
   private static final String RESOURCE_UNDER_TEST = "metadata";
   
@@ -31,17 +28,9 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
   private ObjectSubtype oSubtype;
   private ObjectUpload oUpload;
 
-  private UUID metadataId;
-  
   @BeforeEach
   public void setup() {
     oUpload = MinioTestConfiguration.buildTestObjectUpload();
-
-    // used to test relationships
-    ObjectStoreMetadata metadata = ObjectStoreMetadataFactory
-      .newObjectStoreMetadata()
-      .fileIdentifier(UUID.randomUUID())
-      .build();
 
     oSubtype = ObjectSubtypeFactory
       .newObjectSubtype()
@@ -50,12 +39,10 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
     // we need to run the setup in another transaction and commit it otherwise it can't be visible
     // to the test web server.
     service.runInNewTransaction(em -> {
-      em.persist(metadata);
       em.persist(oSubtype);
       em.persist(oUpload);
     });
 
-    metadataId = metadata.getUuid();
   }
 
   /**
@@ -127,7 +114,6 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
   @Override
   protected List<Relationship> buildRelationshipList() {
     return Arrays.asList(
-      Relationship.of(METADATA_DERIVED_PROPERTY_NAME, "metadata", metadataId.toString()),
       Relationship.of("dcCreator", "person", UUID.randomUUID().toString()),
       Relationship.of("acMetadataCreator", "person", UUID.randomUUID().toString()));
   }

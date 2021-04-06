@@ -41,8 +41,6 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
 
   private ObjectSubtypeDto acSubType;
 
-  private ObjectStoreMetadataDto derived;
-
   private ObjectUpload objectUpload;
 
   private void createTestObjectStoreMetadata() {
@@ -54,7 +52,6 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
   public void setup() {
     createTestObjectStoreMetadata();
     createAcSubType();
-    createDerivedFrom();
     objectUpload = createObjectUpload();
   }
 
@@ -76,13 +73,6 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
     acSubType.setUuid(oSubtype.getUuid());
     acSubType.setAcSubtype(oSubtype.getAcSubtype());
     acSubType.setDcType(oSubtype.getDcType());
-  }
-
-  private void createDerivedFrom() {
-    ObjectStoreMetadata derivedMeta = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
-    persist(derivedMeta);
-    derived = new ObjectStoreMetadataDto();
-    derived.setUuid(derivedMeta.getUuid());
   }
 
   private ObjectUpload createObjectUpload() {
@@ -120,7 +110,6 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
     ObjectStoreMetadataDto dto = new ObjectStoreMetadataDto();
     dto.setBucket(MinioTestConfiguration.TEST_BUCKET);
     dto.setFileIdentifier(MinioTestConfiguration.TEST_FILE_IDENTIFIER);
-    dto.setAcDerivedFrom(derived);
     dto.setAcSubType(acSubType.getAcSubtype());
     dto.setDcType(acSubType.getDcType());
     dto.setXmpRightsUsageTerms(MinioTestConfiguration.TEST_USAGE_TERMS);
@@ -132,13 +121,8 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
     assertEquals(dtoUuid, result.getUuid());
     assertEquals(MinioTestConfiguration.TEST_BUCKET, result.getBucket());
     assertEquals(MinioTestConfiguration.TEST_FILE_IDENTIFIER, result.getFileIdentifier());
-    assertEquals(derived.getUuid(), result.getAcDerivedFrom().getUuid());
     assertEquals(acSubType.getUuid(), result.getAcSubType().getUuid());
     assertEquals(MinioTestConfiguration.TEST_USAGE_TERMS, result.getXmpRightsUsageTerms());
-
-    List<ObjectStoreMetadataDto> derivatives = fetchMetaById(derived.getUuid()).getDerivatives();
-    assertEquals(1, derivatives.size());
-    assertEquals(result.getUuid(), derivatives.get(0).getUuid());
   }
 
   @Test
@@ -164,12 +148,9 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
 
   @Test
   public void save_ValidResource_ResourceUpdated() {
-    assertEquals(0, fetchMetaById(derived.getUuid()).getDerivatives().size());
-
     ObjectStoreMetadataDto updateMetadataDto = getDtoUnderTest();
     updateMetadataDto.setBucket(MinioTestConfiguration.TEST_BUCKET);
     updateMetadataDto.setFileIdentifier(MinioTestConfiguration.TEST_FILE_IDENTIFIER);
-    updateMetadataDto.setAcDerivedFrom(derived);
     updateMetadataDto.setAcSubType(acSubType.getAcSubtype());
     updateMetadataDto.setXmpRightsUsageTerms(MinioTestConfiguration.TEST_USAGE_TERMS);
 
@@ -178,13 +159,8 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
     ObjectStoreMetadata result = service.findUnique(ObjectStoreMetadata.class, "uuid", updateMetadataDto.getUuid());
     assertEquals(MinioTestConfiguration.TEST_BUCKET, result.getBucket());
     assertEquals(MinioTestConfiguration.TEST_FILE_IDENTIFIER, result.getFileIdentifier());
-    assertEquals(derived.getUuid(), result.getAcDerivedFrom().getUuid());
     assertEquals(acSubType.getUuid(), result.getAcSubType().getUuid());
     assertEquals(MinioTestConfiguration.TEST_USAGE_TERMS, result.getXmpRightsUsageTerms());
-
-    List<ObjectStoreMetadataDto> derivatives = fetchMetaById(derived.getUuid()).getDerivatives();
-    assertEquals(1, derivatives.size());
-    assertEquals(result.getUuid(), derivatives.get(0).getUuid());
 
     //Can break Relationships
     assertRelationshipsRemoved();
@@ -192,17 +168,14 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
 
   private void assertRelationshipsRemoved() {
     ObjectStoreMetadataDto updateMetadataDto = getDtoUnderTest();
-    assertNotNull(updateMetadataDto.getAcDerivedFrom());
     assertNotNull(updateMetadataDto.getAcSubType());
 
-    updateMetadataDto.setAcDerivedFrom(null);
     updateMetadataDto.setAcSubType(null);
 
     objectStoreResourceRepository.save(updateMetadataDto);
 
     ObjectStoreMetadata result = service.findUnique(
       ObjectStoreMetadata.class, "uuid", updateMetadataDto.getUuid());
-    Assertions.assertNull(result.getAcDerivedFrom());
     Assertions.assertNull(result.getAcSubType());
   }
 
@@ -227,7 +200,6 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
   private static QuerySpec newQuery() {
     QuerySpec querySpec = new QuerySpec(ObjectStoreMetadataDto.class);
     querySpec.includeRelation(List.of("derivatives"));
-    querySpec.includeRelation(Collections.singletonList("acDerivedFrom"));
     return querySpec;
   }
 
