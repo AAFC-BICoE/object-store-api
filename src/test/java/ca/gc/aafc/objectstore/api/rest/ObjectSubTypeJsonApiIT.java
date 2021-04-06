@@ -76,7 +76,6 @@ public class ObjectSubTypeJsonApiIT extends BaseJsonApiIntegrationTest {
 
   @Test
   public void delete_appManaged_ReturnsUnAuthorized() {
-    sendGet(appManagedId).log().all(true);
     sendDelete(appManagedId, HttpStatus.FORBIDDEN_403);
   }
 
