@@ -30,6 +30,7 @@ public class DerivativeDto {
   private String acHashValue;
   private String createdBy;
   private OffsetDateTime createdOn;
+  private Derivative.DerivativeType derivativeType;
 
   @JsonApiRelation
   private ObjectStoreMetadataDto acDerivedFrom;

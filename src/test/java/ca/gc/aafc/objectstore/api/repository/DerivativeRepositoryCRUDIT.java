@@ -2,6 +2,7 @@ package ca.gc.aafc.objectstore.api.repository;
 
 import ca.gc.aafc.objectstore.api.dto.DerivativeDto;
 import ca.gc.aafc.objectstore.api.entities.DcType;
+import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.respository.DerivativeRepository;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
@@ -37,6 +38,7 @@ public class DerivativeRepositoryCRUDIT extends BaseRepositoryTest {
       new QuerySpec(DerivativeDto.class));
     Assertions.assertEquals(resource.getDcType(), result.getDcType());
     Assertions.assertEquals(resource.getFileIdentifier(), result.getFileIdentifier());
+    Assertions.assertEquals(resource.getDerivativeType(), result.getDerivativeType());
     // Auto generated fields
     Assertions.assertNotNull(result.getBucket());
     Assertions.assertNotNull(result.getFileExtension());
@@ -79,6 +81,7 @@ public class DerivativeRepositoryCRUDIT extends BaseRepositoryTest {
   private static DerivativeDto newDerivative(UUID fileIdentifier) {
     DerivativeDto dto = new DerivativeDto();
     dto.setDcType(DcType.IMAGE);
+    dto.setDerivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE);
     dto.setFileIdentifier(fileIdentifier);
     return dto;
   }
