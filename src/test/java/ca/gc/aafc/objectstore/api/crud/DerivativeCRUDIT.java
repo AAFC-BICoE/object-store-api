@@ -18,7 +18,7 @@ public class DerivativeCRUDIT extends BaseEntityCRUDIT {
   private final ObjectStoreMetadata metadata = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
 
   @BeforeEach
-  void setUp() {
+  void setUp() {//TODO add derivative type to dto, remove thumbnail from object subtype?
     service.save(metadata);
     derivative = Derivative.builder()
       .uuid(UUID.randomUUID())
@@ -30,6 +30,7 @@ public class DerivativeCRUDIT extends BaseEntityCRUDIT {
       .dcType(DcType.IMAGE)
       .createdBy(RandomStringUtils.random(4))
       .acDerivedFrom(metadata)
+      .derivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE)
       .build();
     service.save(derivative);
   }
@@ -53,6 +54,7 @@ public class DerivativeCRUDIT extends BaseEntityCRUDIT {
     Assertions.assertEquals(derivative.getCreatedBy(), result.getCreatedBy());
     Assertions.assertEquals(derivative.getCreatedOn(), result.getCreatedOn());
     Assertions.assertEquals(derivative.getDcType(), result.getDcType());
+    Assertions.assertEquals(derivative.getDerivativeType(), result.getDerivativeType());
     Assertions.assertEquals(metadata.getUuid(), result.getAcDerivedFrom().getUuid());
   }
 

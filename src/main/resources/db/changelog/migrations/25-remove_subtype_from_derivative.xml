@@ -5,8 +5,22 @@
                    objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
 
     <changeSet id="25-remove_subtype_from_derivative" context="schema-change" author="KeyukJ">
+        <!--   Drop  object_subtype column   -->
         <dropForeignKeyConstraint baseTableName="derivative" constraintName="fk_derivative_object_subtype"/>
         <dropColumn tableName="derivative" columnName="object_subtype"/>
+
+        <!-- Add derivative type enum-->
+        <sql>
+            CREATE TYPE derivative_type AS ENUM (
+            'THUMBNAIL_IMAGE',
+            'LARGE_IMAGE'
+            );
+        </sql>
+
+        <!-- Add derivative type column -->
+        <addColumn tableName="derivative">
+            <column name="derivative_type" type="derivative_type"/>
+        </addColumn>
     </changeSet>
 
 </databaseChangeLog>
