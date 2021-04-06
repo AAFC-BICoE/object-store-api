@@ -144,6 +144,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
     assertNotNull(child);
     assertNotNull(child.getAcDerivedFrom());
     assertEquals(parentUuid, child.getAcDerivedFrom().getUuid());
+    assertEquals(Derivative.DerivativeType.THUMBNAIL_IMAGE, child.getDerivativeType());
   }
 
   @Test
