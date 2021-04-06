@@ -63,9 +63,7 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata implements 
   private UUID acMetadataCreator;
   private UUID dcCreator;
 
-  private ObjectStoreMetadata acDerivedFrom;
-
-  private List<ObjectStoreMetadata> derivatives;
+  private List<Derivative> derivatives;
 
   private Boolean publiclyReleasable;
   private String notPubliclyReleasableReason;
@@ -103,8 +101,7 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata implements 
     List<MetadataManagedAttribute> managedAttribute,
     UUID acMetadataCreator,
     UUID dcCreator,
-    ObjectStoreMetadata acDerivedFrom,
-    List<ObjectStoreMetadata> derivatives,
+    List<Derivative> derivatives,
     Boolean publiclyReleasable,
     String notPubliclyReleasableReason,
     ObjectSubtype acSubType,
@@ -135,7 +132,6 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata implements 
     this.managedAttribute = CollectionUtils.isNotEmpty(managedAttribute) ? managedAttribute : new ArrayList<>();
     this.acMetadataCreator = acMetadataCreator;
     this.dcCreator = dcCreator;
-    this.acDerivedFrom = acDerivedFrom;
     this.derivatives = CollectionUtils.isNotEmpty(derivatives) ? derivatives : new ArrayList<>();
     this.publiclyReleasable = publiclyReleasable;
     this.notPubliclyReleasableReason = notPubliclyReleasableReason;
@@ -285,52 +281,13 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata implements 
     this.xmpRightsOwner = xmpRightsOwner;
   }
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "ac_derived_from_id", referencedColumnName = "id")
-  public ObjectStoreMetadata getAcDerivedFrom() {
-    return acDerivedFrom;
-  }
-
-  /**
-   * Sets the acDerived from value. Note to establish and remove a bi directional relationship, the {@link
-   * ObjectStoreMetadata#addDerivative} and {@link ObjectStoreMetadata#removeDerivative} methods should be
-   * called from the parent.
-   *
-   * @param acDerivedFrom - parent to set
-   */
-  public void setAcDerivedFrom(ObjectStoreMetadata acDerivedFrom) {
-    this.acDerivedFrom = acDerivedFrom;
-  }
-
   @OneToMany(mappedBy = "acDerivedFrom", cascade = CascadeType.PERSIST)
-  public List<ObjectStoreMetadata> getDerivatives() {
+  public List<Derivative> getDerivatives() {
     return derivatives;
   }
 
-  public void setDerivatives(List<ObjectStoreMetadata> derivatives) {
+  public void setDerivatives(List<Derivative> derivatives) {
     this.derivatives = derivatives;
-  }
-
-  /**
-   * Adds the given derivative to the list of derivatives. This method should be used to establish Bi
-   * directional JPA relations ships.
-   *
-   * @param derivative - derivative to add
-   */
-  public void addDerivative(ObjectStoreMetadata derivative) {
-    derivatives.add(derivative);
-    derivative.setAcDerivedFrom(this);
-  }
-
-  /**
-   * Adds the given derivative to the list of derivatives. This method should be used to remove Bi directional
-   * JPA relations ships.
-   *
-   * @param derivative - derivative to remove
-   */
-  public void removeDerivative(ObjectStoreMetadata derivative) {
-    derivatives.remove(derivative);
-    derivative.setAcDerivedFrom(null);
   }
 
   @Column(name = "publicly_releasable")
