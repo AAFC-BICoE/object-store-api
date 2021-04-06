@@ -150,6 +150,7 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
         .dcType(ThumbnailService.THUMBNAIL_DC_TYPE)
         .fileExtension(ThumbnailService.THUMBNAIL_EXTENSION)
         .fileIdentifier(uuid)
+        .derivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE)
         .bucket(bucket)
         .acDerivedFrom(
           this.getReferenceByNaturalId(ObjectStoreMetadata.class, resource.getUuid()))
