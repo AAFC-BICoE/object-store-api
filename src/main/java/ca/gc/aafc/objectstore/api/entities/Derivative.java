@@ -22,7 +22,6 @@ import java.util.UUID;
 public class Derivative extends AbstractObjectStoreMetadata {
 
   private Integer id;
-  private ObjectSubtype objectSubtype;
   private ObjectStoreMetadata acDerivedFrom;
 
   @Builder
@@ -37,7 +36,6 @@ public class Derivative extends AbstractObjectStoreMetadata {
     String createdBy,
     OffsetDateTime createdOn,
     Integer id,
-    ObjectSubtype objectSubtype,
     ObjectStoreMetadata acDerivedFrom
   ) {
     super(
@@ -51,7 +49,6 @@ public class Derivative extends AbstractObjectStoreMetadata {
       createdBy,
       createdOn);
     this.id = id;
-    this.objectSubtype = objectSubtype;
     this.acDerivedFrom = acDerivedFrom;
   }
 
@@ -64,16 +61,6 @@ public class Derivative extends AbstractObjectStoreMetadata {
 
   public void setId(Integer id) {
     this.id = id;
-  }
-
-  @ManyToOne
-  @JoinColumn(name = "object_subtype", referencedColumnName = "id")
-  public ObjectSubtype getObjectSubtype() {
-    return objectSubtype;
-  }
-
-  public void setObjectSubtype(ObjectSubtype objectSubtype) {
-    this.objectSubtype = objectSubtype;
   }
 
   @ManyToOne

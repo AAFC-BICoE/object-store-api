@@ -32,7 +32,5 @@ public class DerivativeDto {
   private OffsetDateTime createdOn;
 
   @JsonApiRelation
-  private ObjectSubtypeDto objectSubtype;
-  @JsonApiRelation
   private ObjectStoreMetadataDto acDerivedFrom;
 }
