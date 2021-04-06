@@ -1,11 +1,16 @@
 package ca.gc.aafc.objectstore.api.entities;
 
+import com.vladmihalcea.hibernate.type.basic.PostgreSQLEnumType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -19,11 +24,16 @@ import java.util.UUID;
 @Table(name = "derivative")
 @NoArgsConstructor
 @AllArgsConstructor
+@TypeDef(name = "pgsql_enum", typeClass = PostgreSQLEnumType.class)
 public class Derivative extends AbstractObjectStoreMetadata {
 
+  public enum DerivativeType {
+    THUMBNAIL_IMAGE, LARGE_IMAGE
+  }
+
   private Integer id;
-  private ObjectSubtype objectSubtype;
   private ObjectStoreMetadata acDerivedFrom;
+  private DerivativeType derivativeType;
 
   @Builder
   public Derivative(
@@ -37,8 +47,8 @@ public class Derivative extends AbstractObjectStoreMetadata {
     String createdBy,
     OffsetDateTime createdOn,
     Integer id,
-    ObjectSubtype objectSubtype,
-    ObjectStoreMetadata acDerivedFrom
+    ObjectStoreMetadata acDerivedFrom,
+    DerivativeType derivativeType
   ) {
     super(
       uuid,
@@ -51,8 +61,8 @@ public class Derivative extends AbstractObjectStoreMetadata {
       createdBy,
       createdOn);
     this.id = id;
-    this.objectSubtype = objectSubtype;
     this.acDerivedFrom = acDerivedFrom;
+    this.derivativeType = derivativeType;
   }
 
   @Id
@@ -67,16 +77,6 @@ public class Derivative extends AbstractObjectStoreMetadata {
   }
 
   @ManyToOne
-  @JoinColumn(name = "object_subtype", referencedColumnName = "id")
-  public ObjectSubtype getObjectSubtype() {
-    return objectSubtype;
-  }
-
-  public void setObjectSubtype(ObjectSubtype objectSubtype) {
-    this.objectSubtype = objectSubtype;
-  }
-
-  @ManyToOne
   @JoinColumn(name = "ac_derived_from", referencedColumnName = "id")
   public ObjectStoreMetadata getAcDerivedFrom() {
     return acDerivedFrom;
@@ -86,4 +86,14 @@ public class Derivative extends AbstractObjectStoreMetadata {
     this.acDerivedFrom = acDerivedFrom;
   }
 
+  @Type(type = "pgsql_enum")
+  @Enumerated(EnumType.STRING)
+  @Column(name = "derivative_type")
+  public DerivativeType getDerivativeType() {
+    return derivativeType;
+  }
+
+  public void setDerivativeType(DerivativeType derivativeType) {
+    this.derivativeType = derivativeType;
+  }
 }

@@ -159,7 +159,6 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
         .bucket(bucket)
         .acDerivedFrom(
           this.getReferenceByNaturalId(ObjectStoreMetadata.class, resource.getUuid()))
-        .objectSubtype(this.getThumbNailSubType())
         .build());
 
       thumbnailService.generateThumbnail(

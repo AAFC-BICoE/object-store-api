@@ -3,9 +3,7 @@ package ca.gc.aafc.objectstore.api.crud;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
-import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
-import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,14 +15,10 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 public class DerivativeCRUDIT extends BaseEntityCRUDIT {
 
   private Derivative derivative;
-  private final ObjectSubtype subtype = ObjectSubtypeFactory.newObjectSubtype()
-    .createdBy("createdBy")
-    .build();
   private final ObjectStoreMetadata metadata = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
 
   @BeforeEach
   void setUp() {
-    service.save(subtype);
     service.save(metadata);
     derivative = Derivative.builder()
       .uuid(UUID.randomUUID())
@@ -35,8 +29,8 @@ public class DerivativeCRUDIT extends BaseEntityCRUDIT {
       .acHashFunction("abcFunction")
       .dcType(DcType.IMAGE)
       .createdBy(RandomStringUtils.random(4))
-      .objectSubtype(subtype)
       .acDerivedFrom(metadata)
+      .derivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE)
       .build();
     service.save(derivative);
   }
@@ -60,7 +54,7 @@ public class DerivativeCRUDIT extends BaseEntityCRUDIT {
     Assertions.assertEquals(derivative.getCreatedBy(), result.getCreatedBy());
     Assertions.assertEquals(derivative.getCreatedOn(), result.getCreatedOn());
     Assertions.assertEquals(derivative.getDcType(), result.getDcType());
-    Assertions.assertEquals(subtype.getUuid(), result.getObjectSubtype().getUuid());
+    Assertions.assertEquals(derivative.getDerivativeType(), result.getDerivativeType());
     Assertions.assertEquals(metadata.getUuid(), result.getAcDerivedFrom().getUuid());
   }
 
