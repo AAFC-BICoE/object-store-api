@@ -59,6 +59,8 @@ public class DerivativeCRUDIT extends BaseEntityCRUDIT {
     Integer id = derivative.getId();
     derivativeService.delete(derivative);
     Assertions.assertNull(service.find(Derivative.class, id));
+    // Child should still exist
+    Assertions.assertNotNull(service.find(ObjectStoreMetadata.class, metadata.getId()));
   }
 
   /**
