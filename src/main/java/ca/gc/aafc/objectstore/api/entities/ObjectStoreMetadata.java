@@ -290,6 +290,28 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata implements 
     this.derivatives = derivatives;
   }
 
+  /**
+   * Adds the given derivative to the list of derivatives. This method should be used to establish Bi
+   * directional JPA relations ships.
+   *
+   * @param derivative - derivative to add
+   */
+  public void addDerivative(Derivative derivative) {
+    derivatives.add(derivative);
+    derivative.setAcDerivedFrom(this);
+  }
+
+  /**
+   * Adds the given derivative to the list of derivatives. This method should be used to remove Bi directional
+   * JPA relations ships.
+   *
+   * @param derivative - derivative to remove
+   */
+  public void removeDerivative(Derivative derivative) {
+    derivatives.remove(derivative);
+    derivative.setAcDerivedFrom(null);
+  }
+
   @Column(name = "publicly_releasable")
   public Boolean getPubliclyReleasable() {
     return publiclyReleasable;
