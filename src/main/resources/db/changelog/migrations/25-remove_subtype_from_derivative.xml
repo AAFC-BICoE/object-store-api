@@ -21,6 +21,11 @@
         <addColumn tableName="derivative">
             <column name="derivative_type" type="derivative_type"/>
         </addColumn>
+
+        <!--   Delete Thumbnail record from  object_subtype table    -->
+        <delete tableName="object_subtype">
+            <where>ac_subtype='THUMBNAIL' and dc_type='IMAGE'</where>
+        </delete>
     </changeSet>
 
 </databaseChangeLog>

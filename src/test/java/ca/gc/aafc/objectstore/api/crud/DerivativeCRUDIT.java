@@ -18,7 +18,7 @@ public class DerivativeCRUDIT extends BaseEntityCRUDIT {
   private final ObjectStoreMetadata metadata = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
 
   @BeforeEach
-  void setUp() {//TODO add derivative type to dto, remove thumbnail from object subtype?
+  void setUp() {
     service.save(metadata);
     derivative = Derivative.builder()
       .uuid(UUID.randomUUID())
