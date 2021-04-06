@@ -84,68 +84,6 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
   }
 
   @Test
-  void test_AddingDerivatives_RelationShipEstablished() {
-    ObjectStoreMetadata parent = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
-    ObjectStoreMetadata child = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
-
-    parent.addDerivative(child);
-    metaService.create(parent);
-
-    ObjectStoreMetadata resultChild = service.find(ObjectStoreMetadata.class, child.getId());
-    ObjectStoreMetadata resultParent = service.find(ObjectStoreMetadata.class, parent.getId());
-
-    Assertions.assertEquals(resultChild.getAcDerivedFrom().getId(), resultParent.getId());
-
-    List<ObjectStoreMetadata> resultDerivatives = resultParent.getDerivatives();
-    Assertions.assertEquals(1, resultDerivatives.size());
-    Assertions.assertEquals(resultChild.getId(), resultDerivatives.get(0).getId());
-  }
-
-  @Test
-  void test_RemovingDerivatives_RelationRemoved() {
-    ObjectStoreMetadata parent = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
-    ObjectStoreMetadata child = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
-    parent.addDerivative(child);
-    metaService.create(parent);
-
-    ObjectStoreMetadata update = service.find(ObjectStoreMetadata.class, parent.getId());
-    update.removeDerivative(service.find(ObjectStoreMetadata.class, child.getId()));
-    metaService.update(parent);
-
-    ObjectStoreMetadata resultChild = service.find(ObjectStoreMetadata.class, child.getId());
-    ObjectStoreMetadata resultParent = service.find(ObjectStoreMetadata.class, parent.getId());
-
-    Assertions.assertNull(resultChild.getAcDerivedFrom());
-    Assertions.assertEquals(0, resultParent.getDerivatives().size());
-  }
-
-  @Test
-  void test_DeleteParent_ChildrenNotDeleted() {
-    ObjectStoreMetadata parent = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
-    ObjectStoreMetadata child = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
-
-    parent.addDerivative(child);
-    metaService.create(parent);
-
-    // Needed to force a flush
-    fetchAllMeta();
-    Assertions.assertNotNull(metaService.findOne(child.getUuid(), ObjectStoreMetadata.class));
-    Assertions.assertNotNull(metaService.findOne(parent.getUuid(), ObjectStoreMetadata.class));
-
-    metaService.delete(parent);
-
-    // Needed to force a flush
-    fetchAllMeta();
-    //Parent is soft deleted
-    Assertions.assertNotNull(
-      metaService.findOne(parent.getUuid(), ObjectStoreMetadata.class).getDeletedDate());
-
-    ObjectStoreMetadata resultChild = metaService.findOne(child.getUuid(), ObjectStoreMetadata.class);
-    Assertions.assertNotNull(resultChild);
-    Assertions.assertNull(resultChild.getAcDerivedFrom());
-  }
-
-  @Test
   public void testRelationships() {
     ManagedAttribute ma = ManagedAttributeFactory.newManagedAttribute().build();
     service.save(ma, false);
