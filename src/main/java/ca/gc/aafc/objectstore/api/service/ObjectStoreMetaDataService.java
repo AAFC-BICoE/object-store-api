@@ -8,7 +8,7 @@ import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.file.ThumbnailService;
 import io.crnk.core.exception.BadRequestException;
 import lombok.NonNull;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -55,9 +55,6 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
       setAcSubType(entity, entity.getAcSubType());
     }
 
-    if (entity.getAcDerivedFrom() != null) {
-      entity.getAcDerivedFrom().addDerivative(entity);
-    }
   }
 
   @Override
@@ -90,9 +87,6 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
       baseDAO.update(entity);
 
       setAcSubType(entity, temp);
-    }
-    if (entity.getAcDerivedFrom() != null) {
-      entity.getAcDerivedFrom().addDerivative(entity);
     }
   }
 
