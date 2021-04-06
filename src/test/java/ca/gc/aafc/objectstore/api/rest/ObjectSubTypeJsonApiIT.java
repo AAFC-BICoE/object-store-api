@@ -1,38 +1,54 @@
 package ca.gc.aafc.objectstore.api.rest;
 
-import java.util.Map;
-
-import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.jupiter.api.Test;
-
 import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.dto.ObjectSubtypeDto;
 import ca.gc.aafc.objectstore.api.entities.DcType;
+import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
 import io.crnk.core.engine.http.HttpStatus;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.util.Map;
 
 public class ObjectSubTypeJsonApiIT extends BaseJsonApiIntegrationTest {
 
   private ObjectSubtypeDto objectSubtype;
   private static final String SCHEMA_NAME = "ObjectSubtype";
   private static final String RESOURCE_UNDER_TEST = "object-subtype";
+  private static final String DINA_USER_NAME = DinaAuthenticatedUserConfig.USER_NAME;
+  private String appManagedId;
 
-  private static final String THUMB_TYPE_UUID = "34e4e0d8-91d8-4d52-99ae-ec42d6b0e66e";
-  private final static String DINA_USER_NAME = DinaAuthenticatedUserConfig.USER_NAME;
+  @BeforeEach
+  void setUp() {
+    ObjectSubtype appManaged = ObjectSubtypeFactory
+      .newObjectSubtype()
+      .appManaged(true)
+      .createdBy(DINA_USER_NAME)
+      .build();
+
+    // we need to run the setup in another transaction and commit it otherwise it can't be visible
+    // to the test web server.
+    service.runInNewTransaction(em -> em.persist(appManaged));
+
+    appManagedId = appManaged.getUuid().toString();
+  }
 
   @Override
   protected String getSchemaName() {
     return SCHEMA_NAME;
   }
-  
+
   @Override
   protected String getResourceUnderTest() {
     return RESOURCE_UNDER_TEST;
   }
 
   @Override
-  protected Map<String, Object> buildCreateAttributeMap() {   
-      
+  protected Map<String, Object> buildCreateAttributeMap() {
+
     objectSubtype = new ObjectSubtypeDto();
     objectSubtype.setUuid(null);
     objectSubtype.setDcType(DcType.SOUND);
@@ -60,7 +76,8 @@ public class ObjectSubTypeJsonApiIT extends BaseJsonApiIntegrationTest {
 
   @Test
   public void delete_appManaged_ReturnsUnAuthorized() {
-    sendDelete(THUMB_TYPE_UUID, HttpStatus.FORBIDDEN_403);
+    sendGet(appManagedId).log().all(true);
+    sendDelete(appManagedId, HttpStatus.FORBIDDEN_403);
   }
 
   @Test
@@ -79,13 +96,13 @@ public class ObjectSubTypeJsonApiIT extends BaseJsonApiIntegrationTest {
     ObjectSubtypeDto thumbnail = new ObjectSubtypeDto();
     thumbnail.setAppManaged(false);
     sendPatch(
-      THUMB_TYPE_UUID,
+      appManagedId,
       HttpStatus.FORBIDDEN_403,
       JsonAPITestHelper.toJsonAPIMap(
         getResourceUnderTest(),
         toAttributeMap(thumbnail),
         toRelationshipMap(buildRelationshipList()),
-        THUMB_TYPE_UUID));
+        appManagedId));
   }
 
   private static ObjectSubtypeDto createRandomType() {
