@@ -54,10 +54,16 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
     if (resource.getDerivativeType() != Derivative.DerivativeType.THUMBNAIL_IMAGE) {
       String bucket = resource.getBucket();
       String sourceFilename = resource.getFileIdentifier() + resource.getFileExtension();
+      UUID generatedFromDerivativeUUID = resource.getUuid();
       UUID derivedId = resource.getAcDerivedFrom() != null ? resource.getAcDerivedFrom().getUuid() : null;
       String evaluatedMediaType = this.findOne(resource.getFileIdentifier(), ObjectUpload.class)
         .getEvaluatedMediaType();
-      this.generateThumbnail(evaluatedMediaType, bucket, derivedId, sourceFilename);
+      this.generateThumbnail(
+        evaluatedMediaType,
+        bucket,
+        derivedId,
+        sourceFilename,
+        generatedFromDerivativeUUID);
     }
   }
 
@@ -65,7 +71,8 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
     String evaluatedMediaType,
     @NonNull String bucket,
     UUID derivedId,
-    @NonNull String sourceFilename
+    @NonNull String sourceFilename,
+    UUID generatedFromDerivativeUUID
   ) {
     if (thumbnailService.isSupported(evaluatedMediaType)) {
       UUID uuid = UUID.randomUUID();
@@ -82,6 +89,9 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
 
       if (derivedId != null) {
         derivative.setAcDerivedFrom(this.getReferenceByNaturalId(ObjectStoreMetadata.class, derivedId));
+      }
+      if (generatedFromDerivativeUUID != null) {
+        derivative.setGeneratedFromDerivative(generatedFromDerivativeUUID);
       }
 
       this.create(derivative);

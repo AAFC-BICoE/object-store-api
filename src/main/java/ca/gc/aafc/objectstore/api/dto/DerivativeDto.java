@@ -31,6 +31,7 @@ public class DerivativeDto {
   private String createdBy;
   private OffsetDateTime createdOn;
   private Derivative.DerivativeType derivativeType;
+  private UUID generatedFromDerivative;
 
   @JsonApiRelation
   private ObjectStoreMetadataDto acDerivedFrom;
