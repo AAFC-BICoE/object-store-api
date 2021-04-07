@@ -83,15 +83,7 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
     if (thumbnailService.isSupported(evaluatedMediaType)) {
       UUID uuid = UUID.randomUUID();
 
-      Derivative derivative = Derivative.builder()
-        .uuid(UUID.randomUUID())
-        .createdBy(ThumbnailService.SYSTEM_GENERATED)
-        .dcType(ThumbnailService.THUMBNAIL_DC_TYPE)
-        .fileExtension(ThumbnailService.THUMBNAIL_EXTENSION)
-        .fileIdentifier(uuid)
-        .derivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE)
-        .bucket(bucket)
-        .build();
+      Derivative derivative = generateDerivativeForThumbnail(bucket, uuid);
 
       if (acDerivedFromId != null) {
         derivative.setAcDerivedFrom(this.getReferenceByNaturalId(ObjectStoreMetadata.class, acDerivedFromId));
@@ -103,5 +95,17 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
       this.create(derivative);
       thumbnailService.generateThumbnail(uuid, sourceFilename, evaluatedMediaType, bucket);
     }
+  }
+
+  private static Derivative generateDerivativeForThumbnail(String bucket, UUID uuid) {
+    return Derivative.builder()
+      .uuid(UUID.randomUUID())
+      .createdBy(ThumbnailService.SYSTEM_GENERATED)
+      .dcType(ThumbnailService.THUMBNAIL_DC_TYPE)
+      .fileExtension(ThumbnailService.THUMBNAIL_EXTENSION)
+      .fileIdentifier(uuid)
+      .derivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE)
+      .bucket(bucket)
+      .build();
   }
 }
