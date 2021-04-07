@@ -88,7 +88,6 @@ public class DerivativeRepositoryCRUDIT extends BaseRepositoryTest {
   public void create_ValidResource_ThumbNailMetaDerivesFromOrigin() {
     DerivativeDto resource = derivativeRepository.create(newDerivative(upload.getFileIdentifier()));
     //TODO Check a thumbnail for original has not already been generated
-    //TODO we need a way to ensure a thumbnail is derived from something and never nothing
     List<Derivative> derivatives = derivativeService.findAll(
       Derivative.class,
       (criteriaBuilder, derivativeRoot) -> new Predicate[]{
