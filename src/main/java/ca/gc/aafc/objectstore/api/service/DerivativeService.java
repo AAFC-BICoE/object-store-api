@@ -53,24 +53,24 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
   private void handleThumbNailGeneration(@NonNull Derivative resource) {
     if (resource.getDerivativeType() != Derivative.DerivativeType.THUMBNAIL_IMAGE) {
       String bucket = resource.getBucket();
-      UUID derivedId = resource.getAcDerivedFrom().getUuid();
       String sourceFilename = resource.getFileIdentifier() + resource.getFileExtension();
-      ObjectUpload upload = this.findOne(resource.getFileIdentifier(), ObjectUpload.class);
-      String evaluatedMediaType = upload.getEvaluatedMediaType();
+      UUID derivedId = resource.getAcDerivedFrom() != null ? resource.getAcDerivedFrom().getUuid() : null;
+      String evaluatedMediaType = this.findOne(resource.getFileIdentifier(), ObjectUpload.class)
+        .getEvaluatedMediaType();
       this.generateThumbnail(evaluatedMediaType, bucket, derivedId, sourceFilename);
     }
   }
 
   public void generateThumbnail(
-    @NonNull String evaluatedMediaType,
+    String evaluatedMediaType,
     @NonNull String bucket,
-    @NonNull UUID derivedId,
+    UUID derivedId,
     @NonNull String sourceFilename
   ) {
     if (thumbnailService.isSupported(evaluatedMediaType)) {
       UUID uuid = UUID.randomUUID();
 
-      this.create(Derivative.builder()
+      Derivative derivative = Derivative.builder()
         .uuid(UUID.randomUUID())
         .createdBy(ThumbnailService.SYSTEM_GENERATED)
         .dcType(ThumbnailService.THUMBNAIL_DC_TYPE)
@@ -78,10 +78,13 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
         .fileIdentifier(uuid)
         .derivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE)
         .bucket(bucket)
-        .acDerivedFrom(
-          this.getReferenceByNaturalId(ObjectStoreMetadata.class, derivedId))
-        .build());
+        .build();
 
+      if (derivedId != null) {
+        derivative.setAcDerivedFrom(this.getReferenceByNaturalId(ObjectStoreMetadata.class, derivedId));
+      }
+
+      this.create(derivative);
       thumbnailService.generateThumbnail(uuid, sourceFilename, evaluatedMediaType, bucket);
     }
   }
