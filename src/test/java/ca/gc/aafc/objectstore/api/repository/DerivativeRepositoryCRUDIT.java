@@ -89,20 +89,16 @@ public class DerivativeRepositoryCRUDIT extends BaseRepositoryTest {
     DerivativeDto resource = derivativeRepository.create(newDerivative(upload.getFileIdentifier()));
     //TODO Check a thumbnail for original has not already been generated
     List<Derivative> derivatives = derivativeService.findAll(
-      Derivative.class,
-      (criteriaBuilder, derivativeRoot) -> new Predicate[]{
+      Derivative.class, (criteriaBuilder, derivativeRoot) -> new Predicate[]{
         criteriaBuilder.equal(derivativeRoot.get("acDerivedFrom"), metadata),
-        criteriaBuilder.equal(
-          derivativeRoot.get("derivativeType"),
-          Derivative.DerivativeType.THUMBNAIL_IMAGE)
-      },
-      null,
-      0,
-      1);
-    Assertions.assertEquals(1, derivatives.size());
+        criteriaBuilder.equal(derivativeRoot.get("derivativeType"), Derivative.DerivativeType.THUMBNAIL_IMAGE)
+      }, null, 0, 1);
+    Assertions.assertEquals(1, derivatives.size(), "A derivative for a thumbnail should of been generated");
     Derivative thumbNailDerivative = derivatives.get(0);
     Assertions.assertEquals(resource.getUuid(), thumbNailDerivative.getGeneratedFromDerivative());
-    Assertions.assertEquals(resource.getAcDerivedFrom().getUuid(), thumbNailDerivative.getAcDerivedFrom().getUuid());
+    Assertions.assertEquals(
+      resource.getAcDerivedFrom().getUuid(),
+      thumbNailDerivative.getAcDerivedFrom().getUuid());
   }
 
   @Test
