@@ -139,29 +139,15 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
    */
   private void handleThumbNailGeneration(ObjectStoreMetadata resource) {
     String evaluatedMediaType = resource.getDcFormat();
-
-    if (thumbnailService.isSupported(evaluatedMediaType)) {
-      UUID uuid = UUID.randomUUID();
-      String bucket = resource.getBucket();
-
-      derivativeService.create(Derivative.builder()
-        .uuid(UUID.randomUUID())
-        .createdBy(ThumbnailService.SYSTEM_GENERATED)
-        .dcType(ThumbnailService.THUMBNAIL_DC_TYPE)
-        .fileExtension(ThumbnailService.THUMBNAIL_EXTENSION)
-        .fileIdentifier(uuid)
-        .derivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE)
-        .bucket(bucket)
-        .acDerivedFrom(
-          this.getReferenceByNaturalId(ObjectStoreMetadata.class, resource.getUuid()))
-        .build());
-
-      thumbnailService.generateThumbnail(
-        uuid,
-        resource.getFileIdentifier() + resource.getFileExtension(),
-        evaluatedMediaType,
-        bucket);
-    }
+    String bucket = resource.getBucket();
+    UUID derivedId = resource.getUuid();
+    String sourceFilename = resource.getFileIdentifier() + resource.getFileExtension();
+    thumbnailService.generateThumbnail(
+      evaluatedMediaType,
+      bucket,
+      derivedId,
+      sourceFilename,
+      derivativeService);
   }
 
   public ObjectSubtype getThumbNailSubType() {
