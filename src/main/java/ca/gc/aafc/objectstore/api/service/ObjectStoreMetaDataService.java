@@ -2,7 +2,6 @@ package ca.gc.aafc.objectstore.api.service;
 
 import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.dina.service.DefaultDinaService;
-import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.file.ThumbnailService;
@@ -26,10 +25,8 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
   private final BaseDAO baseDAO;
 
   private final DerivativeService derivativeService;
-  private final ThumbnailService thumbnailService;
 
   public ObjectStoreMetaDataService(
-    @NonNull ThumbnailService thumbnailService,
     @NonNull BaseDAO baseDAO,
     @NonNull ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService,
     @NonNull MetaManagedAttributeService metaManagedAttributeService,
@@ -39,7 +36,6 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
     this.baseDAO = baseDAO;
     this.defaultValueSetterService = defaultValueSetterService;
     this.metaManagedAttributeService = metaManagedAttributeService;
-    this.thumbnailService = thumbnailService;
     this.derivativeService = derivativeService;
   }
 
@@ -142,12 +138,7 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
     String bucket = resource.getBucket();
     UUID derivedId = resource.getUuid();
     String sourceFilename = resource.getFileIdentifier() + resource.getFileExtension();
-    thumbnailService.generateThumbnail(
-      evaluatedMediaType,
-      bucket,
-      derivedId,
-      sourceFilename,
-      derivativeService);
+    derivativeService.generateThumbnail(evaluatedMediaType, bucket, derivedId, sourceFilename);
   }
 
   public ObjectSubtype getThumbNailSubType() {

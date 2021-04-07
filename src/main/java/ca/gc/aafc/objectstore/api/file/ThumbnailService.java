@@ -1,10 +1,7 @@
 package ca.gc.aafc.objectstore.api.file;
 
 import ca.gc.aafc.objectstore.api.entities.DcType;
-import ca.gc.aafc.objectstore.api.entities.Derivative;
-import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.minio.MinioFileService;
-import ca.gc.aafc.objectstore.api.service.DerivativeService;
 import io.minio.errors.MinioException;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -103,31 +100,5 @@ public class ThumbnailService {
     }
 
     return ImageIO.getImageReadersByMIMEType(fileType).hasNext();
-  }
-
-  public void generateThumbnail(
-    String evaluatedMediaType,
-    String bucket,
-    UUID derivedId,
-    String sourceFilename,
-    DerivativeService derivativeService
-  ) {
-    if (this.isSupported(evaluatedMediaType)) {
-      UUID uuid = UUID.randomUUID();
-
-      derivativeService.create(Derivative.builder()
-        .uuid(UUID.randomUUID())
-        .createdBy(ThumbnailService.SYSTEM_GENERATED)
-        .dcType(ThumbnailService.THUMBNAIL_DC_TYPE)
-        .fileExtension(ThumbnailService.THUMBNAIL_EXTENSION)
-        .fileIdentifier(uuid)
-        .derivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE)
-        .bucket(bucket)
-        .acDerivedFrom(
-          derivativeService.getReferenceByNaturalId(ObjectStoreMetadata.class, derivedId))
-        .build());
-
-      this.generateThumbnail(uuid, sourceFilename, evaluatedMediaType, bucket);
-    }
   }
 }
