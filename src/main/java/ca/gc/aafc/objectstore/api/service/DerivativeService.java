@@ -59,21 +59,25 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
       String evaluatedMediaType = this.findOne(resource.getFileIdentifier(), ObjectUpload.class)
         .getEvaluatedMediaType();
       this.generateThumbnail(
-        evaluatedMediaType,
         bucket,
-        derivedId,
         sourceFilename,
+        evaluatedMediaType,
+        derivedId,
         generatedFromDerivativeUUID);
     }
   }
 
   public void generateThumbnail(
-    String evaluatedMediaType,
-    @NonNull String bucket,
-    UUID derivedId,
-    @NonNull String sourceFilename,
+    @NonNull String bucket, @NonNull String sourceFilename, String evaluatedMediaType,
+    UUID acDerivedFromId,
     UUID generatedFromDerivativeUUID
   ) {
+    if (generatedFromDerivativeUUID == null && acDerivedFromId == null) {
+      throw new IllegalArgumentException(
+        "A thumbnail must be derived from something, expecting at least one of: " +
+          "acDerivedFromId, generatedFromDerivativeUUID");
+    }
+
     if (thumbnailService.isSupported(evaluatedMediaType)) {
       UUID uuid = UUID.randomUUID();
 
@@ -87,8 +91,8 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
         .bucket(bucket)
         .build();
 
-      if (derivedId != null) {
-        derivative.setAcDerivedFrom(this.getReferenceByNaturalId(ObjectStoreMetadata.class, derivedId));
+      if (acDerivedFromId != null) {
+        derivative.setAcDerivedFrom(this.getReferenceByNaturalId(ObjectStoreMetadata.class, acDerivedFromId));
       }
       if (generatedFromDerivativeUUID != null) {
         derivative.setGeneratedFromDerivative(generatedFromDerivativeUUID);
