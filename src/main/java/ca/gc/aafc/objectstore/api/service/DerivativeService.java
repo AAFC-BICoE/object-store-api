@@ -68,7 +68,9 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
   }
 
   public void generateThumbnail(
-    @NonNull String bucket, @NonNull String sourceFilename, String evaluatedMediaType,
+    @NonNull String bucket,
+    @NonNull String sourceFilename,
+    String evaluatedMediaType,
     UUID acDerivedFromId,
     UUID generatedFromDerivativeUUID
   ) {
