@@ -4,6 +4,7 @@ import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.dina.service.DefaultDinaService;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
+import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.file.ThumbnailService;
 import lombok.NonNull;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,7 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
   protected void preCreate(Derivative entity) {
     entity.setUuid(UUID.randomUUID());
     establishBiDirectionalAssociation(entity);
+    handleThumbNailGeneration(entity);
   }
 
   @Override
@@ -48,18 +50,22 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
       .stream().findFirst();
   }
 
-  private void handleThumbNailGeneration(@NonNull Derivative resource, @NonNull String evaluatedMediaType) {
-    String bucket = resource.getBucket();
-    UUID derivedId = resource.getAcDerivedFrom().getUuid();
-    String sourceFilename = resource.getFileIdentifier() + resource.getFileExtension();
-    this.generateThumbnail(evaluatedMediaType, bucket, derivedId, sourceFilename);
+  private void handleThumbNailGeneration(@NonNull Derivative resource) {
+    if (resource.getDerivativeType() != Derivative.DerivativeType.THUMBNAIL_IMAGE) {
+      String bucket = resource.getBucket();
+      UUID derivedId = resource.getAcDerivedFrom().getUuid();
+      String sourceFilename = resource.getFileIdentifier() + resource.getFileExtension();
+      ObjectUpload upload = this.findOne(resource.getFileIdentifier(), ObjectUpload.class);
+      String evaluatedMediaType = upload.getEvaluatedMediaType();
+      this.generateThumbnail(evaluatedMediaType, bucket, derivedId, sourceFilename);
+    }
   }
 
   public void generateThumbnail(
-    String evaluatedMediaType,
-    String bucket,
-    UUID derivedId,
-    String sourceFilename
+    @NonNull String evaluatedMediaType,
+    @NonNull String bucket,
+    @NonNull UUID derivedId,
+    @NonNull String sourceFilename
   ) {
     if (thumbnailService.isSupported(evaluatedMediaType)) {
       UUID uuid = UUID.randomUUID();
