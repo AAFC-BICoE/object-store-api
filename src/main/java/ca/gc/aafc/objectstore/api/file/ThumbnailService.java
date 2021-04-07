@@ -127,11 +127,7 @@ public class ThumbnailService {
           derivativeService.getReferenceByNaturalId(ObjectStoreMetadata.class, derivedId))
         .build());
 
-      this.generateThumbnail(
-        uuid,
-        sourceFilename,
-        evaluatedMediaType,
-        bucket);
+      this.generateThumbnail(uuid, sourceFilename, evaluatedMediaType, bucket);
     }
   }
 }
