@@ -27,7 +27,12 @@ public class DerivativeCRUDIT extends BaseEntityCRUDIT {
   @BeforeEach
   void setUp() {
     metaService.create(metadata);
+
+    Derivative generatedFrom = newDerivative(null);
+    derivativeService.create(generatedFrom);
+
     derivative = newDerivative(metadata);
+    derivative.setGeneratedFromDerivative(generatedFrom);
     derivativeService.create(derivative);
   }
 
@@ -51,6 +56,7 @@ public class DerivativeCRUDIT extends BaseEntityCRUDIT {
     Assertions.assertEquals(derivative.getCreatedOn(), result.getCreatedOn());
     Assertions.assertEquals(derivative.getDcType(), result.getDcType());
     Assertions.assertEquals(derivative.getDerivativeType(), result.getDerivativeType());
+    Assertions.assertNotNull(result.getGeneratedFromDerivative());
     Assertions.assertEquals(derivative.getGeneratedFromDerivative(), result.getGeneratedFromDerivative());
     Assertions.assertEquals(metadata.getUuid(), result.getAcDerivedFrom().getUuid());
   }
@@ -85,7 +91,6 @@ public class DerivativeCRUDIT extends BaseEntityCRUDIT {
   private Derivative newDerivative(ObjectStoreMetadata child) {
     return Derivative.builder()
       .uuid(UUID.randomUUID())
-      .generatedFromDerivative(UUID.randomUUID())
       .fileIdentifier(UUID.randomUUID())
       .fileExtension(".jpg")
       .bucket("mybucket")

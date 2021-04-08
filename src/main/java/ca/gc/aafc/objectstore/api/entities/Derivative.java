@@ -34,7 +34,7 @@ public class Derivative extends AbstractObjectStoreMetadata {
   private Integer id;
   private ObjectStoreMetadata acDerivedFrom;
   private DerivativeType derivativeType;
-  private UUID generatedFromDerivative;
+  private Derivative generatedFromDerivative;
 
   @Builder
   public Derivative(
@@ -50,7 +50,7 @@ public class Derivative extends AbstractObjectStoreMetadata {
     Integer id,
     ObjectStoreMetadata acDerivedFrom,
     DerivativeType derivativeType,
-    UUID generatedFromDerivative
+    Derivative generatedFromDerivative
   ) {
     super(
       uuid,
@@ -100,12 +100,13 @@ public class Derivative extends AbstractObjectStoreMetadata {
     this.derivativeType = derivativeType;
   }
 
-  @Column(name = "generated_from_derivative")
-  public UUID getGeneratedFromDerivative() {
+  @ManyToOne
+  @JoinColumn(name = "generated_from_derivative", referencedColumnName = "id")
+  public Derivative getGeneratedFromDerivative() {
     return generatedFromDerivative;
   }
 
-  public void setGeneratedFromDerivative(UUID generatedFromDerivative) {
+  public void setGeneratedFromDerivative(Derivative generatedFromDerivative) {
     this.generatedFromDerivative = generatedFromDerivative;
   }
 }

@@ -5,10 +5,16 @@
                    objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
 
     <changeSet id="27-add_generatedFromDerivative_to_Derivative" context="schema-change" author="KeyukJ">
-        <!-- Add generated_from_derivative type column -->
+        <!-- Add generated_from_derivative column -->
         <addColumn tableName="derivative">
-            <column name="generated_from_derivative" type="uuid"/>
+            <column name="generated_from_derivative" type="INTEGER"/>
         </addColumn>
+        <addForeignKeyConstraint
+                baseColumnNames="generated_from_derivative"
+                baseTableName="derivative"
+                constraintName="fk_derivative_generated_from_derivative"
+                referencedColumnNames="id"
+                referencedTableName="derivative"/>
     </changeSet>
 
 </databaseChangeLog>
