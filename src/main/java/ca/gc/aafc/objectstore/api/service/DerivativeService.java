@@ -9,9 +9,12 @@ import ca.gc.aafc.objectstore.api.file.ThumbnailService;
 import lombok.NonNull;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.BiFunction;
 
 @Service
 public class DerivativeService extends DefaultDinaService<Derivative> {
@@ -50,20 +53,21 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
   }
 
   public Optional<Derivative> findByFileId(UUID fileId) {
-    return findAll(Derivative.class,
-      (cb, root) -> new Predicate[]{cb.equal(root.get("fileIdentifier"), fileId)},
-      null, 0, 1)
-      .stream().findFirst();
+    return findOneBy((cb, root) -> new Predicate[]{cb.equal(root.get("fileIdentifier"), fileId)});
   }
 
   private void handleThumbNailGeneration(@NonNull Derivative resource) {
-    if (resource.getDerivativeType() != Derivative.DerivativeType.THUMBNAIL_IMAGE) {
+    UUID generatedFromDerivativeUUID = resource.getUuid();
+    ObjectStoreMetadata acDerivedFrom = resource.getAcDerivedFrom();
+    Derivative.DerivativeType derivativeType = resource.getDerivativeType();
+
+    if (thumbnailShouldBeGenerated(generatedFromDerivativeUUID, acDerivedFrom, derivativeType)) {
       String bucket = resource.getBucket();
       String sourceFilename = resource.getFileIdentifier() + resource.getFileExtension();
-      UUID generatedFromDerivativeUUID = resource.getUuid();
-      UUID derivedId = resource.getAcDerivedFrom() != null ? resource.getAcDerivedFrom().getUuid() : null;
+      UUID derivedId = acDerivedFrom != null ? acDerivedFrom.getUuid() : null;
       String evaluatedMediaType = this.findOne(resource.getFileIdentifier(), ObjectUpload.class)
         .getEvaluatedMediaType();
+
       this.generateThumbnail(
         bucket,
         sourceFilename,
@@ -106,6 +110,39 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
       this.create(derivative);
       thumbnailService.generateThumbnail(uuid, sourceFilename, evaluatedMediaType, bucket);
     }
+  }
+
+  private boolean thumbnailShouldBeGenerated(
+    UUID generatedFromDerivativeUUID,
+    ObjectStoreMetadata acDerivedFrom,
+    Derivative.DerivativeType derivativeType
+  ) {
+    return derivativeType != Derivative.DerivativeType.THUMBNAIL_IMAGE &&
+      !(hasThumbnail(generatedFromDerivativeUUID) || hasThumbnail(acDerivedFrom));
+  }
+
+  private boolean hasThumbnail(UUID generatedFromDerivativeID) {
+    if (generatedFromDerivativeID == null) {
+      return false;
+    }
+    return this.findOneBy((criteriaBuilder, derivativeRoot) -> new Predicate[]{
+      criteriaBuilder.equal(derivativeRoot.get("generatedFromDerivative"), generatedFromDerivativeID),
+      criteriaBuilder.equal(derivativeRoot.get("derivativeType"), Derivative.DerivativeType.THUMBNAIL_IMAGE)
+    }).isPresent();
+  }
+
+  private boolean hasThumbnail(ObjectStoreMetadata metadata) {
+    if (metadata == null) {
+      return false;
+    }
+    return findOneBy((criteriaBuilder, derivativeRoot) -> new Predicate[]{
+      criteriaBuilder.equal(derivativeRoot.get("acDerivedFrom"), metadata),
+      criteriaBuilder.equal(derivativeRoot.get("derivativeType"), Derivative.DerivativeType.THUMBNAIL_IMAGE)
+    }).isPresent();
+  }
+
+  private Optional<Derivative> findOneBy(@NonNull BiFunction<CriteriaBuilder, Root<Derivative>, Predicate[]> crit) {
+    return this.findAll(Derivative.class, crit, null, 0, 1).stream().findFirst();
   }
 
   private static Derivative generateDerivativeForThumbnail(String bucket, UUID uuid) {

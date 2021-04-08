@@ -28,9 +28,10 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
   @BeforeEach
   void setUp() {
     acDerivedFrom = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
-    objectUpload = ObjectUploadFactory.newObjectUpload().build();
-    objectUpload.setBucket("test");
-    objectUpload.setEvaluatedMediaType(MediaType.IMAGE_JPEG_VALUE);
+    objectUpload = ObjectUploadFactory.newObjectUpload()
+      .bucket("test")
+      .evaluatedMediaType(MediaType.IMAGE_JPEG_VALUE)
+      .build();
     this.service.save(objectUpload);
     this.service.save(acDerivedFrom);
   }
@@ -63,8 +64,18 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
 
   @Test
   void create_WhenThumbNailAlreadyExists_ThumbNailNotGenerated() {
-    //TODO Check a thumbnail for original has not already been generated
+    Derivative derivative = newDerivative(acDerivedFrom);
+    derivativeService.create(derivative);
 
+    ObjectUpload upload = ObjectUploadFactory.newObjectUpload()
+      .bucket("test").evaluatedMediaType(MediaType.IMAGE_JPEG_VALUE).build();
+    this.service.save(upload);
+    Derivative derivative2 = newDerivative(acDerivedFrom);
+    derivative2.setFileIdentifier(upload.getFileIdentifier());
+    derivativeService.create(derivative2);
+
+    Assertions.assertEquals(1, findAllByDerivative(derivative.getUuid()).size());
+    Assertions.assertEquals(0, findAllByDerivative(derivative2.getUuid()).size());
   }
 
   @Test
