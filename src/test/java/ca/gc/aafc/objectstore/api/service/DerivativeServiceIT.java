@@ -41,12 +41,12 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
     Derivative derivative = newDerivative(acDerivedFrom);
     derivativeService.create(derivative);
 
-    Derivative thumbResult = findAllByDerivative(derivative.getUuid())
+    Derivative thumbResult = findAllByDerivative(derivative)
       .stream().findFirst()
       .orElseGet(() -> Assertions.fail("A derivative for a thumbnail should of been generated"));
 
     Assertions.assertEquals(derivative.getBucket(), thumbResult.getBucket());
-    Assertions.assertEquals(derivative.getUuid(), thumbResult.getGeneratedFromDerivative());
+    Assertions.assertEquals(derivative.getUuid(), thumbResult.getGeneratedFromDerivative().getUuid());
     Assertions.assertEquals(acDerivedFrom.getUuid(), thumbResult.getAcDerivedFrom().getUuid());
     Assertions.assertEquals(ThumbnailService.SYSTEM_GENERATED, thumbResult.getCreatedBy());
     Assertions.assertEquals(ThumbnailService.THUMBNAIL_DC_TYPE, thumbResult.getDcType());
@@ -59,7 +59,7 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
     Derivative derivative = newDerivative(acDerivedFrom);
     derivative.setDerivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE);
     derivativeService.create(derivative);
-    Assertions.assertEquals(0, findAllByDerivative(derivative.getUuid()).size());
+    Assertions.assertEquals(0, findAllByDerivative(derivative).size());
   }
 
   @Test
@@ -74,8 +74,8 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
     derivative2.setFileIdentifier(upload.getFileIdentifier());
     derivativeService.create(derivative2);
 
-    Assertions.assertEquals(1, findAllByDerivative(derivative.getUuid()).size());
-    Assertions.assertEquals(0, findAllByDerivative(derivative2.getUuid()).size());
+    Assertions.assertEquals(1, findAllByDerivative(derivative).size());
+    Assertions.assertEquals(0, findAllByDerivative(derivative2).size());
   }
 
   @Test
@@ -94,12 +94,12 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
       expectedUUID,
       true);
 
-    Derivative thumbResult = findAllByDerivative(expectedUUID)
+    Derivative thumbResult = findAllByDerivative(derivative)
       .stream().findFirst()
       .orElseGet(() -> Assertions.fail("A derivative for a thumbnail should of been generated"));
 
     Assertions.assertEquals(bucket, thumbResult.getBucket());
-    Assertions.assertEquals(expectedUUID, thumbResult.getGeneratedFromDerivative());
+    Assertions.assertEquals(expectedUUID, thumbResult.getGeneratedFromDerivative().getUuid());
   }
 
   @Test
@@ -152,7 +152,6 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
   private Derivative newDerivative(ObjectStoreMetadata child) {
     return Derivative.builder()
       .uuid(UUID.randomUUID())
-      .generatedFromDerivative(UUID.randomUUID())
       .fileIdentifier(objectUpload.getFileIdentifier())
       .fileExtension(".jpg")
       .bucket("mybucket")
@@ -165,10 +164,10 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
       .build();
   }
 
-  private List<Derivative> findAllByDerivative(UUID generatedFromDerivativeUUID) {
+  private List<Derivative> findAllByDerivative(Derivative derivative) {
     return derivativeService.findAll(
       Derivative.class, (criteriaBuilder, derivativeRoot) -> new Predicate[]{
-        criteriaBuilder.equal(derivativeRoot.get("generatedFromDerivative"), generatedFromDerivativeUUID),
+        criteriaBuilder.equal(derivativeRoot.get("generatedFromDerivative"), derivative),
       }, null, 0, 1);
   }
 

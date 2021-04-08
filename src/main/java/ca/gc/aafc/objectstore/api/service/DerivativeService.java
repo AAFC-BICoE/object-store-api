@@ -64,11 +64,11 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
   }
 
   private void handleThumbNailGeneration(@NonNull Derivative resource) {
-    UUID generatedFromDerivativeUUID = resource.getUuid();
     ObjectStoreMetadata acDerivedFrom = resource.getAcDerivedFrom();
     Derivative.DerivativeType derivativeType = resource.getDerivativeType();
 
-    if (thumbnailShouldBeGenerated(generatedFromDerivativeUUID, acDerivedFrom, derivativeType)) {
+    if (thumbnailShouldBeGenerated(resource, acDerivedFrom, derivativeType)) {
+      UUID generatedFromDerivativeUUID = resource.getUuid();
       String bucket = resource.getBucket();
       String sourceFilename = resource.getFileIdentifier() + resource.getFileExtension();
       UUID derivedId = acDerivedFrom != null ? acDerivedFrom.getUuid() : null;
@@ -115,6 +115,10 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
       Derivative derivative = generateDerivativeForThumbnail(sourceBucket, uuid);
 
       if (acDerivedFromId != null) {
+        if (!this.exists(ObjectStoreMetadata.class, acDerivedFromId)) {
+          throw new IllegalArgumentException(
+            "ObjectStoreMetadata with id " + acDerivedFromId + " does not exist");
+        }
         derivative.setAcDerivedFrom(this.getReferenceByNaturalId(ObjectStoreMetadata.class, acDerivedFromId));
       }
 
@@ -123,7 +127,7 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
           throw new IllegalArgumentException(
             "Derivative with id " + generatedFromDerivativeUUID + " does not exist");
         }
-        derivative.setGeneratedFromDerivative(generatedFromDerivativeUUID);
+        derivative.setGeneratedFromDerivative(this.getReferenceByNaturalId(Derivative.class, generatedFromDerivativeUUID));
       }
 
       this.create(derivative);
@@ -140,32 +144,32 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
    * Returns true if a thumbnail should be generated. A thumbnail should be generated if a given Derivative
    * type is not a thumbnail and no thumbnails are present for a given metadata and derived id.
    *
-   * @param generatedFromDerivativeUUID id of the derivative to check.
-   * @param acDerivedFrom               metadata to check.
-   * @param derivativeType              type of derivative
+   * @param derivative     derivative to check.
+   * @param acDerivedFrom  metadata to check.
+   * @param derivativeType type of derivative
    * @return Returns true if a thumbnail should be generated.
    */
   private boolean thumbnailShouldBeGenerated(
-    UUID generatedFromDerivativeUUID,
+    Derivative derivative,
     ObjectStoreMetadata acDerivedFrom,
     Derivative.DerivativeType derivativeType
   ) {
     return derivativeType != Derivative.DerivativeType.THUMBNAIL_IMAGE &&
-      !(hasThumbnail(generatedFromDerivativeUUID) || hasThumbnail(acDerivedFrom));
+      !(hasThumbnail(derivative) || hasThumbnail(acDerivedFrom));
   }
 
   /**
    * Returns true if a given id for a derivative has a thumbnail.
    *
-   * @param generatedFromDerivativeID id of the derivative to check.
+   * @param derivative id of the derivative to check.
    * @return Returns true if a given id for a derivative has a thumbnail.
    */
-  private boolean hasThumbnail(UUID generatedFromDerivativeID) {
-    if (generatedFromDerivativeID == null) {
+  private boolean hasThumbnail(Derivative derivative) {
+    if (derivative == null) {
       return false;
     }
     return this.findOneBy((criteriaBuilder, derivativeRoot) -> new Predicate[]{
-      criteriaBuilder.equal(derivativeRoot.get("generatedFromDerivative"), generatedFromDerivativeID),
+      criteriaBuilder.equal(derivativeRoot.get("generatedFromDerivative"), derivative),
       criteriaBuilder.equal(derivativeRoot.get("derivativeType"), Derivative.DerivativeType.THUMBNAIL_IMAGE)
     }).isPresent();
   }
