@@ -29,7 +29,13 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
   protected void preCreate(Derivative entity) {
     entity.setUuid(UUID.randomUUID());
     establishBiDirectionalAssociation(entity);
-    handleThumbNailGeneration(entity);
+  }
+
+  @Override
+  public Derivative create(Derivative entity) {
+    Derivative derivative = super.create(entity);
+    handleThumbNailGeneration(derivative);
+    return derivative;
   }
 
   @Override
