@@ -19,7 +19,7 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
 
   public DerivativeService(
     @NonNull BaseDAO baseDAO,
-    ThumbnailService thumbnailService
+    @NonNull ThumbnailService thumbnailService
   ) {
     super(baseDAO);
     this.thumbnailService = thumbnailService;
