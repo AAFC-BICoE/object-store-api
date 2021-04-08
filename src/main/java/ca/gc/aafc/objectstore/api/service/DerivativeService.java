@@ -77,8 +77,17 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
     }
   }
 
+  /**
+   * Generates a thumbnail for a resource with the given parameters.
+   *
+   * @param sourceBucket                bucket of the resource
+   * @param sourceFilename              file name of the resource
+   * @param evaluatedMediaType          evaluated media type of the resource, can be null
+   * @param acDerivedFromId             metadata of the original resource, can be null
+   * @param generatedFromDerivativeUUID id of the derivative this resource derives from, can be null
+   */
   public void generateThumbnail(
-    @NonNull String bucket,
+    @NonNull String sourceBucket,
     @NonNull String sourceFilename,
     String evaluatedMediaType,
     UUID acDerivedFromId,
@@ -93,7 +102,7 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
     if (thumbnailService.isSupported(evaluatedMediaType)) {
       UUID uuid = UUID.randomUUID();
 
-      Derivative derivative = generateDerivativeForThumbnail(bucket, uuid);
+      Derivative derivative = generateDerivativeForThumbnail(sourceBucket, uuid);
 
       if (acDerivedFromId != null) {
         derivative.setAcDerivedFrom(this.getReferenceByNaturalId(ObjectStoreMetadata.class, acDerivedFromId));
@@ -108,10 +117,19 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
       }
 
       this.create(derivative);
-      thumbnailService.generateThumbnail(uuid, sourceFilename, evaluatedMediaType, bucket);
+      thumbnailService.generateThumbnail(uuid, sourceFilename, evaluatedMediaType, sourceBucket);
     }
   }
 
+  /**
+   * Returns true if a thumbnail should be generated. A thumbnail should be generated if a given Derivative
+   * type is not a thumbnail and no thumbnails are present for a given metadata and derived id.
+   *
+   * @param generatedFromDerivativeUUID id of the derivative to check.
+   * @param acDerivedFrom               metadata to check.
+   * @param derivativeType              type of derivative
+   * @return Returns true if a thumbnail should be generated.
+   */
   private boolean thumbnailShouldBeGenerated(
     UUID generatedFromDerivativeUUID,
     ObjectStoreMetadata acDerivedFrom,
@@ -121,6 +139,12 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
       !(hasThumbnail(generatedFromDerivativeUUID) || hasThumbnail(acDerivedFrom));
   }
 
+  /**
+   * Returns true if a given id for a derivative has a thumbnail.
+   *
+   * @param generatedFromDerivativeID id of the derivative to check.
+   * @return Returns true if a given id for a derivative has a thumbnail.
+   */
   private boolean hasThumbnail(UUID generatedFromDerivativeID) {
     if (generatedFromDerivativeID == null) {
       return false;
@@ -131,6 +155,12 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
     }).isPresent();
   }
 
+  /**
+   * Returns true if a given metadata has a thumbnail.
+   *
+   * @param metadata metadata to test.
+   * @return Returns true if a given metadata has a thumbnail.
+   */
   private boolean hasThumbnail(ObjectStoreMetadata metadata) {
     if (metadata == null) {
       return false;
@@ -141,17 +171,30 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
     }).isPresent();
   }
 
+  /**
+   * Returns an Optional Derivative for a given criteria.
+   *
+   * @param crit criteria to find the derivative
+   * @return an Optional Derivative for a given criteria.
+   */
   private Optional<Derivative> findOneBy(@NonNull BiFunction<CriteriaBuilder, Root<Derivative>, Predicate[]> crit) {
     return this.findAll(Derivative.class, crit, null, 0, 1).stream().findFirst();
   }
 
-  private static Derivative generateDerivativeForThumbnail(String bucket, UUID uuid) {
+  /**
+   * Generates a Template for a derivative to be used with thumbnails.
+   *
+   * @param bucket         bucket of the derivative
+   * @param fileIdentifier file identifier for the thumbnail
+   * @return a Template for a derivative to be used with thumbnails
+   */
+  private static Derivative generateDerivativeForThumbnail(String bucket, UUID fileIdentifier) {
     return Derivative.builder()
       .uuid(UUID.randomUUID())
       .createdBy(ThumbnailService.SYSTEM_GENERATED)
       .dcType(ThumbnailService.THUMBNAIL_DC_TYPE)
       .fileExtension(ThumbnailService.THUMBNAIL_EXTENSION)
-      .fileIdentifier(uuid)
+      .fileIdentifier(fileIdentifier)
       .derivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE)
       .bucket(bucket)
       .build();
