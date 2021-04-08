@@ -46,14 +46,15 @@ public class ThumbnailService {
     @NonNull UUID uuid,
     @NonNull String sourceFilename,
     @NonNull String sourceFileType,
-    @NonNull String sourceBucket
+    @NonNull String sourceBucket,
+    boolean isSourceDerivative
   ) {
 
-    String fileName = uuid.toString() + ThumbnailService.THUMBNAIL_EXTENSION;
+    String fileName = uuid + ThumbnailService.THUMBNAIL_EXTENSION;
 
     try (
       InputStream originalFile = minioService
-        .getFile(sourceFilename, sourceBucket, false)
+        .getFile(sourceFilename, sourceBucket, isSourceDerivative)
         .orElseThrow(() -> new IllegalArgumentException("file not found: " + sourceFilename));
       ByteArrayOutputStream os = new ByteArrayOutputStream()
     ) {

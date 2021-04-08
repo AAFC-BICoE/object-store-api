@@ -138,7 +138,7 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
     String bucket = resource.getBucket();
     UUID derivedId = resource.getUuid();
     String sourceFilename = resource.getFileIdentifier() + resource.getFileExtension();
-    derivativeService.generateThumbnail(bucket, sourceFilename, evaluatedMediaType, derivedId, null);
+    derivativeService.generateThumbnail(bucket, sourceFilename, evaluatedMediaType, derivedId, null, false);
   }
 
   public ObjectSubtype getThumbNailSubType() {

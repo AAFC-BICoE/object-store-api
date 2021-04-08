@@ -80,7 +80,8 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
         sourceFilename,
         evaluatedMediaType,
         derivedId,
-        generatedFromDerivativeUUID);
+        generatedFromDerivativeUUID,
+        true);
     }
   }
 
@@ -92,13 +93,15 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
    * @param evaluatedMediaType          evaluated media type of the resource, can be null
    * @param acDerivedFromId             metadata of the original resource, can be null
    * @param generatedFromDerivativeUUID id of the derivative this resource derives from, can be null
+   * @param isSourceDerivative          true if the source of the thumbnail is a derivative
    */
   public void generateThumbnail(
     @NonNull String sourceBucket,
     @NonNull String sourceFilename,
     String evaluatedMediaType,
     UUID acDerivedFromId,
-    UUID generatedFromDerivativeUUID
+    UUID generatedFromDerivativeUUID,
+    boolean isSourceDerivative
   ) {
     if (generatedFromDerivativeUUID == null && acDerivedFromId == null) {
       throw new IllegalArgumentException(
@@ -124,7 +127,12 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
       }
 
       this.create(derivative);
-      thumbnailService.generateThumbnail(uuid, sourceFilename, evaluatedMediaType, sourceBucket);
+      thumbnailService.generateThumbnail(
+        uuid,
+        sourceFilename,
+        evaluatedMediaType,
+        sourceBucket,
+        isSourceDerivative);
     }
   }
 
