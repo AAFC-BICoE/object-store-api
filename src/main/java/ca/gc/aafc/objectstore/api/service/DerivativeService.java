@@ -94,7 +94,12 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
       if (acDerivedFromId != null) {
         derivative.setAcDerivedFrom(this.getReferenceByNaturalId(ObjectStoreMetadata.class, acDerivedFromId));
       }
+
       if (generatedFromDerivativeUUID != null) {
+        if (!this.exists(Derivative.class, generatedFromDerivativeUUID)) {
+          throw new IllegalArgumentException(
+            "Derivative with id " + generatedFromDerivativeUUID + " does not exist");
+        }
         derivative.setGeneratedFromDerivative(generatedFromDerivativeUUID);
       }
 

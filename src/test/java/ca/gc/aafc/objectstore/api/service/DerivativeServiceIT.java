@@ -4,8 +4,10 @@ import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
+import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.file.ThumbnailService;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,10 +23,14 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
   @Inject
   private DerivativeService derivativeService;
   private ObjectStoreMetadata acDerivedFrom;
+  private ObjectUpload objectUpload;
 
   @BeforeEach
   void setUp() {
     acDerivedFrom = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
+    objectUpload = ObjectUploadFactory.newObjectUpload().build();
+    objectUpload.setBucket("test");
+    this.service.save(objectUpload);
     this.service.save(acDerivedFrom);
   }
 
@@ -43,9 +49,8 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
 
   @Test
   void generateThumbnail_DerivedFromDerivative_DerivativeGenerated() {
-    //TODO we need to make sure a real derivative is present
     //TODO Check a thumbnail for original has not already been generated
-    UUID generatedFromDerivativeUUID = UUID.randomUUID();
+    UUID generatedFromDerivativeUUID = derivativeService.create(newDerivative(null)).getUuid();
     String bucket = "test";
 
     derivativeService.generateThumbnail(
@@ -88,6 +93,18 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
   }
 
   @Test
+  void generateThumbnail_WhenGeneratedDerivedDoesNotExist_ThrowsIllegalArgumentException() {
+    Assertions.assertThrows(
+      IllegalArgumentException.class,
+      () -> derivativeService.generateThumbnail(
+        "test",
+        "dina.jpg",
+        MediaType.IMAGE_JPEG_VALUE,
+        null,
+        UUID.randomUUID()));
+  }
+
+  @Test
   void generateThumbnail_WhenNoSource_ThrowsIllegalArgumentException() {
     Assertions.assertThrows(
       IllegalArgumentException.class,
@@ -99,11 +116,11 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
         null));
   }
 
-  private static Derivative newDerivative(ObjectStoreMetadata child) {
+  private Derivative newDerivative(ObjectStoreMetadata child) {
     return Derivative.builder()
       .uuid(UUID.randomUUID())
       .generatedFromDerivative(UUID.randomUUID())
-      .fileIdentifier(UUID.randomUUID())
+      .fileIdentifier(objectUpload.getFileIdentifier())
       .fileExtension(".jpg")
       .bucket("mybucket")
       .acHashValue("abc")
