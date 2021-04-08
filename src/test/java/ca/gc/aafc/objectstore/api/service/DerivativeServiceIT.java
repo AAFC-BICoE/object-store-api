@@ -30,8 +30,27 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
     acDerivedFrom = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
     objectUpload = ObjectUploadFactory.newObjectUpload().build();
     objectUpload.setBucket("test");
+    objectUpload.setEvaluatedMediaType(MediaType.IMAGE_JPEG_VALUE);
     this.service.save(objectUpload);
     this.service.save(acDerivedFrom);
+  }
+
+  @Test
+  void create_WhenThumbnailSupported_ThumbnailGenerated() {
+    Derivative derivative = newDerivative(acDerivedFrom);
+    derivativeService.create(derivative);
+
+    Derivative thumbResult = findAllByDerivative(derivative.getUuid())
+      .stream().findFirst()
+      .orElseGet(() -> Assertions.fail("A derivative for a thumbnail should of been generated"));
+
+    Assertions.assertEquals(derivative.getBucket(), thumbResult.getBucket());
+    Assertions.assertEquals(derivative.getUuid(), thumbResult.getGeneratedFromDerivative());
+    Assertions.assertEquals(acDerivedFrom.getUuid(), thumbResult.getAcDerivedFrom().getUuid());
+    Assertions.assertEquals(ThumbnailService.SYSTEM_GENERATED, thumbResult.getCreatedBy());
+    Assertions.assertEquals(ThumbnailService.THUMBNAIL_DC_TYPE, thumbResult.getDcType());
+    Assertions.assertEquals(ThumbnailService.THUMBNAIL_EXTENSION, thumbResult.getFileExtension());
+    Assertions.assertEquals(Derivative.DerivativeType.THUMBNAIL_IMAGE, thumbResult.getDerivativeType());
   }
 
   @Test
@@ -44,13 +63,16 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
 
   @Test
   void create_WhenThumbNailAlreadyExists_ThumbNailNotGenerated() {
+    //TODO Check a thumbnail for original has not already been generated
 
   }
 
   @Test
   void generateThumbnail_DerivedFromDerivative_DerivativeGenerated() {
-    //TODO Check a thumbnail for original has not already been generated
-    UUID generatedFromDerivativeUUID = derivativeService.create(newDerivative(null)).getUuid();
+    Derivative derivative = newDerivative(null);
+    this.service.save(derivative);
+
+    UUID expectedUUID = derivative.getUuid();
     String bucket = "test";
 
     derivativeService.generateThumbnail(
@@ -58,18 +80,14 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
       UUID.randomUUID() + ".jpg",
       MediaType.IMAGE_JPEG_VALUE,
       null,
-      generatedFromDerivativeUUID);
+      expectedUUID);
 
-    Derivative thumbResult = findAllByDerivative(generatedFromDerivativeUUID)
+    Derivative thumbResult = findAllByDerivative(expectedUUID)
       .stream().findFirst()
       .orElseGet(() -> Assertions.fail("A derivative for a thumbnail should of been generated"));
 
     Assertions.assertEquals(bucket, thumbResult.getBucket());
-    Assertions.assertEquals(generatedFromDerivativeUUID, thumbResult.getGeneratedFromDerivative());
-    Assertions.assertEquals(ThumbnailService.SYSTEM_GENERATED, thumbResult.getCreatedBy());
-    Assertions.assertEquals(ThumbnailService.THUMBNAIL_DC_TYPE, thumbResult.getDcType());
-    Assertions.assertEquals(ThumbnailService.THUMBNAIL_EXTENSION, thumbResult.getFileExtension());
-    Assertions.assertEquals(Derivative.DerivativeType.THUMBNAIL_IMAGE, thumbResult.getDerivativeType());
+    Assertions.assertEquals(expectedUUID, thumbResult.getGeneratedFromDerivative());
   }
 
   @Test
