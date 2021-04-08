@@ -52,6 +52,13 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
     }
   }
 
+  public Optional<Derivative> findThumbnailDerivativeForMetadata(ObjectStoreMetadata metadata) {
+    return findOneBy((criteriaBuilder, derivativeRoot) -> new Predicate[]{
+      criteriaBuilder.equal(derivativeRoot.get("acDerivedFrom"), metadata),
+      criteriaBuilder.equal(derivativeRoot.get("derivativeType"), Derivative.DerivativeType.THUMBNAIL_IMAGE)
+    });
+  }
+
   public Optional<Derivative> findByFileId(UUID fileId) {
     return findOneBy((cb, root) -> new Predicate[]{cb.equal(root.get("fileIdentifier"), fileId)});
   }
@@ -165,10 +172,7 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
     if (metadata == null) {
       return false;
     }
-    return findOneBy((criteriaBuilder, derivativeRoot) -> new Predicate[]{
-      criteriaBuilder.equal(derivativeRoot.get("acDerivedFrom"), metadata),
-      criteriaBuilder.equal(derivativeRoot.get("derivativeType"), Derivative.DerivativeType.THUMBNAIL_IMAGE)
-    }).isPresent();
+    return findThumbnailDerivativeForMetadata(metadata).isPresent();
   }
 
   /**
