@@ -28,7 +28,7 @@ public class DerivativeCRUDIT extends BaseEntityCRUDIT {
   void setUp() {
     metaService.create(metadata);
 
-    Derivative generatedFrom = newDerivative(null);
+    Derivative generatedFrom = newDerivative(metadata);
     derivativeService.create(generatedFrom);
 
     derivative = newDerivative(metadata);
