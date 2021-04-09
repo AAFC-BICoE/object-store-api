@@ -79,36 +79,12 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
   }
 
   @Test
-  void generateThumbnail_DerivedFromDerivative_DerivativeGenerated() {
-    Derivative derivative = newDerivative(null);
-    this.service.save(derivative);
-
-    UUID expectedUUID = derivative.getUuid();
-    String bucket = "test";
-
-    derivativeService.generateThumbnail(
-      bucket,
-      UUID.randomUUID() + ".jpg",
-      MediaType.IMAGE_JPEG_VALUE,
-      null,
-      expectedUUID,
-      true);
-
-    Derivative thumbResult = findAllByDerivative(derivative)
-      .stream().findFirst()
-      .orElseGet(() -> Assertions.fail("A derivative for a thumbnail should of been generated"));
-
-    Assertions.assertEquals(bucket, thumbResult.getBucket());
-    Assertions.assertEquals(expectedUUID, thumbResult.getGeneratedFromDerivative().getUuid());
-  }
-
-  @Test
   void generateThumbnail_DerivedFromMetaData_DerivativeGenerated() {
     derivativeService.generateThumbnail(
       "test",
       UUID.randomUUID() + ".jpg",
-      MediaType.IMAGE_JPEG_VALUE,
       acDerivedFrom.getUuid(),
+      MediaType.IMAGE_JPEG_VALUE,
       null,
       true);
 
@@ -130,22 +106,9 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
       () -> derivativeService.generateThumbnail(
         "test",
         "dina.jpg",
+        acDerivedFrom.getUuid(),
         MediaType.IMAGE_JPEG_VALUE,
-        null,
         UUID.randomUUID(),
-        true));
-  }
-
-  @Test
-  void generateThumbnail_WhenNoSource_ThrowsIllegalArgumentException() {
-    Assertions.assertThrows(
-      IllegalArgumentException.class,
-      () -> derivativeService.generateThumbnail(
-        "test",
-        "dina.jpg",
-        MediaType.IMAGE_JPEG_VALUE,
-        null,
-        null,
         true));
   }
 
