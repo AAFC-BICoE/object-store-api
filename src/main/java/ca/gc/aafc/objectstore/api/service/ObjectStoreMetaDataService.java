@@ -86,13 +86,6 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
     }
   }
 
-  @Override
-  protected void preDelete(ObjectStoreMetadata entity) {
-    if (CollectionUtils.isNotEmpty(entity.getDerivatives())) {
-      entity.getDerivatives().forEach(derived -> derived.setAcDerivedFrom(null));
-    }
-  }
-
   // Overriding to implement soft delete
   @Override
   public void delete(ObjectStoreMetadata entity) {
