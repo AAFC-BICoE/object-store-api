@@ -112,6 +112,19 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
         true));
   }
 
+  @Test
+  void generateThumbnail_WhenAcDerivedFromDoesNotExist_ThrowsIllegalArgumentException() {
+    Assertions.assertThrows(
+      IllegalArgumentException.class,
+      () -> derivativeService.generateThumbnail(
+        "test",
+        "dina.jpg",
+        UUID.randomUUID(),
+        MediaType.IMAGE_JPEG_VALUE,
+        null,
+        true));
+  }
+
   private Derivative newDerivative(ObjectStoreMetadata child) {
     return Derivative.builder()
       .uuid(UUID.randomUUID())
