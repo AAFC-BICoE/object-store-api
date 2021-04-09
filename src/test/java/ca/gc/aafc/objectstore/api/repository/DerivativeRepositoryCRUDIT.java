@@ -1,10 +1,13 @@
 package ca.gc.aafc.objectstore.api.repository;
 
 import ca.gc.aafc.objectstore.api.dto.DerivativeDto;
+import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
+import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.respository.DerivativeRepository;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import io.crnk.core.exception.BadRequestException;
 import io.crnk.core.exception.MethodNotAllowedException;
@@ -22,12 +25,15 @@ public class DerivativeRepositoryCRUDIT extends BaseRepositoryTest {
   @Inject
   private DerivativeRepository derivativeRepository;
   private ObjectUpload upload;
+  private ObjectStoreMetadata acDerivedFrom;
 
   @BeforeEach
   void setUp() {
     upload = ObjectUploadFactory.newObjectUpload().build();
     upload.setIsDerivative(true);
     this.service.save(upload);
+    acDerivedFrom = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
+    this.service.save(acDerivedFrom);
   }
 
   @Test
@@ -78,9 +84,12 @@ public class DerivativeRepositoryCRUDIT extends BaseRepositoryTest {
       () -> derivativeRepository.save(newDerivative(UUID.randomUUID())));
   }
 
-  private static DerivativeDto newDerivative(UUID fileIdentifier) {
+  private DerivativeDto newDerivative(UUID fileIdentifier) {
     DerivativeDto dto = new DerivativeDto();
     dto.setDcType(DcType.IMAGE);
+    ObjectStoreMetadataDto from = new ObjectStoreMetadataDto();
+    from.setUuid(acDerivedFrom.getUuid());
+    dto.setAcDerivedFrom(from);
     dto.setDerivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE);
     dto.setFileIdentifier(fileIdentifier);
     return dto;
