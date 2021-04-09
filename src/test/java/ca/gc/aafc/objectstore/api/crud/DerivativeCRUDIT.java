@@ -9,7 +9,6 @@ import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFacto
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
 import java.util.UUID;
@@ -68,24 +67,6 @@ public class DerivativeCRUDIT extends BaseEntityCRUDIT {
     Assertions.assertNull(service.find(Derivative.class, id));
     // Child should still exist
     Assertions.assertNotNull(service.find(ObjectStoreMetadata.class, metadata.getId()));
-  }
-
-  /**
-   * This test case is required because a child is currently only soft deleted, so we need to establish the
-   * relation is removed.
-   */
-  @Test
-  void delete_WhenChildDeleted_RelationRemoved() {
-    ObjectStoreMetadata child = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
-    metaService.create(child);
-
-    Derivative parent = newDerivative(child);
-    derivativeService.create(parent);
-
-    metaService.delete(service.find(ObjectStoreMetadata.class, child.getId()));
-    Derivative result = service.find(Derivative.class, parent.getId());
-
-    Assertions.assertNull(result.getAcDerivedFrom());
   }
 
   private Derivative newDerivative(ObjectStoreMetadata child) {
