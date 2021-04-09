@@ -34,6 +34,7 @@ public class Derivative extends AbstractObjectStoreMetadata {
   private Integer id;
   private ObjectStoreMetadata acDerivedFrom;
   private DerivativeType derivativeType;
+  private Derivative generatedFromDerivative;
 
   @Builder
   public Derivative(
@@ -48,7 +49,8 @@ public class Derivative extends AbstractObjectStoreMetadata {
     OffsetDateTime createdOn,
     Integer id,
     ObjectStoreMetadata acDerivedFrom,
-    DerivativeType derivativeType
+    DerivativeType derivativeType,
+    Derivative generatedFromDerivative
   ) {
     super(
       uuid,
@@ -63,6 +65,7 @@ public class Derivative extends AbstractObjectStoreMetadata {
     this.id = id;
     this.acDerivedFrom = acDerivedFrom;
     this.derivativeType = derivativeType;
+    this.generatedFromDerivative = generatedFromDerivative;
   }
 
   @Id
@@ -95,5 +98,15 @@ public class Derivative extends AbstractObjectStoreMetadata {
 
   public void setDerivativeType(DerivativeType derivativeType) {
     this.derivativeType = derivativeType;
+  }
+
+  @ManyToOne
+  @JoinColumn(name = "generated_from_derivative", referencedColumnName = "id")
+  public Derivative getGeneratedFromDerivative() {
+    return generatedFromDerivative;
+  }
+
+  public void setGeneratedFromDerivative(Derivative generatedFromDerivative) {
+    this.generatedFromDerivative = generatedFromDerivative;
   }
 }

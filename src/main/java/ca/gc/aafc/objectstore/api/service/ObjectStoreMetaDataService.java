@@ -2,13 +2,11 @@ package ca.gc.aafc.objectstore.api.service;
 
 import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.dina.service.DefaultDinaService;
-import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.file.ThumbnailService;
 import io.crnk.core.exception.BadRequestException;
 import lombok.NonNull;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -26,10 +24,8 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
   private final BaseDAO baseDAO;
 
   private final DerivativeService derivativeService;
-  private final ThumbnailService thumbnailService;
 
   public ObjectStoreMetaDataService(
-    @NonNull ThumbnailService thumbnailService,
     @NonNull BaseDAO baseDAO,
     @NonNull ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService,
     @NonNull MetaManagedAttributeService metaManagedAttributeService,
@@ -39,7 +35,6 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
     this.baseDAO = baseDAO;
     this.defaultValueSetterService = defaultValueSetterService;
     this.metaManagedAttributeService = metaManagedAttributeService;
-    this.thumbnailService = thumbnailService;
     this.derivativeService = derivativeService;
   }
 
@@ -90,13 +85,6 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
     }
   }
 
-  @Override
-  protected void preDelete(ObjectStoreMetadata entity) {
-    if (CollectionUtils.isNotEmpty(entity.getDerivatives())) {
-      entity.getDerivatives().forEach(derived -> derived.setAcDerivedFrom(null));
-    }
-  }
-
   // Overriding to implement soft delete
   @Override
   public void delete(ObjectStoreMetadata entity) {
@@ -139,29 +127,10 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
    */
   private void handleThumbNailGeneration(ObjectStoreMetadata resource) {
     String evaluatedMediaType = resource.getDcFormat();
-
-    if (thumbnailService.isSupported(evaluatedMediaType)) {
-      UUID uuid = UUID.randomUUID();
-      String bucket = resource.getBucket();
-
-      derivativeService.create(Derivative.builder()
-        .uuid(UUID.randomUUID())
-        .createdBy(ThumbnailService.SYSTEM_GENERATED)
-        .dcType(ThumbnailService.THUMBNAIL_DC_TYPE)
-        .fileExtension(ThumbnailService.THUMBNAIL_EXTENSION)
-        .fileIdentifier(uuid)
-        .derivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE)
-        .bucket(bucket)
-        .acDerivedFrom(
-          this.getReferenceByNaturalId(ObjectStoreMetadata.class, resource.getUuid()))
-        .build());
-
-      thumbnailService.generateThumbnail(
-        uuid,
-        resource.getFileIdentifier() + resource.getFileExtension(),
-        evaluatedMediaType,
-        bucket);
-    }
+    String bucket = resource.getBucket();
+    UUID derivedId = resource.getUuid();
+    String sourceFilename = resource.getFileIdentifier() + resource.getFileExtension();
+    derivativeService.generateThumbnail(bucket, sourceFilename, derivedId, evaluatedMediaType, null, false);
   }
 
   public ObjectSubtype getThumbNailSubType() {

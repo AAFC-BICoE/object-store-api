@@ -5,9 +5,11 @@ import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.MinioTestConfiguration;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
+import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.service.DerivativeService;
 import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import io.crnk.core.exception.UnauthorizedException;
 import io.minio.errors.ErrorResponseException;
 import io.minio.errors.InsufficientDataException;
@@ -130,8 +132,11 @@ public class FileControllerIT extends BaseIntegrationTest {
     MockMultipartFile mockFile = getFileUnderTest();
     ObjectUpload uploadResponse = fileController.handleDerivativeUpload(mockFile, bucketUnderTest);
     // A derivative requires a Derivative record to download
+    ObjectStoreMetadata acDerivedFrom = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
+    this.service.save(acDerivedFrom);
     derivativeService.create(Derivative.builder()
       .fileIdentifier(uploadResponse.getFileIdentifier())
+      .acDerivedFrom(acDerivedFrom)
       .bucket(uploadResponse.getBucket())
       .fileExtension(uploadResponse.getEvaluatedFileExtension())
       .dcType(DcType.IMAGE)

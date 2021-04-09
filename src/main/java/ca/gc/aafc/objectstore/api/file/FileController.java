@@ -7,7 +7,6 @@ import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.exif.ExifParser;
 import ca.gc.aafc.objectstore.api.minio.MinioFileService;
 import ca.gc.aafc.objectstore.api.service.DerivativeService;
-import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataReadService;
 import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
 import io.crnk.core.exception.UnauthorizedException;
@@ -40,7 +39,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.inject.Inject;
-import javax.persistence.criteria.Predicate;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.io.InputStream;
@@ -62,7 +60,6 @@ public class FileController {
   private static final int READ_AHEAD_BUFFER_SIZE = 10 * 1024;
 
   private final ObjectUploadService objectUploadService;
-  private final ObjectStoreMetaDataService objectStoreMetaDataService;
   private final DerivativeService derivativeService;
   private final MinioFileService minioService;
   private final ObjectStoreMetadataReadService objectStoreMetadataReadService;
@@ -76,7 +73,6 @@ public class FileController {
   public FileController(
     MinioFileService minioService,
     ObjectUploadService objectUploadService,
-    ObjectStoreMetaDataService objectStoreMetaDataService,
     DerivativeService derivativeService,
     ObjectStoreMetadataReadService objectStoreMetadataReadService,
     MediaTypeDetectionStrategy mediaTypeDetectionStrategy,
@@ -89,7 +85,6 @@ public class FileController {
     this.mediaTypeDetectionStrategy = mediaTypeDetectionStrategy;
     this.authenticatedUser = authenticatedUser;
     this.messageSource = messageSource;
-    this.objectStoreMetaDataService = objectStoreMetaDataService;
     this.derivativeService = derivativeService;
   }
 
@@ -173,8 +168,8 @@ public class FileController {
     @PathVariable String bucket,
     @PathVariable UUID fileId
   ) throws IOException {
-    Derivative derivative = derivativeService
-      .findByFileId(fileId).orElseThrow(() -> buildNotFoundException(bucket, fileId));
+    Derivative derivative = derivativeService.findByFileId(fileId)
+      .orElseThrow(() -> buildNotFoundException(bucket, fileId));
     String fileName = derivative.getFileIdentifier() + derivative.getFileExtension();
     return download(bucket, fileId, fileName, true);
   }
@@ -188,11 +183,7 @@ public class FileController {
       .loadObjectStoreMetadataByFileId(fileId)
       .orElseThrow(() -> buildNotFoundException(bucket, fileId));
 
-    Derivative derivative = objectStoreMetaDataService.findAll(Derivative.class,
-      (criteriaBuilder, root) -> new Predicate[]{
-        criteriaBuilder.equal(root.get("acDerivedFrom"), objectStoreMetadata),
-        criteriaBuilder.equal(root.get("objectSubtype"), objectStoreMetaDataService.getThumbNailSubType())},
-      null, 0, 1).stream().findFirst()
+    Derivative derivative = derivativeService.findThumbnailDerivativeForMetadata(objectStoreMetadata)
       .orElseThrow(() -> buildNotFoundException(bucket, fileId));
     return downloadDerivative(bucket, derivative.getFileIdentifier());
   }

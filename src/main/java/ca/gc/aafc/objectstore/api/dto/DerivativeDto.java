@@ -33,5 +33,7 @@ public class DerivativeDto {
   private Derivative.DerivativeType derivativeType;
 
   @JsonApiRelation
+  private DerivativeDto generatedFromDerivative;
+  @JsonApiRelation
   private ObjectStoreMetadataDto acDerivedFrom;
 }
