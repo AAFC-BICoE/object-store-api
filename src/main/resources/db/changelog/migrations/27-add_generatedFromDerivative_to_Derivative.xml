@@ -15,6 +15,8 @@
                 constraintName="fk_derivative_generated_from_derivative"
                 referencedColumnNames="id"
                 referencedTableName="derivative"/>
+        <!--    acDerivedFrom cannot be null    -->
+        <addNotNullConstraint tableName="derivative" columnName="ac_derived_from"/>
     </changeSet>
 
 </databaseChangeLog>
