@@ -28,4 +28,5 @@
   <include file="db/changelog/migrations/25-remove_subtype_from_derivative.xml"/>
   <include file="db/changelog/migrations/26-update_derivatives_on_metadata.xml"/>
   <include file="db/changelog/migrations/27-add_generatedFromDerivative_to_Derivative.xml"/>
+  <include file="db/changelog/migrations/28-remove_thumbNailIdentifier_from_object_upload.xml"/>
 </databaseChangeLog>

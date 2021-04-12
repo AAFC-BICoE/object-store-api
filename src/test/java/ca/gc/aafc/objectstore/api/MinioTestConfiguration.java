@@ -55,7 +55,6 @@ public class MinioTestConfiguration {
   public static final String TEST_USAGE_TERMS = "test usage terms";
 
   public static final UUID TEST_FILE_IDENTIFIER = UUID.randomUUID();
-  public static final UUID TEST_THUMBNAIL_IDENTIFIER = UUID.randomUUID();
   public static final String TEST_FILE_EXT = ".txt";
   public static final String TEST_FILE_MEDIA_TYPE = MediaType.TEXT_PLAIN_VALUE;
   public static final String TEST_ORIGINAL_FILENAME = "myfile" + TEST_FILE_EXT;
@@ -68,7 +67,6 @@ public class MinioTestConfiguration {
   public static ObjectUpload buildTestObjectUpload() {
     return ObjectUploadFactory.newObjectUpload()
         .fileIdentifier(MinioTestConfiguration.TEST_FILE_IDENTIFIER)
-        .thumbnailIdentifier(MinioTestConfiguration.TEST_THUMBNAIL_IDENTIFIER)
         .evaluatedMediaType(MinioTestConfiguration.TEST_FILE_MEDIA_TYPE)
         .detectedMediaType(MinioTestConfiguration.TEST_FILE_MEDIA_TYPE)
         .detectedFileExtension(MinioTestConfiguration.TEST_FILE_EXT)
