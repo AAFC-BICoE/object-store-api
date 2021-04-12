@@ -1,6 +1,6 @@
 = File/Derivative Upload and Download
 
-=== Upload a file
+== Upload a file
 
 1. Send a POST request to the `/api/v1/file/{bucket}` endpoint.
 
