@@ -96,7 +96,7 @@ A derivative will be expected to derive from an existing file with an existing m
 
 The fileIdentifier in the following example points to the returned file Identifier for step one. This identifies the uploaded derivative.
 
-The acDerivedFrom object in the following example represents the original resource this derivative will derive from.
+The acDerivedFrom object in the following example represents the original resource (of type metadata) this derivative will derive from.
 
 > Example Request: POST /api/v1/derivative/
 ```sh
