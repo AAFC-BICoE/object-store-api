@@ -81,7 +81,6 @@ curl --request POST \
   "evaluatedMediaType": "image/png",
   "evaluatedFileExtension": ".png",
   "sizeInBytes": 6091,
-  "thumbnailIdentifier": null,
   "bucket": "dev-group",
   "exif": {},
   "dateTimeDigitized": null,
@@ -107,7 +106,7 @@ curl --request POST \
 	"data": {
 		"type": "derivative",
 		"attributes": {
-			"dcType": "SoUnD",
+			"dcType": "IMAGE",
 			"fileIdentifier": "5c158d6e-09eb-4272-88b6-3349b638100d"
 		},
 		"relationships": {
