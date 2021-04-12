@@ -55,8 +55,6 @@ EOF
 
 Uploading a Derivative is similar to uploading a regular file.
 
-However, a derivative will be expected to derive from an existing file with an existing metadata for the original file.
-
 *1. Upload the derivative file by sending a post request to: `/api/v1/file/{bucket}/derivative` with the file as multipart/form-data.*
 
 > Example Request: POST /api/v1/file/{bucket}/derivative
@@ -93,6 +91,8 @@ curl --request POST \
 ```
 
 *2. Upload the derivative resource for that file at: `api/v1/derivative/`*
+
+A derivative will be expected to derive from an existing file with an existing metadata for the original file.
 
 The fileIdentifier in the following example points to the returned file Identifier for step one. This identifies the uploaded derivative.
 
