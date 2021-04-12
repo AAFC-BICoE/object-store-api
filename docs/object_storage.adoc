@@ -6,7 +6,7 @@ The Object Store module uses https://min.io/[MinIO] as a storage abstraction lay
 
 == Object Metadata
 
-The Object Store workflow consists of the upload of an object (a file) and the submission of the associated metadata. Some data available at the upload stage should be preserved and transfered to the associated metadata once the latter is submitted. For example: the original filename, the hash of the file, the received media type, the detected media type, etc.
+The Object Store workflow consists of the upload of an object (a file) and the submission of the associated metadata. Some data available at the upload stage should be preserved and transferred to the associated metadata once the latter is submitted. For example: the original filename, the hash of the file, the received media type, the detected media type, etc.
 
 == Expected Sequence
 
@@ -14,17 +14,4 @@ The Object Store workflow consists of the upload of an object (a file) and the s
  * The backend returns a uuid representing the `fileIdentifier`
  * Post of the metadata with `fileIdentifier` set to the uuid return be the previous step
  * The file is available for download using the bucket and the `fileIdentifier`
- 
 
-== MinIO Metadata
-
-MinIO Java client supports `headerMap` in the http://minio.github.io/minio-java/io/minio/MinioClient.html#putObject-java.lang.String-java.lang.String-java.io.InputStream-java.lang.Long-java.util.Map-io.minio.ServerSideEncryption-java.lang.String-[putObject] method as a mechanism to store metadata associated with an object. Even if this method works in most cases, it has 2 main drawbacks:
-
-. The metadata has to be known before the object binaries are uploaded, and cannot be changed later (it would require copying the object into a new object with a different name).
-. The metadata is stored in an hidden file managed by MinIO, thereby making it less explicit and potentially risky.
-
-Object tagging is not supported by MinIO: https://github.com/minio/minio/issues/5896[Issue 5896]
-
-== Custom Object Metadata
-
-In order to address the above drawbacks and offer more flexibility, the Object Store stores its own metadata file next to the object being stored. The metadata file has the same name (an UUID) as the object + a `_meta.json` suffix. The custom metadata file is a simple json document which contains a version number, allowing it to evolve without requiring the rewrite of all the meta files. The metadata file is NOT a replacement for the metadata database offered by the Object Store. The metadata file is used to capture upload time data which is then copied to the metadata database entry. Even after the metadata database entry is created, the metadata file is preserved as an immutable file representing the data used to create the record.
