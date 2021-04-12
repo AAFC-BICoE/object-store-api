@@ -122,6 +122,42 @@ curl --request POST \
 }'
 ```
 
+== Uploading a thumbnail for a specific resource
+
+You can upload a derivative to be a thumbnail for an Object.
+
+After uploading a derivative file, when the derivative resource for that file is being uploaded 2 things will be required.
+
+1. You must set `"derivativeType": "THUMBNAIL_IMAGE"` as shown in the following example.
+2. You must provide a valid `acDerivedFrom object`.
+
+> Example Request: POST /api/v1/derivative/
+```sh
+curl --request POST \
+  --url http://localhost:8081/api/v1/derivative/ \
+  --header 'Content-Type: application/vnd.api+json' \
+  --data '{
+	"data": {
+		"type": "derivative",
+		"attributes": {
+			"fileIdentifier": "df85bc1b-7365-4621-ab00-2cdd48808252",
+			"dcType": "Image",
+			"derivativeType": "THUMBNAIL_IMAGE"
+		},
+		"relationships": {
+			"acDerivedFrom": {
+				"data": {
+					"id": "c8b71e52-ccf1-4409-8d3d-deb23e0a9906",
+					"type": "metadata"
+				}
+			}
+		}
+	}
+}'
+```
+
+> Warning: this does not resize the image! If you want an image to be resized and used as a thumbnail, submit the image as a regular derivative with a provided `acDerivedFrom` and a thumbnail will be generated for this image and associated with the given `acDerivedFrom`.
+
 == File Download
 
 To download a stored object, send a GET request to the `/api/v1/file/{bucket}/{fileId}` endpoint.
