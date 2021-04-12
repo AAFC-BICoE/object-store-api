@@ -156,7 +156,7 @@ curl --request POST \
 }'
 ```
 
-> Warning: this does not resize the image! If you want an image to be resized and used as a thumbnail, submit the image as a regular derivative with a provided `acDerivedFrom` and a thumbnail will be generated for this image and associated with the given `acDerivedFrom`.
+WARNING: this does not resize the image! If you want an image to be resized and used as a thumbnail, submit the image as a regular derivative with a provided `acDerivedFrom` and a thumbnail will be generated for this image and associated with the given `acDerivedFrom`.
 
 == File Download
 
