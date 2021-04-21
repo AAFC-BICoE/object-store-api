@@ -1,32 +1,6 @@
 <?xml version="1.1" encoding="UTF-8" standalone="no"?>
-<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
-  <include file="db/changelog/db.changelog-init.xml"/>
-  <include file="db/changelog/migrations/1-Add_description_to_managed_attribute.xml"/>
-  <include file="db/changelog/migrations/2-Add_support_for_dcCreator.xml"/>
-  <include file="db/changelog/migrations/3-Add_acDerivedFrom_relationship_to_metadata.xml"/>
-  <include file="db/changelog/migrations/4-Add_object_subtype_table.xml"/>
-  <include file="db/changelog/migrations/5-Add_acSubType_for_metadata.xml"/>
-  <include file="db/changelog/migrations/6-Insert_ThumbNail_ObjectType.xml" />
-  <include file="db/changelog/migrations/7-alter_metadata_acCreator_dcCreator.xml" />
-  <include file="db/changelog/migrations/8-drop_agent_table.xml" />
-  <include file="db/changelog/migrations/9-Add_xmpRightsUsageTerms_to_metadata.xml" />  
-  <include file="db/changelog/migrations/10-Add_Javers_audit_tables.xml"/>  
-  <include file="db/changelog/migrations/11-subtype_add_app_managed.xml" />  
-  <include file="db/changelog/migrations/12-MakeManagedAttribute-description-mandatory.xml"/>
-  <include file="db/changelog/migrations/13-managed_attribute_add_createdBy_createdOn.xml"/>
-  <include file="db/changelog/migrations/14-Object_subtype_add_createdBy_createdOn.xml"/>
-  <include file="db/changelog/migrations/15-add_object_upload_table.xml"/>
-  <include file="db/changelog/migrations/16-MetaData_add_createBy_createdOn.xml"/>
-  <include file="db/changelog/migrations/17-MetaManagedAttrib_add_createdBy_createdOn.xml"/>
-  <include file="db/changelog/migrations/18-Add_FileMetaEntry_to_object_upload_table.xml" />
-  <include file="db/changelog/migrations/19-Add_exif_to_object_upload_table.xml" />
-  <include file="db/changelog/migrations/20-Add_date_taken_to_object_upload_table.xml" />
-  <include file="db/changelog/migrations/21-Add_DcType_To_Object_Upload.xml"/>
-  <include file="db/changelog/migrations/22-Change-metadata-assignedValue-to-text.xml"/>
-  <include file="db/changelog/migrations/23-Add_derivative_entity.xml"/>
-  <include file="db/changelog/migrations/24-ObjectUpload_track_isDerivative.xml"/>
-  <include file="db/changelog/migrations/25-remove_subtype_from_derivative.xml"/>
-  <include file="db/changelog/migrations/26-update_derivatives_on_metadata.xml"/>
-  <include file="db/changelog/migrations/27-add_generatedFromDerivative_to_Derivative.xml"/>
-  <include file="db/changelog/migrations/28-remove_thumbNailIdentifier_from_object_upload.xml"/>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+    <include file="db/changelog/db.changelog-init.xml"/>
 </databaseChangeLog>
