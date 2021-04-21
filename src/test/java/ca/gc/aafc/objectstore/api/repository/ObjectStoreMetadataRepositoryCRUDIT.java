@@ -139,6 +139,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
     resource.setFileIdentifier(uuid);
 
     assertThrows(ValidationException.class, () -> objectStoreResourceRepository.create(resource));
+    service.deleteById(ObjectUpload.class, derivativeObjectUpload.getId());
   }
 
   @Test
