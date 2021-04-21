@@ -166,8 +166,9 @@ public class ObjectStoreResourceRepository
       objectMetadata.getFileIdentifier(),
       ObjectUpload.class);
 
-    if (objectUpload == null) {
-      throw new ValidationException("fileIdentifier not found");
+    // make sure that there is an ObjectUpload that is not a derivative
+    if (objectUpload == null || objectUpload.getIsDerivative()) {
+      throw new ValidationException("primary object with fileIdentifier not found: " + objectMetadata.getFileIdentifier());
     }
 
     objectMetadata.setFileExtension(objectUpload.getEvaluatedFileExtension());

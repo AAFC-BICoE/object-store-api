@@ -23,12 +23,14 @@ import org.springframework.http.MediaType;
 
 import javax.inject.Inject;
 import javax.persistence.criteria.Predicate;
+import javax.validation.ValidationException;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
 
@@ -123,6 +125,21 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
     assertEquals(MinioTestConfiguration.TEST_FILE_IDENTIFIER, result.getFileIdentifier());
     assertEquals(acSubType.getUuid(), result.getAcSubType().getUuid());
     assertEquals(MinioTestConfiguration.TEST_USAGE_TERMS, result.getXmpRightsUsageTerms());
+  }
+
+  @Test
+  public void create_onMetadataOnDerivative_ExceptionThrown() {
+    UUID uuid = UUID.randomUUID();
+    ObjectUpload derivativeObjectUpload = MinioTestConfiguration.buildTestObjectUpload();
+    derivativeObjectUpload.setFileIdentifier(uuid);
+    derivativeObjectUpload.setIsDerivative(true);
+    persist(derivativeObjectUpload);
+
+    ObjectStoreMetadataDto resource = newMetaDto();
+    resource.setFileIdentifier(uuid);
+
+    assertThrows(ValidationException.class, () -> objectStoreResourceRepository.create(resource));
+    service.deleteById(ObjectUpload.class, derivativeObjectUpload.getId());
   }
 
   @Test
