@@ -23,7 +23,6 @@ public class ObjectSubtypeDto {
 
   private DcType dcType;
   private String acSubtype;
-  private boolean appManaged;
   private String createdBy;
   private OffsetDateTime createdOn;
 }
