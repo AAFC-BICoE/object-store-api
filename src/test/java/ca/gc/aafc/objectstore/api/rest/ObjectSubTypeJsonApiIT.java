@@ -78,26 +78,13 @@ public class ObjectSubTypeJsonApiIT extends BaseJsonApiIntegrationTest {
   }
 
   @Test
-  public void update_ToObjectSubTypeSetup_ReturnsCode200() {
+  public void update_ReturnsCode200() {
     ObjectSubtypeDto dto = createRandomType();
     String id = sendPost(toJsonAPIMap(toAttributeMap(dto), null));
 
     sendPatch(id, HttpStatus.OK_200, toJsonAPIMap(toAttributeMap(dto), null));
-    sendDelete(id);
   }
 
-  @Test
-  public void update_FromObjectSubTypeSetup_ReturnsCode200() {
-    ObjectSubtypeDto thumbnail = new ObjectSubtypeDto();
-    sendPatch(
-      objectSubTypeId,
-      HttpStatus.OK_200,
-      JsonAPITestHelper.toJsonAPIMap(
-        getResourceUnderTest(),
-        toAttributeMap(thumbnail),
-        toRelationshipMap(buildRelationshipList()),
-        objectSubTypeId));
-  }
 
   private static ObjectSubtypeDto createRandomType() {
     ObjectSubtypeDto dto = new ObjectSubtypeDto();
