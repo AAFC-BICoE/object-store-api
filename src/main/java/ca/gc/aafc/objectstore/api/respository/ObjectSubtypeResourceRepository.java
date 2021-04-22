@@ -45,12 +45,6 @@ public class ObjectSubtypeResourceRepository
   }
 
   @Override
-  public <S extends ObjectSubtypeDto> S save(S resource) {
-    ObjectSubtype entity = dinaService.findOne(resource.getUuid(), ObjectSubtype.class);
-    return super.save(resource);
-  }
-
-  @Override
   public <S extends ObjectSubtypeDto> S create(S resource) {
     if (authenticatedUser.isPresent()) {
       resource.setCreatedBy(authenticatedUser.get().getUsername());
