@@ -26,7 +26,7 @@
             );
         </sql>
     </changeSet>
-    <changeSet author="jon (generated)" id="1618574483518-1">
+    <changeSet context="schema-change" author="jon (generated)" id="1618574483518-1">
         <createTable tableName="metadata_managed_attribute">
             <column autoIncrement="true" name="id" type="INTEGER">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pk_metatdata_managed_attribute_id"/>
@@ -45,7 +45,7 @@
             </column>
         </createTable>
     </changeSet>
-    <changeSet author="jon (generated)" id="1618574483518-2">
+    <changeSet context="schema-change" author="jon (generated)" id="1618574483518-2">
         <createTable tableName="jv_commit">
             <column name="commit_pk" type="BIGINT">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="jv_commit_pk"/>
@@ -56,7 +56,7 @@
             <column name="commit_id" type="numeric(22, 2)"/>
         </createTable>
     </changeSet>
-    <changeSet author="jon (generated)" id="1618574483518-3">
+    <changeSet context="schema-change" author="jon (generated)" id="1618574483518-3">
         <createTable tableName="jv_commit_property">
             <column name="property_name" type="VARCHAR(191)">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="jv_commit_property_pk"/>
@@ -67,7 +67,7 @@
             </column>
         </createTable>
     </changeSet>
-    <changeSet author="jon (generated)" id="1618574483518-4">
+    <changeSet context="schema-change" author="jon (generated)" id="1618574483518-4">
         <createTable tableName="jv_global_id">
             <column name="global_id_pk" type="BIGINT">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="jv_global_id_pk"/>
@@ -78,7 +78,7 @@
             <column name="owner_id_fk" type="BIGINT"/>
         </createTable>
     </changeSet>
-    <changeSet author="jon (generated)" id="1618574483518-5">
+    <changeSet context="schema-change" author="jon (generated)" id="1618574483518-5">
         <createTable tableName="jv_snapshot">
             <column name="snapshot_pk" type="BIGINT">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="jv_snapshot_pk"/>
@@ -92,13 +92,13 @@
             <column name="commit_fk" type="BIGINT"/>
         </createTable>
     </changeSet>
-    <changeSet author="jon (generated)" id="1618574483518-6">
+    <changeSet context="schema-change" author="jon (generated)" id="1618574483518-6">
         <createIndex indexName="metadata_managed_attribute_uuid_key" tableName="metadata_managed_attribute"
                      unique="true">
             <column name="uuid"/>
         </createIndex>
     </changeSet>
-    <changeSet author="jon (generated)" id="1618574483518-7">
+    <changeSet context="schema-change" author="jon (generated)" id="1618574483518-7">
         <createTable tableName="derivative">
             <column autoIncrement="true" name="id" type="INTEGER">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pk_derivative_id"/>
@@ -131,7 +131,7 @@
             <column name="generated_from_derivative" type="INTEGER"/>
         </createTable>
     </changeSet>
-    <changeSet author="jon (generated)" id="1618574483518-8">
+    <changeSet context="schema-change" author="jon (generated)" id="1618574483518-8">
         <createTable tableName="metadata">
             <column autoIncrement="true" name="id" type="INTEGER">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pk_metadata_id"/>
@@ -183,7 +183,7 @@
             </column>
         </createTable>
     </changeSet>
-    <changeSet author="jon (generated)" id="1618574483518-9">
+    <changeSet context="schema-change" author="jon (generated)" id="1618574483518-9">
         <createTable tableName="object_subtype">
             <column autoIncrement="true" name="id" type="INTEGER">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pk_ac_subtype_id"/>
@@ -206,7 +206,7 @@
             </column>
         </createTable>
     </changeSet>
-    <changeSet author="jon (generated)" id="1618574483518-10">
+    <changeSet context="schema-change" author="jon (generated)" id="1618574483518-10">
         <createTable tableName="object_upload">
             <column autoIncrement="true" name="id" type="INTEGER">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pk_object_upload_id"/>
@@ -245,61 +245,61 @@
             </column>
         </createTable>
     </changeSet>
-    <changeSet author="jon (generated)" id="1618574483518-11">
+    <changeSet context="schema-change" author="jon (generated)" id="1618574483518-11">
         <createIndex indexName="jv_commit_commit_id_idx" tableName="jv_commit">
             <column name="commit_id"/>
         </createIndex>
     </changeSet>
-    <changeSet author="jon (generated)" id="1618574483518-12">
+    <changeSet context="schema-change" author="jon (generated)" id="1618574483518-12">
         <addForeignKeyConstraint baseColumnNames="commit_fk" baseTableName="jv_commit_property"
                                  constraintName="jv_commit_property_commit_fk" deferrable="false"
                                  initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
                                  referencedColumnNames="commit_pk" referencedTableName="jv_commit" validate="true"/>
     </changeSet>
-    <changeSet author="jon (generated)" id="1618574483518-13">
+    <changeSet context="schema-change" author="jon (generated)" id="1618574483518-13">
         <addForeignKeyConstraint baseColumnNames="commit_fk" baseTableName="jv_snapshot"
                                  constraintName="jv_snapshot_commit_fk" deferrable="false" initiallyDeferred="false"
                                  onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="commit_pk"
                                  referencedTableName="jv_commit" validate="true"/>
     </changeSet>
-    <changeSet author="jon (generated)" id="1618574483518-14">
+    <changeSet context="schema-change" author="jon (generated)" id="1618574483518-14">
         <createIndex indexName="jv_commit_property_commit_fk_idx" tableName="jv_commit_property">
             <column name="commit_fk"/>
         </createIndex>
     </changeSet>
-    <changeSet author="jon (generated)" id="1618574483518-15">
+    <changeSet context="schema-change" author="jon (generated)" id="1618574483518-15">
         <createIndex indexName="jv_commit_property_property_name_property_value_idx" tableName="jv_commit_property">
             <column name="property_name"/>
             <column name="property_value"/>
         </createIndex>
     </changeSet>
-    <changeSet author="jon (generated)" id="1618574483518-16">
+    <changeSet context="schema-change" author="jon (generated)" id="1618574483518-16">
         <createIndex indexName="jv_global_id_local_id_idx" tableName="jv_global_id">
             <column name="local_id"/>
         </createIndex>
     </changeSet>
-    <changeSet author="jon (generated)" id="1618574483518-17">
+    <changeSet context="schema-change" author="jon (generated)" id="1618574483518-17">
         <createIndex indexName="jv_global_id_owner_id_fk_idx" tableName="jv_global_id">
             <column name="owner_id_fk"/>
         </createIndex>
     </changeSet>
-    <changeSet author="jon (generated)" id="1618574483518-18">
+    <changeSet context="schema-change" author="jon (generated)" id="1618574483518-18">
         <addForeignKeyConstraint baseColumnNames="global_id_fk" baseTableName="jv_snapshot"
                                  constraintName="jv_snapshot_global_id_fk" deferrable="false" initiallyDeferred="false"
                                  onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="global_id_pk"
                                  referencedTableName="jv_global_id" validate="true"/>
     </changeSet>
-    <changeSet author="jon (generated)" id="1618574483518-19">
+    <changeSet context="schema-change" author="jon (generated)" id="1618574483518-19">
         <createIndex indexName="jv_snapshot_commit_fk_idx" tableName="jv_snapshot">
             <column name="commit_fk"/>
         </createIndex>
     </changeSet>
-    <changeSet author="jon (generated)" id="1618574483518-20">
+    <changeSet context="schema-change" author="jon (generated)" id="1618574483518-20">
         <createIndex indexName="jv_snapshot_global_id_fk_idx" tableName="jv_snapshot">
             <column name="global_id_fk"/>
         </createIndex>
     </changeSet>
-    <changeSet author="jon (generated)" id="1618574483518-21">
+    <changeSet context="schema-change" author="jon (generated)" id="1618574483518-21">
         <createTable tableName="managed_attribute">
             <column autoIncrement="true" name="id" type="INTEGER">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pk_managed_attribute_id"/>
@@ -323,97 +323,97 @@
             </column>
         </createTable>
     </changeSet>
-    <changeSet author="jon (generated)" id="1618574483518-22">
+    <changeSet context="schema-change" author="jon (generated)" id="1618574483518-22">
         <addUniqueConstraint columnNames="file_identifier" constraintName="derivative_file_identifier_key"
                              tableName="derivative"/>
     </changeSet>
-    <changeSet author="jon (generated)" id="1618574483518-23">
+    <changeSet context="schema-change" author="jon (generated)" id="1618574483518-23">
         <addUniqueConstraint columnNames="uuid" constraintName="derivative_uuid_key" tableName="derivative"/>
     </changeSet>
-    <changeSet author="jon (generated)" id="1618574483518-24">
+    <changeSet context="schema-change" author="jon (generated)" id="1618574483518-24">
         <addUniqueConstraint columnNames="file_identifier" constraintName="metadata_file_identifier_key"
                              tableName="metadata"/>
     </changeSet>
-    <changeSet author="jon (generated)" id="1618574483518-25">
+    <changeSet context="schema-change" author="jon (generated)" id="1618574483518-25">
         <addUniqueConstraint columnNames="uuid" constraintName="metadata_uuid_key" tableName="metadata"/>
     </changeSet>
-    <changeSet author="jon (generated)" id="1618574483518-26">
+    <changeSet context="schema-change" author="jon (generated)" id="1618574483518-26">
         <createIndex indexName="object_subtype_ac_subtype_key" tableName="object_subtype" unique="true">
             <column name="ac_subtype"/>
         </createIndex>
     </changeSet>
-    <changeSet author="jon (generated)" id="1618574483518-27">
+    <changeSet context="schema-change" author="jon (generated)" id="1618574483518-27">
         <createIndex indexName="object_subtype_unique_acsubtype" tableName="object_subtype" unique="true">
             <column computed="true" name="lower((ac_subtype)::text)"/>
         </createIndex>
     </changeSet>
-    <changeSet author="jon (generated)" id="1618574483518-28">
+    <changeSet context="schema-change" author="jon (generated)" id="1618574483518-28">
         <createIndex indexName="object_subtype_uuid_key" tableName="object_subtype" unique="true">
             <column name="uuid"/>
         </createIndex>
     </changeSet>
-    <changeSet author="jon (generated)" id="1618574483518-29">
+    <changeSet context="schema-change" author="jon (generated)" id="1618574483518-29">
         <createIndex indexName="unique_dctype_acsubtype_combination_per_object" tableName="object_subtype"
                      unique="true">
             <column name="dc_type"/>
             <column name="ac_subtype"/>
         </createIndex>
     </changeSet>
-    <changeSet author="jon (generated)" id="1618574483518-30">
+    <changeSet context="schema-change" author="jon (generated)" id="1618574483518-30">
         <createIndex indexName="object_upload_file_identifier_key" tableName="object_upload" unique="true">
             <column name="file_identifier"/>
         </createIndex>
     </changeSet>
-    <changeSet author="jon (generated)" id="1618574483518-31">
+    <changeSet context="schema-change" author="jon (generated)" id="1618574483518-31">
         <addForeignKeyConstraint baseColumnNames="owner_id_fk" baseTableName="jv_global_id"
                                  constraintName="jv_global_id_owner_id_fk" deferrable="false" initiallyDeferred="false"
                                  onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="global_id_pk"
                                  referencedTableName="jv_global_id" validate="true"/>
     </changeSet>
-    <changeSet author="jon (generated)" id="1618574483518-32">
+    <changeSet context="schema-change" author="jon (generated)" id="1618574483518-32">
         <createIndex indexName="managed_attribute_uuid_key" tableName="managed_attribute" unique="true">
             <column name="uuid"/>
         </createIndex>
     </changeSet>
-    <changeSet author="jon (generated)" id="1618574483518-33">
+    <changeSet context="schema-change" author="jon (generated)" id="1618574483518-33">
         <addForeignKeyConstraint baseColumnNames="managed_attribute_id" baseTableName="metadata_managed_attribute"
                                  constraintName="fk_metadata_managed_attribute_to_managed_attribute_id"
                                  deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
                                  referencedColumnNames="id" referencedTableName="managed_attribute" validate="true"/>
     </changeSet>
-    <changeSet author="jon (generated)" id="1618574483518-34">
+    <changeSet context="schema-change" author="jon (generated)" id="1618574483518-34">
         <addForeignKeyConstraint baseColumnNames="metadata_id" baseTableName="metadata_managed_attribute"
                                  constraintName="fk_metadata_managed_attribute_to_metadata_id" deferrable="false"
                                  initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
                                  referencedColumnNames="id" referencedTableName="metadata" validate="true"/>
     </changeSet>
-    <changeSet author="jon (generated)" id="1618574483518-35">
+    <changeSet context="schema-change" author="jon (generated)" id="1618574483518-35">
         <addForeignKeyConstraint baseColumnNames="ac_derived_from" baseTableName="derivative"
                                  constraintName="fk_derivative_ac_derived_from" deferrable="false"
                                  initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
                                  referencedColumnNames="id" referencedTableName="metadata" validate="true"/>
     </changeSet>
-    <changeSet author="jon (generated)" id="1618574483518-36">
+    <changeSet context="schema-change" author="jon (generated)" id="1618574483518-36">
         <addForeignKeyConstraint baseColumnNames="generated_from_derivative" baseTableName="derivative"
                                  constraintName="fk_derivative_generated_from_derivative" deferrable="false"
                                  initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
                                  referencedColumnNames="id" referencedTableName="derivative" validate="true"/>
     </changeSet>
-    <changeSet author="jon (generated)" id="1618574483518-37">
+    <changeSet context="schema-change" author="jon (generated)" id="1618574483518-37">
         <addForeignKeyConstraint baseColumnNames="ac_sub_type_id" baseTableName="metadata"
                                  constraintName="fk_metadata_ac_sub_type_id" deferrable="false"
                                  initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
                                  referencedColumnNames="id" referencedTableName="object_subtype" validate="true"/>
     </changeSet>
-    <changeSet author="jon (generated)" id="1618574483518-38">
+    <changeSet context="schema-change" author="jon (generated)" id="1618574483518-38">
         <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="1" maxValue="9223372036854775807"
                         minValue="1" sequenceName="jv_commit_pk_seq" startValue="1"/>
     </changeSet>
-    <changeSet author="jon (generated)" id="1618574483518-39">
+    <changeSet context="schema-change" author="jon (generated)" id="1618574483518-39">
         <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="1" maxValue="9223372036854775807"
                         minValue="1" sequenceName="jv_global_id_pk_seq" startValue="1"/>
     </changeSet>
-    <changeSet author="jon (generated)" id="1618574483518-40">
+    <changeSet context="schema-change" author="jon (generated)" id="1618574483518-40">
         <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="1" maxValue="9223372036854775807"
                         minValue="1" sequenceName="jv_snapshot_pk_seq" startValue="1"/>
     </changeSet>
