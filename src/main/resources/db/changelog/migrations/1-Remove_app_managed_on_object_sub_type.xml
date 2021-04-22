@@ -5,7 +5,6 @@
                    objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
 
     <changeSet id="1-Remove_app_managed_on_object_sub_type" context="schema-change" author="Steven Luu">
-        <!-- Add derivative type column -->
         <dropColumn tableName="object_subtype" columnName="app_managed"/>
     </changeSet>
 
