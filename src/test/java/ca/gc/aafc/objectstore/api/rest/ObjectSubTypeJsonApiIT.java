@@ -19,21 +19,20 @@ public class ObjectSubTypeJsonApiIT extends BaseJsonApiIntegrationTest {
   private static final String SCHEMA_NAME = "ObjectSubtype";
   private static final String RESOURCE_UNDER_TEST = "object-subtype";
   private static final String DINA_USER_NAME = DinaAuthenticatedUserConfig.USER_NAME;
-  private String appManagedId;
+  private String objectSubTypeId;
 
   @BeforeEach
   void setUp() {
-    ObjectSubtype appManaged = ObjectSubtypeFactory
+    ObjectSubtype objectSubtypeSetup = ObjectSubtypeFactory
       .newObjectSubtype()
-      .appManaged(true)
       .createdBy(DINA_USER_NAME)
       .build();
 
     // we need to run the setup in another transaction and commit it otherwise it can't be visible
     // to the test web server.
-    service.runInNewTransaction(em -> em.persist(appManaged));
+    service.runInNewTransaction(em -> em.persist(objectSubtypeSetup));
 
-    appManagedId = appManaged.getUuid().toString();
+    objectSubTypeId = objectSubtypeSetup.getUuid().toString();
   }
 
   @Override
@@ -68,41 +67,24 @@ public class ObjectSubTypeJsonApiIT extends BaseJsonApiIntegrationTest {
   }
 
   @Test
-  public void create_AsAppManaged_ReturnsUnAuthorized() {
+  public void create_ReturnsCode201() {
     ObjectSubtypeDto dto = createRandomType();
-    dto.setAppManaged(true);
-    sendPost(getResourceUnderTest(), toJsonAPIMap(toAttributeMap(dto), null), HttpStatus.FORBIDDEN_403);
+    sendPost(getResourceUnderTest(), toJsonAPIMap(toAttributeMap(dto), null), HttpStatus.CREATED_201);
   }
 
   @Test
-  public void delete_appManaged_ReturnsUnAuthorized() {
-    sendDelete(appManagedId, HttpStatus.FORBIDDEN_403);
+  public void delete_ReturnsCode204() {
+    sendDelete(objectSubTypeId, HttpStatus.NO_CONTENT_204);
   }
 
   @Test
-  public void update_ToAppManaged_ReturnsUnAuthorized() {
+  public void update_ReturnsCode200() {
     ObjectSubtypeDto dto = createRandomType();
-    dto.setAppManaged(false);
     String id = sendPost(toJsonAPIMap(toAttributeMap(dto), null));
 
-    dto.setAppManaged(true);
-    sendPatch(id, HttpStatus.FORBIDDEN_403, toJsonAPIMap(toAttributeMap(dto), null));
-    sendDelete(id);
+    sendPatch(id, HttpStatus.OK_200, toJsonAPIMap(toAttributeMap(dto), null));
   }
 
-  @Test
-  public void update_FromAppManaged_ReturnsUnAuthorized() {
-    ObjectSubtypeDto thumbnail = new ObjectSubtypeDto();
-    thumbnail.setAppManaged(false);
-    sendPatch(
-      appManagedId,
-      HttpStatus.FORBIDDEN_403,
-      JsonAPITestHelper.toJsonAPIMap(
-        getResourceUnderTest(),
-        toAttributeMap(thumbnail),
-        toRelationshipMap(buildRelationshipList()),
-        appManagedId));
-  }
 
   private static ObjectSubtypeDto createRandomType() {
     ObjectSubtypeDto dto = new ObjectSubtypeDto();

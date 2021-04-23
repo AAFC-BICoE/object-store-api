@@ -50,7 +50,6 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
    */
   @AfterEach
   public void tearDown() {
-    deleteEntityByUUID("fileIdentifier", MinioTestConfiguration.TEST_THUMBNAIL_IDENTIFIER, ObjectStoreMetadata.class);
     deleteEntityByUUID("fileIdentifier", MinioTestConfiguration.TEST_FILE_IDENTIFIER, ObjectStoreMetadata.class);
     deleteEntityByUUID("uuid", oSubtype.getUuid(), ObjectSubtype.class);
     deleteEntityByUUID("fileIdentifier", MinioTestConfiguration.TEST_FILE_IDENTIFIER, ObjectUpload.class);

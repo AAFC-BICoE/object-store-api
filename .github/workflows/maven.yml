@@ -28,7 +28,9 @@ jobs:
 
       - name: Run OWASP dependency-check (only on dev)
         run: mvn org.owasp:dependency-check-maven:check
-        if: ${{ github.ref == 'refs/heads/dev' }}
+        if: ${{ false }}
+        # waiting for https://github.com/jeremylong/DependencyCheck/issues/3307
+        # if: ${{ github.ref == 'refs/heads/dev' }}
 
       - name: Extract Version
         if: ${{ github.ref == 'refs/heads/master' }}

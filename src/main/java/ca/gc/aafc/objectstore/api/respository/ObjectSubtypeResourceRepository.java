@@ -6,11 +6,9 @@ import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.dina.service.DinaService;
 import ca.gc.aafc.objectstore.api.dto.ObjectSubtypeDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
-import io.crnk.core.exception.ForbiddenException;
 import lombok.NonNull;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
@@ -44,16 +42,6 @@ public class ObjectSubtypeResourceRepository
     this.dinaService = dinaService;
     this.messageSource = messageSource;
     this.authenticatedUser = authenticatedUser;
-  }
-
-  @Override
-  public <S extends ObjectSubtypeDto> S save(S resource) {
-    ObjectSubtype entity = dinaService.findOne(resource.getUuid(), ObjectSubtype.class);
-    if (entity.isAppManaged()) {
-      throw new ForbiddenException(
-          messageSource.getMessage("error.appManaged.read_only", null, LocaleContextHolder.getLocale()));
-    }
-    return super.save(resource);
   }
 
   @Override

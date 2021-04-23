@@ -49,7 +49,6 @@ public class ObjectUpload implements DinaEntity {
   private String evaluatedMediaType;
   private String evaluatedFileExtension;
   private long sizeInBytes;
-  private UUID thumbnailIdentifier;
   private String bucket;
   private Map<String, String> exif;
   private String dateTimeDigitized;
@@ -175,16 +174,6 @@ public class ObjectUpload implements DinaEntity {
 
   public void setSizeInBytes(long sizeInBytes) {
     this.sizeInBytes = sizeInBytes;
-  }
-
-
-  @Column(name = "thumbnail_identifier", unique = true)
-  public UUID getThumbnailIdentifier() {
-    return thumbnailIdentifier;
-  }
-
-  public void setThumbnailIdentifier(UUID thumbnailIdentifier) {
-    this.thumbnailIdentifier = thumbnailIdentifier;
   }
 
   @NotNull

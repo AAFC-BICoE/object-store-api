@@ -37,7 +37,6 @@ public class ObjectUploadDto {
   private String evaluatedMediaType;
   private String evaluatedFileExtension;
   private long sizeInBytes;
-  private UUID thumbnailIdentifier;
   private String bucket;
   private String dateTimeDigitized;
   private Map<String, String> exif;
