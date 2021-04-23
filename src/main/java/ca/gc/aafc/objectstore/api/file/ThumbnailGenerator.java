@@ -14,6 +14,7 @@ import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
@@ -25,6 +26,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 
 @Service
 @AllArgsConstructor
@@ -44,7 +47,7 @@ public class ThumbnailGenerator {
 
   @Transactional
   @Async
-  public void generateThumbnail(
+  public CompletableFuture<Boolean> generateThumbnail(
     @NonNull UUID uuid,
     @NonNull String sourceFilename,
     @NonNull String sourceFileType,
@@ -85,10 +88,12 @@ public class ThumbnailGenerator {
         minioService.storeFile(fileName, thumbnail, "image/jpeg", sourceBucket, true);
       }
 
+      return CompletableFuture.completedFuture(
+        minioService.getFileInfo(fileName, sourceBucket, true).isPresent());
     } catch (MinioException | IOException | GeneralSecurityException e) {
       log.warn(() -> "A thumbnail could not be generated for file " + sourceFilename, e);
+      return CompletableFuture.completedFuture(false);
     }
-
   }
 
   public static boolean isSupported(String fileType) {

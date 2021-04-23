@@ -7,6 +7,7 @@ import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.file.ThumbnailGenerator;
 import lombok.NonNull;
+import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -14,6 +15,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
 
 @Service
@@ -88,6 +90,7 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
    * @param generatedFromDerivativeUUID id of the derivative this resource derives from, can be null
    * @param isSourceDerivative          true if the source of the thumbnail is a derivative
    */
+  @SneakyThrows
   public void generateThumbnail(
     @NonNull String sourceBucket,
     @NonNull String sourceFilename,
@@ -114,14 +117,17 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
           this.getReferenceByNaturalId(Derivative.class, generatedFromDerivativeUUID));
       }
 
-      this.create(derivative);
-      thumbnailGenerator.generateThumbnail(
+      CompletableFuture<Boolean> future = thumbnailGenerator.generateThumbnail(
         uuid,
         sourceFilename,
         evaluatedMediaType,
         sourceBucket,
         isSourceDerivative);
-      this.create(derivative);
+      CompletableFuture.allOf(future).join();
+
+      if (future.get()) {
+        this.create(derivative);
+      }
     }
   }
 
