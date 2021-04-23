@@ -4,7 +4,7 @@ import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.dina.service.DefaultDinaService;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
-import ca.gc.aafc.objectstore.api.file.ThumbnailService;
+import ca.gc.aafc.objectstore.api.file.ThumbnailGenerator;
 import io.crnk.core.exception.BadRequestException;
 import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
@@ -136,8 +136,8 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
   public ObjectSubtype getThumbNailSubType() {
     return this.findAll(ObjectSubtype.class,
       (criteriaBuilder, objectRoot) -> new Predicate[]{
-        criteriaBuilder.equal(objectRoot.get("acSubtype"), ThumbnailService.THUMBNAIL_AC_SUB_TYPE),
-        criteriaBuilder.equal(objectRoot.get("dcType"), ThumbnailService.THUMBNAIL_DC_TYPE),
+        criteriaBuilder.equal(objectRoot.get("acSubtype"), ThumbnailGenerator.THUMBNAIL_AC_SUB_TYPE),
+        criteriaBuilder.equal(objectRoot.get("dcType"), ThumbnailGenerator.THUMBNAIL_DC_TYPE),
       }, null, 0, 1)
       .stream()
       .findFirst()

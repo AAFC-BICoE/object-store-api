@@ -5,7 +5,7 @@ import ca.gc.aafc.dina.service.DefaultDinaService;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
-import ca.gc.aafc.objectstore.api.file.ThumbnailService;
+import ca.gc.aafc.objectstore.api.file.ThumbnailGenerator;
 import lombok.NonNull;
 import org.springframework.stereotype.Service;
 
@@ -18,14 +18,14 @@ import java.util.function.BiFunction;
 
 @Service
 public class DerivativeService extends DefaultDinaService<Derivative> {
-  private final ThumbnailService thumbnailService;
+  private final ThumbnailGenerator thumbnailGenerator;
 
   public DerivativeService(
     @NonNull BaseDAO baseDAO,
-    @NonNull ThumbnailService thumbnailService
+    @NonNull ThumbnailGenerator thumbnailGenerator
   ) {
     super(baseDAO);
-    this.thumbnailService = thumbnailService;
+    this.thumbnailGenerator = thumbnailGenerator;
   }
 
   @Override
@@ -96,7 +96,7 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
     UUID generatedFromDerivativeUUID,
     boolean isSourceDerivative
   ) {
-    if (thumbnailService.isSupported(evaluatedMediaType)) {
+    if (ThumbnailGenerator.isSupported(evaluatedMediaType)) {
       UUID uuid = UUID.randomUUID();
       Derivative derivative = generateDerivativeForThumbnail(sourceBucket, uuid);
 
@@ -115,7 +115,7 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
       }
 
       this.create(derivative);
-      thumbnailService.generateThumbnail(
+      thumbnailGenerator.generateThumbnail(
         uuid,
         sourceFilename,
         evaluatedMediaType,
@@ -162,9 +162,9 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
   private static Derivative generateDerivativeForThumbnail(String bucket, UUID fileIdentifier) {
     return Derivative.builder()
       .uuid(UUID.randomUUID())
-      .createdBy(ThumbnailService.SYSTEM_GENERATED)
-      .dcType(ThumbnailService.THUMBNAIL_DC_TYPE)
-      .fileExtension(ThumbnailService.THUMBNAIL_EXTENSION)
+      .createdBy(ThumbnailGenerator.SYSTEM_GENERATED)
+      .dcType(ThumbnailGenerator.THUMBNAIL_DC_TYPE)
+      .fileExtension(ThumbnailGenerator.THUMBNAIL_EXTENSION)
       .fileIdentifier(fileIdentifier)
       .derivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE)
       .bucket(bucket)

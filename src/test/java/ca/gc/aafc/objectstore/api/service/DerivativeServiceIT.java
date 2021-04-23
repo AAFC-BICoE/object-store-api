@@ -5,7 +5,7 @@ import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
-import ca.gc.aafc.objectstore.api.file.ThumbnailService;
+import ca.gc.aafc.objectstore.api.file.ThumbnailGenerator;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -48,9 +48,9 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
     Assertions.assertEquals(derivative.getBucket(), thumbResult.getBucket());
     Assertions.assertEquals(derivative.getUuid(), thumbResult.getGeneratedFromDerivative().getUuid());
     Assertions.assertEquals(acDerivedFrom.getUuid(), thumbResult.getAcDerivedFrom().getUuid());
-    Assertions.assertEquals(ThumbnailService.SYSTEM_GENERATED, thumbResult.getCreatedBy());
-    Assertions.assertEquals(ThumbnailService.THUMBNAIL_DC_TYPE, thumbResult.getDcType());
-    Assertions.assertEquals(ThumbnailService.THUMBNAIL_EXTENSION, thumbResult.getFileExtension());
+    Assertions.assertEquals(ThumbnailGenerator.SYSTEM_GENERATED, thumbResult.getCreatedBy());
+    Assertions.assertEquals(ThumbnailGenerator.THUMBNAIL_DC_TYPE, thumbResult.getDcType());
+    Assertions.assertEquals(ThumbnailGenerator.THUMBNAIL_EXTENSION, thumbResult.getFileExtension());
     Assertions.assertEquals(Derivative.DerivativeType.THUMBNAIL_IMAGE, thumbResult.getDerivativeType());
   }
 
