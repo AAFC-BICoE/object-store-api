@@ -1,6 +1,7 @@
 package ca.gc.aafc.objectstore.api.service;
 
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
+import ca.gc.aafc.objectstore.api.MinioTestConfiguration;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
@@ -12,28 +13,46 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 
 import javax.inject.Inject;
 import javax.persistence.criteria.Predicate;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
+@Import(MinioTestConfiguration.class)
 public class DerivativeServiceIT extends BaseIntegrationTest {
   @Inject
   private DerivativeService derivativeService;
   private ObjectStoreMetadata acDerivedFrom;
   private ObjectUpload objectUpload;
 
+  @MockBean
+  private ThumbnailGenerator thumbnailGenerator;
+
   @BeforeEach
   void setUp() {
     acDerivedFrom = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
     objectUpload = ObjectUploadFactory.newObjectUpload()
-      .bucket("test")
+      .bucket(MinioTestConfiguration.TEST_BUCKET)
+      .fileIdentifier(MinioTestConfiguration.TEST_FILE_IDENTIFIER)
       .evaluatedMediaType(MediaType.IMAGE_JPEG_VALUE)
+      .evaluatedFileExtension(MinioTestConfiguration.TEST_FILE_EXT)
       .build();
     this.service.save(objectUpload);
     this.service.save(acDerivedFrom);
+    Mockito.when(thumbnailGenerator.generateThumbnail(
+      ArgumentMatchers.any(UUID.class),
+      ArgumentMatchers.anyString(),
+      ArgumentMatchers.anyString(),
+      ArgumentMatchers.anyString(),
+      ArgumentMatchers.anyBoolean()
+    )).thenReturn(CompletableFuture.completedFuture(true));
   }
 
   @Test
@@ -68,7 +87,8 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
     derivativeService.create(derivative);
 
     ObjectUpload upload = ObjectUploadFactory.newObjectUpload()
-      .bucket("test").evaluatedMediaType(MediaType.IMAGE_JPEG_VALUE).build();
+      .fileIdentifier(UUID.randomUUID())
+      .bucket(MinioTestConfiguration.TEST_BUCKET).evaluatedMediaType(MediaType.IMAGE_JPEG_VALUE).build();
     this.service.save(upload);
     Derivative derivative2 = newDerivative(acDerivedFrom);
     derivative2.setFileIdentifier(upload.getFileIdentifier());
@@ -81,8 +101,8 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
   @Test
   void generateThumbnail_DerivedFromMetaData_DerivativeGenerated() {
     derivativeService.generateThumbnail(
-      "test",
-      UUID.randomUUID() + ".jpg",
+      MinioTestConfiguration.TEST_BUCKET,
+      MinioTestConfiguration.TEST_FILE_IDENTIFIER + ".jpg",
       acDerivedFrom.getUuid(),
       MediaType.IMAGE_JPEG_VALUE,
       null,
@@ -129,8 +149,8 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
     return Derivative.builder()
       .uuid(UUID.randomUUID())
       .fileIdentifier(objectUpload.getFileIdentifier())
-      .fileExtension(".jpg")
-      .bucket("mybucket")
+      .fileExtension(objectUpload.getEvaluatedFileExtension())
+      .bucket(objectUpload.getBucket())
       .acHashValue("abc")
       .acHashFunction("abcFunction")
       .dcType(DcType.IMAGE)

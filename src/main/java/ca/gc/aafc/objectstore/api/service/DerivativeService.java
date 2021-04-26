@@ -15,7 +15,6 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
 
 @Service
@@ -117,17 +116,17 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
           this.getReferenceByNaturalId(Derivative.class, generatedFromDerivativeUUID));
       }
 
-      CompletableFuture<Boolean> future = thumbnailGenerator.generateThumbnail(
+      thumbnailGenerator.generateThumbnail(
         uuid,
         sourceFilename,
         evaluatedMediaType,
         sourceBucket,
-        isSourceDerivative);
-      CompletableFuture.allOf(future).join();
-
-      if (future.get()) {
-        this.create(derivative);
-      }
+        isSourceDerivative
+      ).thenAccept(isGenerated -> {
+        if (isGenerated) {
+          this.create(derivative);
+        }
+      });
     }
   }
 
