@@ -10,7 +10,7 @@ spring:
     contexts: schema-change
 embedded.postgresql:
   enabled: true
-  image: postgres:12.4
+  image: postgres:9.6
   init-script-file: create-test-users.sql
   database: object_store_test
   schema: object_store
