@@ -14,7 +14,6 @@ import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
@@ -27,7 +26,6 @@ import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 
 @Service
 @AllArgsConstructor
