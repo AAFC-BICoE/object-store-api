@@ -406,15 +406,15 @@
                                  referencedColumnNames="id" referencedTableName="object_subtype" validate="true"/>
     </changeSet>
     <changeSet context="schema-change" author="jon (generated)" id="1618574483518-38">
-        <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="1" maxValue="9223372036854775807"
+        <createSequence cacheSize="1" cycle="false"  incrementBy="1" maxValue="9223372036854775807"
                         minValue="1" sequenceName="jv_commit_pk_seq" startValue="1"/>
     </changeSet>
     <changeSet context="schema-change" author="jon (generated)" id="1618574483518-39">
-        <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="1" maxValue="9223372036854775807"
+        <createSequence cacheSize="1" cycle="false"  incrementBy="1" maxValue="9223372036854775807"
                         minValue="1" sequenceName="jv_global_id_pk_seq" startValue="1"/>
     </changeSet>
     <changeSet context="schema-change" author="jon (generated)" id="1618574483518-40">
-        <createSequence cacheSize="1" cycle="false" dataType="bigint" incrementBy="1" maxValue="9223372036854775807"
+        <createSequence cacheSize="1" cycle="false"  incrementBy="1" maxValue="9223372036854775807"
                         minValue="1" sequenceName="jv_snapshot_pk_seq" startValue="1"/>
     </changeSet>
 </databaseChangeLog>
