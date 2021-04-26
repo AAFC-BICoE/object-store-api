@@ -8,6 +8,7 @@ import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
+import ca.gc.aafc.objectstore.api.file.ThumbnailGenerator;
 import ca.gc.aafc.objectstore.api.respository.ObjectStoreResourceRepository;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
@@ -19,6 +20,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 
 import javax.inject.Inject;
@@ -27,6 +31,7 @@ import javax.validation.ValidationException;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -38,6 +43,8 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
   private ObjectStoreResourceRepository objectStoreResourceRepository;
   @Inject
   private DinaService<ObjectStoreMetadata> metaService;
+  @MockBean
+  private ThumbnailGenerator thumbnailGenerator;
 
   private ObjectStoreMetadata testObjectStoreMetadata;
 
@@ -55,6 +62,13 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
     createTestObjectStoreMetadata();
     createAcSubType();
     objectUpload = createObjectUpload();
+    Mockito.when(thumbnailGenerator.generateThumbnail(
+      ArgumentMatchers.any(UUID.class),
+      ArgumentMatchers.anyString(),
+      ArgumentMatchers.anyString(),
+      ArgumentMatchers.anyString(),
+      ArgumentMatchers.anyBoolean()
+    )).thenReturn(CompletableFuture.completedFuture(true));
   }
 
   /**
