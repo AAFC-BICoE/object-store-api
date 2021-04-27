@@ -165,6 +165,7 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
       .dcType(ThumbnailGenerator.THUMBNAIL_DC_TYPE)
       .fileExtension(ThumbnailGenerator.THUMBNAIL_EXTENSION)
       .fileIdentifier(fileIdentifier)
+      .dcFormat(ThumbnailGenerator.THUMB_DC_FORMAT)
       .derivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE)
       .bucket(bucket)
       .build();

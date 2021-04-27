@@ -39,6 +39,7 @@ public class ThumbnailGenerator {
   public static final String SYSTEM_GENERATED = "System Generated";
   public static final String PDF_MEDIA_TYPE = MediaType.APPLICATION_PDF_VALUE;
   public static final String TIFF_MEDIA_TYPE = "image/tiff";
+  public static final String THUMB_DC_FORMAT = MediaType.IMAGE_JPEG_VALUE;
 
   private final MinioFileService minioService;
 
