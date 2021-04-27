@@ -72,6 +72,7 @@ public class DerivativeRepository extends DinaRepository<DerivativeDto, Derivati
     resource.setAcHashValue(objectUpload.getSha1Hex());
     resource.setAcHashFunction(FileController.DIGEST_ALGORITHM);
     resource.setBucket(objectUpload.getBucket());
+    resource.setDcFormat(objectUpload.getDetectedMediaType());
     resource.setCreatedBy(authenticatedUser.getUsername());
 
     return super.create(resource);

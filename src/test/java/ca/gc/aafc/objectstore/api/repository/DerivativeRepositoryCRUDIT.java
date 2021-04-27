@@ -31,6 +31,7 @@ public class DerivativeRepositoryCRUDIT extends BaseRepositoryTest {
   @BeforeEach
   void setUp() {
     upload = ObjectUploadFactory.newObjectUpload().build();
+    upload.setDetectedMediaType(MediaType.IMAGE_JPEG_VALUE);
     upload.setIsDerivative(true);
     this.service.save(upload);
     acDerivedFrom = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
@@ -47,6 +48,7 @@ public class DerivativeRepositoryCRUDIT extends BaseRepositoryTest {
     Assertions.assertEquals(resource.getFileIdentifier(), result.getFileIdentifier());
     Assertions.assertEquals(resource.getDerivativeType(), result.getDerivativeType());
     Assertions.assertEquals(resource.getDcFormat(), result.getDcFormat());
+    Assertions.assertEquals(upload.getDetectedMediaType(), result.getDcFormat());
     // Auto generated fields
     Assertions.assertNotNull(result.getBucket());
     Assertions.assertNotNull(result.getFileExtension());
@@ -93,7 +95,6 @@ public class DerivativeRepositoryCRUDIT extends BaseRepositoryTest {
     from.setUuid(acDerivedFrom.getUuid());
     dto.setAcDerivedFrom(from);
     dto.setDerivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE);
-    dto.setDcFormat(MediaType.IMAGE_JPEG_VALUE);
     dto.setFileIdentifier(fileIdentifier);
     return dto;
   }
