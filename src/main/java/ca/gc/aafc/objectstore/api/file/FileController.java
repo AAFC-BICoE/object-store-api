@@ -160,7 +160,7 @@ public class FileController {
       .loadObjectStoreMetadataByFileId(fileId)
       .orElseThrow(() -> buildNotFoundException(bucket, fileId));
     String filename = metadata.getFilename();
-    return download(bucket, fileId, filename, false);
+    return download(bucket, fileId, filename, false, metadata.getDcFormat());
   }
 
   @GetMapping("/file/{bucket}/derivative/{fileId}")
@@ -171,7 +171,7 @@ public class FileController {
     Derivative derivative = derivativeService.findByFileId(fileId)
       .orElseThrow(() -> buildNotFoundException(bucket, fileId));
     String fileName = derivative.getFileIdentifier() + derivative.getFileExtension();
-    return download(bucket, fileId, fileName, true);
+    return download(bucket, fileId, fileName, true, derivative.getDcFormat());
   }
 
   @GetMapping("/file/{bucket}/{fileId}/thumbnail")
@@ -192,7 +192,8 @@ public class FileController {
     @NonNull String bucket,
     @NonNull UUID fileId,
     @NonNull String fileName,
-    boolean isDerivative
+    boolean isDerivative,
+    String mediaType
   ) throws IOException {
     FileObjectInfo foi = minioService.getFileInfo(fileName, bucket, isDerivative)
       .orElseThrow(() -> buildNotFoundException(bucket, fileId));
@@ -200,7 +201,7 @@ public class FileController {
       .orElseThrow(() -> buildNotFoundException(bucket, fileId));
     return new ResponseEntity<>(
       new InputStreamResource(is),
-      buildHttpHeaders(fileName, foi.getContentType(), foi.getLength()),
+      buildHttpHeaders(fileName, mediaType, foi.getLength()),
       HttpStatus.OK);
   }
 
