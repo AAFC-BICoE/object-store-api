@@ -12,6 +12,8 @@ import ca.gc.aafc.objectstore.api.service.DerivativeService;
 import io.crnk.core.exception.BadRequestException;
 import io.crnk.core.exception.MethodNotAllowedException;
 import lombok.NonNull;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.util.StringUtil;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.stereotype.Repository;
 
@@ -72,7 +74,9 @@ public class DerivativeRepository extends DinaRepository<DerivativeDto, Derivati
     resource.setAcHashValue(objectUpload.getSha1Hex());
     resource.setAcHashFunction(FileController.DIGEST_ALGORITHM);
     resource.setBucket(objectUpload.getBucket());
-    resource.setDcFormat(objectUpload.getDetectedMediaType());
+    if (StringUtils.isBlank(resource.getDcFormat())) { // Auto populate if not submitted
+      resource.setDcFormat(objectUpload.getDetectedMediaType());
+    }
     resource.setCreatedBy(authenticatedUser.getUsername());
 
     return super.create(resource);
