@@ -13,9 +13,6 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 
@@ -23,7 +20,6 @@ import javax.inject.Inject;
 import javax.persistence.criteria.Predicate;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 @Import(MinioTestConfiguration.class)
 public class DerivativeServiceIT extends BaseIntegrationTest {
@@ -31,20 +27,10 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
   private DerivativeService derivativeService;
   private ObjectStoreMetadata acDerivedFrom;
 
-  @MockBean
-  private ThumbnailGenerator thumbnailGenerator;
-
   @BeforeEach
   void setUp() {
     acDerivedFrom = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
     this.service.save(acDerivedFrom);
-    Mockito.when(thumbnailGenerator.generateThumbnail(
-      ArgumentMatchers.any(UUID.class),
-      ArgumentMatchers.anyString(),
-      ArgumentMatchers.anyString(),
-      ArgumentMatchers.anyString(),
-      ArgumentMatchers.anyBoolean()
-    )).thenReturn(CompletableFuture.completedFuture(true));
   }
 
   @Test
