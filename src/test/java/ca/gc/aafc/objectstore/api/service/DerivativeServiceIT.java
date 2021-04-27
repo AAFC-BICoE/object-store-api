@@ -23,16 +23,10 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
   @Inject
   private DerivativeService derivativeService;
   private ObjectStoreMetadata acDerivedFrom;
-  private ObjectUpload objectUpload;
 
   @BeforeEach
   void setUp() {
     acDerivedFrom = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
-    objectUpload = ObjectUploadFactory.newObjectUpload()
-      .bucket("test")
-      .evaluatedMediaType(MediaType.IMAGE_JPEG_VALUE)
-      .build();
-    this.service.save(objectUpload);
     this.service.save(acDerivedFrom);
   }
 
@@ -128,9 +122,10 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
   private Derivative newDerivative(ObjectStoreMetadata child) {
     return Derivative.builder()
       .uuid(UUID.randomUUID())
-      .fileIdentifier(objectUpload.getFileIdentifier())
+      .fileIdentifier(UUID.randomUUID())
       .fileExtension(".jpg")
       .bucket("mybucket")
+      .dcFormat(MediaType.IMAGE_JPEG_VALUE)
       .acHashValue("abc")
       .acHashFunction("abcFunction")
       .dcType(DcType.IMAGE)

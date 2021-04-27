@@ -41,7 +41,6 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata implements 
 
   private Integer id;
 
-  private String dcFormat;
   private String acCaption;
 
   private OffsetDateTime acDigitizationDate;
@@ -116,9 +115,9 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata implements 
       acHashFunction,
       acHashValue,
       createdBy,
-      createdOn);
+      createdOn,
+      dcFormat);
     this.id = id;
-    this.dcFormat = dcFormat;
     this.acCaption = acCaption;
     this.acDigitizationDate = acDigitizationDate;
     this.xmpMetadataDate = xmpMetadataDate;
@@ -168,16 +167,6 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata implements 
 
   public void setAcCaption(String acCaption) {
     this.acCaption = acCaption;
-  }
-
-  @Column(name = "dc_format")
-  @Size(max = 150)
-  public String getDcFormat() {
-    return dcFormat;
-  }
-
-  public void setDcFormat(String dcFormat) {
-    this.dcFormat = dcFormat;
   }
 
   @Column(name = "ac_digitization_date")

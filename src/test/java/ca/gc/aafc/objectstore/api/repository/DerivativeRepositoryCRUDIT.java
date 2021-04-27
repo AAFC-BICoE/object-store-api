@@ -15,6 +15,7 @@ import io.crnk.core.queryspec.QuerySpec;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.MediaType;
 
 import javax.inject.Inject;
 import javax.validation.ValidationException;
@@ -30,6 +31,7 @@ public class DerivativeRepositoryCRUDIT extends BaseRepositoryTest {
   @BeforeEach
   void setUp() {
     upload = ObjectUploadFactory.newObjectUpload().build();
+    upload.setEvaluatedMediaType(MediaType.IMAGE_JPEG_VALUE);
     upload.setIsDerivative(true);
     this.service.save(upload);
     acDerivedFrom = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
@@ -45,6 +47,8 @@ public class DerivativeRepositoryCRUDIT extends BaseRepositoryTest {
     Assertions.assertEquals(resource.getDcType(), result.getDcType());
     Assertions.assertEquals(resource.getFileIdentifier(), result.getFileIdentifier());
     Assertions.assertEquals(resource.getDerivativeType(), result.getDerivativeType());
+    Assertions.assertEquals(resource.getDcFormat(), result.getDcFormat());
+    Assertions.assertEquals(upload.getEvaluatedMediaType(), result.getDcFormat());
     // Auto generated fields
     Assertions.assertNotNull(result.getBucket());
     Assertions.assertNotNull(result.getFileExtension());

@@ -138,6 +138,7 @@ public class FileControllerIT extends BaseIntegrationTest {
       .fileIdentifier(uploadResponse.getFileIdentifier())
       .acDerivedFrom(acDerivedFrom)
       .bucket(uploadResponse.getBucket())
+      .dcFormat(uploadResponse.getDetectedMediaType())
       .fileExtension(uploadResponse.getEvaluatedFileExtension())
       .dcType(DcType.IMAGE)
       .createdBy("dina")
