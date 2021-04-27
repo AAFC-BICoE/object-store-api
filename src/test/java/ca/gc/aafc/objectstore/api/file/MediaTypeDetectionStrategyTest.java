@@ -28,7 +28,7 @@ public class MediaTypeDetectionStrategyTest {
     try (FileInputStream fis = new FileInputStream(
         Resources.getResource("drawing.png").toURI().getPath())) {
 
-      assertDetectedMediaType(fis, null, "my_file.ab1",
+      assertDetectedAndEvaluatedMediaType(fis, null, "my_file.ab1",
           MediaType.IMAGE_PNG_VALUE, ".png", // png should be detected
           MediaType.IMAGE_PNG_VALUE, ".ab1");//but the original extension should be preserved
     } catch (IOException e) {
@@ -41,7 +41,7 @@ public class MediaTypeDetectionStrategyTest {
     try (FileInputStream fis = new FileInputStream(
         Resources.getResource("testfile.txt").toURI().getPath())) {
 
-      assertDetectedMediaType(fis, MediaType.TEXT_PLAIN_VALUE, "testfile.ab2",
+      assertDetectedAndEvaluatedMediaType(fis, MediaType.TEXT_PLAIN_VALUE, "testfile.ab2",
           MediaType.TEXT_PLAIN_VALUE, ".txt", // txt should be detected
           MediaType.TEXT_PLAIN_VALUE, ".ab2");//but the original extension should be preserved
     } catch (IOException e) {
@@ -54,7 +54,7 @@ public class MediaTypeDetectionStrategyTest {
     try (FileInputStream fis = new FileInputStream(
         Resources.getResource("test_spreadsheet.xlsx").toURI().getPath())) {
 
-      assertDetectedMediaType(fis, null, "test_spreadsheet.xlsx",
+      assertEvaluatedMediaType(fis, null, "test_spreadsheet.xlsx",
           "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", ".xlsx");
     } catch (IOException e) {
       fail(e);
@@ -66,8 +66,24 @@ public class MediaTypeDetectionStrategyTest {
     ByteArrayInputStream bais = new ByteArrayInputStream(
         "Test content".getBytes(StandardCharsets.UTF_8));
 
-    assertDetectedMediaType(bais, null, null,
+    assertEvaluatedMediaType(bais, null, null,
         MediaType.TEXT_PLAIN_VALUE, ".txt");
+  }
+
+  /**
+   * Testing a jpg submitted as octet_stream
+   * @throws URISyntaxException
+   */
+  @Test
+  public void detectMediaType_onMediaTypeOctetStream_typeDetectedUsed() throws URISyntaxException {
+    try (FileInputStream fis = new FileInputStream(
+        Resources.getResource("cc0_test_image.jpg").toURI().getPath())) {
+
+      assertEvaluatedMediaType(fis, MediaType.APPLICATION_OCTET_STREAM_VALUE, "cc0_test_image.jpg",
+          MediaType.IMAGE_JPEG_VALUE, ".jpg");
+    } catch (IOException e) {
+      fail(e);
+    }
   }
   
   @Test
@@ -75,32 +91,32 @@ public class MediaTypeDetectionStrategyTest {
     ByteArrayInputStream bais = new ByteArrayInputStream(
         "Test content".getBytes(StandardCharsets.UTF_8));
 
-    assertDetectedMediaType(bais, MediaType.TEXT_PLAIN_VALUE, "my_file.ab1",
+    assertEvaluatedMediaType(bais, MediaType.TEXT_PLAIN_VALUE, "my_file.ab1",
         MediaType.TEXT_PLAIN_VALUE, ".ab1");
   }
   
   @Test
   public void detectMediaType_onUnknownMediaType_extensionAndMediaTypeIsPreserved() {
     ByteArrayInputStream bais = new ByteArrayInputStream(new byte[] { 1, 0, 10, 23 });
-    assertDetectedMediaType(bais, "special/binary", "my_file.bin", "special/binary", ".bin");
+    assertEvaluatedMediaType(bais, "special/binary", "my_file.bin", "special/binary", ".bin");
   }
   
   @Test
   public void detectMediaType_onUnknownTextMediaType_extensionAndMediaTypeIsPreserved() {
     ByteArrayInputStream bais = new ByteArrayInputStream(
         "Test content".getBytes(StandardCharsets.UTF_8));
-    assertDetectedMediaType(bais, "special/text", "my_file.zzz", "special/text", ".zzz");
+    assertEvaluatedMediaType(bais, "special/text", "my_file.zzz", "special/text", ".zzz");
   }
   
   @Test
   public void detectMediaType_onUnknownMediaType_extensionAndMediaTypeSet() {
     ByteArrayInputStream bais = new ByteArrayInputStream(new byte[] { 1, 0, 10, 23 });
-    assertDetectedMediaType(bais, null, null, MediaType.APPLICATION_OCTET_STREAM_VALUE, ".bin");
+    assertEvaluatedMediaType(bais, null, null, MediaType.APPLICATION_OCTET_STREAM_VALUE, ".bin");
   }
   
-  private void assertDetectedMediaType(InputStream is, @Nullable String receivedMediaType,
+  private void assertEvaluatedMediaType(InputStream is, @Nullable String receivedMediaType,
       @Nullable String originalFilename, String evaluatedMediaType, String evaluatedExt) {
-    assertDetectedMediaType(is, receivedMediaType, originalFilename, null, null, evaluatedMediaType,
+    assertDetectedAndEvaluatedMediaType(is, receivedMediaType, originalFilename, null, null, evaluatedMediaType,
         evaluatedExt);
   }
   
@@ -111,10 +127,12 @@ public class MediaTypeDetectionStrategyTest {
    * @param is
    * @param receivedMediaType
    * @param originalFilename
-   * @param expectedMediaType
-   * @param expectedExt
+   * @param detectedMediaType
+   * @param detectedExt
+   * @param evaluatedMediaType
+   * @param evaluatedExt
    */
-  private void assertDetectedMediaType(InputStream is, @Nullable String receivedMediaType,
+  private void assertDetectedAndEvaluatedMediaType(InputStream is, @Nullable String receivedMediaType,
       @Nullable String originalFilename, String detectedMediaType, String detectedExt,
       String evaluatedMediaType, String evaluatedExt) {
     try {
@@ -134,7 +152,4 @@ public class MediaTypeDetectionStrategyTest {
       fail(e);
     }
   }
-  
-
-
 }

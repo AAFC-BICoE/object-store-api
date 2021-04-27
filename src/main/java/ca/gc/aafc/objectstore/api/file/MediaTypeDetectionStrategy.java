@@ -50,12 +50,16 @@ public class MediaTypeDetectionStrategy {
     private final String evaluatedExtension;
 
     public boolean isKnownExtensionForMediaType() {
-      if (StringUtils.isBlank(getFileExtension(receivedFileName)) || detectedMimeType == null) {
-        return false;
-      }
-      return detectedMimeType.getExtensions().stream()
-          .filter(s -> s.equalsIgnoreCase(getFileExtension(receivedFileName))).findFirst().isPresent();
+      return MediaTypeDetectionStrategy.isKnownExtensionForMediaType(receivedFileName, detectedMimeType);
     }
+  }
+
+  private static boolean isKnownExtensionForMediaType(String receivedFileName, MimeType detectedMimeType) {
+    if (StringUtils.isBlank(getFileExtension(receivedFileName)) || detectedMimeType == null) {
+      return false;
+    }
+    return detectedMimeType.getExtensions().stream()
+        .anyMatch(s -> s.equalsIgnoreCase(getFileExtension(receivedFileName)));
   }
   
   private static String getFileExtension(@Nullable String filename) {
@@ -93,14 +97,39 @@ public class MediaTypeDetectionStrategy {
         .detectedMimeType(detectedMimeType);
     
     // Decide on the MediaType and extension that should be used    
-    mtdrBldr.evaluatedMediaType(
-        StringUtils.isBlank(receivedMediaType) ? detectedMediaType.toString() : receivedMediaType);
+    mtdrBldr.evaluatedMediaType(evaluateMediaType(receivedMediaType, originalFilename, detectedMediaType ,
+        detectedMimeType));
     
     mtdrBldr.evaluatedExtension(
         getFileExtension(originalFilename) == null ? detectedMimeType.getExtension()
             : getFileExtension(originalFilename));
     
     return mtdrBldr.build();
+  }
+
+  /**
+   * Method responsible to find the best media type possible.
+   * @param receivedMediaType
+   * @param receivedFilename
+   * @param detectedMediaType
+   * @param detectedMimeType
+   * @return
+   */
+  private static String evaluateMediaType(String receivedMediaType, String receivedFilename, MediaType detectedMediaType,
+      MimeType detectedMimeType) {
+    // if we received nothing, use the detected
+    if (StringUtils.isBlank(receivedMediaType)) {
+      return detectedMediaType.toString();
+    }
+
+    // if the received type is generic but we detect something more specific and the extension is matching
+    if(MediaType.OCTET_STREAM.toString().equals(receivedMediaType) && !MediaType.OCTET_STREAM.equals(detectedMediaType)) {
+      if(isKnownExtensionForMediaType(receivedFilename, detectedMimeType)) {
+        return detectedMediaType.toString();
+      }
+    }
+
+    return receivedMediaType;
   }
 
 }

@@ -30,7 +30,6 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
   @Inject
   private DerivativeService derivativeService;
   private ObjectStoreMetadata acDerivedFrom;
-  private ObjectUpload objectUpload;
 
   @MockBean
   private ThumbnailGenerator thumbnailGenerator;
@@ -38,13 +37,6 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
   @BeforeEach
   void setUp() {
     acDerivedFrom = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
-    objectUpload = ObjectUploadFactory.newObjectUpload()
-      .bucket(MinioTestConfiguration.TEST_BUCKET)
-      .fileIdentifier(MinioTestConfiguration.TEST_FILE_IDENTIFIER)
-      .evaluatedMediaType(MediaType.IMAGE_JPEG_VALUE)
-      .evaluatedFileExtension(MinioTestConfiguration.TEST_FILE_EXT)
-      .build();
-    this.service.save(objectUpload);
     this.service.save(acDerivedFrom);
     Mockito.when(thumbnailGenerator.generateThumbnail(
       ArgumentMatchers.any(UUID.class),
@@ -148,9 +140,10 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
   private Derivative newDerivative(ObjectStoreMetadata child) {
     return Derivative.builder()
       .uuid(UUID.randomUUID())
-      .fileIdentifier(objectUpload.getFileIdentifier())
-      .fileExtension(objectUpload.getEvaluatedFileExtension())
-      .bucket(objectUpload.getBucket())
+      .fileIdentifier(UUID.randomUUID())
+      .fileExtension(".jpg")
+      .bucket("mybucket")
+      .dcFormat(MediaType.IMAGE_JPEG_VALUE)
       .acHashValue("abc")
       .acHashFunction("abcFunction")
       .dcType(DcType.IMAGE)

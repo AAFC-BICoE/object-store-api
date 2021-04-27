@@ -4,7 +4,6 @@ import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.dina.service.DefaultDinaService;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
-import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.file.ThumbnailGenerator;
 import lombok.NonNull;
 import lombok.SneakyThrows;
@@ -73,7 +72,7 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
         resource.getBucket(),
         resource.getFileIdentifier() + resource.getFileExtension(),
         acDerivedFrom.getUuid(),
-        this.findOne(resource.getFileIdentifier(), ObjectUpload.class).getEvaluatedMediaType(),
+        resource.getDcFormat(),
         resource.getUuid(),
         true);
     }
@@ -170,6 +169,7 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
       .dcType(ThumbnailGenerator.THUMBNAIL_DC_TYPE)
       .fileExtension(ThumbnailGenerator.THUMBNAIL_EXTENSION)
       .fileIdentifier(fileIdentifier)
+      .dcFormat(ThumbnailGenerator.THUMB_DC_FORMAT)
       .derivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE)
       .bucket(bucket)
       .build();

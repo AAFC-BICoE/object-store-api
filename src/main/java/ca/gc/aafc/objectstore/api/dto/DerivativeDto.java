@@ -26,6 +26,7 @@ public class DerivativeDto {
   private UUID fileIdentifier;
   private String fileExtension;
   private DcType dcType;
+  private String dcFormat;
   private String acHashFunction;
   private String acHashValue;
   private String createdBy;

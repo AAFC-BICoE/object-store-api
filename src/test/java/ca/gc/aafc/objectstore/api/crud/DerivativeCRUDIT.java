@@ -54,6 +54,7 @@ public class DerivativeCRUDIT extends BaseEntityCRUDIT {
     Assertions.assertEquals(derivative.getCreatedBy(), result.getCreatedBy());
     Assertions.assertEquals(derivative.getCreatedOn(), result.getCreatedOn());
     Assertions.assertEquals(derivative.getDcType(), result.getDcType());
+    Assertions.assertEquals(derivative.getDcFormat(), result.getDcFormat());
     Assertions.assertEquals(derivative.getDerivativeType(), result.getDerivativeType());
     Assertions.assertNotNull(result.getGeneratedFromDerivative());
     Assertions.assertEquals(derivative.getGeneratedFromDerivative(), result.getGeneratedFromDerivative());
@@ -78,6 +79,7 @@ public class DerivativeCRUDIT extends BaseEntityCRUDIT {
       .acHashValue("abc")
       .acHashFunction("abcFunction")
       .dcType(DcType.IMAGE)
+      .dcFormat("format")
       .createdBy(RandomStringUtils.random(4))
       .acDerivedFrom(child)
       .derivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE)
