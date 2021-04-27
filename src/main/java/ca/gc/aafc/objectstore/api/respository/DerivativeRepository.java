@@ -13,7 +13,6 @@ import io.crnk.core.exception.BadRequestException;
 import io.crnk.core.exception.MethodNotAllowedException;
 import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.util.StringUtil;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.stereotype.Repository;
 
