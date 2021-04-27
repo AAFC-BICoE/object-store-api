@@ -36,6 +36,7 @@ public abstract class AbstractObjectStoreMetadata implements DinaEntity {
   protected String acHashValue;
   protected String createdBy;
   protected OffsetDateTime createdOn;
+  private String dcFormat;
 
   @NaturalId
   @NotNull
@@ -89,6 +90,16 @@ public abstract class AbstractObjectStoreMetadata implements DinaEntity {
 
   public void setDcType(DcType dcType) {
     this.dcType = dcType;
+  }
+
+  @Column(name = "dc_format")
+  @Size(max = 150)
+  public String getDcFormat() {
+    return dcFormat;
+  }
+
+  public void setDcFormat(String dcFormat) {
+    this.dcFormat = dcFormat;
   }
 
   @Column(name = "ac_hash_function")
