@@ -15,6 +15,7 @@ import io.crnk.core.queryspec.QuerySpec;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.MediaType;
 
 import javax.inject.Inject;
 import javax.validation.ValidationException;
@@ -45,6 +46,7 @@ public class DerivativeRepositoryCRUDIT extends BaseRepositoryTest {
     Assertions.assertEquals(resource.getDcType(), result.getDcType());
     Assertions.assertEquals(resource.getFileIdentifier(), result.getFileIdentifier());
     Assertions.assertEquals(resource.getDerivativeType(), result.getDerivativeType());
+    Assertions.assertEquals(resource.getDcFormat(), result.getDcFormat());
     // Auto generated fields
     Assertions.assertNotNull(result.getBucket());
     Assertions.assertNotNull(result.getFileExtension());
@@ -91,6 +93,7 @@ public class DerivativeRepositoryCRUDIT extends BaseRepositoryTest {
     from.setUuid(acDerivedFrom.getUuid());
     dto.setAcDerivedFrom(from);
     dto.setDerivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE);
+    dto.setDcFormat(MediaType.IMAGE_JPEG_VALUE);
     dto.setFileIdentifier(fileIdentifier);
     return dto;
   }
