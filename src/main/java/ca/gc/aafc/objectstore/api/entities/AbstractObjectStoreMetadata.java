@@ -93,6 +93,7 @@ public abstract class AbstractObjectStoreMetadata implements DinaEntity {
   }
 
   @Column(name = "dc_format")
+  @NotNull
   @Size(max = 150)
   public String getDcFormat() {
     return dcFormat;
