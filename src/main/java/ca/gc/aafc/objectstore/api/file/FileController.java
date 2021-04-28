@@ -42,6 +42,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.inject.Inject;
+import javax.persistence.criteria.Predicate;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,6 +50,7 @@ import java.security.DigestInputStream;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -312,7 +314,15 @@ public class FileController {
       .exif(exifData)
       .isDerivative(isDerivative)
       .build());
-    return mapObjectUpload(objectUpload);
+    ObjectUploadDto dto = mapObjectUpload(objectUpload);
+    
+    if (!objectUploadService.findAll(
+          ObjectUpload.class,
+            (cb, root) -> new Predicate[]{cb.equal(root.get("sha1Hex"), sha1Hex)}
+            , null, 0, 1).isEmpty()) {
+
+            }
+    return dto;
   }
 
   /**
