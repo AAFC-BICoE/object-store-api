@@ -31,7 +31,7 @@ public class ObjectStoreMetadataFactory implements TestableEntityFactory<ObjectS
         .bucket("mybucket")
         .acHashValue("abc")
         .dcType(DcType.IMAGE)
-        .dcFormat("unix tar archive, gzip compressed; 1.5 Mbytes")
+        .dcFormat("image/jpeg")
         .xmpRightsWebStatement("https://open.canada.ca/en/open-government-licence-canada")
         .dcRights("Copyright Government of Canada")
         .xmpRightsOwner("Government of Canada")
