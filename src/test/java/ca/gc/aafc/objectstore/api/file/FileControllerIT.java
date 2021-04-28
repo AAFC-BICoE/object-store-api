@@ -3,6 +3,7 @@ package ca.gc.aafc.objectstore.api.file;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.MinioTestConfiguration;
+import ca.gc.aafc.objectstore.api.dto.ObjectUploadDto;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
@@ -80,7 +81,7 @@ public class FileControllerIT extends BaseIntegrationTest {
   public void fileUpload_OnValidUpload_FileMetaEntryGenerated() throws Exception {
     MockMultipartFile mockFile = getFileUnderTest();
 
-    ObjectUpload uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
+    ObjectUploadDto uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
     assertNotNull(uploadResponse);
   }
 
@@ -88,7 +89,7 @@ public class FileControllerIT extends BaseIntegrationTest {
   @Test
   public void fileUpload_OnValidUpload_ObjectUploadEntryCreated() throws Exception {
     MockMultipartFile mockFile = getFileUnderTest();
-    ObjectUpload uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
+    ObjectUploadDto uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
     ObjectUpload objUploaded = objectUploadService.findOne(uploadResponse.getFileIdentifier(), ObjectUpload.class);
 
     assertNotNull(objUploaded);
@@ -113,7 +114,7 @@ public class FileControllerIT extends BaseIntegrationTest {
   @Test
   public void fileUpload_OnValidLargerUpload_ObjectUploadEntryCreated() throws Exception {
     MockMultipartFile mockFile = createMockMultipartFile("cc0_test_image.jpg", MediaType.IMAGE_JPEG_VALUE);
-    ObjectUpload uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
+    ObjectUploadDto uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
     ObjectUpload objUploaded = objectUploadService.findOne(uploadResponse.getFileIdentifier(), ObjectUpload.class);
 
     assertNotNull(objUploaded);
@@ -130,7 +131,7 @@ public class FileControllerIT extends BaseIntegrationTest {
     XmlParserException, InvalidResponseException, ServerException, InternalException, MimeTypeException,
     InvalidBucketNameException, InsufficientDataException, ErrorResponseException {
     MockMultipartFile mockFile = getFileUnderTest();
-    ObjectUpload uploadResponse = fileController.handleDerivativeUpload(mockFile, bucketUnderTest);
+    ObjectUploadDto uploadResponse = fileController.handleDerivativeUpload(mockFile, bucketUnderTest);
     // A derivative requires a Derivative record to download
     ObjectStoreMetadata acDerivedFrom = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
     this.service.save(acDerivedFrom);
@@ -159,7 +160,7 @@ public class FileControllerIT extends BaseIntegrationTest {
   public void derivativeUpload_OnValidUpload() throws Exception {
     MockMultipartFile mockFile = getFileUnderTest();
 
-    ObjectUpload uploadResponse = fileController.handleDerivativeUpload(mockFile, bucketUnderTest);
+    ObjectUploadDto uploadResponse = fileController.handleDerivativeUpload(mockFile, bucketUnderTest);
     assertNotNull(uploadResponse);
 
     //Assert object upload created
