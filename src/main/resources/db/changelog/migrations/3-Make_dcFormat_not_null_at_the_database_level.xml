@@ -1,0 +1,12 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no" ?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd"
+                   objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+
+    <changeSet id="3-Make_dcFormat_not_null_at_the_database_level" context="schema-change" author="Steven Luu">
+      <addNotNullConstraint tableName="derivative" columnName="dc_format" columnDataType="VARCHAR(150)"/>
+      <addNotNullConstraint tableName="metadata" columnName="dc_format" columnDataType="VARCHAR(150)"/>
+    </changeSet>
+
+</databaseChangeLog>
