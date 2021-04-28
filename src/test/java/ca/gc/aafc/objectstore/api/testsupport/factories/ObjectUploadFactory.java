@@ -32,11 +32,7 @@ public class ObjectUploadFactory implements TestableEntityFactory<ObjectUpload> 
         .exif(Map.of("ex1", "exVal1"))
         .evaluatedFileExtension(".jpg")
         .isDerivative(false)
-<<<<<<< HEAD
-        .detectedMediaType("unix tar archive, gzip compressed; 1.5 Mbytes")
-=======
         .detectedMediaType("image/jpeg")
->>>>>>> f80188553a0c06b12c578e21dfd1538a2abe6630
         .createdBy("createdBy");
   }
 
