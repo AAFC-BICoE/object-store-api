@@ -1,6 +1,9 @@
 package ca.gc.aafc.objectstore.api.file;
 
+import ca.gc.aafc.dina.mapper.DinaMapper;
+import ca.gc.aafc.dina.mapper.DinaMappingLayer;
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
+import ca.gc.aafc.objectstore.api.dto.ObjectUploadDto;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
@@ -59,6 +62,7 @@ public class FileController {
   private static final int MAX_NUMBER_OF_ATTEMPT_RANDOM_UUID = 5;
   private static final int READ_AHEAD_BUFFER_SIZE = 10 * 1024;
 
+  private final DinaMappingLayer<ObjectUploadDto, ObjectUpload> mappingLayer;
   private final ObjectUploadService objectUploadService;
   private final DerivativeService derivativeService;
   private final MinioFileService minioService;
@@ -86,11 +90,14 @@ public class FileController {
     this.authenticatedUser = authenticatedUser;
     this.messageSource = messageSource;
     this.derivativeService = derivativeService;
+    this.mappingLayer = new DinaMappingLayer<>(
+      ObjectUploadDto.class, objectUploadService,
+      new DinaMapper<>(ObjectUploadDto.class));
   }
 
   @PostMapping("/file/{bucket}/derivative")
   @Transactional
-  public ObjectUpload handleDerivativeUpload(
+  public ObjectUploadDto handleDerivativeUpload(
     @RequestParam("file") MultipartFile file,
     @PathVariable String bucket
   ) throws IOException, MimeTypeException, NoSuchAlgorithmException, ServerException, ErrorResponseException,
@@ -101,7 +108,7 @@ public class FileController {
 
   @PostMapping("/file/{bucket}")
   @Transactional
-  public ObjectUpload handleFileUpload(
+  public ObjectUploadDto handleFileUpload(
     @RequestParam("file") MultipartFile file,
     @PathVariable String bucket
   ) throws InvalidKeyException, NoSuchAlgorithmException, InvalidBucketNameException, ErrorResponseException,
@@ -110,7 +117,7 @@ public class FileController {
     return handleUpload(file, bucket, false);
   }
 
-  private ObjectUpload handleUpload(
+  private ObjectUploadDto handleUpload(
     @NonNull MultipartFile file,
     @NonNull String bucket,
     boolean isDerivative
@@ -281,7 +288,7 @@ public class FileController {
    * @param isDerivative boolean indicating if the object was a derivative.
    * @return the persisted object upload
    */
-  private ObjectUpload createObjectUpload(
+  private ObjectUploadDto createObjectUpload(
     MultipartFile file,
     String bucket,
     MediaTypeDetectionStrategy.MediaTypeDetectionResult mtdr,
@@ -290,7 +297,7 @@ public class FileController {
     Map<String, String> exifData,
     boolean isDerivative
   ) {
-    return objectUploadService.create(ObjectUpload.builder()
+    ObjectUpload objectUpload = objectUploadService.create(ObjectUpload.builder()
       .fileIdentifier(uuid)
       .createdBy(authenticatedUser.getUsername())
       .originalFilename(file.getOriginalFilename())
@@ -305,6 +312,7 @@ public class FileController {
       .exif(exifData)
       .isDerivative(isDerivative)
       .build());
+    return mapObjectUpload(objectUpload);
   }
 
   /**
@@ -374,6 +382,10 @@ public class FileController {
         "You are not authorized for bucket: " + bucket
           + ". Expected buckets: " + StringUtils.join(authenticatedUser.getGroups(), ", "));
     }
+  }
+
+  private ObjectUploadDto mapObjectUpload(ObjectUpload objectUpload) {
+    return mappingLayer.toDtoSimpleMapping(objectUpload);
   }
 
 }
