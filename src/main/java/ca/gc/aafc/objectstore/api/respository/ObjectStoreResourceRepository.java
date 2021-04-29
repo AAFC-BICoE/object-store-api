@@ -173,7 +173,7 @@ public class ObjectStoreResourceRepository
 
     objectMetadata.setFileExtension(objectUpload.getEvaluatedFileExtension());
     objectMetadata.setOriginalFilename(objectUpload.getOriginalFilename());
-    objectMetadata.setDcFormat(objectUpload.getDetectedMediaType());
+    objectMetadata.setDcFormat(objectUpload.getEvaluatedMediaType());
     objectMetadata.setAcHashValue(objectUpload.getSha1Hex());
     objectMetadata.setAcHashFunction(FileController.DIGEST_ALGORITHM);
 
