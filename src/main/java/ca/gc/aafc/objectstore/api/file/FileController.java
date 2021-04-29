@@ -2,6 +2,8 @@ package ca.gc.aafc.objectstore.api.file;
 
 import ca.gc.aafc.dina.mapper.DinaMapper;
 import ca.gc.aafc.dina.mapper.DinaMappingLayer;
+import ca.gc.aafc.dina.repository.meta.AttributeMetaInfoProvider;
+import ca.gc.aafc.dina.repository.meta.AttributeMetaInfoProvider.DinaJsonMetaInfo;
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.objectstore.api.dto.ObjectUploadDto;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
@@ -51,6 +53,7 @@ import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -320,7 +323,8 @@ public class FileController {
           ObjectUpload.class,
             (cb, root) -> new Predicate[]{cb.equal(root.get("sha1Hex"), sha1Hex)}
             , null, 0, 1).isEmpty()) {
-
+              DinaJsonMetaInfo meta = AttributeMetaInfoProvider.DinaJsonMetaInfo.builder().properties(Collections.singletonMap("duplicate_found", "An object upload withe same sha1Hex field already exists")).build();
+              dto.setMeta(meta);
             }
     return dto;
   }
