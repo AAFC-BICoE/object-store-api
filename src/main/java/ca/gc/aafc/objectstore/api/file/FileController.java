@@ -52,7 +52,6 @@ import java.security.DigestInputStream;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
@@ -320,12 +319,15 @@ public class FileController {
     ObjectUploadDto dto = mapObjectUpload(objectUpload);
     
     if (!objectUploadService.findAll(
-          ObjectUpload.class,
-            (cb, root) -> new Predicate[]{cb.equal(root.get("sha1Hex"), sha1Hex)}
-            , null, 0, 1).isEmpty()) {
-              DinaJsonMetaInfo meta = AttributeMetaInfoProvider.DinaJsonMetaInfo.builder().properties(Collections.singletonMap("duplicate_found", "An object upload withe same sha1Hex field already exists")).build();
-              dto.setMeta(meta);
-            }
+      ObjectUpload.class,
+        (cb, root) -> new Predicate[]{cb.equal(root.get("sha1Hex"), sha1Hex)}
+          , null, 0, 1).isEmpty()) {
+      DinaJsonMetaInfo meta = 
+        AttributeMetaInfoProvider.DinaJsonMetaInfo.builder()
+        .properties(Collections.singletonMap("duplicate_found", "An object upload withe same sha1Hex field already exists"))
+        .build();
+      dto.setMeta(meta);
+    }
     return dto;
   }
 
