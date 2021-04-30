@@ -15,8 +15,8 @@ import org.springframework.validation.Validator;
 @RequiredArgsConstructor
 public class DerivativeValidator implements Validator {
 
-  public static final String VALID_THUMB_DC_FORMAT_KEY = "";
-  public static final String VALID_THUMB_SUPPORTED_KEY = "";
+  public static final String VALID_THUMB_DC_FORMAT_KEY = "validation.constraint.violation.requiredThumbnailDcFormat";
+  public static final String VALID_THUMB_SUPPORTED_KEY = "validation.constraint.violation.thumbnailDcFormatNotSupported";
 
   private final MessageSource messageSource;
 
