@@ -167,8 +167,10 @@ public class FileController {
       .loadObjectStoreMetadataByFileId(fileId)
       .orElseThrow(() -> buildNotFoundException(bucket, Objects.toString(fileId)));
 
-    // For the download of an object use the originalFilename provided
-    return download(bucket, metadata.getFilename(), metadata.getOriginalFilename(), false, metadata.getDcFormat());
+    // For the download of an object use the originalFilename provided (if available)
+    return download(bucket, metadata.getFilename(),
+        StringUtils.isBlank(metadata.getOriginalFilename()) ? metadata.getFilename() : metadata.getOriginalFilename(),
+        false, metadata.getDcFormat());
   }
 
   @GetMapping("/file/{bucket}/derivative/{fileId}")
