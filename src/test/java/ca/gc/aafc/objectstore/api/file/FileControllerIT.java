@@ -3,12 +3,15 @@ package ca.gc.aafc.objectstore.api.file;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.MinioTestConfiguration;
+import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectUploadDto;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
+import ca.gc.aafc.objectstore.api.respository.ObjectStoreResourceRepository;
 import ca.gc.aafc.objectstore.api.service.DerivativeService;
+import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
 import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import io.crnk.core.exception.UnauthorizedException;
@@ -55,6 +58,8 @@ public class FileControllerIT extends BaseIntegrationTest {
   @Inject
   private ObjectUploadService objectUploadService;
 
+  @Inject
+  private ObjectStoreResourceRepository objectStoreResourceRepository;
 
   @Inject
   private DerivativeService derivativeService;
@@ -78,11 +83,22 @@ public class FileControllerIT extends BaseIntegrationTest {
 
   @Transactional
   @Test
-  public void fileUpload_OnValidUpload_FileMetaEntryGenerated() throws Exception {
+  public void fileUpload_OnValidUpload_testRoundTrip() throws Exception {
     MockMultipartFile mockFile = getFileUnderTest();
 
     ObjectUploadDto uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
     assertNotNull(uploadResponse);
+
+    // file can only be downloaded if we attach metadata to it
+    ObjectStoreMetadataDto metadataForFile = new ObjectStoreMetadataDto();
+    metadataForFile.setBucket(bucketUnderTest);
+    metadataForFile.setFileIdentifier(uploadResponse.getFileIdentifier());
+    objectStoreResourceRepository.create(metadataForFile);
+
+    ResponseEntity<InputStreamResource> response = fileController.downloadObject(bucketUnderTest, uploadResponse.getFileIdentifier());
+
+    // on download, the original file name should be returned
+    assertEquals(mockFile.getOriginalFilename(), response.getHeaders().getContentDisposition().getFilename());
   }
 
   @Transactional
