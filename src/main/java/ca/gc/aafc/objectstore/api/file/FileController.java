@@ -165,9 +165,10 @@ public class FileController {
   ) throws IOException {
     ObjectStoreMetadata metadata = objectStoreMetadataReadService
       .loadObjectStoreMetadataByFileId(fileId)
-      .orElseThrow(() -> buildNotFoundException(bucket, fileId));
-    String filename = metadata.getFilename();
-    return download(bucket, fileId, filename, false, metadata.getDcFormat());
+      .orElseThrow(() -> buildNotFoundException(bucket, Objects.toString(fileId)));
+
+    // For the download of an object use the originalFilename provided
+    return download(bucket, metadata.getFilename(), metadata.getOriginalFilename(), false, metadata.getDcFormat());
   }
 
   @GetMapping("/file/{bucket}/derivative/{fileId}")
@@ -176,9 +177,9 @@ public class FileController {
     @PathVariable UUID fileId
   ) throws IOException {
     Derivative derivative = derivativeService.findByFileId(fileId)
-      .orElseThrow(() -> buildNotFoundException(bucket, fileId));
+      .orElseThrow(() -> buildNotFoundException(bucket, Objects.toString(fileId)));
     String fileName = derivative.getFileIdentifier() + derivative.getFileExtension();
-    return download(bucket, fileId, fileName, true, derivative.getDcFormat());
+    return download(bucket, fileName, fileName, true, derivative.getDcFormat());
   }
 
   @GetMapping("/file/{bucket}/{fileId}/thumbnail")
@@ -188,27 +189,38 @@ public class FileController {
   ) throws IOException {
     ObjectStoreMetadata objectStoreMetadata = objectStoreMetadataReadService
       .loadObjectStoreMetadataByFileId(fileId)
-      .orElseThrow(() -> buildNotFoundException(bucket, fileId));
+      .orElseThrow(() -> buildNotFoundException(bucket, Objects.toString(fileId)));
 
     Derivative derivative = derivativeService.findThumbnailDerivativeForMetadata(objectStoreMetadata)
-      .orElseThrow(() -> buildNotFoundException(bucket, fileId));
+      .orElseThrow(() -> buildNotFoundException(bucket, Objects.toString(fileId)));
     return downloadDerivative(bucket, derivative.getFileIdentifier());
   }
 
+  /**
+   * Internal download function.
+   * @param bucket name of the bucket where to find the file
+   * @param fileName filename of the file in Minio
+   * @param downloadFilename filename to use for the download
+   * @param isDerivative used to look in the right subfolder in Minio
+   * @param mediaType media type to include in the headers of the download
+   * @return
+   * @throws IOException
+   */
   private ResponseEntity<InputStreamResource> download(
     @NonNull String bucket,
-    @NonNull UUID fileId,
     @NonNull String fileName,
+    @NonNull String downloadFilename,
     boolean isDerivative,
-    String mediaType
+    @NonNull String mediaType
   ) throws IOException {
     FileObjectInfo foi = minioService.getFileInfo(fileName, bucket, isDerivative)
-      .orElseThrow(() -> buildNotFoundException(bucket, fileId));
+      .orElseThrow(() -> buildNotFoundException(bucket, fileName));
     InputStream is = minioService.getFile(fileName, bucket, isDerivative)
-      .orElseThrow(() -> buildNotFoundException(bucket, fileId));
+      .orElseThrow(() -> buildNotFoundException(bucket, fileName));
+
     return new ResponseEntity<>(
       new InputStreamResource(is),
-      buildHttpHeaders(fileName, mediaType, foi.getLength()),
+      buildHttpHeaders(downloadFilename, mediaType, foi.getLength()),
       HttpStatus.OK);
   }
 
@@ -216,14 +228,14 @@ public class FileController {
    * Utility method to generate a NOT_FOUND ResponseStatusException based on the given parameters.
    *
    * @param bucket the bucket
-   * @param fileId the file id
+   * @param filename the name of the file
    * @return a ResponseStatusException Not found
    */
-  private ResponseStatusException buildNotFoundException(String bucket, UUID fileId) {
+  private ResponseStatusException buildNotFoundException(String bucket, String filename) {
     return new ResponseStatusException(
       HttpStatus.NOT_FOUND,
       messageSource.getMessage(
-        "minio.file_or_bucket_not_found", new Object[]{fileId, bucket}, LocaleContextHolder.getLocale()),
+        "minio.file_or_bucket_not_found", new Object[]{filename, bucket}, LocaleContextHolder.getLocale()),
       null);
   }
 
