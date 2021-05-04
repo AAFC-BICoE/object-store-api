@@ -3,9 +3,13 @@ package ca.gc.aafc.objectstore.api.crud;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
+import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.service.DerivativeService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
+import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
+
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,12 +23,18 @@ public class DerivativeCRUDIT extends BaseEntityCRUDIT {
   private ObjectStoreMetaDataService metaService;
   @Inject
   private DerivativeService derivativeService;
+  @Inject
+  private ObjectUploadService uploadService;
 
   private Derivative derivative;
+
   private final ObjectStoreMetadata metadata = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
+  private final ObjectUpload upload = ObjectUploadFactory.newObjectUpload().fileIdentifier(metadata.getFileIdentifier()).build();
 
   @BeforeEach
   void setUp() {
+    uploadService.create(upload);
+    
     metaService.create(metadata);
 
     Derivative generatedFrom = newDerivative(metadata);
