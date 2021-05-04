@@ -33,6 +33,7 @@ public class ObjectUploadFactory implements TestableEntityFactory<ObjectUpload> 
         .evaluatedFileExtension(".jpg")
         .isDerivative(false)
         .detectedMediaType("image/jpeg")
+        .evaluatedMediaType("image/jpeg")
         .createdBy("createdBy");
   }
 
