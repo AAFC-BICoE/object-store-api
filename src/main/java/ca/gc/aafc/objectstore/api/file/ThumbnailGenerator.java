@@ -17,7 +17,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
-import javax.transaction.Transactional;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -43,7 +42,6 @@ public class ThumbnailGenerator {
 
   private final MinioFileService minioService;
 
-  @Transactional
   @Async
   public void generateThumbnail(
     @NonNull UUID uuid,
