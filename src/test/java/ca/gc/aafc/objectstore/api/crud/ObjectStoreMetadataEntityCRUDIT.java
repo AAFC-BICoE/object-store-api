@@ -25,9 +25,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
 
-  @Inject
-  private DinaService<ObjectStoreMetadata> metaService;
-
   private static final ZoneId MTL_TZ = ZoneId.of("America/Montreal");
   private final ZonedDateTime TEST_ZONED_DT = ZonedDateTime.of(2019, 1, 2, 3, 4, 5, 0, MTL_TZ);
   private final OffsetDateTime TEST_OFFSET_DT = TEST_ZONED_DT.toOffsetDateTime();
@@ -42,20 +39,20 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
   @BeforeEach
   void setUp() {
     // Clean all database entries
-    fetchAllMeta().forEach(metaService::delete);
+    fetchAllMeta().forEach(objectStoreMetaDataService::delete);
   }
 
   @Override
   public void testSave() {
     assertNull(objectStoreMetaUnderTest.getId());
-    service.save(objectStoreMetaUnderTest);
+    objectStoreMetaDataService.create(objectStoreMetaUnderTest);
     assertNotNull(objectStoreMetaUnderTest.getId());
   }
 
   @Override
   public void testFind() {
-    ObjectStoreMetadata fetchedObjectStoreMeta = service.find(ObjectStoreMetadata.class,
-        objectStoreMetaUnderTest.getId());
+    ObjectStoreMetadata fetchedObjectStoreMeta = objectStoreMetaDataService.findOne(
+      objectStoreMetaUnderTest.getUuid(), ObjectStoreMetadata.class);
 
     assertEquals(objectStoreMetaUnderTest.getId(), fetchedObjectStoreMeta.getId());
     assertEquals(objectStoreMetaUnderTest.getDcCreator(), fetchedObjectStoreMeta.getDcCreator());
@@ -78,18 +75,19 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
 
   @Override
   public void testRemove() {
-    Integer id = objectStoreMetaUnderTest.getId();
-    service.deleteById(ObjectStoreMetadata.class, id);
-    assertNull(service.find(ObjectStoreMetadata.class, id));
+    UUID uuid = objectStoreMetaUnderTest.getUuid();
+    objectStoreMetaDataService.delete(objectStoreMetaUnderTest);
+    assertNull(objectStoreMetaDataService.findOne(
+      uuid, ObjectStoreMetadata.class));
   }
 
   @Test
   public void testRelationships() {
     ManagedAttribute ma = ManagedAttributeFactory.newManagedAttribute().build();
-    service.save(ma, false);
+    managedAttributeService.create(ma);
 
     ObjectSubtype ost = ObjectSubtypeFactory.newObjectSubtype().build();
-    service.save(ost, false);
+    objectSubTypeService.create(ost);
 
     ObjectStoreMetadata osm = ObjectStoreMetadataFactory
         .newObjectStoreMetadata()
@@ -99,7 +97,7 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
 
     // Use "true" here to detach the Metadata,
     // which will make sure the getAcSubTypeId read-only field is populated when the Metadata is restored. 
-    service.save(osm, true);
+    objectStoreMetaDataService.create(osm);
 
     ObjectStoreMetadata restoredOsm = service.find(ObjectStoreMetadata.class, osm.getId());
     assertNotNull(restoredOsm.getId());
@@ -113,14 +111,15 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
     .assignedValue("test value")
     .build();
 
-    service.save(mma);
+    metaManagedAttributeService.create(mma);
 
     OffsetDateTime newTimestamp = restoredOsm.getXmpMetadataDate();
 
     // Adding a MetadataManagedAttribute should update the parent ObjectStoreMetadata:
     assertNotEquals(newTimestamp, initialTimestamp);
 
-    MetadataManagedAttribute restoredMma = service.find(MetadataManagedAttribute.class, mma.getId());
+    MetadataManagedAttribute restoredMma = metaManagedAttributeService.findOne(
+      mma.getUuid(), MetadataManagedAttribute.class);
     assertEquals(restoredOsm.getId(), restoredMma.getObjectStoreMetadata().getId());
 
     // Test read-only getAcSubTypeId Formula field:
@@ -134,7 +133,7 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
    * @return list of all metadata from the database.
    */
   private List<ObjectStoreMetadata> fetchAllMeta() {
-    return metaService.findAll(ObjectStoreMetadata.class,
+    return objectStoreMetaDataService.findAll(ObjectStoreMetadata.class,
       (criteriaBuilder, objectStoreMetadataRoot) -> new Predicate[0],
       null, 0, 100);
   }

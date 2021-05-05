@@ -33,9 +33,9 @@ public class DerivativeRepositoryCRUDIT extends BaseRepositoryTest {
     upload = ObjectUploadFactory.newObjectUpload().build();
     upload.setEvaluatedMediaType(MediaType.IMAGE_JPEG_VALUE);
     upload.setIsDerivative(true);
-    this.service.save(upload);
+    objectUploadService.create(upload);
     acDerivedFrom = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
-    this.service.save(acDerivedFrom);
+    objectStoreMetaDataService.create(acDerivedFrom);
   }
 
   @Test
@@ -75,7 +75,7 @@ public class DerivativeRepositoryCRUDIT extends BaseRepositoryTest {
   void create_WhenNotDerivative_ThrowsBadRequest() {
     ObjectUpload notDerivative = ObjectUploadFactory.newObjectUpload().build();
     notDerivative.setIsDerivative(false);
-    this.service.save(notDerivative);
+    objectUploadService.create(notDerivative);
     Assertions.assertThrows(
       BadRequestException.class,
       () -> derivativeRepository.create(newDerivative(notDerivative.getFileIdentifier())));

@@ -40,15 +40,17 @@ public class MetaDataAuthorizationIT extends BaseIntegrationTest {
     testObjectUpload = ObjectUploadFactory.newObjectUpload().build();
     testObjectUpload.setDcType(DcType.TEXT);
     testObjectUpload.setEvaluatedMediaType(MediaType.TEXT_PLAIN_VALUE);
-    service.save(testObjectUpload);
+    objectUploadService.create(testObjectUpload);
     persisted = persistMeta(GROUP_1);
   }
 
   @AfterEach
   void tearDown() {
-    service.deleteById(ObjectUpload.class, testObjectUpload.getId());
+    objectUploadService.delete(testObjectUpload);
     repo.findAll(new QuerySpec(ObjectStoreMetadataDto.class))
-      .forEach(m -> service.deleteByProperty(ObjectStoreMetadata.class, "uuid", m.getUuid()));
+      .forEach(m -> objectStoreMetaDataService.delete(
+        objectStoreMetaDataService.findOne(
+          m.getUuid(), ObjectStoreMetadata.class)));
   }
 
   @Test
@@ -115,11 +117,11 @@ public class MetaDataAuthorizationIT extends BaseIntegrationTest {
 
   private ObjectStoreMetadata persistMeta(String group) {
     ObjectUpload objectUpload = ObjectUploadFactory.newObjectUpload().build();
-    service.save(objectUpload);
+    objectUploadService.create(objectUpload);
     ObjectStoreMetadata meta = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
     meta.setBucket(group);
     meta.setFileIdentifier(objectUpload.getFileIdentifier());
-    service.save(meta);
+    objectStoreMetaDataService.create(meta);
     return meta;
   }
 }

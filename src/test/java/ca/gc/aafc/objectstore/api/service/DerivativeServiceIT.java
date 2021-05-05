@@ -27,7 +27,7 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
   @BeforeEach
   void setUp() {
     acDerivedFrom = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
-    this.service.save(acDerivedFrom);
+    objectStoreMetaDataService.create(acDerivedFrom);
   }
 
   @Test
@@ -63,7 +63,7 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
 
     ObjectUpload upload = ObjectUploadFactory.newObjectUpload()
       .bucket("test").evaluatedMediaType(MediaType.IMAGE_JPEG_VALUE).build();
-    this.service.save(upload);
+    objectUploadService.create(upload);
     Derivative derivative2 = newDerivative(acDerivedFrom);
     derivative2.setFileIdentifier(upload.getFileIdentifier());
     derivativeService.create(derivative2);
