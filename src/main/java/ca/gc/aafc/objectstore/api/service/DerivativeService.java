@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.transaction.Transactional;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiFunction;
@@ -121,8 +122,13 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
         evaluatedMediaType,
         sourceBucket,
         isSourceDerivative,
-        () -> this.create(derivative));
+        () -> createWithTransaction(derivative));
     }
+  }
+
+  @Transactional
+  private void createWithTransaction(Derivative derivative) {
+    this.create(derivative);
   }
 
   /**
