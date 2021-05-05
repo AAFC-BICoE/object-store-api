@@ -15,13 +15,16 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
 import javax.persistence.criteria.Predicate;
 import java.util.List;
 import java.util.UUID;
 
 public class DerivativeServiceIT extends BaseIntegrationTest {
+
   @Inject
-  private DerivativeService derivativeService;
+  private EntityManager entityManager;
+
   private ObjectStoreMetadata acDerivedFrom;
 
   @BeforeEach
@@ -34,6 +37,9 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
   void create_WhenThumbnailSupported_ThumbnailGenerated() {
     Derivative derivative = newDerivative(acDerivedFrom);
     derivativeService.create(derivative);
+
+    entityManager.flush();
+    entityManager.refresh(acDerivedFrom);
 
     Derivative thumbResult = findAllByDerivative(derivative)
       .stream().findFirst()
