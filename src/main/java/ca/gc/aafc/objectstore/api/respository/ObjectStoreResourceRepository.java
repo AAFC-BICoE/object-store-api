@@ -1,9 +1,20 @@
 package ca.gc.aafc.objectstore.api.respository;
 
-import ca.gc.aafc.dina.entity.SoftDeletable;
+import java.io.Serializable;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+
+import javax.persistence.criteria.Predicate;
+import javax.transaction.Transactional;
+import javax.validation.ValidationException;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.boot.info.BuildProperties;
+import org.springframework.stereotype.Repository;
+
 import ca.gc.aafc.dina.mapper.DinaMapper;
 import ca.gc.aafc.dina.repository.DinaRepository;
-import ca.gc.aafc.dina.repository.GoneException;
 import ca.gc.aafc.dina.repository.external.ExternalResourceProvider;
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.dina.service.AuditService;
@@ -15,24 +26,10 @@ import ca.gc.aafc.objectstore.api.file.FileController;
 import ca.gc.aafc.objectstore.api.respository.managedattributemap.MetadataToManagedAttributeMapRepository;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataReadService;
-import io.crnk.core.queryspec.FilterOperator;
-import io.crnk.core.queryspec.FilterSpec;
-import io.crnk.core.queryspec.PathSpec;
 import io.crnk.core.queryspec.QuerySpec;
 import io.crnk.core.resource.list.ResourceList;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.boot.info.BuildProperties;
-import org.springframework.stereotype.Repository;
-
-import javax.persistence.criteria.Predicate;
-import javax.transaction.Transactional;
-import javax.validation.ValidationException;
-import java.io.Serializable;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
 
 @Log4j2
 @Repository
@@ -43,10 +40,6 @@ public class ObjectStoreResourceRepository
 
   private final ObjectStoreMetaDataService dinaService;
   private final DinaAuthenticatedUser authenticatedUser;
-  private static final PathSpec DELETED_PATH_SPEC = PathSpec.of("softDeleted");
-  private static final PathSpec DELETED_DATE = PathSpec.of(SoftDeletable.DELETED_DATE_FIELD_NAME);
-  private static final FilterSpec SOFT_DELETED = DELETED_DATE.filter(FilterOperator.NEQ, null);
-  private static final FilterSpec NOT_DELETED_FILTER = DELETED_DATE.filter(FilterOperator.EQ, null);
 
   public ObjectStoreResourceRepository(
     @NonNull ObjectStoreMetaDataService dinaService,
@@ -94,11 +87,6 @@ public class ObjectStoreResourceRepository
 
     ObjectStoreMetadataDto dto = super.findOne(id, jpaFriendlyQuerySpec);
 
-    if (dto.getDeletedDate() != null &&
-        jpaFriendlyQuerySpec.findFilter(DELETED_PATH_SPEC).isEmpty()) {
-      throw new GoneException("Deleted", "ID " + id + " deleted");
-    }
-
     return dto;
   }
 
@@ -108,13 +96,6 @@ public class ObjectStoreResourceRepository
     QuerySpec jpaFriendlyQuerySpec = querySpec.clone();
     jpaFriendlyQuerySpec.getIncludedRelations()
       .removeIf(include -> include.getPath().toString().equals("managedAttributeMap"));
-
-    if (jpaFriendlyQuerySpec.findFilter(DELETED_PATH_SPEC).isPresent()) {
-      jpaFriendlyQuerySpec.addFilter(SOFT_DELETED);
-    } else {
-      jpaFriendlyQuerySpec.addFilter(NOT_DELETED_FILTER);
-    }
-    jpaFriendlyQuerySpec.getFilters().removeIf(f -> f.getPath().equals(DELETED_PATH_SPEC));
 
     return super.findAll(jpaFriendlyQuerySpec);
   }

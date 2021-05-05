@@ -1,6 +1,18 @@
 package ca.gc.aafc.objectstore.api.service;
 
-import ca.gc.aafc.dina.repository.GoneException;
+import java.util.UUID;
+
+import javax.inject.Inject;
+
+import org.apache.commons.lang3.RandomStringUtils;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.security.access.AccessDeniedException;
+
 import ca.gc.aafc.dina.testsupport.security.WithMockKeycloakUser;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.MinioTestConfiguration;
@@ -11,18 +23,8 @@ import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.respository.ObjectStoreResourceRepository;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
+import io.crnk.core.exception.ResourceNotFoundException;
 import io.crnk.core.queryspec.QuerySpec;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
-import org.springframework.security.access.AccessDeniedException;
-
-import javax.inject.Inject;
-import java.util.UUID;
 
 @SpringBootTest(properties = "keycloak.enabled=true")
 public class MetaDataAuthorizationIT extends BaseIntegrationTest {
@@ -90,7 +92,7 @@ public class MetaDataAuthorizationIT extends BaseIntegrationTest {
     ObjectStoreMetadataDto dto = repo.create(newMetaDto(GROUP_1));
     repo.delete(dto.getUuid());
     Assertions.assertThrows(
-      GoneException.class,
+      ResourceNotFoundException.class,
       () -> repo.findOne(dto.getUuid(), new QuerySpec(ObjectStoreMetadataDto.class)));
   }
 

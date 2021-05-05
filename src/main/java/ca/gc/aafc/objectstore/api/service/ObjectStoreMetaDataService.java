@@ -11,7 +11,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.Predicate;
-import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Service
@@ -83,13 +82,6 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
 
       setAcSubType(entity, temp);
     }
-  }
-
-  // Overriding to implement soft delete
-  @Override
-  public void delete(ObjectStoreMetadata entity) {
-    preDelete(entity);
-    entity.setDeletedDate(OffsetDateTime.now());
   }
 
   /**
