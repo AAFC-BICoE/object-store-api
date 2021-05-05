@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 @Service
 @AllArgsConstructor
@@ -46,12 +45,13 @@ public class ThumbnailGenerator {
 
   @Transactional
   @Async
-  public CompletableFuture<Boolean> generateThumbnail(
+  public void generateThumbnail(
     @NonNull UUID uuid,
     @NonNull String sourceFilename,
     @NonNull String sourceFileType,
     @NonNull String sourceBucket,
-    boolean isSourceDerivative
+    boolean isSourceDerivative,
+    Runnable whenComplete
   ) {
 
     String fileName = uuid + ThumbnailGenerator.THUMBNAIL_EXTENSION;
@@ -87,11 +87,11 @@ public class ThumbnailGenerator {
         minioService.storeFile(fileName, thumbnail, "image/jpeg", sourceBucket, true);
       }
 
-      return CompletableFuture.completedFuture(
-        minioService.getFileInfo(fileName, sourceBucket, true).isPresent());
+      if(whenComplete != null){
+        whenComplete.run();
+      }
     } catch (MinioException | IOException | GeneralSecurityException e) {
       log.warn(() -> "A thumbnail could not be generated for file " + sourceFilename, e);
-      return CompletableFuture.completedFuture(false);
     }
   }
 

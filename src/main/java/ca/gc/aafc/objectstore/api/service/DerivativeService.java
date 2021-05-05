@@ -115,15 +115,13 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
           this.getReferenceByNaturalId(Derivative.class, generatedFromDerivativeUUID));
       }
 
-      if (thumbnailGenerator.generateThumbnail(
+      thumbnailGenerator.generateThumbnail(
         uuid,
         sourceFilename,
         evaluatedMediaType,
         sourceBucket,
-        isSourceDerivative
-      ).get()) {
-        this.create(derivative);
-      }
+        isSourceDerivative,
+        () -> this.create(derivative));
     }
   }
 
