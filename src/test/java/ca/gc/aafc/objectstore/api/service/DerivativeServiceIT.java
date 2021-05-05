@@ -27,19 +27,20 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
 
   private ObjectStoreMetadata acDerivedFrom;
 
+
   @BeforeEach
   void setUp() {
     acDerivedFrom = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
-    objectStoreMetaDataService.create(acDerivedFrom);
+
+    service.runInNewTransaction(em -> {
+      em.persist(acDerivedFrom);
+    });
   }
 
   @Test
   void create_WhenThumbnailSupported_ThumbnailGenerated() {
     Derivative derivative = newDerivative(acDerivedFrom);
     derivativeService.create(derivative);
-
-    entityManager.flush();
-    entityManager.refresh(acDerivedFrom);
 
     Derivative thumbResult = findAllByDerivative(derivative)
       .stream().findFirst()
