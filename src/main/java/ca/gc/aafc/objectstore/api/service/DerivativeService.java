@@ -5,12 +5,19 @@ import ca.gc.aafc.dina.service.DefaultDinaService;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.file.ThumbnailGenerator;
+import ca.gc.aafc.objectstore.api.validation.DerivativeValidator;
 import lombok.NonNull;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.Errors;
+import org.springframework.validation.ObjectError;
+import org.springframework.validation.Validator;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.validation.ValidationException;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiFunction;
@@ -18,19 +25,23 @@ import java.util.function.BiFunction;
 @Service
 public class DerivativeService extends DefaultDinaService<Derivative> {
   private final ThumbnailGenerator thumbnailGenerator;
+  private final DerivativeValidator validator;
 
   public DerivativeService(
     @NonNull BaseDAO baseDAO,
-    @NonNull ThumbnailGenerator thumbnailGenerator
+    @NonNull ThumbnailGenerator thumbnailGenerator,
+    @NonNull DerivativeValidator validator
   ) {
     super(baseDAO);
     this.thumbnailGenerator = thumbnailGenerator;
+    this.validator = validator;
   }
 
   @Override
   protected void preCreate(Derivative entity) {
     entity.setUuid(UUID.randomUUID());
     establishBiDirectionalAssociation(entity);
+    validateBusinessRules(entity, validator);
   }
 
   @Override
@@ -43,6 +54,7 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
   @Override
   protected void preUpdate(Derivative entity) {
     establishBiDirectionalAssociation(entity);
+    validateBusinessRules(entity, validator);
   }
 
   private static void establishBiDirectionalAssociation(Derivative entity) {
@@ -170,4 +182,31 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
       .bucket(bucket)
       .build();
   }
+
+  /**
+   * To be removed on the next version of dina base. The next version of dina base will supply this method.
+   */
+  @Deprecated(forRemoval = true)
+  public void validateBusinessRules(Derivative entity, Validator validator) {
+    Objects.requireNonNull(entity);
+
+    Errors errors = new BeanPropertyBindingResult(
+      entity,
+      entity.getUuid() != null ? entity.getUuid().toString() : "");
+    validator.validate(entity, errors);
+
+    if (!errors.hasErrors()) {
+      return;
+    }
+
+    Optional<String> errorMsg = errors.getAllErrors()
+      .stream()
+      .map(ObjectError::getDefaultMessage)
+      .findAny();
+
+    errorMsg.ifPresent(msg -> {
+      throw new ValidationException(msg);
+    });
+  }
+
 }
