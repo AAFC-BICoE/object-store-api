@@ -26,12 +26,12 @@ public class ObjectUploadRepositoryCRUDIT extends BaseRepositoryTest {
   private ObjectUpload createTestObjectUpload() {
     testObjectUpload = ObjectUploadFactory.newObjectUpload()
       .build();
-    persist(testObjectUpload);
+    objectUploadService.create(testObjectUpload);
     return testObjectUpload;
   }
   
   private void removeTestObjectUpload() {
-    service.deleteById(ObjectUpload.class, testObjectUpload.getId());
+    objectUploadService.delete(testObjectUpload);
   }
   
   @BeforeEach

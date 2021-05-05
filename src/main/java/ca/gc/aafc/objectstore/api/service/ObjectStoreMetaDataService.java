@@ -96,6 +96,7 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
   ) {
     if (acSubType.getDcType() == null || StringUtils.isBlank(acSubType.getAcSubtype())) {
       metadata.setAcSubType(null);
+      metadata.setAcSubTypeId(null);
     } else {
       ObjectSubtype fetchedType = this.findAll(ObjectSubtype.class,
         (criteriaBuilder, objectRoot) -> new Predicate[]{
@@ -104,6 +105,7 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
         }, null, 0, 1)
         .stream().findFirst().orElseThrow(() -> throwBadRequest(acSubType));
       metadata.setAcSubType(fetchedType);
+      metadata.setAcSubTypeId(fetchedType.getId());
     }
   }
 

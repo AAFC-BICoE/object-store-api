@@ -99,7 +99,7 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
     // which will make sure the getAcSubTypeId read-only field is populated when the Metadata is restored. 
     objectStoreMetaDataService.create(osm);
 
-    ObjectStoreMetadata restoredOsm = service.find(ObjectStoreMetadata.class, osm.getId());
+    ObjectStoreMetadata restoredOsm = objectStoreMetaDataService.findOne(osm.getUuid(), ObjectStoreMetadata.class);
     assertNotNull(restoredOsm.getId());
 
     OffsetDateTime initialTimestamp = restoredOsm.getXmpMetadataDate();

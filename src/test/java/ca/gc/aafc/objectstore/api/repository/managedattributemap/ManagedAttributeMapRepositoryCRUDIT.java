@@ -50,17 +50,17 @@ public class ManagedAttributeMapRepositoryCRUDIT extends BaseRepositoryTest {
   @BeforeEach
   public void setup() {
     testMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
-    entityManager.persist(testMetadata);
+    objectStoreMetaDataService.create(testMetadata);
 
     testManagedAttribute1 = ManagedAttributeFactory.newManagedAttribute().name("attr1").build();
-    entityManager.persist(testManagedAttribute1);
+    managedAttributeService.create(testManagedAttribute1);
 
     testManagedAttribute2 = ManagedAttributeFactory.newManagedAttribute().name("attr2").build();
-    entityManager.persist(testManagedAttribute2);
+    managedAttributeService.create(testManagedAttribute2);
 
     testAttr1Value = MetadataManagedAttributeFactory.newMetadataManagedAttribute().assignedValue("test value 1")
       .managedAttribute(testManagedAttribute1).objectStoreMetadata(testMetadata).build();
-    entityManager.persist(testAttr1Value);
+    metaManagedAttributeService.create(testAttr1Value);
 
     entityManager.flush();
     entityManager.refresh(testMetadata);
@@ -88,10 +88,11 @@ public class ManagedAttributeMapRepositoryCRUDIT extends BaseRepositoryTest {
   @Test
   public void setAttributeValue_whenMMADoesntExist_addNewInvalidValue_validationThrowsException() {
     testManagedAttribute2.setAcceptedValues(new String[]{"acceptable test value2"});
-    entityManager.persist(testManagedAttribute2);
+    managedAttributeService.create(testManagedAttribute2);
 
     entityManager.flush();
     entityManager.refresh(testMetadata);
+
     // Set attr2 with value not in accepted values list
     assertThrows(InvalidDataAccessApiUsageException.class, ()-> managedAttributeMapRepository.create(ManagedAttributeMapDto.builder()
       .metadata(metadataRepository.findOne(testMetadata.getUuid(), new QuerySpec(ObjectStoreMetadataDto.class)))
@@ -103,7 +104,7 @@ public class ManagedAttributeMapRepositoryCRUDIT extends BaseRepositoryTest {
   @Test
   public void setAttributeValue_whenMMAExists_overwriteMMAWithInvalidValue_validationThrowsException() {
     testManagedAttribute1.setAcceptedValues(new String[]{"acceptable test value1"});
-    entityManager.persist(testManagedAttribute1);
+    managedAttributeService.create(testManagedAttribute1);
 
     entityManager.flush();
     entityManager.refresh(testMetadata);

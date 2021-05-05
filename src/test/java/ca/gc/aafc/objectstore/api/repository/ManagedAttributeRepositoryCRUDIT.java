@@ -37,8 +37,7 @@ public class ManagedAttributeRepositoryCRUDIT extends BaseRepositoryTest {
         .description(ImmutableMap.of("en", "attrEn", "fr", "attrFr"))
         .build();
 
-    persist(testManagedAttribute);
-    return testManagedAttribute;
+    return managedAttributeService.create(testManagedAttribute);
   }
   
   @BeforeEach

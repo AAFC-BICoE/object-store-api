@@ -42,27 +42,27 @@ public class MetadataToManagedAttributeMapRepositoryCRUDIT extends BaseRepositor
   @BeforeEach
   public void setup() {
     testMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
-    entityManager.persist(testMetadata);
+    objectStoreMetaDataService.create(testMetadata);
 
     testManagedAttribute1 = ManagedAttributeFactory.newManagedAttribute().name("attr1").build();
-    entityManager.persist(testManagedAttribute1);
+    managedAttributeService.create(testManagedAttribute1);
 
     testManagedAttribute2 = ManagedAttributeFactory.newManagedAttribute().name("attr2").build();
-    entityManager.persist(testManagedAttribute2);
+    managedAttributeService.create(testManagedAttribute2);
 
     testAttr1Value = MetadataManagedAttributeFactory.newMetadataManagedAttribute()
       .assignedValue("test attr1 value")
       .managedAttribute(testManagedAttribute1)
       .objectStoreMetadata(testMetadata)
       .build();
-    entityManager.persist(testAttr1Value);
+    metaManagedAttributeService.create(testAttr1Value);
 
     testAttr2Value = MetadataManagedAttributeFactory.newMetadataManagedAttribute()
       .assignedValue("test attr2 value")
       .managedAttribute(testManagedAttribute2)
       .objectStoreMetadata(testMetadata)
       .build();
-    entityManager.persist(testAttr2Value);
+    metaManagedAttributeService.create(testAttr2Value);
 
     entityManager.flush();
     entityManager.refresh(testMetadata);
