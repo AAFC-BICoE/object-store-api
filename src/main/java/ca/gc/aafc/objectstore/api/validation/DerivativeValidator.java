@@ -54,7 +54,7 @@ public class DerivativeValidator implements Validator {
 
   private void loadErrorMessageForKey(Errors errors, String key) {
     errors.reject(key, messageSource.getMessage(
-      VALID_THUMB_DC_FORMAT_KEY,
+      key,
       null,
       LocaleContextHolder.getLocale()));
   }
