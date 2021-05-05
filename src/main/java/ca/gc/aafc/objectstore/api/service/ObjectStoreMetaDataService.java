@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import javax.persistence.criteria.Predicate;
 import javax.validation.ValidationException;
 
-import java.time.OffsetDateTime;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -94,13 +93,6 @@ public class ObjectStoreMetaDataService
     }
 
     handleFileRelatedData(entity);
-  }
-
-  // Overriding to implement soft delete
-  @Override
-  public void delete(ObjectStoreMetadata entity) {
-    preDelete(entity);
-    entity.setDeletedDate(OffsetDateTime.now());
   }
 
   /**

@@ -38,6 +38,8 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
   private ObjectStoreResourceRepository objectStoreResourceRepository;
   @Inject
   private DinaService<ObjectStoreMetadata> metaService;
+  @Inject
+  private DinaService<Derivative> derivativeService;
 
   private ObjectStoreMetadata testObjectStoreMetadata;
 
@@ -64,7 +66,10 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
   public void tearDown() {
     metaService.findAll(ObjectStoreMetadata.class,
       (criteriaBuilder, objectStoreMetadataRoot) -> new Predicate[0],
-      null, 0, 100).forEach(metaService::delete);
+      null, 0, 100).forEach(metadata -> {
+        metadata.getDerivatives().forEach(derivativeService::delete);
+        metaService.delete(metadata);
+      });
     service.deleteById(ObjectUpload.class, objectUpload.getId());
   }
 
