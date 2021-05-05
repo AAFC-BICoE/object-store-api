@@ -19,18 +19,26 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.core.task.SyncTaskExecutor;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.MediaType;
 
 import javax.inject.Inject;
 import javax.persistence.criteria.Predicate;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@Import(MinioTestConfiguration.class)
+@Import({MinioTestConfiguration.class, DerivativeServiceIT.DerivativeServiceItConfig.class})
 public class DerivativeServiceIT extends BaseIntegrationTest {
   @Inject
   private DerivativeService derivativeService;
@@ -53,16 +61,27 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
    */
   @SneakyThrows
   private void setMocks() {
+    InputStream file = drawing.getInputStream();
+    InputStream copy = copyStream(file);
+    file.close();
+
     Mockito.when(fileService.getFile(
       ArgumentMatchers.anyString(),
       ArgumentMatchers.anyString(),
       ArgumentMatchers.anyBoolean())
-    ).thenReturn(Optional.of(drawing.getInputStream()));
+    ).thenReturn(Optional.of(copy));
     Mockito.when(fileService.getFileInfo(
       ArgumentMatchers.anyString(),
       ArgumentMatchers.anyString(),
       ArgumentMatchers.anyBoolean()
     )).thenReturn(Optional.of(FileObjectInfo.builder().build()));
+  }
+
+  @SneakyThrows
+  private InputStream copyStream(InputStream file) {
+    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+    file.transferTo(byteArrayOutputStream);
+    return new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
   }
 
   @Test
@@ -176,6 +195,15 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
       Derivative.class, (criteriaBuilder, derivativeRoot) -> new Predicate[]{
         criteriaBuilder.equal(derivativeRoot.get("generatedFromDerivative"), derivative),
       }, null, 0, 1);
+  }
+
+  @Configuration
+  static class DerivativeServiceItConfig {
+    @Bean
+    @Primary
+    public TaskExecutor taskExecutor() {
+      return new SyncTaskExecutor();
+    }
   }
 
 }
