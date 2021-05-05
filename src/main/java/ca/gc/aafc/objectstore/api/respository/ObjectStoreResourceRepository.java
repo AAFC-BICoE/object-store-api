@@ -10,11 +10,8 @@ import ca.gc.aafc.dina.service.AuditService;
 import ca.gc.aafc.dina.service.GroupAuthorizationService;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
-import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
-import ca.gc.aafc.objectstore.api.file.FileController;
 import ca.gc.aafc.objectstore.api.respository.managedattributemap.MetadataToManagedAttributeMapRepository;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
-import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataReadService;
 import io.crnk.core.queryspec.FilterOperator;
 import io.crnk.core.queryspec.FilterSpec;
 import io.crnk.core.queryspec.PathSpec;
@@ -22,17 +19,12 @@ import io.crnk.core.queryspec.QuerySpec;
 import io.crnk.core.resource.list.ResourceList;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.criteria.Predicate;
 import javax.transaction.Transactional;
-import javax.validation.ValidationException;
 import java.io.Serializable;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 
 @Log4j2
 @Repository
@@ -76,6 +68,10 @@ public class ObjectStoreResourceRepository
   @Override
   @SuppressWarnings("unchecked")
   public <S extends ObjectStoreMetadataDto> S save(S resource) {
+
+    dinaService.loadObjectStoreMetadata(resource.getUuid()).ifPresent(objectStoreMetadata ->
+      resource.setManagedAttributeMap(
+        MetadataToManagedAttributeMapRepository.getAttributeMapFromMetadata(objectStoreMetadata)));
 
     S dto = super.save(resource);
     return (S) this.findOne(dto.getUuid(), new QuerySpec(ObjectStoreMetadataDto.class));

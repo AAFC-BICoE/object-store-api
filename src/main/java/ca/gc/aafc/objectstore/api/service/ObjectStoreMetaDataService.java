@@ -7,7 +7,6 @@ import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.file.FileController;
 import ca.gc.aafc.objectstore.api.file.ThumbnailGenerator;
-import ca.gc.aafc.objectstore.api.respository.managedattributemap.MetadataToManagedAttributeMapRepository;
 import io.crnk.core.exception.BadRequestException;
 import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
@@ -95,8 +94,6 @@ public class ObjectStoreMetaDataService
     }
 
     handleFileRelatedData(entity);
-    loadObjectStoreMetadata(entity.getUuid()).ifPresent(objectStoreMetadata ->
-      entity.setManagedAttribute(objectStoreMetadata.getManagedAttribute()));
   }
 
   // Overriding to implement soft delete
