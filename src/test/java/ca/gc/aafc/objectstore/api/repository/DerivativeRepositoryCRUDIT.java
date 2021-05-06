@@ -30,14 +30,18 @@ public class DerivativeRepositoryCRUDIT extends BaseRepositoryTest {
 
   @BeforeEach
   void setUp() {
-    upload = ObjectUploadFactory.newObjectUpload().build();
-    upload.setEvaluatedMediaType(MediaType.IMAGE_JPEG_VALUE);
-    upload.setIsDerivative(true);
+    upload = ObjectUploadFactory.newObjectUpload()
+      .isDerivative(true)
+      .evaluatedFileExtension(MediaType.IMAGE_JPEG_VALUE)
+      .build();
+
     objectUploadService.create(upload);
-    acDerivedFrom = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
+
+    acDerivedFrom = ObjectStoreMetadataFactory.newObjectStoreMetadata()
+      .fileIdentifier(upload.getFileIdentifier()).build();
     objectStoreMetaDataService.create(acDerivedFrom);
   }
-
+  
   @Test
   void create() {
     DerivativeDto resource = derivativeRepository.create(newDerivative(upload.getFileIdentifier()));

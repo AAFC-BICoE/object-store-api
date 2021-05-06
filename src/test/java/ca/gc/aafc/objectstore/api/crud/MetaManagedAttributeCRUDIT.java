@@ -1,7 +1,9 @@
 package ca.gc.aafc.objectstore.api.crud;
 
 import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
+import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MetadataManagedAttributeFactory;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 
 import java.util.UUID;
 
@@ -10,12 +12,17 @@ import org.junit.jupiter.api.BeforeEach;
 
 public class MetaManagedAttributeCRUDIT extends BaseEntityCRUDIT {
 
+  private ObjectUpload objectUpload;
+
   private MetadataManagedAttribute attributeUnderTest;
 
   @BeforeEach
   void setUp() {
+    objectUpload = ObjectUploadFactory.newObjectUpload().build();
+    objectUploadService.create(objectUpload);
     attributeUnderTest = MetadataManagedAttributeFactory.newMetadataManagedAttribute().build();
     managedAttributeService.create(attributeUnderTest.getManagedAttribute());
+    attributeUnderTest.getObjectStoreMetadata().setFileIdentifier(objectUpload.getFileIdentifier());
     objectStoreMetaDataService.create(attributeUnderTest.getObjectStoreMetadata());
     metaManagedAttributeService.create(attributeUnderTest);
   }

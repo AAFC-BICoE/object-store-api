@@ -18,11 +18,13 @@ import ca.gc.aafc.objectstore.api.dto.ManagedAttributeMapDto.ManagedAttributeMap
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
+import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.repository.BaseRepositoryTest;
 import ca.gc.aafc.objectstore.api.respository.managedattributemap.MetadataToManagedAttributeMapRepository;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MetadataManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import io.crnk.core.queryspec.QuerySpec;
 
 public class MetadataToManagedAttributeMapRepositoryCRUDIT extends BaseRepositoryTest {
@@ -38,10 +40,15 @@ public class MetadataToManagedAttributeMapRepositoryCRUDIT extends BaseRepositor
   private ManagedAttribute testManagedAttribute2;
   private MetadataManagedAttribute testAttr1Value;
   private MetadataManagedAttribute testAttr2Value;
+  private ObjectUpload objectUpload;
 
   @BeforeEach
   public void setup() {
-    testMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
+
+    objectUpload = ObjectUploadFactory.newObjectUpload().build();
+    objectUploadService.create(objectUpload);
+
+    testMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata().fileIdentifier(objectUpload.getFileIdentifier()).build();
     objectStoreMetaDataService.create(testMetadata);
 
     testManagedAttribute1 = ManagedAttributeFactory.newManagedAttribute().name("attr1").build();

@@ -5,10 +5,13 @@ import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
+import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MetadataManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,6 +28,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
 
+  private ObjectUpload objectUpload;
+
   private static final ZoneId MTL_TZ = ZoneId.of("America/Montreal");
   private final ZonedDateTime TEST_ZONED_DT = ZonedDateTime.of(2019, 1, 2, 3, 4, 5, 0, MTL_TZ);
   private final OffsetDateTime TEST_OFFSET_DT = TEST_ZONED_DT.toOffsetDateTime();
@@ -40,11 +45,14 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
   void setUp() {
     // Clean all database entries
     fetchAllMeta().forEach(objectStoreMetaDataService::delete);
+    objectUpload = ObjectUploadFactory.newObjectUpload().build();
+    objectUploadService.create(objectUpload);
   }
 
   @Override
   public void testSave() {
     assertNull(objectStoreMetaUnderTest.getId());
+    objectStoreMetaUnderTest.setFileIdentifier(objectUpload.getFileIdentifier());
     objectStoreMetaDataService.create(objectStoreMetaUnderTest);
     assertNotNull(objectStoreMetaUnderTest.getId());
   }
@@ -93,6 +101,7 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
         .newObjectStoreMetadata()
         .acDigitizationDate(TEST_OFFSET_DT)
         .acSubType(ost)
+        .fileIdentifier(objectUpload.getFileIdentifier())
         .build();
 
     // Use "true" here to detach the Metadata,

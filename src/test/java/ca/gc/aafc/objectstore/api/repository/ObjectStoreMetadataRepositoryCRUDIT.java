@@ -44,15 +44,15 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
   private ObjectUpload objectUpload;
 
   private void createTestObjectStoreMetadata() {
-    testObjectStoreMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
+    testObjectStoreMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata().fileIdentifier(objectUpload.getFileIdentifier()).build();
     objectStoreMetaDataService.create(testObjectStoreMetadata);
   }
 
   @BeforeEach
   public void setup() {
+    objectUpload = createObjectUpload();
     createTestObjectStoreMetadata();
     createAcSubType();
-    objectUpload = createObjectUpload();
   }
 
   /**
@@ -110,9 +110,12 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
 
   @Test
   public void create_ValidResource_ResourcePersisted() {
+    ObjectUpload objectUploadTest = ObjectUploadFactory.newObjectUpload().build();
+    objectUploadService.create(objectUploadTest);
+
     ObjectStoreMetadataDto dto = new ObjectStoreMetadataDto();
-    dto.setBucket(MinioTestConfiguration.TEST_BUCKET);
-    dto.setFileIdentifier(MinioTestConfiguration.TEST_FILE_IDENTIFIER);
+    dto.setBucket(objectUploadTest.getBucket());
+    dto.setFileIdentifier(objectUploadTest.getFileIdentifier());
     dto.setAcSubType(acSubType.getAcSubtype());
     dto.setDcType(acSubType.getDcType());
     dto.setXmpRightsUsageTerms(MinioTestConfiguration.TEST_USAGE_TERMS);
@@ -122,8 +125,8 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
 
     ObjectStoreMetadata result = objectStoreMetaDataService.findOne(dtoUuid, ObjectStoreMetadata.class);
     assertEquals(dtoUuid, result.getUuid());
-    assertEquals(MinioTestConfiguration.TEST_BUCKET, result.getBucket());
-    assertEquals(MinioTestConfiguration.TEST_FILE_IDENTIFIER, result.getFileIdentifier());
+    assertEquals(objectUploadTest.getBucket(), result.getBucket());
+    assertEquals(objectUploadTest.getFileIdentifier(), result.getFileIdentifier());
     assertEquals(acSubType.getUuid(), result.getAcSubType().getUuid());
     assertEquals(MinioTestConfiguration.TEST_USAGE_TERMS, result.getXmpRightsUsageTerms());
   }

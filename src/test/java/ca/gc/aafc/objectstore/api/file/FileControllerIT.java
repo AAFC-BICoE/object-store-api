@@ -133,7 +133,7 @@ public class FileControllerIT extends BaseIntegrationTest {
     MockMultipartFile mockFile = getFileUnderTest();
     ObjectUploadDto uploadResponse = fileController.handleDerivativeUpload(mockFile, bucketUnderTest);
     // A derivative requires a Derivative record to download
-    ObjectStoreMetadata acDerivedFrom = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
+    ObjectStoreMetadata acDerivedFrom = ObjectStoreMetadataFactory.newObjectStoreMetadata().fileIdentifier(uploadResponse.getFileIdentifier()).build();
     objectStoreMetaDataService.create(acDerivedFrom);
     derivativeService.create(Derivative.builder()
       .fileIdentifier(uploadResponse.getFileIdentifier())

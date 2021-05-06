@@ -6,14 +6,18 @@ import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
+import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.exceptionmapping.ManagedAttributeChildConflictException;
 import ca.gc.aafc.objectstore.api.repository.BaseRepositoryTest;
 import ca.gc.aafc.objectstore.api.respository.ManagedAttributeResourceRepository;
 import ca.gc.aafc.objectstore.api.respository.ObjectStoreResourceRepository;
+import ca.gc.aafc.objectstore.api.respository.ObjectUploadResourceRepository;
 import ca.gc.aafc.objectstore.api.respository.managedattributemap.ManagedAttributeMapRepository;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MetadataManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
+
 import com.google.common.collect.ImmutableMap;
 import io.crnk.core.queryspec.QuerySpec;
 import org.junit.jupiter.api.Assertions;
@@ -27,6 +31,8 @@ import javax.validation.ValidationException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.util.UUID;
 
 public class ManagedAttributeMapRepositoryCRUDIT extends BaseRepositoryTest {
 
@@ -43,14 +49,22 @@ public class ManagedAttributeMapRepositoryCRUDIT extends BaseRepositoryTest {
   private EntityManager entityManager;
 
   private ObjectStoreMetadata testMetadata;
+  private ObjectUpload testObjectUpload;
   private ManagedAttribute testManagedAttribute1;
   private ManagedAttribute testManagedAttribute2;
   private MetadataManagedAttribute testAttr1Value;
 
+  private UUID uuid = UUID.randomUUID();
+
   @BeforeEach
   public void setup() {
-    testMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
+    
+    testObjectUpload = ObjectUploadFactory.newObjectUpload().fileIdentifier(uuid).build();
+    objectUploadService.create(testObjectUpload);
+
+    testMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata().fileIdentifier(uuid).build();
     objectStoreMetaDataService.create(testMetadata);
+
 
     testManagedAttribute1 = ManagedAttributeFactory.newManagedAttribute().name("attr1").build();
     managedAttributeService.create(testManagedAttribute1);
