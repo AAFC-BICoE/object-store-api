@@ -22,11 +22,7 @@ import java.util.UUID;
 
 public class DerivativeServiceIT extends BaseIntegrationTest {
 
-  @Inject
-  private EntityManager entityManager;
-
   private ObjectStoreMetadata acDerivedFrom;
-
 
   @BeforeEach
   void setUp() {
