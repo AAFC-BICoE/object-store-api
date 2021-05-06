@@ -19,6 +19,7 @@ import javax.validation.constraints.Size;
 import com.vladmihalcea.hibernate.type.basic.PostgreSQLEnumType;
 
 import ca.gc.aafc.dina.entity.DinaEntity;
+import ca.gc.aafc.dina.service.OnUpdate;
 
 import org.hibernate.annotations.ColumnTransformer;
 import org.hibernate.annotations.NaturalId;
@@ -49,7 +50,7 @@ public class ObjectSubtype implements DinaEntity {
   private OffsetDateTime createdOn;
 
   @NaturalId
-  @NotNull
+  @NotNull(groups = OnUpdate.class)
   @Column(name = "uuid", unique = true)
   public UUID getUuid() {
     return uuid;
@@ -81,7 +82,7 @@ public class ObjectSubtype implements DinaEntity {
     this.id = id;
   }
 
-  @NotNull
+  @NotNull(groups = OnUpdate.class)
   @Type(type = "pgsql_enum")
   @Enumerated(EnumType.STRING)
   @Column(name = "dc_type")

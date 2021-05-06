@@ -47,6 +47,11 @@ public class ManagedAttributeAuditingIT extends BaseIntegrationTest {
   private ObjectUpload objectUpload;
   private ManagedAttributeDto managedAttribute;
 
+  private static final String xmpRightsWebStatement = "https://open.canada.ca/en/open-government-licence-canada";
+  private static final String xmpRightsOwner = "Government of Canada";
+  private static final String xmpRightsUsageTerms = "Government of Canada Usage Terms";
+  private static final String dcRights = "Copyright Government of Canada";
+
   @BeforeEach
   void setUp() {
     objectUpload = MinioTestConfiguration.buildTestObjectUpload();
@@ -108,6 +113,10 @@ public class ManagedAttributeAuditingIT extends BaseIntegrationTest {
     ObjectStoreMetadataDto dto = new ObjectStoreMetadataDto();
     dto.setFileIdentifier(objectUpload.getFileIdentifier());
     dto.setBucket("b");
+    dto.setDcRights(dcRights);
+    dto.setXmpRightsOwner(xmpRightsOwner);
+    dto.setXmpRightsWebStatement(xmpRightsWebStatement);
+    dto.setXmpRightsUsageTerms(xmpRightsUsageTerms);
     return dto;
   }
 

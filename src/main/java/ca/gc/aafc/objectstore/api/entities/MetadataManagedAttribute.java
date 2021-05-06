@@ -1,6 +1,7 @@
 package ca.gc.aafc.objectstore.api.entities;
 
 import ca.gc.aafc.dina.entity.DinaEntity;
+import ca.gc.aafc.dina.service.OnUpdate;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -52,7 +53,7 @@ public class MetadataManagedAttribute implements DinaEntity {
   }
 
   @NaturalId
-  @NotNull
+  @NotNull(groups = OnUpdate.class)
   @Column(name = "uuid", unique = true)
   public UUID getUuid() {
     return uuid;
