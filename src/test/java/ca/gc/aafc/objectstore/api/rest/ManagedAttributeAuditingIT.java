@@ -47,10 +47,10 @@ public class ManagedAttributeAuditingIT extends BaseIntegrationTest {
   private ObjectUpload objectUpload;
   private ManagedAttributeDto managedAttribute;
 
-  private static final String xmpRightsWebStatement = "https://open.canada.ca/en/open-government-licence-canada";
-  private static final String xmpRightsOwner = "Government of Canada";
-  private static final String xmpRightsUsageTerms = "Government of Canada Usage Terms";
-  private static final String dcRights = "Copyright Government of Canada";
+  private static final String xmpRightsWebStatement = MinioTestConfiguration.TEST_XMP_RIGHTS_WEB_STATEMENT;
+  private static final String xmpRightsOwner = MinioTestConfiguration.TEST_XMP_RIGHTS_OWNER;
+  private static final String xmpRightsUsageTerms = MinioTestConfiguration.TEST_XMP_RIGHTS_USAGE_TERMS;
+  private static final String dcRights = MinioTestConfiguration.TEST_DC_RIGHTS;
 
   @BeforeEach
   void setUp() {

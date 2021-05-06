@@ -47,9 +47,9 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
 
   private ObjectUpload objectUpload;
 
-  private static final String xmpRightsWebStatement = "https://open.canada.ca/en/open-government-licence-canada";
-  private static final String xmpRightsOwner = "Government of Canada";
-  private static final String dcRights = "Copyright Government of Canada";
+  private static final String xmpRightsWebStatement = MinioTestConfiguration.TEST_XMP_RIGHTS_WEB_STATEMENT;
+  private static final String xmpRightsOwner = MinioTestConfiguration.TEST_XMP_RIGHTS_OWNER;
+  private static final String dcRights = MinioTestConfiguration.TEST_DC_RIGHTS;
 
   private void createTestObjectStoreMetadata() {
     testObjectStoreMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
