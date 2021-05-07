@@ -25,14 +25,10 @@ public class MetadataManagedAttributeJsonApiIT extends BaseJsonApiIntegrationTes
   @BeforeEach
   public void setup() {
     ManagedAttribute ma = ManagedAttributeFactory.newManagedAttribute().build();
-    ObjectUpload op = ObjectUploadFactory.newObjectUpload().build();
-    ObjectStoreMetadata osm = ObjectStoreMetadataFactory.newObjectStoreMetadata().fileIdentifier(op.getFileIdentifier()).build();
+    ObjectStoreMetadata osm = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
 
     // we need to run the setup in another transaction and commit it otherwise it can't be visible
     // to the test web server.
-    // objectUploadService.create(op);
-    // managedAttributeService.create(ma);
-    // objectStoreMetaDataService.create(osm);
     service.runInNewTransaction(em -> {
       em.persist(ma);
       em.persist(osm);

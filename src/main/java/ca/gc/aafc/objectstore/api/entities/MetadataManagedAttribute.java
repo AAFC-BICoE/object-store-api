@@ -20,8 +20,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
-import javax.persistence.PreRemove;
-import javax.persistence.PreUpdate;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
@@ -100,6 +98,7 @@ public class MetadataManagedAttribute implements DinaEntity {
         .append("managedAttribute", managedAttribute).append("objectStoreMetadata", objectStoreMetadata).toString();
   }
 
+  @PrePersist
   public void init() {
     this.uuid = UUID.randomUUID();
     this.updateParentMetadata();

@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ObjectError;
-import org.apache.commons.lang3.StringUtils;
 
 import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.dina.service.DefaultDinaService;
@@ -15,12 +14,9 @@ import ca.gc.aafc.objectstore.api.validation.ManagedAttributeValidator;
 import lombok.NonNull;
 
 import javax.persistence.criteria.Predicate;
-import javax.validation.ConstraintViolationException;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.UUID;
-import java.util.HashMap;
-import java.util.Map;
+
 import java.util.Optional;
 
 @Service
@@ -35,7 +31,6 @@ public class ManagedAttributeService extends DefaultDinaService<ManagedAttribute
 
   @Override
   protected void preCreate(ManagedAttribute entity) {
-    entity.setUuid(UUID.randomUUID());
     entity.prePersist();
     validateManagedAttribute(entity);
   }
