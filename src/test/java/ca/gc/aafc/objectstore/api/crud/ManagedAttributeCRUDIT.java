@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.UUID;
 
-import javax.validation.ConstraintViolationException;
+import javax.validation.ValidationException;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -35,14 +35,14 @@ public class ManagedAttributeCRUDIT extends BaseEntityCRUDIT {
   }
 
   @Test
-  public void testSave_whenDescriptionIsBlank_throwConstraintError() {
+  public void testSave_whenDescriptionIsBlank_throwValidationException() {
     ManagedAttribute blankDescription = ManagedAttributeFactory.newManagedAttribute()
       .acceptedValues(new String[] { "a", "b" })
       .description(ImmutableMap.of("en", ""))
       .build();
 
     assertThrows(
-      IllegalArgumentException.class,
+      ValidationException.class,
       () -> managedAttributeService.create(blankDescription));
   }
 

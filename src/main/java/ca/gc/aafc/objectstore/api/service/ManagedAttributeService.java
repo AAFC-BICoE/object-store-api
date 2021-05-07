@@ -47,17 +47,7 @@ public class ManagedAttributeService extends DefaultDinaService<ManagedAttribute
   }
 
   public void validateManagedAttribute(ManagedAttribute entity) {
-    Errors errors = new BeanPropertyBindingResult(entity, entity.getUuid().toString());
-    managedAttributeValidator.validate(entity, errors);
-
-    if (!errors.hasErrors()) {
-      return;
-    }
-
-    Optional<String> errorMsg = errors.getAllErrors().stream().map(ObjectError::getDefaultMessage).findAny();
-    errorMsg.ifPresent(msg -> {
-      throw new IllegalArgumentException(msg);
-    });
+    validateBusinessRules(entity, managedAttributeValidator);
   }
 
   private void validateChildConflicts(ManagedAttribute entity) {
