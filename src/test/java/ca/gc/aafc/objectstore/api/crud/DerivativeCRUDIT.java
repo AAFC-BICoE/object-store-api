@@ -19,13 +19,6 @@ import java.util.UUID;
 
 public class DerivativeCRUDIT extends BaseEntityCRUDIT {
 
-  @Inject
-  private ObjectStoreMetaDataService metaService;
-  @Inject
-  private DerivativeService derivativeService;
-  @Inject
-  private ObjectUploadService uploadService;
-
   private Derivative derivative;
 
   private final ObjectStoreMetadata metadata = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
@@ -33,9 +26,9 @@ public class DerivativeCRUDIT extends BaseEntityCRUDIT {
 
   @BeforeEach
   void setUp() {
-    uploadService.create(upload);
-    
-    metaService.create(metadata);
+
+    objectUploadService.create(upload);
+    objectStoreMetaDataService.create(metadata);
 
     Derivative generatedFrom = newDerivative(metadata);
     derivativeService.create(generatedFrom);
@@ -53,7 +46,7 @@ public class DerivativeCRUDIT extends BaseEntityCRUDIT {
 
   @Override
   public void testFind() {
-    Derivative result = service.find(Derivative.class, this.derivative.getId());
+    Derivative result = derivativeService.findOne(derivative.getUuid(), Derivative.class);
     Assertions.assertNotNull(result);
     Assertions.assertEquals(derivative.getUuid(), result.getUuid());
     Assertions.assertEquals(derivative.getBucket(), result.getBucket());
@@ -73,11 +66,11 @@ public class DerivativeCRUDIT extends BaseEntityCRUDIT {
 
   @Override
   public void testRemove() {
-    Integer id = derivative.getId();
+    UUID uuid = derivative.getUuid();
     derivativeService.delete(derivative);
-    Assertions.assertNull(service.find(Derivative.class, id));
+    Assertions.assertNull(derivativeService.findOne(uuid, Derivative.class));
     // Child should still exist
-    Assertions.assertNotNull(service.find(ObjectStoreMetadata.class, metadata.getId()));
+    Assertions.assertNotNull(objectStoreMetaDataService.findOne(metadata.getUuid(), ObjectStoreMetadata.class));
   }
 
   private Derivative newDerivative(ObjectStoreMetadata child) {

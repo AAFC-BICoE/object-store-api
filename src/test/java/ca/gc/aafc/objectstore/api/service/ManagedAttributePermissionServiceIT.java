@@ -35,7 +35,7 @@ public class ManagedAttributePermissionServiceIT extends BaseIntegrationTest {
       .managedAttributeType(ManagedAttribute.ManagedAttributeType.STRING)
       .createdBy("test-method")
       .build();
-    service.save(managedAttribute);
+    managedAttributeService.create(managedAttribute);
   }
 
   @WithMockKeycloakUser(groupRole = {"group 1:STAFF"})

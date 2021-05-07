@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.annotations.NaturalId;
+import org.hibernate.annotations.Generated;
+import org.hibernate.annotations.GenerationTime;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -128,6 +130,7 @@ public class MetadataManagedAttribute implements DinaEntity {
 
   @Override
   @Column(name = "created_on", insertable = false, updatable = false)
+  @Generated(value = GenerationTime.INSERT)
   public OffsetDateTime getCreatedOn() {
     return createdOn;
   }
