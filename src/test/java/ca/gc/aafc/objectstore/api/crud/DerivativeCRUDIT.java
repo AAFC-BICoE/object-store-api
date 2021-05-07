@@ -3,9 +3,13 @@ package ca.gc.aafc.objectstore.api.crud;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
+import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.service.DerivativeService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
+import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
+
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,17 +19,16 @@ import java.util.UUID;
 
 public class DerivativeCRUDIT extends BaseEntityCRUDIT {
 
-  @Inject
-  private ObjectStoreMetaDataService metaService;
-  @Inject
-  private DerivativeService derivativeService;
-
   private Derivative derivative;
+
   private final ObjectStoreMetadata metadata = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
+  private final ObjectUpload upload = ObjectUploadFactory.newObjectUpload().fileIdentifier(metadata.getFileIdentifier()).build();
 
   @BeforeEach
   void setUp() {
-    metaService.create(metadata);
+
+    objectUploadService.create(upload);
+    objectStoreMetaDataService.create(metadata);
 
     Derivative generatedFrom = newDerivative(metadata);
     derivativeService.create(generatedFrom);
@@ -43,7 +46,7 @@ public class DerivativeCRUDIT extends BaseEntityCRUDIT {
 
   @Override
   public void testFind() {
-    Derivative result = service.find(Derivative.class, this.derivative.getId());
+    Derivative result = derivativeService.findOne(derivative.getUuid(), Derivative.class);
     Assertions.assertNotNull(result);
     Assertions.assertEquals(derivative.getUuid(), result.getUuid());
     Assertions.assertEquals(derivative.getBucket(), result.getBucket());
@@ -63,11 +66,11 @@ public class DerivativeCRUDIT extends BaseEntityCRUDIT {
 
   @Override
   public void testRemove() {
-    Integer id = derivative.getId();
+    UUID uuid = derivative.getUuid();
     derivativeService.delete(derivative);
-    Assertions.assertNull(service.find(Derivative.class, id));
+    Assertions.assertNull(derivativeService.findOne(uuid, Derivative.class));
     // Child should still exist
-    Assertions.assertNotNull(service.find(ObjectStoreMetadata.class, metadata.getId()));
+    Assertions.assertNotNull(objectStoreMetaDataService.findOne(metadata.getUuid(), ObjectStoreMetadata.class));
   }
 
   private Derivative newDerivative(ObjectStoreMetadata child) {

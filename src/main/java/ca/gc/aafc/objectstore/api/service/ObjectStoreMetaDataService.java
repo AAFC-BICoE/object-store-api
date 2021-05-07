@@ -4,6 +4,8 @@ import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.dina.service.DefaultDinaService;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
+import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
+import ca.gc.aafc.objectstore.api.file.FileController;
 import ca.gc.aafc.objectstore.api.file.ThumbnailGenerator;
 import io.crnk.core.exception.BadRequestException;
 import lombok.NonNull;
@@ -11,11 +13,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.Predicate;
-import java.time.OffsetDateTime;
+import javax.validation.ValidationException;
+
+import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
-public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMetadata> {
+public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMetadata>
+  implements ObjectStoreMetadataReadService {
 
   private final ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService;
 
@@ -49,7 +55,8 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
     if (entity.getAcSubType() != null) {
       setAcSubType(entity, entity.getAcSubType());
     }
-
+    handleFileRelatedData(entity);
+    
   }
 
   @Override
@@ -83,13 +90,8 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
 
       setAcSubType(entity, temp);
     }
-  }
 
-  // Overriding to implement soft delete
-  @Override
-  public void delete(ObjectStoreMetadata entity) {
-    preDelete(entity);
-    entity.setDeletedDate(OffsetDateTime.now());
+    handleFileRelatedData(entity);
   }
 
   /**
@@ -104,6 +106,7 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
   ) {
     if (acSubType.getDcType() == null || StringUtils.isBlank(acSubType.getAcSubtype())) {
       metadata.setAcSubType(null);
+      metadata.setAcSubTypeId(null);
     } else {
       ObjectSubtype fetchedType = this.findAll(ObjectSubtype.class,
         (criteriaBuilder, objectRoot) -> new Predicate[]{
@@ -112,6 +115,7 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
         }, null, 0, 1)
         .stream().findFirst().orElseThrow(() -> throwBadRequest(acSubType));
       metadata.setAcSubType(fetchedType);
+      metadata.setAcSubTypeId(fetchedType.getId());
     }
   }
 
@@ -143,4 +147,59 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
       .findFirst()
       .orElseThrow(() -> new IllegalArgumentException("A thumbnail subtype is not present"));
   }
+
+    /**
+   * Method responsible for dealing with validation and setting of data related to files.
+   *
+   * @param objectMetadata - The metadata of the data to set.
+   * @throws ValidationException If a file identifier was not provided.
+   */
+  private void handleFileRelatedData(ObjectStoreMetadata objectMetadata)
+    throws ValidationException {
+    // we need to validate at least that bucket name and fileIdentifier are there
+    if (StringUtils.isBlank(objectMetadata.getBucket())
+        || StringUtils.isBlank(Objects.toString(objectMetadata.getFileIdentifier(), ""))) {
+      throw new ValidationException("fileIdentifier and bucket should be provided");
+    }
+
+    ObjectUpload objectUpload = this.findOne(
+      objectMetadata.getFileIdentifier(),
+      ObjectUpload.class);
+
+    // make sure that there is an ObjectUpload that is not a derivative
+    if (objectUpload == null || objectUpload.getIsDerivative()) {
+      throw new ValidationException("primary object with fileIdentifier not found: " + objectMetadata.getFileIdentifier());
+    }
+
+    objectMetadata.setFileExtension(objectUpload.getEvaluatedFileExtension());
+    objectMetadata.setOriginalFilename(objectUpload.getOriginalFilename());
+    objectMetadata.setDcFormat(objectUpload.getEvaluatedMediaType());
+    objectMetadata.setAcHashValue(objectUpload.getSha1Hex());
+    objectMetadata.setAcHashFunction(FileController.DIGEST_ALGORITHM);
+
+  }
+
+  @Override
+  public Optional<ObjectStoreMetadata> loadObjectStoreMetadata(UUID id) {
+    return Optional.ofNullable(this.findOne(id));
+  }
+
+  @Override
+  public Optional<ObjectStoreMetadata> loadObjectStoreMetadataByFileId(UUID fileId) {
+    return this.findAll(
+      ObjectStoreMetadata.class,
+      (cb, root) -> new Predicate[]{cb.equal(root.get("fileIdentifier"), fileId)}
+      , null, 0, 1)
+      .stream().findFirst();
+  }
+
+  /**
+   * findOne implementation specific to ObjectStoreMetadata
+   * @param uuid
+   * @return
+   */
+  public ObjectStoreMetadata findOne(UUID uuid) {
+    return findOne(uuid, ObjectStoreMetadata.class);
+  }
+
 }
