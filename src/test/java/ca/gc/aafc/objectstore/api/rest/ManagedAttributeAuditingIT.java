@@ -7,9 +7,10 @@ import ca.gc.aafc.objectstore.api.dto.ManagedAttributeMapDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
-import ca.gc.aafc.objectstore.api.respository.ManagedAttributeResourceRepository;
-import ca.gc.aafc.objectstore.api.respository.ObjectStoreResourceRepository;
-import ca.gc.aafc.objectstore.api.respository.managedattributemap.ManagedAttributeMapRepository;
+import ca.gc.aafc.objectstore.api.repository.ManagedAttributeResourceRepository;
+import ca.gc.aafc.objectstore.api.repository.ObjectStoreResourceRepository;
+import ca.gc.aafc.objectstore.api.repository.managedattributemap.ManagedAttributeMapRepository;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import io.crnk.core.queryspec.PathSpec;
