@@ -42,7 +42,7 @@ public class ManagedAttributeCRUDIT extends BaseEntityCRUDIT {
       .build();
 
     assertThrows(
-      ConstraintViolationException.class,
+      IllegalArgumentException.class,
       () -> managedAttributeService.create(blankDescription));
   }
 

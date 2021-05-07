@@ -96,7 +96,6 @@ public class ObjectSubtype implements DinaEntity {
     this.dcType = dcType;
   }
 
-  @PrePersist
   public void initUuid() {
     this.uuid = UUID.randomUUID();
   }

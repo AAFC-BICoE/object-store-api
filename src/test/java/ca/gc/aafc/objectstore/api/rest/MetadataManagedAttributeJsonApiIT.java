@@ -10,8 +10,10 @@ import org.junit.jupiter.api.BeforeEach;
 import ca.gc.aafc.objectstore.api.dto.MetadataManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
+import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 
 public class MetadataManagedAttributeJsonApiIT extends BaseJsonApiIntegrationTest {
 
@@ -23,10 +25,14 @@ public class MetadataManagedAttributeJsonApiIT extends BaseJsonApiIntegrationTes
   @BeforeEach
   public void setup() {
     ManagedAttribute ma = ManagedAttributeFactory.newManagedAttribute().build();
-    ObjectStoreMetadata osm = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
+    ObjectUpload op = ObjectUploadFactory.newObjectUpload().build();
+    ObjectStoreMetadata osm = ObjectStoreMetadataFactory.newObjectStoreMetadata().fileIdentifier(op.getFileIdentifier()).build();
 
     // we need to run the setup in another transaction and commit it otherwise it can't be visible
     // to the test web server.
+    // objectUploadService.create(op);
+    // managedAttributeService.create(ma);
+    // objectStoreMetaDataService.create(osm);
     service.runInNewTransaction(em -> {
       em.persist(ma);
       em.persist(osm);

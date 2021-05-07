@@ -100,7 +100,6 @@ public class MetadataManagedAttribute implements DinaEntity {
         .append("managedAttribute", managedAttribute).append("objectStoreMetadata", objectStoreMetadata).toString();
   }
 
-  @PrePersist
   public void init() {
     this.uuid = UUID.randomUUID();
     this.updateParentMetadata();
@@ -112,8 +111,6 @@ public class MetadataManagedAttribute implements DinaEntity {
    * 
    * This helps for auditing.
    */
-  @PreUpdate
-  @PreRemove
   public void updateParentMetadata() {
     this.objectStoreMetadata.setXmpMetadataDate(OffsetDateTime.now());
   }

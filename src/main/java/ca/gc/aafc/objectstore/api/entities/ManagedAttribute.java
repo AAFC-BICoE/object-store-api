@@ -145,13 +145,11 @@ public class ManagedAttribute implements DinaEntity {
     this.createdBy = createdBy;
   }
 
-  @PrePersist
   public void prePersist() {
     this.uuid = UUID.randomUUID();
     this.cleanDescription();
   }
 
-  @PreUpdate
   public void preUpdate() {
     this.cleanDescription();
   }

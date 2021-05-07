@@ -23,4 +23,9 @@ public class ObjectSubTypeService extends DefaultDinaService<ObjectSubtype> {
     return messageSource.getMessage(key, null, LocaleContextHolder.getLocale());
   }
 
+  @Override
+  protected void preCreate(ObjectSubtype entity) {
+    entity.initUuid();
+  }
+
 }

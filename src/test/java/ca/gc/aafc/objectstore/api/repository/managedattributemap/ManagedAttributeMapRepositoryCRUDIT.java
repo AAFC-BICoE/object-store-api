@@ -101,7 +101,7 @@ public class ManagedAttributeMapRepositoryCRUDIT extends BaseIntegrationTest {
   @Test
   public void setAttributeValue_whenMMADoesntExist_addNewInvalidValue_validationThrowsException() {
     testManagedAttribute2.setAcceptedValues(new String[]{"acceptable test value2"});
-    managedAttributeService.create(testManagedAttribute2);
+    managedAttributeService.update(testManagedAttribute2);
 
     entityManager.flush();
     entityManager.refresh(testMetadata);
@@ -117,7 +117,7 @@ public class ManagedAttributeMapRepositoryCRUDIT extends BaseIntegrationTest {
   @Test
   public void setAttributeValue_whenMMAExists_overwriteMMAWithInvalidValue_validationThrowsException() {
     testManagedAttribute1.setAcceptedValues(new String[]{"acceptable test value1"});
-    managedAttributeService.create(testManagedAttribute1);
+    managedAttributeService.update(testManagedAttribute1);
 
     entityManager.flush();
     entityManager.refresh(testMetadata);

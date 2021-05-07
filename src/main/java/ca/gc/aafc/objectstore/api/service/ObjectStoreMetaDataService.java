@@ -63,7 +63,7 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
   }
 
   @Override
-  @Validated
+  @Validated(OnCreate.class)
   public ObjectStoreMetadata create(@Valid ObjectStoreMetadata entity) {
     ObjectStoreMetadata objectStoreMetadata = super.create(entity);
     handleThumbNailGeneration(objectStoreMetadata);

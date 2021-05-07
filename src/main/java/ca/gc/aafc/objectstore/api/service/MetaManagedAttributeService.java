@@ -38,12 +38,19 @@ public class MetaManagedAttributeService extends DefaultDinaService<MetadataMana
 
   @Override
   protected void preCreate(MetadataManagedAttribute entity) {
+    entity.init();
     validateMetaManagedAttribute(entity);
   }
 
   @Override
   protected void preUpdate(MetadataManagedAttribute entity) {
+    entity.updateParentMetadata();
     validateMetaManagedAttribute(entity);
+  }
+
+  @Override
+  protected void preDelete(MetadataManagedAttribute entity) {
+    entity.updateParentMetadata();
   }
 
 }

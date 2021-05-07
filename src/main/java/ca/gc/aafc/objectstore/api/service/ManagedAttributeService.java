@@ -3,26 +3,66 @@ package ca.gc.aafc.objectstore.api.service;
 import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
 import ca.gc.aafc.objectstore.api.exceptionmapping.ManagedAttributeChildConflictException;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.Errors;
+import org.springframework.validation.ObjectError;
+import org.apache.commons.lang3.StringUtils;
 
 import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.dina.service.DefaultDinaService;
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
+import ca.gc.aafc.objectstore.api.validation.ManagedAttributeValidator;
 import lombok.NonNull;
 
 import javax.persistence.criteria.Predicate;
+import javax.validation.ConstraintViolationException;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.UUID;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class ManagedAttributeService extends DefaultDinaService<ManagedAttribute> {
 
-  public ManagedAttributeService(@NonNull BaseDAO baseDAO) {
+  private final ManagedAttributeValidator managedAttributeValidator;
+
+  public ManagedAttributeService(@NonNull BaseDAO baseDAO, @NonNull ManagedAttributeValidator managedAttributeValidator) {
     super(baseDAO);
+    this.managedAttributeValidator = managedAttributeValidator;
+  }
+
+  @Override
+  protected void preCreate(ManagedAttribute entity) {
+    entity.setUuid(UUID.randomUUID());
+    entity.prePersist();
+    validateManagedAttribute(entity);
+  }
+
+  @Override
+  protected void preUpdate(ManagedAttribute entity) {
+    entity.preUpdate();
+    validateManagedAttribute(entity);
   }
 
   @Override
   protected void preDelete(ManagedAttribute entity) {
     validateChildConflicts(entity);
+  }
+
+  public void validateManagedAttribute(ManagedAttribute entity) {
+    Errors errors = new BeanPropertyBindingResult(entity, entity.getUuid().toString());
+    managedAttributeValidator.validate(entity, errors);
+
+    if (!errors.hasErrors()) {
+      return;
+    }
+
+    Optional<String> errorMsg = errors.getAllErrors().stream().map(ObjectError::getDefaultMessage).findAny();
+    errorMsg.ifPresent(msg -> {
+      throw new IllegalArgumentException(msg);
+    });
   }
 
   private void validateChildConflicts(ManagedAttribute entity) {
