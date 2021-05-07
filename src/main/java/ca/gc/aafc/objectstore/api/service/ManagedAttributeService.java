@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ObjectError;
+import org.apache.commons.lang3.StringUtils;
 
 import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.dina.service.DefaultDinaService;
@@ -16,7 +17,9 @@ import lombok.NonNull;
 import javax.persistence.criteria.Predicate;
 import java.util.List;
 import java.util.stream.Collectors;
-
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import java.util.Optional;
 
 @Service
@@ -31,13 +34,14 @@ public class ManagedAttributeService extends DefaultDinaService<ManagedAttribute
 
   @Override
   protected void preCreate(ManagedAttribute entity) {
-    entity.prePersist();
+    entity.setUuid(UUID.randomUUID());
+    cleanDescription(entity);
     validateManagedAttribute(entity);
   }
 
   @Override
   protected void preUpdate(ManagedAttribute entity) {
-    entity.preUpdate();
+    cleanDescription(entity);
     validateManagedAttribute(entity);
   }
 
@@ -60,6 +64,15 @@ public class ManagedAttributeService extends DefaultDinaService<ManagedAttribute
 
     if (childrenIds.size() > 0) {
       throw new ManagedAttributeChildConflictException(entity.getUuid().toString(), childrenIds);
+    }
+  }
+
+  /** Cleans empty strings out of the description. */
+  private void cleanDescription(ManagedAttribute entity) {
+    if (entity.getDescription() != null) {
+      Map<String, String> description = new HashMap<>(entity.getDescription());
+      description.entrySet().removeIf(entry -> StringUtils.isBlank(entry.getValue()));
+      entity.setDescription(description);
     }
   }
 }

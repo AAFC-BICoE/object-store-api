@@ -101,17 +101,6 @@ public class MetadataManagedAttribute implements DinaEntity {
   @PrePersist
   public void init() {
     this.uuid = UUID.randomUUID();
-    this.updateParentMetadata();
-  }
-  
-  /**
-   * MetadataManagedAttribute is considered a child value of ObjectStoreMetadata,
-   * so update the parent whenever this is modified.
-   * 
-   * This helps for auditing.
-   */
-  public void updateParentMetadata() {
-    this.objectStoreMetadata.setXmpMetadataDate(OffsetDateTime.now());
   }
 
   @Override

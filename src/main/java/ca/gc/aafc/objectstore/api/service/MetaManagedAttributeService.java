@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ObjectError;
+import java.time.OffsetDateTime;
+import java.util.UUID;
 
 import java.util.Optional;
 
@@ -23,34 +25,35 @@ public class MetaManagedAttributeService extends DefaultDinaService<MetadataMana
   }
 
   public void validateMetaManagedAttribute(MetadataManagedAttribute entity) {
-    Errors errors = new BeanPropertyBindingResult(entity, entity.getUuid().toString());
-    metadataManagedAttributeValidator.validate(entity, errors);
-
-    if (!errors.hasErrors()) {
-      return;
-    }
-
-    Optional<String> errorMsg = errors.getAllErrors().stream().map(ObjectError::getDefaultMessage).findAny();
-    errorMsg.ifPresent(msg -> {
-      throw new IllegalArgumentException(msg);
-    });
+    validateBusinessRules(entity, metadataManagedAttributeValidator);
   }
 
   @Override
   protected void preCreate(MetadataManagedAttribute entity) {
-    entity.init();
+    entity.setUuid(UUID.randomUUID());
+    updateParentMetadata(entity);
     validateMetaManagedAttribute(entity);
   }
 
   @Override
   protected void preUpdate(MetadataManagedAttribute entity) {
-    entity.updateParentMetadata();
+    updateParentMetadata(entity);
     validateMetaManagedAttribute(entity);
   }
 
   @Override
   protected void preDelete(MetadataManagedAttribute entity) {
-    entity.updateParentMetadata();
+    updateParentMetadata(entity);
+  }
+
+  /**
+   * MetadataManagedAttribute is considered a child value of ObjectStoreMetadata,
+   * so update the parent whenever this is modified.
+   * 
+   * This helps for auditing.
+   */
+  private void updateParentMetadata(MetadataManagedAttribute entity) {
+    entity.getObjectStoreMetadata().setXmpMetadataDate(OffsetDateTime.now());
   }
 
 }

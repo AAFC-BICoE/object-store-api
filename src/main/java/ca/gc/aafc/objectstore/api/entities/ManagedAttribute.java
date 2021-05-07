@@ -143,21 +143,4 @@ public class ManagedAttribute implements DinaEntity {
     this.createdBy = createdBy;
   }
 
-  public void prePersist() {
-    this.uuid = UUID.randomUUID();
-    this.cleanDescription();
-  }
-
-  public void preUpdate() {
-    this.cleanDescription();
-  }
-
-  /** Cleans empty strings out of the description. */
-  private void cleanDescription() {
-    if (this.description != null) {
-      this.description = new HashMap<>(this.description);
-      this.description.entrySet().removeIf(entry -> StringUtils.isBlank(entry.getValue()));
-    }
-  }
-
 }

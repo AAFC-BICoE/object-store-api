@@ -107,7 +107,7 @@ public class ManagedAttributeMapRepositoryCRUDIT extends BaseIntegrationTest {
     entityManager.refresh(testMetadata);
 
     // Set attr2 with value not in accepted values list
-    assertThrows(InvalidDataAccessApiUsageException.class, ()-> managedAttributeMapRepository.create(ManagedAttributeMapDto.builder()
+    assertThrows(ValidationException.class, ()-> managedAttributeMapRepository.create(ManagedAttributeMapDto.builder()
       .metadata(metadataRepository.findOne(testMetadata.getUuid(), new QuerySpec(ObjectStoreMetadataDto.class)))
       .values(ImmutableMap.<String, ManagedAttributeMapValue>builder().put(testManagedAttribute2.getUuid().toString(),
         ManagedAttributeMapValue.builder().value("New attr2 value").build()).build())
@@ -123,7 +123,7 @@ public class ManagedAttributeMapRepositoryCRUDIT extends BaseIntegrationTest {
     entityManager.refresh(testMetadata);
 
     // Set attr1 value:
-    assertThrows(InvalidDataAccessApiUsageException.class, ()-> managedAttributeMapRepository.create(
+    assertThrows(ValidationException.class, ()-> managedAttributeMapRepository.create(
       ManagedAttributeMapDto.builder()
         .metadata(metadataRepository.findOne(testMetadata.getUuid(), new QuerySpec(ObjectStoreMetadataDto.class)))
         .values(ImmutableMap.<String, ManagedAttributeMapValue>builder()

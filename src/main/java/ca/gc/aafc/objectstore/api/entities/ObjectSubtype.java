@@ -95,10 +95,6 @@ public class ObjectSubtype implements DinaEntity {
     this.dcType = dcType;
   }
 
-  public void initUuid() {
-    this.uuid = UUID.randomUUID();
-  }
-
   public void setCreatedBy(String createdBy) {
     this.createdBy = createdBy;
   }
