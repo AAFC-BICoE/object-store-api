@@ -77,9 +77,7 @@ public class ObjectStoreResourceRepository
     jpaFriendlyQuerySpec.getIncludedRelations()
       .removeIf(include -> include.getPath().toString().equals("managedAttributeMap"));
 
-    ObjectStoreMetadataDto dto = super.findOne(id, jpaFriendlyQuerySpec);
-
-    return dto;
+    return super.findOne(id, jpaFriendlyQuerySpec);
   }
 
   @Override

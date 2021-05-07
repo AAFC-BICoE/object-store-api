@@ -1,5 +1,6 @@
 package ca.gc.aafc.objectstore.api.repository.managedattributemap;
 
+import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.dto.ManagedAttributeMapDto;
 import ca.gc.aafc.objectstore.api.dto.ManagedAttributeMapDto.ManagedAttributeMapValue;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
@@ -8,10 +9,8 @@ import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.exceptionmapping.ManagedAttributeChildConflictException;
-import ca.gc.aafc.objectstore.api.repository.BaseRepositoryTest;
 import ca.gc.aafc.objectstore.api.respository.ManagedAttributeResourceRepository;
 import ca.gc.aafc.objectstore.api.respository.ObjectStoreResourceRepository;
-import ca.gc.aafc.objectstore.api.respository.ObjectUploadResourceRepository;
 import ca.gc.aafc.objectstore.api.respository.managedattributemap.ManagedAttributeMapRepository;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MetadataManagedAttributeFactory;
@@ -34,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.UUID;
 
-public class ManagedAttributeMapRepositoryCRUDIT extends BaseRepositoryTest {
+public class ManagedAttributeMapRepositoryCRUDIT extends BaseIntegrationTest {
 
   @Inject
   private ManagedAttributeMapRepository managedAttributeMapRepository;
@@ -44,9 +43,6 @@ public class ManagedAttributeMapRepositoryCRUDIT extends BaseRepositoryTest {
 
   @Inject
   private ObjectStoreResourceRepository metadataRepository;
-
-  @Inject
-  private ObjectUploadResourceRepository objectUploadResourceRepository;
 
   @Inject
   private EntityManager entityManager;
@@ -61,21 +57,23 @@ public class ManagedAttributeMapRepositoryCRUDIT extends BaseRepositoryTest {
 
   @BeforeEach
   public void setup() {
-    testMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata().fileIdentifier(uuid).build();
-    entityManager.persist(testMetadata);
-
+    
     testObjectUpload = ObjectUploadFactory.newObjectUpload().fileIdentifier(uuid).build();
-    entityManager.persist(testObjectUpload);
+    objectUploadService.create(testObjectUpload);
+
+    testMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata().fileIdentifier(uuid).build();
+    objectStoreMetaDataService.create(testMetadata);
+
 
     testManagedAttribute1 = ManagedAttributeFactory.newManagedAttribute().name("attr1").build();
-    entityManager.persist(testManagedAttribute1);
+    managedAttributeService.create(testManagedAttribute1);
 
     testManagedAttribute2 = ManagedAttributeFactory.newManagedAttribute().name("attr2").build();
-    entityManager.persist(testManagedAttribute2);
+    managedAttributeService.create(testManagedAttribute2);
 
     testAttr1Value = MetadataManagedAttributeFactory.newMetadataManagedAttribute().assignedValue("test value 1")
       .managedAttribute(testManagedAttribute1).objectStoreMetadata(testMetadata).build();
-    entityManager.persist(testAttr1Value);
+    metaManagedAttributeService.create(testAttr1Value);
 
     entityManager.flush();
     entityManager.refresh(testMetadata);
@@ -103,10 +101,11 @@ public class ManagedAttributeMapRepositoryCRUDIT extends BaseRepositoryTest {
   @Test
   public void setAttributeValue_whenMMADoesntExist_addNewInvalidValue_validationThrowsException() {
     testManagedAttribute2.setAcceptedValues(new String[]{"acceptable test value2"});
-    entityManager.persist(testManagedAttribute2);
+    managedAttributeService.create(testManagedAttribute2);
 
     entityManager.flush();
     entityManager.refresh(testMetadata);
+
     // Set attr2 with value not in accepted values list
     assertThrows(InvalidDataAccessApiUsageException.class, ()-> managedAttributeMapRepository.create(ManagedAttributeMapDto.builder()
       .metadata(metadataRepository.findOne(testMetadata.getUuid(), new QuerySpec(ObjectStoreMetadataDto.class)))
@@ -118,7 +117,7 @@ public class ManagedAttributeMapRepositoryCRUDIT extends BaseRepositoryTest {
   @Test
   public void setAttributeValue_whenMMAExists_overwriteMMAWithInvalidValue_validationThrowsException() {
     testManagedAttribute1.setAcceptedValues(new String[]{"acceptable test value1"});
-    entityManager.persist(testManagedAttribute1);
+    managedAttributeService.create(testManagedAttribute1);
 
     entityManager.flush();
     entityManager.refresh(testMetadata);

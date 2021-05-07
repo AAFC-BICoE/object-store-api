@@ -5,6 +5,8 @@ import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.UUID;
+
 public class ObjectUploadCRUDIT extends BaseEntityCRUDIT {
 
   private ObjectUpload objectUploadUnderTest = ObjectUploadFactory.newObjectUpload()
@@ -13,14 +15,14 @@ public class ObjectUploadCRUDIT extends BaseEntityCRUDIT {
   @Override
   public void testSave() {
     assertNull(objectUploadUnderTest.getId());
-    service.save(objectUploadUnderTest);
+    objectUploadService.create(objectUploadUnderTest);
     assertNotNull(objectUploadUnderTest.getId());
   }
 
   @Override
   public void testFind() {
-    ObjectUpload fetchedAcSubtype = service.find(ObjectUpload.class,
-        objectUploadUnderTest.getId());
+    ObjectUpload fetchedAcSubtype = objectUploadService.findOne(
+      objectUploadUnderTest.getFileIdentifier(), ObjectUpload.class);
     assertEquals(objectUploadUnderTest.getId(), fetchedAcSubtype.getId());
     assertEquals(objectUploadUnderTest.getFileIdentifier(), fetchedAcSubtype.getFileIdentifier());
     assertEquals(objectUploadUnderTest.getCreatedBy(), fetchedAcSubtype.getCreatedBy());
@@ -29,9 +31,10 @@ public class ObjectUploadCRUDIT extends BaseEntityCRUDIT {
 
   @Override
   public void testRemove() {
-    Integer id = objectUploadUnderTest.getId();
-    service.deleteById(ObjectUpload.class, id);
-    assertNull(service.find(ObjectUpload.class, id));
+    UUID uuid = objectUploadUnderTest.getFileIdentifier();
+    objectUploadService.delete(objectUploadUnderTest);
+    assertNull(objectUploadService.findOne(
+      uuid, ObjectUpload.class));
   }
 
 }

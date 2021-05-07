@@ -55,7 +55,7 @@ public class ManagedAttributeAuditingIT extends BaseIntegrationTest {
   @BeforeEach
   void setUp() {
     objectUpload = MinioTestConfiguration.buildTestObjectUpload();
-    service.save(objectUpload);
+    objectUploadService.create(objectUpload);
 
     ManagedAttributeDto managed = new ManagedAttributeDto();
     managed.setName("name");
