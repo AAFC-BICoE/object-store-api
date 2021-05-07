@@ -1,5 +1,7 @@
 package ca.gc.aafc.objectstore.api.entities;
 
+import ca.gc.aafc.dina.service.OnUpdate;
+
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -225,7 +227,7 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
     this.managedAttribute = managedAttribute;
   }
 
-  @NotNull
+  @NotNull(groups = OnUpdate.class)
   @Column(name = "xmp_rights_web_statement")
   @Size(max = 250)
   public String getXmpRightsWebStatement() {
@@ -236,7 +238,7 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
     this.xmpRightsWebStatement = xmpRightsWebStatement;
   }
 
-  @NotNull
+  @NotNull(groups = OnUpdate.class)
   @Column(name = "ac_rights")
   @Size(max = 250)
   public String getDcRights() {
@@ -247,7 +249,7 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
     this.dcRights = dcRights;
   }
 
-  @NotNull
+  @NotNull(groups = OnUpdate.class)
   @Column(name = "xmp_rights_owner")
   @Size(max = 250)
   public String getXmpRightsOwner() {

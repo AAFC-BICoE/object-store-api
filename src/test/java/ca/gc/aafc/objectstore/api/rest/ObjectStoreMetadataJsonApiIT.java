@@ -79,8 +79,8 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
     osMetadata.setAcHashFunction("SHA-1");
     osMetadata.setDcType(null); //on creation null should be accepted
     osMetadata.setXmpRightsWebStatement(null); // default value from configuration should be used
-    osMetadata.setDcRights(MinioTestConfiguration.TEST_DC_RIGHTS); // default value from configuration should be used
-    osMetadata.setXmpRightsOwner(MinioTestConfiguration.TEST_XMP_RIGHTS_OWNER); // default value from configuration should be used
+    osMetadata.setDcRights(null); // default value from configuration should be used
+    osMetadata.setXmpRightsOwner(null); // default value from configuration should be used
     osMetadata.setAcDigitizationDate(dateTime4Test);
     osMetadata.setFileIdentifier(MinioTestConfiguration.TEST_FILE_IDENTIFIER);
     osMetadata.setFileExtension(MinioTestConfiguration.TEST_FILE_EXT);
