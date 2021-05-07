@@ -23,6 +23,7 @@ import io.minio.errors.XmlParserException;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MimeTypeException;
 import org.springframework.context.MessageSource;
@@ -167,9 +168,9 @@ public class FileController {
       .loadObjectStoreMetadataByFileId(fileId)
       .orElseThrow(() -> buildNotFoundException(bucket, Objects.toString(fileId)));
 
-    // For the download of an object use the originalFilename provided (if available)
+    // For the download of an object use the originalFilename provided (if possible)
     return download(bucket, metadata.getFilename(),
-        StringUtils.isBlank(metadata.getOriginalFilename()) ? metadata.getFilename() : metadata.getOriginalFilename(),
+        generateDownloadFilename(metadata.getOriginalFilename(), metadata.getFilename(), metadata.getFileExtension()),
         false, metadata.getDcFormat());
   }
 
@@ -400,6 +401,23 @@ public class FileController {
 
   private ObjectUploadDto mapObjectUpload(ObjectUpload objectUpload) {
     return mappingLayer.toDtoSimpleMapping(objectUpload);
+  }
+
+  /**
+   * Make sure a valid filename is generated for the download.
+   *
+   * @param originalFilename filename provided by the client at upload time
+   * @param internalFilename name internal to the system made from the identifier
+   * @param fileExtension file extension determined by the system including the dot (.)
+   * @return
+   */
+  private String generateDownloadFilename(String originalFilename, String internalFilename, String fileExtension) {
+    // if there is no original file name of the filename is just an extension
+    if (StringUtils.isEmpty(originalFilename) || StringUtils.isEmpty(FilenameUtils.getBaseName(originalFilename))) {
+      return internalFilename;
+    }
+    // use the internal extension since we are also returning the internal media type
+    return FilenameUtils.getBaseName(originalFilename) + fileExtension;
   }
 
 }

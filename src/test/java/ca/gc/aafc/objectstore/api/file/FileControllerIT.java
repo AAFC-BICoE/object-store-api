@@ -20,6 +20,7 @@ import io.minio.errors.InvalidBucketNameException;
 import io.minio.errors.InvalidResponseException;
 import io.minio.errors.ServerException;
 import io.minio.errors.XmlParserException;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MimeTypeException;
@@ -52,7 +53,6 @@ public class FileControllerIT extends BaseIntegrationTest {
 
   @Inject
   private FileController fileController;
-
 
   @Inject
   private ObjectStoreResourceRepository objectStoreResourceRepository;
@@ -191,6 +191,6 @@ public class FileControllerIT extends BaseIntegrationTest {
     Resource imageFile = resourceLoader.getResource("classpath:" + fileNameInClasspath);
     byte[] bytes = IOUtils.toByteArray(imageFile.getInputStream());
 
-    return new MockMultipartFile("file", "testfile", mediaType, bytes);
+    return new MockMultipartFile("file", "testfile" + "." + FilenameUtils.getExtension(fileNameInClasspath), mediaType, bytes);
   }
 }
