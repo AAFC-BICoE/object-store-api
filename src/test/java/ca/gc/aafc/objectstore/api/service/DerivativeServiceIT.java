@@ -14,8 +14,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
 import javax.persistence.criteria.Predicate;
 import java.util.List;
 import java.util.UUID;

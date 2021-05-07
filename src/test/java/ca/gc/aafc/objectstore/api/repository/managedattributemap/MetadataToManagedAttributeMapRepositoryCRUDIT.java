@@ -9,6 +9,7 @@ import java.util.UUID;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
+import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -19,7 +20,6 @@ import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
-import ca.gc.aafc.objectstore.api.repository.BaseRepositoryTest;
 import ca.gc.aafc.objectstore.api.respository.managedattributemap.MetadataToManagedAttributeMapRepository;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MetadataManagedAttributeFactory;
@@ -27,7 +27,7 @@ import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFacto
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import io.crnk.core.queryspec.QuerySpec;
 
-public class MetadataToManagedAttributeMapRepositoryCRUDIT extends BaseRepositoryTest {
+public class MetadataToManagedAttributeMapRepositoryCRUDIT extends BaseIntegrationTest {
   
   @Inject
   private MetadataToManagedAttributeMapRepository metadataToManagedAttributeMapRepository;

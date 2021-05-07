@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 
+import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -18,7 +19,7 @@ import ca.gc.aafc.objectstore.api.respository.ObjectSubtypeResourceRepository;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
 import io.crnk.core.queryspec.QuerySpec;
 
-public class ObjectSubtypeRepositoryCRUDIT extends BaseRepositoryTest {
+public class ObjectSubtypeRepositoryCRUDIT extends BaseIntegrationTest {
   
   @Inject
   private ObjectSubtypeResourceRepository objectSubtypeRepository;

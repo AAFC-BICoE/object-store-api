@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import javax.inject.Inject;
 
+import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,7 @@ import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import io.crnk.core.queryspec.QuerySpec;
 import io.crnk.core.resource.list.ResourceList;
 
-public class ObjectUploadRepositoryCRUDIT extends BaseRepositoryTest {
+public class ObjectUploadRepositoryCRUDIT extends BaseIntegrationTest {
   
   @Inject
   private ObjectUploadResourceRepository objectUploadRepository;

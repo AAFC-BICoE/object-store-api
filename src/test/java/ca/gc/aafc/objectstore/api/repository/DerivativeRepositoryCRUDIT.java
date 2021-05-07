@@ -1,5 +1,6 @@
 package ca.gc.aafc.objectstore.api.repository;
 
+import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.dto.DerivativeDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.DcType;
@@ -13,7 +14,6 @@ import io.crnk.core.exception.BadRequestException;
 import io.crnk.core.exception.MethodNotAllowedException;
 import io.crnk.core.queryspec.QuerySpec;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,12 +23,11 @@ import javax.inject.Inject;
 import javax.validation.ValidationException;
 import java.util.UUID;
 
-public class DerivativeRepositoryCRUDIT extends BaseRepositoryTest {
+public class DerivativeRepositoryCRUDIT extends BaseIntegrationTest {
 
   @Inject
   private DerivativeRepository derivativeRepository;
   private ObjectUpload uploadTest_1;
-  private ObjectUpload uploadTest_2;
   private ObjectStoreMetadata acDerivedFrom;
 
   @BeforeEach
@@ -40,8 +39,7 @@ public class DerivativeRepositoryCRUDIT extends BaseRepositoryTest {
 
     objectUploadService.create(uploadTest_1);
 
-    uploadTest_2 = ObjectUploadFactory.newObjectUpload()
-    .build();
+    ObjectUpload uploadTest_2 = ObjectUploadFactory.newObjectUpload().build();
 
     objectUploadService.create(uploadTest_2);
 

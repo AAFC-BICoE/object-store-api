@@ -1,6 +1,6 @@
 package ca.gc.aafc.objectstore.api.repository;
 
-import ca.gc.aafc.dina.service.DinaService;
+import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.MinioTestConfiguration;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectSubtypeDto;
@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
+public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
 
   @Inject
   private ObjectStoreResourceRepository objectStoreResourceRepository;
@@ -123,7 +123,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
 
     UUID dtoUuid = objectStoreResourceRepository.create(dto).getUuid();
 
-    ObjectStoreMetadata result = objectStoreMetaDataService.findOne(dtoUuid, ObjectStoreMetadata.class);
+    ObjectStoreMetadata result = objectStoreMetaDataService.findOne(dtoUuid);
     assertEquals(dtoUuid, result.getUuid());
     assertEquals(objectUploadTest.getBucket(), result.getBucket());
     assertEquals(objectUploadTest.getFileIdentifier(), result.getFileIdentifier());
@@ -159,7 +159,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
     Derivative child = derivativeService.findAll(Derivative.class,
       (criteriaBuilder, root) -> new Predicate[]{criteriaBuilder.equal(
         root.get("acDerivedFrom"),
-        objectStoreMetaDataService.findOne(parentUuid, ObjectStoreMetadata.class))},
+        objectStoreMetaDataService.findOne(parentUuid))},
       null, 0, 1).stream().findFirst().orElse(null);
     //Assert values
     assertNotNull(child);
@@ -178,7 +178,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
 
     objectStoreResourceRepository.save(updateMetadataDto);
 
-    ObjectStoreMetadata result = objectStoreMetaDataService.findOne(updateMetadataDto.getUuid(), ObjectStoreMetadata.class);
+    ObjectStoreMetadata result = objectStoreMetaDataService.findOne(updateMetadataDto.getUuid());
     assertEquals(MinioTestConfiguration.TEST_BUCKET, result.getBucket());
     assertEquals(MinioTestConfiguration.TEST_FILE_IDENTIFIER, result.getFileIdentifier());
     assertEquals(acSubType.getUuid(), result.getAcSubType().getUuid());
@@ -196,7 +196,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseRepositoryTest {
 
     objectStoreResourceRepository.save(updateMetadataDto);
 
-    ObjectStoreMetadata result = objectStoreMetaDataService.findOne(updateMetadataDto.getUuid(), ObjectStoreMetadata.class);
+    ObjectStoreMetadata result = objectStoreMetaDataService.findOne(updateMetadataDto.getUuid());
     Assertions.assertNull(result.getAcSubType());
   }
 

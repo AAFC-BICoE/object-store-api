@@ -20,8 +20,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-public class ObjectStoreMetaDataService 
-  extends DefaultDinaService<ObjectStoreMetadata> 
+public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMetadata>
   implements ObjectStoreMetadataReadService {
 
   private final ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService;
@@ -155,7 +154,7 @@ public class ObjectStoreMetaDataService
    * @param objectMetadata - The metadata of the data to set.
    * @throws ValidationException If a file identifier was not provided.
    */
-  private ObjectStoreMetadata handleFileRelatedData(ObjectStoreMetadata objectMetadata)
+  private void handleFileRelatedData(ObjectStoreMetadata objectMetadata)
     throws ValidationException {
     // we need to validate at least that bucket name and fileIdentifier are there
     if (StringUtils.isBlank(objectMetadata.getBucket())
@@ -178,12 +177,11 @@ public class ObjectStoreMetaDataService
     objectMetadata.setAcHashValue(objectUpload.getSha1Hex());
     objectMetadata.setAcHashFunction(FileController.DIGEST_ALGORITHM);
 
-    return objectMetadata;
   }
 
   @Override
   public Optional<ObjectStoreMetadata> loadObjectStoreMetadata(UUID id) {
-    return Optional.ofNullable(this.findOne(id, ObjectStoreMetadata.class));
+    return Optional.ofNullable(this.findOne(id));
   }
 
   @Override
@@ -193,6 +191,15 @@ public class ObjectStoreMetaDataService
       (cb, root) -> new Predicate[]{cb.equal(root.get("fileIdentifier"), fileId)}
       , null, 0, 1)
       .stream().findFirst();
+  }
+
+  /**
+   * findOne implementation specific to ObjectStoreMetadata
+   * @param uuid
+   * @return
+   */
+  public ObjectStoreMetadata findOne(UUID uuid) {
+    return findOne(uuid, ObjectStoreMetadata.class);
   }
 
 }

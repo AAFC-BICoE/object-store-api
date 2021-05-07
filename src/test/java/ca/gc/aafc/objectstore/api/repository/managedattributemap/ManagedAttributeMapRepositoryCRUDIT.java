@@ -1,5 +1,6 @@
 package ca.gc.aafc.objectstore.api.repository.managedattributemap;
 
+import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.dto.ManagedAttributeMapDto;
 import ca.gc.aafc.objectstore.api.dto.ManagedAttributeMapDto.ManagedAttributeMapValue;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
@@ -8,10 +9,8 @@ import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.exceptionmapping.ManagedAttributeChildConflictException;
-import ca.gc.aafc.objectstore.api.repository.BaseRepositoryTest;
 import ca.gc.aafc.objectstore.api.respository.ManagedAttributeResourceRepository;
 import ca.gc.aafc.objectstore.api.respository.ObjectStoreResourceRepository;
-import ca.gc.aafc.objectstore.api.respository.ObjectUploadResourceRepository;
 import ca.gc.aafc.objectstore.api.respository.managedattributemap.ManagedAttributeMapRepository;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MetadataManagedAttributeFactory;
@@ -34,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.UUID;
 
-public class ManagedAttributeMapRepositoryCRUDIT extends BaseRepositoryTest {
+public class ManagedAttributeMapRepositoryCRUDIT extends BaseIntegrationTest {
 
   @Inject
   private ManagedAttributeMapRepository managedAttributeMapRepository;
