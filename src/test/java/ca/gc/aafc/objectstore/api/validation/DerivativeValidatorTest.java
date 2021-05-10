@@ -1,7 +1,7 @@
 package ca.gc.aafc.objectstore.api.validation;
 
+import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
-import ca.gc.aafc.objectstore.api.repository.BaseRepositoryTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -16,7 +16,7 @@ import org.springframework.validation.Errors;
 import javax.inject.Inject;
 import java.util.UUID;
 
-class DerivativeValidatorTest extends BaseRepositoryTest {
+class DerivativeValidatorTest extends BaseIntegrationTest {
 
   @Inject
   private DerivativeValidator validator;

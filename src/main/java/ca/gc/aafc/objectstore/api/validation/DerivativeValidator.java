@@ -18,6 +18,8 @@ public class DerivativeValidator implements Validator {
   public static final String VALID_THUMB_DC_FORMAT_KEY = "validation.constraint.violation.requiredThumbnailDcFormat";
   public static final String VALID_THUMB_SUPPORTED_KEY = "validation.constraint.violation.thumbnailDcFormatNotSupported";
 
+  private static final String VALID_THUMBNAIL_MEDIA_TYPE = ThumbnailGenerator.THUMB_DC_FORMAT;
+
   private final MessageSource messageSource;
 
   @Override
@@ -45,7 +47,7 @@ public class DerivativeValidator implements Validator {
       if (StringUtils.isBlank(entity.getDcFormat())) {
         loadErrorMessageForKey(errors, VALID_THUMB_DC_FORMAT_KEY);
       } else {
-        if (!ThumbnailGenerator.isSupported(entity.getDcFormat())) {
+        if (!entity.getDcFormat().equalsIgnoreCase(VALID_THUMBNAIL_MEDIA_TYPE)) {
           loadErrorMessageForKey(errors, VALID_THUMB_SUPPORTED_KEY);
         }
       }
