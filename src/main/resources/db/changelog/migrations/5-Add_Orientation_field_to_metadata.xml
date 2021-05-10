@@ -9,7 +9,7 @@
         <column name="orientation" type="INTEGER"/>
       </addColumn>
       <sql>
-        ALTER TABLE metadata ADD CONSTRAINT orientation CHECK (orientation &gt;=0 AND orientation &lt;= 9)
+        ALTER TABLE metadata ADD CONSTRAINT orientation CHECK (orientation &gt;=1 AND orientation &le;= 8)
       </sql>  
     </changeSet>
 </databaseChangeLog>
