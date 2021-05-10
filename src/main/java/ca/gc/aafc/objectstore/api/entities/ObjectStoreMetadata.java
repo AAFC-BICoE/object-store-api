@@ -19,6 +19,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -71,6 +73,8 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
 
   private ObjectSubtype acSubType;
 
+  private Integer orientation;
+
   /**
    * Read-only field to get the ac_sub_type_id to allow filtering by null values.
    */
@@ -105,7 +109,8 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
     Boolean publiclyReleasable,
     String notPubliclyReleasableReason,
     ObjectSubtype acSubType,
-    Integer acSubTypeId
+    Integer acSubTypeId,
+    Integer orientation
   ) {
     super(
       uuid,
@@ -136,6 +141,7 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
     this.notPubliclyReleasableReason = notPubliclyReleasableReason;
     this.acSubType = acSubType;
     this.acSubTypeId = acSubTypeId;
+    this.orientation = orientation;
   }
 
   @Id
@@ -358,6 +364,16 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
 
   public void setXmpRightsUsageTerms(String xmpRightsUsageTerms) {
     this.xmpRightsUsageTerms = xmpRightsUsageTerms;
+  }
+
+  @Min(value = 1)
+  @Max(value = 8)
+  public Integer getOrientation() {
+    return orientation;
+  }
+
+  public void setOrientation(Integer orientation) {
+    this.orientation = orientation;
   }
 
   /**
