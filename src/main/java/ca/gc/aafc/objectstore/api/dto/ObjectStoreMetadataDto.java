@@ -68,6 +68,7 @@ public class ObjectStoreMetadataDto {
   private String dcRights;
   private String xmpRightsOwner;
   private String xmpRightsUsageTerms;
+  private Integer orientation;
 
   @JsonInclude(Include.NON_EMPTY)
   private String originalFilename;
