@@ -55,15 +55,23 @@ public class MediaTypeDetectionStrategy {
   }
 
   private static boolean isKnownExtensionForMediaType(String receivedFileName, MimeType detectedMimeType) {
-    if (StringUtils.isBlank(getFileExtension(receivedFileName)) || detectedMimeType == null) {
+    if (extractFileExtension(receivedFileName) == null || detectedMimeType == null) {
       return false;
     }
     return detectedMimeType.getExtensions().stream()
-        .anyMatch(s -> s.equalsIgnoreCase(getFileExtension(receivedFileName)));
+        .anyMatch(s -> s.equalsIgnoreCase(extractFileExtension(receivedFileName)));
   }
-  
-  private static String getFileExtension(@Nullable String filename) {
-    return  StringUtils.isBlank(filename) ? null : "." + FilenameUtils.getExtension(filename);
+
+  /**
+   * Tries to extract the extension from the provided filename and return null if not possible
+   * @param filename filename with extension
+   * @return
+   */
+  private static String extractFileExtension(@Nullable String filename) {
+    if (StringUtils.isBlank(filename) || StringUtils.isBlank(FilenameUtils.getExtension(filename))) {
+      return null;
+    }
+    return "." + FilenameUtils.getExtension(filename);
   }
   
   /**
@@ -101,8 +109,8 @@ public class MediaTypeDetectionStrategy {
         detectedMimeType));
     
     mtdrBldr.evaluatedExtension(
-        getFileExtension(originalFilename) == null ? detectedMimeType.getExtension()
-            : getFileExtension(originalFilename));
+        extractFileExtension(originalFilename) == null ? detectedMimeType.getExtension()
+            : extractFileExtension(originalFilename));
     
     return mtdrBldr.build();
   }
