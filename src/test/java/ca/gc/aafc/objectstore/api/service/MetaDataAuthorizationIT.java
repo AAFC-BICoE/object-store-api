@@ -1,6 +1,18 @@
 package ca.gc.aafc.objectstore.api.service;
 
-import ca.gc.aafc.dina.repository.GoneException;
+import java.util.UUID;
+
+import javax.inject.Inject;
+
+import org.apache.commons.lang3.RandomStringUtils;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.security.access.AccessDeniedException;
+
 import ca.gc.aafc.dina.testsupport.security.WithMockKeycloakUser;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.MinioTestConfiguration;
@@ -11,18 +23,8 @@ import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.respository.ObjectStoreResourceRepository;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
+import io.crnk.core.exception.ResourceNotFoundException;
 import io.crnk.core.queryspec.QuerySpec;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
-import org.springframework.security.access.AccessDeniedException;
-
-import javax.inject.Inject;
-import java.util.UUID;
 
 @SpringBootTest(properties = "keycloak.enabled=true")
 public class MetaDataAuthorizationIT extends BaseIntegrationTest {
@@ -38,15 +40,17 @@ public class MetaDataAuthorizationIT extends BaseIntegrationTest {
     testObjectUpload = ObjectUploadFactory.newObjectUpload().build();
     testObjectUpload.setDcType(DcType.TEXT);
     testObjectUpload.setEvaluatedMediaType(MediaType.TEXT_PLAIN_VALUE);
-    service.save(testObjectUpload);
+    objectUploadService.create(testObjectUpload);
     persisted = persistMeta(GROUP_1);
   }
 
   @AfterEach
   void tearDown() {
-    service.deleteById(ObjectUpload.class, testObjectUpload.getId());
+    objectUploadService.delete(testObjectUpload);
     repo.findAll(new QuerySpec(ObjectStoreMetadataDto.class))
-      .forEach(m -> service.deleteByProperty(ObjectStoreMetadata.class, "uuid", m.getUuid()));
+      .forEach(m -> objectStoreMetaDataService.delete(
+        objectStoreMetaDataService.findOne(
+          m.getUuid(), ObjectStoreMetadata.class)));
   }
 
   @Test
@@ -90,7 +94,7 @@ public class MetaDataAuthorizationIT extends BaseIntegrationTest {
     ObjectStoreMetadataDto dto = repo.create(newMetaDto(GROUP_1));
     repo.delete(dto.getUuid());
     Assertions.assertThrows(
-      GoneException.class,
+      ResourceNotFoundException.class,
       () -> repo.findOne(dto.getUuid(), new QuerySpec(ObjectStoreMetadataDto.class)));
   }
 
@@ -113,11 +117,11 @@ public class MetaDataAuthorizationIT extends BaseIntegrationTest {
 
   private ObjectStoreMetadata persistMeta(String group) {
     ObjectUpload objectUpload = ObjectUploadFactory.newObjectUpload().build();
-    service.save(objectUpload);
+    objectUploadService.create(objectUpload);
     ObjectStoreMetadata meta = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
     meta.setBucket(group);
     meta.setFileIdentifier(objectUpload.getFileIdentifier());
-    service.save(meta);
+    objectStoreMetaDataService.create(meta);
     return meta;
   }
 }

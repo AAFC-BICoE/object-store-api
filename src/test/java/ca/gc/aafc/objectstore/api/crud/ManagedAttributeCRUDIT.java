@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.UUID;
+
 import javax.validation.ConstraintViolationException;
 
 import com.google.common.collect.ImmutableMap;
@@ -28,7 +30,7 @@ public class ManagedAttributeCRUDIT extends BaseEntityCRUDIT {
   @Override
   public void testSave() {
     assertNull(managedAttributeUnderTest.getId());
-    service.save(managedAttributeUnderTest);
+    managedAttributeService.create(managedAttributeUnderTest);
     assertNotNull(managedAttributeUnderTest.getId());
   }
 
@@ -41,13 +43,13 @@ public class ManagedAttributeCRUDIT extends BaseEntityCRUDIT {
 
     assertThrows(
       ConstraintViolationException.class,
-      () -> service.save(blankDescription));
+      () -> managedAttributeService.create(blankDescription));
   }
 
   @Override
   public void testFind() {
-    ManagedAttribute fetchedObjectStoreMeta = service.find(ManagedAttribute.class,
-        managedAttributeUnderTest.getId());
+    ManagedAttribute fetchedObjectStoreMeta = managedAttributeService.findOne(
+      managedAttributeUnderTest.getUuid(), ManagedAttribute.class);
     assertEquals(managedAttributeUnderTest.getId(), fetchedObjectStoreMeta.getId());
 
     assertArrayEquals(new String[] { "a", "b" }, managedAttributeUnderTest.getAcceptedValues());
@@ -59,8 +61,9 @@ public class ManagedAttributeCRUDIT extends BaseEntityCRUDIT {
 
   @Override
   public void testRemove() {
-    Integer id = managedAttributeUnderTest.getId();
-    service.deleteById(ManagedAttribute.class, id);
-    assertNull(service.find(ManagedAttribute.class, id));
+    UUID uuid = managedAttributeUnderTest.getUuid();
+    managedAttributeService.delete(managedAttributeUnderTest);
+    assertNull(managedAttributeService.findOne(
+      uuid, ManagedAttribute.class));
   }
 }

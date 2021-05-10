@@ -77,8 +77,6 @@ public class ObjectStoreMetadataDto {
 
   @DiffIgnore
   private OffsetDateTime createdDate;
-  @JsonInclude(Include.NON_EMPTY)
-  private OffsetDateTime deletedDate;
 
   @JsonInclude(Include.NON_EMPTY)
   private String[] acTags;

@@ -11,6 +11,7 @@ import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.service.DerivativeService;
 import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import io.crnk.core.exception.UnauthorizedException;
 import io.minio.errors.ErrorResponseException;
 import io.minio.errors.InsufficientDataException;
@@ -54,7 +55,6 @@ public class FileControllerIT extends BaseIntegrationTest {
 
   @Inject
   private ObjectUploadService objectUploadService;
-
 
   @Inject
   private DerivativeService derivativeService;
@@ -132,9 +132,13 @@ public class FileControllerIT extends BaseIntegrationTest {
     InvalidBucketNameException, InsufficientDataException, ErrorResponseException {
     MockMultipartFile mockFile = getFileUnderTest();
     ObjectUploadDto uploadResponse = fileController.handleDerivativeUpload(mockFile, bucketUnderTest);
+    ObjectUpload objectUpload = ObjectUploadFactory.newObjectUpload().build();
+
+    objectUploadService.create(objectUpload);
+
     // A derivative requires a Derivative record to download
-    ObjectStoreMetadata acDerivedFrom = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
-    this.service.save(acDerivedFrom);
+    ObjectStoreMetadata acDerivedFrom = ObjectStoreMetadataFactory.newObjectStoreMetadata().fileIdentifier(objectUpload.getFileIdentifier()).build();
+    objectStoreMetaDataService.create(acDerivedFrom);
     derivativeService.create(Derivative.builder()
       .fileIdentifier(uploadResponse.getFileIdentifier())
       .acDerivedFrom(acDerivedFrom)
