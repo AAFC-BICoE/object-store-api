@@ -10,7 +10,6 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -19,8 +18,11 @@ import javax.validation.constraints.Size;
 import com.vladmihalcea.hibernate.type.basic.PostgreSQLEnumType;
 
 import ca.gc.aafc.dina.entity.DinaEntity;
+import ca.gc.aafc.dina.service.OnUpdate;
 
 import org.hibernate.annotations.ColumnTransformer;
+import org.hibernate.annotations.Generated;
+import org.hibernate.annotations.GenerationTime;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.NaturalIdCache;
 import org.hibernate.annotations.Type;
@@ -49,7 +51,7 @@ public class ObjectSubtype implements DinaEntity {
   private OffsetDateTime createdOn;
 
   @NaturalId
-  @NotNull
+  @NotNull(groups = OnUpdate.class)
   @Column(name = "uuid", unique = true)
   public UUID getUuid() {
     return uuid;
@@ -81,7 +83,7 @@ public class ObjectSubtype implements DinaEntity {
     this.id = id;
   }
 
-  @NotNull
+  @NotNull(groups = OnUpdate.class)
   @Type(type = "pgsql_enum")
   @Enumerated(EnumType.STRING)
   @Column(name = "dc_type")
@@ -91,11 +93,6 @@ public class ObjectSubtype implements DinaEntity {
 
   public void setDcType(DcType dcType) {
     this.dcType = dcType;
-  }
-
-  @PrePersist
-  public void initUuid() {
-    this.uuid = UUID.randomUUID();
   }
 
   public void setCreatedBy(String createdBy) {
@@ -113,6 +110,7 @@ public class ObjectSubtype implements DinaEntity {
   }
 
   @Column(name = "created_on", insertable = false, updatable = false)
+  @Generated(value = GenerationTime.INSERT)
   public OffsetDateTime getCreatedOn() {
     return this.createdOn;
   }

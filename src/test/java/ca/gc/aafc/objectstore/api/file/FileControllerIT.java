@@ -3,14 +3,15 @@ package ca.gc.aafc.objectstore.api.file;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.MinioTestConfiguration;
+import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectUploadDto;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
-import ca.gc.aafc.objectstore.api.service.DerivativeService;
-import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
+import ca.gc.aafc.objectstore.api.repository.ObjectStoreResourceRepository;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import io.crnk.core.exception.UnauthorizedException;
 import io.minio.errors.ErrorResponseException;
 import io.minio.errors.InsufficientDataException;
@@ -19,6 +20,7 @@ import io.minio.errors.InvalidBucketNameException;
 import io.minio.errors.InvalidResponseException;
 import io.minio.errors.ServerException;
 import io.minio.errors.XmlParserException;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MimeTypeException;
@@ -53,11 +55,7 @@ public class FileControllerIT extends BaseIntegrationTest {
   private FileController fileController;
 
   @Inject
-  private ObjectUploadService objectUploadService;
-
-
-  @Inject
-  private DerivativeService derivativeService;
+  private ObjectStoreResourceRepository objectStoreResourceRepository;
 
   @Inject
   private TransactionTemplate transactionTemplate;
@@ -78,11 +76,29 @@ public class FileControllerIT extends BaseIntegrationTest {
 
   @Transactional
   @Test
-  public void fileUpload_OnValidUpload_FileMetaEntryGenerated() throws Exception {
+  public void fileUpload_OnValidUpload_testRoundTrip() throws Exception {
     MockMultipartFile mockFile = getFileUnderTest();
 
     ObjectUploadDto uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
     assertNotNull(uploadResponse);
+
+    // file can only be downloaded if we attach metadata to it
+    ObjectStoreMetadataDto metadataForFile = new ObjectStoreMetadataDto();
+    metadataForFile.setBucket(bucketUnderTest);
+
+    //TODO remove when dina-base can handle it
+    metadataForFile.setXmpRightsWebStatement(MinioTestConfiguration.TEST_XMP_RIGHTS_WEB_STATEMENT);
+    metadataForFile.setDcRights(MinioTestConfiguration.TEST_DC_RIGHTS);
+    metadataForFile.setXmpRightsOwner(MinioTestConfiguration.TEST_XMP_RIGHTS_OWNER);
+    metadataForFile.setXmpRightsUsageTerms(MinioTestConfiguration.TEST_XMP_RIGHTS_USAGE_TERMS);
+
+    metadataForFile.setFileIdentifier(uploadResponse.getFileIdentifier());
+    objectStoreResourceRepository.create(metadataForFile);
+
+    ResponseEntity<InputStreamResource> response = fileController.downloadObject(bucketUnderTest, uploadResponse.getFileIdentifier());
+
+    // on download, the original file name should be returned
+    assertEquals(mockFile.getOriginalFilename(), response.getHeaders().getContentDisposition().getFilename());
   }
 
   @Transactional
@@ -132,9 +148,13 @@ public class FileControllerIT extends BaseIntegrationTest {
     InvalidBucketNameException, InsufficientDataException, ErrorResponseException {
     MockMultipartFile mockFile = getFileUnderTest();
     ObjectUploadDto uploadResponse = fileController.handleDerivativeUpload(mockFile, bucketUnderTest);
+    ObjectUpload objectUpload = ObjectUploadFactory.newObjectUpload().build();
+
+    objectUploadService.create(objectUpload);
+
     // A derivative requires a Derivative record to download
-    ObjectStoreMetadata acDerivedFrom = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
-    this.service.save(acDerivedFrom);
+    ObjectStoreMetadata acDerivedFrom = ObjectStoreMetadataFactory.newObjectStoreMetadata().fileIdentifier(objectUpload.getFileIdentifier()).build();
+    objectStoreMetaDataService.create(acDerivedFrom);
     derivativeService.create(Derivative.builder()
       .fileIdentifier(uploadResponse.getFileIdentifier())
       .acDerivedFrom(acDerivedFrom)
@@ -178,6 +198,6 @@ public class FileControllerIT extends BaseIntegrationTest {
     Resource imageFile = resourceLoader.getResource("classpath:" + fileNameInClasspath);
     byte[] bytes = IOUtils.toByteArray(imageFile.getInputStream());
 
-    return new MockMultipartFile("file", "testfile", mediaType, bytes);
+    return new MockMultipartFile("file", "testfile" + "." + FilenameUtils.getExtension(fileNameInClasspath), mediaType, bytes);
   }
 }

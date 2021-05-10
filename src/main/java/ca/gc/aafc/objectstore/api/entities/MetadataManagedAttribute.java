@@ -1,12 +1,15 @@
 package ca.gc.aafc.objectstore.api.entities;
 
 import ca.gc.aafc.dina.entity.DinaEntity;
+import ca.gc.aafc.dina.service.OnUpdate;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.annotations.NaturalId;
+import org.hibernate.annotations.Generated;
+import org.hibernate.annotations.GenerationTime;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -17,8 +20,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
-import javax.persistence.PreRemove;
-import javax.persistence.PreUpdate;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
@@ -52,7 +53,7 @@ public class MetadataManagedAttribute implements DinaEntity {
   }
 
   @NaturalId
-  @NotNull
+  @NotNull(groups = OnUpdate.class)
   @Column(name = "uuid", unique = true)
   public UUID getUuid() {
     return uuid;
@@ -100,19 +101,6 @@ public class MetadataManagedAttribute implements DinaEntity {
   @PrePersist
   public void init() {
     this.uuid = UUID.randomUUID();
-    this.updateParentMetadata();
-  }
-  
-  /**
-   * MetadataManagedAttribute is considered a child value of ObjectStoreMetadata,
-   * so update the parent whenever this is modified.
-   * 
-   * This helps for auditing.
-   */
-  @PreUpdate
-  @PreRemove
-  public void updateParentMetadata() {
-    this.objectStoreMetadata.setXmpMetadataDate(OffsetDateTime.now());
   }
 
   @Override
@@ -128,6 +116,7 @@ public class MetadataManagedAttribute implements DinaEntity {
 
   @Override
   @Column(name = "created_on", insertable = false, updatable = false)
+  @Generated(value = GenerationTime.INSERT)
   public OffsetDateTime getCreatedOn() {
     return createdOn;
   }

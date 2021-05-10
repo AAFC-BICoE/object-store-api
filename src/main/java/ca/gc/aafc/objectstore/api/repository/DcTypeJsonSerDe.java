@@ -1,4 +1,4 @@
-package ca.gc.aafc.objectstore.api.respository;
+package ca.gc.aafc.objectstore.api.repository;
 
 import java.io.IOException;
 

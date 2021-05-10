@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.util.UUID;
+
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
 
@@ -16,14 +18,14 @@ public class ObjectSubtypeCRUDIT extends BaseEntityCRUDIT {
   @Override
   public void testSave() {
     assertNull(objectSubtypeUnderTest.getId());
-    service.save(objectSubtypeUnderTest);
+    objectSubTypeService.create(objectSubtypeUnderTest);
     assertNotNull(objectSubtypeUnderTest.getId());
   }
 
   @Override
   public void testFind() {
-    ObjectSubtype fetchedAcSubtype = service.find(ObjectSubtype.class,
-        objectSubtypeUnderTest.getId());
+    ObjectSubtype fetchedAcSubtype = objectSubTypeService.findOne(
+      objectSubtypeUnderTest.getUuid(), ObjectSubtype.class);
     assertEquals(objectSubtypeUnderTest.getId(), fetchedAcSubtype.getId());
     assertEquals(objectSubtypeUnderTest.getAcSubtype(), fetchedAcSubtype.getAcSubtype());
     assertEquals(objectSubtypeUnderTest.getCreatedBy(), fetchedAcSubtype.getCreatedBy());
@@ -32,8 +34,9 @@ public class ObjectSubtypeCRUDIT extends BaseEntityCRUDIT {
 
   @Override
   public void testRemove() {
-    Integer id = objectSubtypeUnderTest.getId();
-    service.deleteById(ObjectSubtype.class, id);
-    assertNull(service.find(ObjectSubtype.class, id));
+    UUID uuid = objectSubtypeUnderTest.getUuid();
+    objectSubTypeService.delete(objectSubtypeUnderTest);
+    assertNull(objectSubTypeService.findOne(
+      uuid, ObjectSubtype.class));
   }
 }

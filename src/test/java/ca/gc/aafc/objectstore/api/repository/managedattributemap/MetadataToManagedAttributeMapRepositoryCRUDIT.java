@@ -9,6 +9,7 @@ import java.util.UUID;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
+import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -18,14 +19,15 @@ import ca.gc.aafc.objectstore.api.dto.ManagedAttributeMapDto.ManagedAttributeMap
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
-import ca.gc.aafc.objectstore.api.repository.BaseRepositoryTest;
-import ca.gc.aafc.objectstore.api.respository.managedattributemap.MetadataToManagedAttributeMapRepository;
+import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
+import ca.gc.aafc.objectstore.api.repository.managedattributemap.MetadataToManagedAttributeMapRepository;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MetadataManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import io.crnk.core.queryspec.QuerySpec;
 
-public class MetadataToManagedAttributeMapRepositoryCRUDIT extends BaseRepositoryTest {
+public class MetadataToManagedAttributeMapRepositoryCRUDIT extends BaseIntegrationTest {
   
   @Inject
   private MetadataToManagedAttributeMapRepository metadataToManagedAttributeMapRepository;
@@ -38,31 +40,36 @@ public class MetadataToManagedAttributeMapRepositoryCRUDIT extends BaseRepositor
   private ManagedAttribute testManagedAttribute2;
   private MetadataManagedAttribute testAttr1Value;
   private MetadataManagedAttribute testAttr2Value;
+  private ObjectUpload objectUpload;
 
   @BeforeEach
   public void setup() {
-    testMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
-    entityManager.persist(testMetadata);
+
+    objectUpload = ObjectUploadFactory.newObjectUpload().build();
+    objectUploadService.create(objectUpload);
+
+    testMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata().fileIdentifier(objectUpload.getFileIdentifier()).build();
+    objectStoreMetaDataService.create(testMetadata);
 
     testManagedAttribute1 = ManagedAttributeFactory.newManagedAttribute().name("attr1").build();
-    entityManager.persist(testManagedAttribute1);
+    managedAttributeService.create(testManagedAttribute1);
 
     testManagedAttribute2 = ManagedAttributeFactory.newManagedAttribute().name("attr2").build();
-    entityManager.persist(testManagedAttribute2);
+    managedAttributeService.create(testManagedAttribute2);
 
     testAttr1Value = MetadataManagedAttributeFactory.newMetadataManagedAttribute()
       .assignedValue("test attr1 value")
       .managedAttribute(testManagedAttribute1)
       .objectStoreMetadata(testMetadata)
       .build();
-    entityManager.persist(testAttr1Value);
+    metaManagedAttributeService.create(testAttr1Value);
 
     testAttr2Value = MetadataManagedAttributeFactory.newMetadataManagedAttribute()
       .assignedValue("test attr2 value")
       .managedAttribute(testManagedAttribute2)
       .objectStoreMetadata(testMetadata)
       .build();
-    entityManager.persist(testAttr2Value);
+    metaManagedAttributeService.create(testAttr2Value);
 
     entityManager.flush();
     entityManager.refresh(testMetadata);

@@ -1,4 +1,4 @@
-package ca.gc.aafc.objectstore.api.respository.managedattributemap;
+package ca.gc.aafc.objectstore.api.repository.managedattributemap;
 
 import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.objectstore.api.dto.ManagedAttributeMapDto;

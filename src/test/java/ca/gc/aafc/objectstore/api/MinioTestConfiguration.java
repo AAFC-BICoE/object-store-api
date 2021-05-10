@@ -60,6 +60,11 @@ public class MinioTestConfiguration {
   public static final String TEST_ORIGINAL_FILENAME = "myfile" + TEST_FILE_EXT;
   public static final String ILLEGAL_BUCKET_CHAR = "~";
 
+  public static final String TEST_XMP_RIGHTS_WEB_STATEMENT = "https://open.canada.ca/en/open-government-licence-canada";
+  public static final String TEST_XMP_RIGHTS_OWNER = "Government of Canada";
+  public static final String TEST_XMP_RIGHTS_USAGE_TERMS = "Government of Canada Usage Terms";
+  public static final String TEST_DC_RIGHTS = "Copyright Government of Canada";
+
   /**
    * Bu the ObjectUpload matching the one stored in the mock Minio.
    * @return

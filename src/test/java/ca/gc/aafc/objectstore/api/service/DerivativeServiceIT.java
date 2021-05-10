@@ -29,7 +29,6 @@ import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.MediaType;
 
-import javax.inject.Inject;
 import javax.persistence.criteria.Predicate;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -40,8 +39,7 @@ import java.util.UUID;
 
 @Import({MinioTestConfiguration.class, DerivativeServiceIT.DerivativeServiceItConfig.class})
 public class DerivativeServiceIT extends BaseIntegrationTest {
-  @Inject
-  private DerivativeService derivativeService;
+
   private ObjectStoreMetadata acDerivedFrom;
 
   @MockBean
