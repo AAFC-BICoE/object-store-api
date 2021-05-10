@@ -7,9 +7,10 @@ import ca.gc.aafc.objectstore.api.dto.ManagedAttributeMapDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
-import ca.gc.aafc.objectstore.api.respository.ManagedAttributeResourceRepository;
-import ca.gc.aafc.objectstore.api.respository.ObjectStoreResourceRepository;
-import ca.gc.aafc.objectstore.api.respository.managedattributemap.ManagedAttributeMapRepository;
+import ca.gc.aafc.objectstore.api.repository.ManagedAttributeResourceRepository;
+import ca.gc.aafc.objectstore.api.repository.ObjectStoreResourceRepository;
+import ca.gc.aafc.objectstore.api.repository.managedattributemap.ManagedAttributeMapRepository;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import io.crnk.core.queryspec.PathSpec;
@@ -46,6 +47,11 @@ public class ManagedAttributeAuditingIT extends BaseIntegrationTest {
 
   private ObjectUpload objectUpload;
   private ManagedAttributeDto managedAttribute;
+
+  private static final String xmpRightsWebStatement = MinioTestConfiguration.TEST_XMP_RIGHTS_WEB_STATEMENT;
+  private static final String xmpRightsOwner = MinioTestConfiguration.TEST_XMP_RIGHTS_OWNER;
+  private static final String xmpRightsUsageTerms = MinioTestConfiguration.TEST_XMP_RIGHTS_USAGE_TERMS;
+  private static final String dcRights = MinioTestConfiguration.TEST_DC_RIGHTS;
 
   @BeforeEach
   void setUp() {
@@ -108,6 +114,10 @@ public class ManagedAttributeAuditingIT extends BaseIntegrationTest {
     ObjectStoreMetadataDto dto = new ObjectStoreMetadataDto();
     dto.setFileIdentifier(objectUpload.getFileIdentifier());
     dto.setBucket("b");
+    dto.setDcRights(dcRights);
+    dto.setXmpRightsOwner(xmpRightsOwner);
+    dto.setXmpRightsWebStatement(xmpRightsWebStatement);
+    dto.setXmpRightsUsageTerms(xmpRightsUsageTerms);
     return dto;
   }
 

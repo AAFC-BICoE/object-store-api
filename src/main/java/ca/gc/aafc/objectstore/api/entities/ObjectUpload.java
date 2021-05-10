@@ -1,6 +1,7 @@
 package ca.gc.aafc.objectstore.api.entities;
 
 import ca.gc.aafc.dina.entity.DinaEntity;
+import ca.gc.aafc.dina.service.OnUpdate;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.AllArgsConstructor;
@@ -22,6 +23,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -66,6 +68,12 @@ public class ObjectUpload implements DinaEntity {
 
   public void setId(Integer id) {
     this.id = id;
+  }
+
+  @Override
+  @Transient
+  public UUID getUuid() {
+    return fileIdentifier;
   }
 
   @NaturalId
@@ -211,7 +219,7 @@ public class ObjectUpload implements DinaEntity {
 
   @Type(type = "pgsql_enum")
   @Enumerated(EnumType.STRING)
-  @NotNull
+  @NotNull(groups = OnUpdate.class)
   @Column(name = "dc_type")
   public DcType getDcType() {
     return dcType;
