@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
-import ca.gc.aafc.objectstore.api.respository.DtoEntityMapping;
+import ca.gc.aafc.objectstore.api.repository.DtoEntityMapping;
 
 public class DtoEntityMappingTest {
 

@@ -5,7 +5,8 @@ import ca.gc.aafc.dina.testsupport.security.WithMockKeycloakUser;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.dto.ManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
-import ca.gc.aafc.objectstore.api.respository.ManagedAttributeResourceRepository;
+import ca.gc.aafc.objectstore.api.repository.ManagedAttributeResourceRepository;
+
 import com.google.common.collect.ImmutableMap;
 import io.crnk.core.exception.ResourceNotFoundException;
 import io.crnk.core.queryspec.QuerySpec;

@@ -1,4 +1,4 @@
-package ca.gc.aafc.objectstore.api.respository;
+package ca.gc.aafc.objectstore.api.repository;
 
 import ca.gc.aafc.objectstore.api.SupportedLicensesConfiguration;
 import ca.gc.aafc.objectstore.api.dto.LicenseDto;

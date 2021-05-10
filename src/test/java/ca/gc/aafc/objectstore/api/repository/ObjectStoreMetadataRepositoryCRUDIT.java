@@ -8,7 +8,7 @@ import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
-import ca.gc.aafc.objectstore.api.respository.ObjectStoreResourceRepository;
+import ca.gc.aafc.objectstore.api.repository.ObjectStoreResourceRepository;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
@@ -42,6 +42,10 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
   private ObjectSubtypeDto acSubType;
 
   private ObjectUpload objectUpload;
+
+  private static final String xmpRightsWebStatement = MinioTestConfiguration.TEST_XMP_RIGHTS_WEB_STATEMENT;
+  private static final String xmpRightsOwner = MinioTestConfiguration.TEST_XMP_RIGHTS_OWNER;
+  private static final String dcRights = MinioTestConfiguration.TEST_DC_RIGHTS;
 
   private void createTestObjectStoreMetadata() {
     testObjectStoreMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata().fileIdentifier(objectUpload.getFileIdentifier()).build();
@@ -120,6 +124,9 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
     dto.setDcType(acSubType.getDcType());
     dto.setXmpRightsUsageTerms(MinioTestConfiguration.TEST_USAGE_TERMS);
     dto.setCreatedBy(RandomStringUtils.random(4));
+    dto.setXmpRightsWebStatement(xmpRightsWebStatement);
+    dto.setDcRights(dcRights);
+    dto.setXmpRightsOwner(xmpRightsOwner);
 
     UUID dtoUuid = objectStoreResourceRepository.create(dto).getUuid();
 
@@ -175,6 +182,10 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
     updateMetadataDto.setFileIdentifier(MinioTestConfiguration.TEST_FILE_IDENTIFIER);
     updateMetadataDto.setAcSubType(acSubType.getAcSubtype());
     updateMetadataDto.setXmpRightsUsageTerms(MinioTestConfiguration.TEST_USAGE_TERMS);
+    updateMetadataDto.setDcRights(dcRights);
+    updateMetadataDto.setXmpRightsOwner(xmpRightsOwner);
+    updateMetadataDto.setXmpRightsWebStatement(xmpRightsWebStatement);
+
 
     objectStoreResourceRepository.save(updateMetadataDto);
 
@@ -207,6 +218,9 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
     parentDTO.setDcType(acSubType.getDcType());
     parentDTO.setXmpRightsUsageTerms(MinioTestConfiguration.TEST_USAGE_TERMS);
     parentDTO.setCreatedBy(RandomStringUtils.random(4));
+    parentDTO.setDcRights(dcRights);
+    parentDTO.setXmpRightsOwner(xmpRightsOwner);
+    parentDTO.setXmpRightsWebStatement(xmpRightsWebStatement);
     return parentDTO;
   }
 

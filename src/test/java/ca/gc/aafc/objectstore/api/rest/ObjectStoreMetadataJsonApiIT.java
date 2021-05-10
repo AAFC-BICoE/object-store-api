@@ -87,7 +87,7 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
     osMetadata.setBucket(MinioTestConfiguration.TEST_BUCKET);
     osMetadata.setPubliclyReleasable(true);
     osMetadata.setNotPubliclyReleasableReason("Classified");
-    osMetadata.setXmpRightsUsageTerms(null);
+    osMetadata.setXmpRightsUsageTerms(MinioTestConfiguration.TEST_XMP_RIGHTS_USAGE_TERMS);
     osMetadata.setDerivatives(null);
     return osMetadata;
   }
