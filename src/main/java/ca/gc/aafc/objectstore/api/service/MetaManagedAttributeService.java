@@ -6,13 +6,9 @@ import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
 import ca.gc.aafc.objectstore.api.validation.MetadataManagedAttributeValidator;
 import lombok.NonNull;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.Errors;
-import org.springframework.validation.ObjectError;
+
 import java.time.OffsetDateTime;
 import java.util.UUID;
-
-import java.util.Optional;
 
 @Service
 public class MetaManagedAttributeService extends DefaultDinaService<MetadataManagedAttribute> {

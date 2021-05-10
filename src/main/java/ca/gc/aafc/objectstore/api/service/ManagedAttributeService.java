@@ -3,9 +3,6 @@ package ca.gc.aafc.objectstore.api.service;
 import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
 import ca.gc.aafc.objectstore.api.exceptionmapping.ManagedAttributeChildConflictException;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.Errors;
-import org.springframework.validation.ObjectError;
 import org.apache.commons.lang3.StringUtils;
 
 import ca.gc.aafc.dina.jpa.BaseDAO;
@@ -20,7 +17,6 @@ import java.util.stream.Collectors;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.Optional;
 
 @Service
 public class ManagedAttributeService extends DefaultDinaService<ManagedAttribute> {

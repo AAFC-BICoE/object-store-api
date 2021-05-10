@@ -1,7 +1,6 @@
 package ca.gc.aafc.objectstore.api.entities;
 
 import java.time.OffsetDateTime;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -20,7 +19,6 @@ import com.vladmihalcea.hibernate.type.array.StringArrayType;
 import com.vladmihalcea.hibernate.type.basic.PostgreSQLEnumType;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 
-import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
 import org.hibernate.annotations.NaturalId;
