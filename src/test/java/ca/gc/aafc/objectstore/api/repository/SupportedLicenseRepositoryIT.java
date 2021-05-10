@@ -2,7 +2,7 @@ package ca.gc.aafc.objectstore.api.repository;
 
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.dto.LicenseDto;
-import ca.gc.aafc.objectstore.api.respository.SupportedLicenseRepository;
+import ca.gc.aafc.objectstore.api.repository.SupportedLicenseRepository;
 import io.crnk.core.queryspec.QuerySpec;
 import org.junit.jupiter.api.Test;
 

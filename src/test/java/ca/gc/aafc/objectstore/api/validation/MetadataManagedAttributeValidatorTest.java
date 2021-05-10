@@ -105,7 +105,7 @@ public class MetadataManagedAttributeValidatorTest {
   public static ReloadableResourceBundleMessageSource messageSource() {
     ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
     messageSource.setDefaultLocale(LocaleContextHolder.getLocale());
-    messageSource.setBasename("classpath:messages");
+    messageSource.setBasename("classpath:validation-messages");
     messageSource.setDefaultEncoding("UTF-8");
     return messageSource;
   }

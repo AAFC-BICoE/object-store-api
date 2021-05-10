@@ -1,4 +1,4 @@
-package ca.gc.aafc.objectstore.api.respository;
+package ca.gc.aafc.objectstore.api.repository;
 
 import java.io.Serializable;
 import java.util.Optional;
@@ -16,7 +16,7 @@ import ca.gc.aafc.dina.service.AuditService;
 import ca.gc.aafc.dina.service.GroupAuthorizationService;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
-import ca.gc.aafc.objectstore.api.respository.managedattributemap.MetadataToManagedAttributeMapRepository;
+import ca.gc.aafc.objectstore.api.repository.managedattributemap.MetadataToManagedAttributeMapRepository;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
 import io.crnk.core.queryspec.QuerySpec;
 import io.crnk.core.resource.list.ResourceList;

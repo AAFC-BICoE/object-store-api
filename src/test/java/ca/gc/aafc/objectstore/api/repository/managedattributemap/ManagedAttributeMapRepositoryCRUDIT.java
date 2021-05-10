@@ -9,9 +9,9 @@ import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.exceptionmapping.ManagedAttributeChildConflictException;
-import ca.gc.aafc.objectstore.api.respository.ManagedAttributeResourceRepository;
-import ca.gc.aafc.objectstore.api.respository.ObjectStoreResourceRepository;
-import ca.gc.aafc.objectstore.api.respository.managedattributemap.ManagedAttributeMapRepository;
+import ca.gc.aafc.objectstore.api.repository.ManagedAttributeResourceRepository;
+import ca.gc.aafc.objectstore.api.repository.ObjectStoreResourceRepository;
+import ca.gc.aafc.objectstore.api.repository.managedattributemap.ManagedAttributeMapRepository;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MetadataManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
@@ -101,13 +101,13 @@ public class ManagedAttributeMapRepositoryCRUDIT extends BaseIntegrationTest {
   @Test
   public void setAttributeValue_whenMMADoesntExist_addNewInvalidValue_validationThrowsException() {
     testManagedAttribute2.setAcceptedValues(new String[]{"acceptable test value2"});
-    managedAttributeService.create(testManagedAttribute2);
+    managedAttributeService.update(testManagedAttribute2);
 
     entityManager.flush();
     entityManager.refresh(testMetadata);
 
     // Set attr2 with value not in accepted values list
-    assertThrows(InvalidDataAccessApiUsageException.class, ()-> managedAttributeMapRepository.create(ManagedAttributeMapDto.builder()
+    assertThrows(ValidationException.class, ()-> managedAttributeMapRepository.create(ManagedAttributeMapDto.builder()
       .metadata(metadataRepository.findOne(testMetadata.getUuid(), new QuerySpec(ObjectStoreMetadataDto.class)))
       .values(ImmutableMap.<String, ManagedAttributeMapValue>builder().put(testManagedAttribute2.getUuid().toString(),
         ManagedAttributeMapValue.builder().value("New attr2 value").build()).build())
@@ -117,13 +117,13 @@ public class ManagedAttributeMapRepositoryCRUDIT extends BaseIntegrationTest {
   @Test
   public void setAttributeValue_whenMMAExists_overwriteMMAWithInvalidValue_validationThrowsException() {
     testManagedAttribute1.setAcceptedValues(new String[]{"acceptable test value1"});
-    managedAttributeService.create(testManagedAttribute1);
+    managedAttributeService.update(testManagedAttribute1);
 
     entityManager.flush();
     entityManager.refresh(testMetadata);
 
     // Set attr1 value:
-    assertThrows(InvalidDataAccessApiUsageException.class, ()-> managedAttributeMapRepository.create(
+    assertThrows(ValidationException.class, ()-> managedAttributeMapRepository.create(
       ManagedAttributeMapDto.builder()
         .metadata(metadataRepository.findOne(testMetadata.getUuid(), new QuerySpec(ObjectStoreMetadataDto.class)))
         .values(ImmutableMap.<String, ManagedAttributeMapValue>builder()

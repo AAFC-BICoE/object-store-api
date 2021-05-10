@@ -33,7 +33,7 @@ import com.google.common.collect.ImmutableMap;
 import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.dina.testsupport.specs.OpenAPI3Assertions;
 import ca.gc.aafc.objectstore.api.BaseHttpIntegrationTest;
-import ca.gc.aafc.objectstore.api.respository.DcTypeJsonSerDe;
+import ca.gc.aafc.objectstore.api.repository.DcTypeJsonSerDe;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;

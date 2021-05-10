@@ -2,6 +2,7 @@ package ca.gc.aafc.objectstore.api.service;
 
 import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.dina.service.DefaultDinaService;
+import ca.gc.aafc.dina.service.OnCreate;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.file.ThumbnailGenerator;
@@ -12,6 +13,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ObjectError;
 import org.springframework.validation.Validator;
+import org.springframework.validation.annotation.Validated;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
@@ -21,6 +23,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiFunction;
+import javax.validation.Valid;
 
 @Service
 public class DerivativeService extends DefaultDinaService<Derivative> {
@@ -45,7 +48,8 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
   }
 
   @Override
-  public Derivative create(Derivative entity) {
+  @Validated(OnCreate.class)
+  public Derivative create(@Valid Derivative entity) {
     Derivative derivative = super.create(entity);
     handleThumbNailGeneration(derivative);
     return derivative;
