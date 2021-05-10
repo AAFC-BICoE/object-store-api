@@ -7,12 +7,14 @@ import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.file.ThumbnailGenerator;
 import lombok.NonNull;
+import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.transaction.Transactional;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiFunction;
@@ -91,6 +93,7 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
    * @param generatedFromDerivativeUUID id of the derivative this resource derives from, can be null
    * @param isSourceDerivative          true if the source of the thumbnail is a derivative
    */
+  @SneakyThrows
   public void generateThumbnail(
     @NonNull String sourceBucket,
     @NonNull String sourceFilename,
@@ -117,14 +120,19 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
           this.getReferenceByNaturalId(Derivative.class, generatedFromDerivativeUUID));
       }
 
-      this.create(derivative);
       thumbnailGenerator.generateThumbnail(
         uuid,
         sourceFilename,
         evaluatedMediaType,
         sourceBucket,
-        isSourceDerivative);
+        isSourceDerivative,
+        () -> createWithTransaction(derivative));
     }
+  }
+
+  @Transactional
+  private void createWithTransaction(Derivative derivative) {
+    this.create(derivative);
   }
 
   /**

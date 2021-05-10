@@ -17,7 +17,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
-import javax.transaction.Transactional;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -43,14 +42,14 @@ public class ThumbnailGenerator {
 
   private final MinioFileService minioService;
 
-  @Transactional
   @Async
   public void generateThumbnail(
     @NonNull UUID uuid,
     @NonNull String sourceFilename,
     @NonNull String sourceFileType,
     @NonNull String sourceBucket,
-    boolean isSourceDerivative
+    boolean isSourceDerivative,
+    Runnable whenComplete
   ) {
 
     String fileName = uuid + ThumbnailGenerator.THUMBNAIL_EXTENSION;
@@ -86,10 +85,12 @@ public class ThumbnailGenerator {
         minioService.storeFile(fileName, thumbnail, "image/jpeg", sourceBucket, true);
       }
 
+      if(whenComplete != null){
+        whenComplete.run();
+      }
     } catch (MinioException | IOException | GeneralSecurityException e) {
       log.warn(() -> "A thumbnail could not be generated for file " + sourceFilename, e);
     }
-
   }
 
   public static boolean isSupported(String fileType) {
