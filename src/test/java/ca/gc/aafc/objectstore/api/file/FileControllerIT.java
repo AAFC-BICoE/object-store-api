@@ -9,7 +9,7 @@ import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
-import ca.gc.aafc.objectstore.api.respository.ObjectStoreResourceRepository;
+import ca.gc.aafc.objectstore.api.repository.ObjectStoreResourceRepository;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import io.crnk.core.exception.UnauthorizedException;
@@ -85,6 +85,13 @@ public class FileControllerIT extends BaseIntegrationTest {
     // file can only be downloaded if we attach metadata to it
     ObjectStoreMetadataDto metadataForFile = new ObjectStoreMetadataDto();
     metadataForFile.setBucket(bucketUnderTest);
+
+    //TODO remove when dina-base can handle it
+    metadataForFile.setXmpRightsWebStatement(MinioTestConfiguration.TEST_XMP_RIGHTS_WEB_STATEMENT);
+    metadataForFile.setDcRights(MinioTestConfiguration.TEST_DC_RIGHTS);
+    metadataForFile.setXmpRightsOwner(MinioTestConfiguration.TEST_XMP_RIGHTS_OWNER);
+    metadataForFile.setXmpRightsUsageTerms(MinioTestConfiguration.TEST_XMP_RIGHTS_USAGE_TERMS);
+
     metadataForFile.setFileIdentifier(uploadResponse.getFileIdentifier());
     objectStoreResourceRepository.create(metadataForFile);
 
