@@ -5,18 +5,19 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import javax.inject.Inject;
 
+import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import ca.gc.aafc.objectstore.api.dto.ObjectUploadDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
-import ca.gc.aafc.objectstore.api.respository.ObjectUploadResourceRepository;
+import ca.gc.aafc.objectstore.api.repository.ObjectUploadResourceRepository;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import io.crnk.core.queryspec.QuerySpec;
 import io.crnk.core.resource.list.ResourceList;
 
-public class ObjectUploadRepositoryCRUDIT extends BaseRepositoryTest {
+public class ObjectUploadRepositoryCRUDIT extends BaseIntegrationTest {
   
   @Inject
   private ObjectUploadResourceRepository objectUploadRepository;
@@ -26,12 +27,12 @@ public class ObjectUploadRepositoryCRUDIT extends BaseRepositoryTest {
   private ObjectUpload createTestObjectUpload() {
     testObjectUpload = ObjectUploadFactory.newObjectUpload()
       .build();
-    persist(testObjectUpload);
+    objectUploadService.create(testObjectUpload);
     return testObjectUpload;
   }
   
   private void removeTestObjectUpload() {
-    service.deleteById(ObjectUpload.class, testObjectUpload.getId());
+    objectUploadService.delete(testObjectUpload);
   }
   
   @BeforeEach

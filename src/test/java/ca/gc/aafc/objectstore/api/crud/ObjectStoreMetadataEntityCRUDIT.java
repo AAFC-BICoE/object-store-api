@@ -5,10 +5,13 @@ import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
+import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MetadataManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,8 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
 
-  @Inject
-  private DinaService<ObjectStoreMetadata> metaService;
+  private ObjectUpload objectUpload;
 
   private static final ZoneId MTL_TZ = ZoneId.of("America/Montreal");
   private final ZonedDateTime TEST_ZONED_DT = ZonedDateTime.of(2019, 1, 2, 3, 4, 5, 0, MTL_TZ);
@@ -42,20 +44,23 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
   @BeforeEach
   void setUp() {
     // Clean all database entries
-    fetchAllMeta().forEach(metaService::delete);
+    fetchAllMeta().forEach(objectStoreMetaDataService::delete);
+    objectUpload = ObjectUploadFactory.newObjectUpload().build();
+    objectUploadService.create(objectUpload);
   }
 
   @Override
   public void testSave() {
     assertNull(objectStoreMetaUnderTest.getId());
-    service.save(objectStoreMetaUnderTest);
+    objectStoreMetaUnderTest.setFileIdentifier(objectUpload.getFileIdentifier());
+    objectStoreMetaDataService.create(objectStoreMetaUnderTest);
     assertNotNull(objectStoreMetaUnderTest.getId());
   }
 
   @Override
   public void testFind() {
-    ObjectStoreMetadata fetchedObjectStoreMeta = service.find(ObjectStoreMetadata.class,
-        objectStoreMetaUnderTest.getId());
+    ObjectStoreMetadata fetchedObjectStoreMeta = objectStoreMetaDataService.findOne(
+      objectStoreMetaUnderTest.getUuid(), ObjectStoreMetadata.class);
 
     assertEquals(objectStoreMetaUnderTest.getId(), fetchedObjectStoreMeta.getId());
     assertEquals(objectStoreMetaUnderTest.getDcCreator(), fetchedObjectStoreMeta.getDcCreator());
@@ -64,6 +69,7 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
     assertEquals(
       objectStoreMetaUnderTest.getAcMetadataCreator(),
       fetchedObjectStoreMeta.getAcMetadataCreator());
+    assertEquals(objectStoreMetaUnderTest.getOrientation(), fetchedObjectStoreMeta.getOrientation());
 
     // the returned acDigitizationDate will use the timezone of the server
     assertEquals(objectStoreMetaUnderTest.getAcDigitizationDate(),
@@ -78,30 +84,32 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
 
   @Override
   public void testRemove() {
-    Integer id = objectStoreMetaUnderTest.getId();
-    service.deleteById(ObjectStoreMetadata.class, id);
-    assertNull(service.find(ObjectStoreMetadata.class, id));
+    UUID uuid = objectStoreMetaUnderTest.getUuid();
+    objectStoreMetaDataService.delete(objectStoreMetaUnderTest);
+    assertNull(objectStoreMetaDataService.findOne(
+      uuid, ObjectStoreMetadata.class));
   }
 
   @Test
   public void testRelationships() {
     ManagedAttribute ma = ManagedAttributeFactory.newManagedAttribute().build();
-    service.save(ma, false);
+    managedAttributeService.create(ma);
 
     ObjectSubtype ost = ObjectSubtypeFactory.newObjectSubtype().build();
-    service.save(ost, false);
+    objectSubTypeService.create(ost);
 
     ObjectStoreMetadata osm = ObjectStoreMetadataFactory
         .newObjectStoreMetadata()
         .acDigitizationDate(TEST_OFFSET_DT)
         .acSubType(ost)
+        .fileIdentifier(objectUpload.getFileIdentifier())
         .build();
 
     // Use "true" here to detach the Metadata,
     // which will make sure the getAcSubTypeId read-only field is populated when the Metadata is restored. 
-    service.save(osm, true);
+    objectStoreMetaDataService.create(osm);
 
-    ObjectStoreMetadata restoredOsm = service.find(ObjectStoreMetadata.class, osm.getId());
+    ObjectStoreMetadata restoredOsm = objectStoreMetaDataService.findOne(osm.getUuid(), ObjectStoreMetadata.class);
     assertNotNull(restoredOsm.getId());
 
     OffsetDateTime initialTimestamp = restoredOsm.getXmpMetadataDate();
@@ -113,14 +121,15 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
     .assignedValue("test value")
     .build();
 
-    service.save(mma);
+    metaManagedAttributeService.create(mma);
 
     OffsetDateTime newTimestamp = restoredOsm.getXmpMetadataDate();
 
     // Adding a MetadataManagedAttribute should update the parent ObjectStoreMetadata:
     assertNotEquals(newTimestamp, initialTimestamp);
 
-    MetadataManagedAttribute restoredMma = service.find(MetadataManagedAttribute.class, mma.getId());
+    MetadataManagedAttribute restoredMma = metaManagedAttributeService.findOne(
+      mma.getUuid(), MetadataManagedAttribute.class);
     assertEquals(restoredOsm.getId(), restoredMma.getObjectStoreMetadata().getId());
 
     // Test read-only getAcSubTypeId Formula field:
@@ -134,7 +143,7 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
    * @return list of all metadata from the database.
    */
   private List<ObjectStoreMetadata> fetchAllMeta() {
-    return metaService.findAll(ObjectStoreMetadata.class,
+    return objectStoreMetaDataService.findAll(ObjectStoreMetadata.class,
       (criteriaBuilder, objectStoreMetadataRoot) -> new Predicate[0],
       null, 0, 100);
   }

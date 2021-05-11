@@ -1,14 +1,11 @@
 package ca.gc.aafc.objectstore.api.entities;
 
-import ca.gc.aafc.dina.entity.SoftDeletable;
-import com.vladmihalcea.hibernate.type.array.StringArrayType;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import lombok.Builder;
-import lombok.RequiredArgsConstructor;
-import org.apache.commons.collections4.CollectionUtils;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
-import org.hibernate.annotations.UpdateTimestamp;
+import ca.gc.aafc.dina.service.OnUpdate;
+
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -22,12 +19,21 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+
+import com.vladmihalcea.hibernate.type.array.StringArrayType;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import lombok.Builder;
+import lombok.RequiredArgsConstructor;
 
 /**
  * The Class ObjectStoreMetadata.
@@ -37,7 +43,7 @@ import java.util.UUID;
 @TypeDef(name = "string-array", typeClass = StringArrayType.class)
 @SuppressFBWarnings({"EI_EXPOSE_REP", "EI_EXPOSE_REP2"})
 @RequiredArgsConstructor
-public class ObjectStoreMetadata extends AbstractObjectStoreMetadata implements SoftDeletable {
+public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
 
   private Integer id;
 
@@ -55,8 +61,6 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata implements 
 
   private String[] acTags;
 
-  private OffsetDateTime deletedDate;
-
   private List<MetadataManagedAttribute> managedAttribute;
 
   private UUID acMetadataCreator;
@@ -68,6 +72,8 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata implements 
   private String notPubliclyReleasableReason;
 
   private ObjectSubtype acSubType;
+
+  private Integer orientation;
 
   /**
    * Read-only field to get the ac_sub_type_id to allow filtering by null values.
@@ -96,7 +102,6 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata implements 
     String xmpRightsUsageTerms,
     String originalFilename,
     String[] acTags,
-    OffsetDateTime deletedDate,
     List<MetadataManagedAttribute> managedAttribute,
     UUID acMetadataCreator,
     UUID dcCreator,
@@ -104,7 +109,8 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata implements 
     Boolean publiclyReleasable,
     String notPubliclyReleasableReason,
     ObjectSubtype acSubType,
-    Integer acSubTypeId
+    Integer acSubTypeId,
+    Integer orientation
   ) {
     super(
       uuid,
@@ -127,7 +133,6 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata implements 
     this.xmpRightsUsageTerms = xmpRightsUsageTerms;
     this.originalFilename = originalFilename;
     this.acTags = acTags;
-    this.deletedDate = deletedDate;
     this.managedAttribute = CollectionUtils.isNotEmpty(managedAttribute) ? managedAttribute : new ArrayList<>();
     this.acMetadataCreator = acMetadataCreator;
     this.dcCreator = dcCreator;
@@ -136,6 +141,7 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata implements 
     this.notPubliclyReleasableReason = notPubliclyReleasableReason;
     this.acSubType = acSubType;
     this.acSubTypeId = acSubTypeId;
+    this.orientation = orientation;
   }
 
   @Id
@@ -227,7 +233,7 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata implements 
     this.managedAttribute = managedAttribute;
   }
 
-  @NotNull
+  @NotNull(groups = OnUpdate.class)
   @Column(name = "xmp_rights_web_statement")
   @Size(max = 250)
   public String getXmpRightsWebStatement() {
@@ -238,7 +244,7 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata implements 
     this.xmpRightsWebStatement = xmpRightsWebStatement;
   }
 
-  @NotNull
+  @NotNull(groups = OnUpdate.class)
   @Column(name = "ac_rights")
   @Size(max = 250)
   public String getDcRights() {
@@ -249,17 +255,7 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata implements 
     this.dcRights = dcRights;
   }
 
-  @Override
-  public OffsetDateTime getDeletedDate() {
-    return deletedDate;
-  }
-
-  @Override
-  public void setDeletedDate(OffsetDateTime deletedDate) {
-    this.deletedDate = deletedDate;
-  }
-
-  @NotNull
+  @NotNull(groups = OnUpdate.class)
   @Column(name = "xmp_rights_owner")
   @Size(max = 250)
   public String getXmpRightsOwner() {
@@ -368,6 +364,16 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata implements 
 
   public void setXmpRightsUsageTerms(String xmpRightsUsageTerms) {
     this.xmpRightsUsageTerms = xmpRightsUsageTerms;
+  }
+
+  @Min(value = 1)
+  @Max(value = 8)
+  public Integer getOrientation() {
+    return orientation;
+  }
+
+  public void setOrientation(Integer orientation) {
+    this.orientation = orientation;
   }
 
   /**

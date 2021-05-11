@@ -6,4 +6,7 @@
     <include file="db/changelog/migrations/1-Remove_app_managed_on_object_sub_type.xml"/>
     <include file="db/changelog/migrations/2-Add_Dc_Format_To_Derivative.xml"/>
     <include file="db/changelog/migrations/3-Make_dcFormat_not_null_at_the_database_level.xml"/>
+    <include file="db/changelog/migrations/4-Remove-legacy-soft-delete.xml"/>
+    <include file="db/changelog/migrations/5-Add_Orientation_field_to_metadata.xml"/>
+
 </databaseChangeLog>

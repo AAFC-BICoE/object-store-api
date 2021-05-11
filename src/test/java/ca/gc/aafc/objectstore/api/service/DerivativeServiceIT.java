@@ -14,20 +14,22 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 
-import javax.inject.Inject;
 import javax.persistence.criteria.Predicate;
+import javax.validation.ValidationException;
 import java.util.List;
 import java.util.UUID;
 
 public class DerivativeServiceIT extends BaseIntegrationTest {
-  @Inject
-  private DerivativeService derivativeService;
+
   private ObjectStoreMetadata acDerivedFrom;
 
   @BeforeEach
   void setUp() {
     acDerivedFrom = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
-    this.service.save(acDerivedFrom);
+
+    service.runInNewTransaction(em -> {
+      em.persist(acDerivedFrom);
+    });
   }
 
   @Test
@@ -49,6 +51,14 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
   }
 
   @Test
+  void create_UsesValidator() {
+    Derivative derivative = newDerivative(acDerivedFrom);
+    derivative.setDerivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE);
+    derivative.setDcFormat(null);
+    Assertions.assertThrows(ValidationException.class, () -> derivativeService.create(derivative));
+  }
+
+  @Test
   void create_WhenDerivativeIsThumbNail_ThumbNailNotGenerated() {
     Derivative derivative = newDerivative(acDerivedFrom);
     derivative.setDerivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE);
@@ -63,13 +73,21 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
 
     ObjectUpload upload = ObjectUploadFactory.newObjectUpload()
       .bucket("test").evaluatedMediaType(MediaType.IMAGE_JPEG_VALUE).build();
-    this.service.save(upload);
+    objectUploadService.create(upload);
     Derivative derivative2 = newDerivative(acDerivedFrom);
     derivative2.setFileIdentifier(upload.getFileIdentifier());
     derivativeService.create(derivative2);
 
     Assertions.assertEquals(1, findAllByDerivative(derivative).size());
     Assertions.assertEquals(0, findAllByDerivative(derivative2).size());
+  }
+
+  @Test
+  void update_UsesValidator() {
+    Derivative derivative = derivativeService.create(newDerivative(acDerivedFrom));
+    derivative.setDerivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE);
+    derivative.setDcFormat(null);
+    Assertions.assertThrows(ValidationException.class, () -> derivativeService.update(derivative));
   }
 
   @Test

@@ -33,7 +33,7 @@ public class MetadataManagedAttributeFactory implements TestableEntityFactory<Me
       .objectStoreMetadata(ObjectStoreMetadataFactory.newObjectStoreMetadata()
         .acDigitizationDate(TEST_OFFSET_DT).build())
       .managedAttribute(ManagedAttributeFactory.newManagedAttribute()
-        .acceptedValues(new String[]{"a", "b"}).build())
+        .acceptedValues(new String[]{"a", "b", "test value"}).build())
       .assignedValue("test value")
       .createdBy(RandomStringUtils.random(4));
    } 

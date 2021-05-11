@@ -1,6 +1,7 @@
 package ca.gc.aafc.objectstore.api.entities;
 
 import ca.gc.aafc.dina.entity.DinaEntity;
+import ca.gc.aafc.dina.service.OnUpdate;
 import com.vladmihalcea.hibernate.type.basic.PostgreSQLEnumType;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +40,7 @@ public abstract class AbstractObjectStoreMetadata implements DinaEntity {
   private String dcFormat;
 
   @NaturalId
-  @NotNull
+  @NotNull(groups = OnUpdate.class)
   @Column(name = "uuid", unique = true)
   public UUID getUuid() {
     return uuid;
@@ -59,7 +60,7 @@ public abstract class AbstractObjectStoreMetadata implements DinaEntity {
     this.bucket = bucket;
   }
 
-  @NotNull
+  @NotNull(groups = OnUpdate.class)
   @Column(name = "file_identifier", unique = true)
   public UUID getFileIdentifier() {
     return fileIdentifier;
@@ -69,7 +70,7 @@ public abstract class AbstractObjectStoreMetadata implements DinaEntity {
     this.fileIdentifier = fileIdentifier;
   }
 
-  @NotNull
+  @NotNull(groups = OnUpdate.class)
   @Column(name = "file_extension")
   @Size(max = 10)
   public String getFileExtension() {
@@ -80,7 +81,7 @@ public abstract class AbstractObjectStoreMetadata implements DinaEntity {
     this.fileExtension = fileExtension;
   }
 
-  @NotNull
+  @NotNull(groups = OnUpdate.class)
   @Type(type = "pgsql_enum")
   @Enumerated(EnumType.STRING)
   @Column(name = "dc_type")
@@ -93,7 +94,7 @@ public abstract class AbstractObjectStoreMetadata implements DinaEntity {
   }
 
   @Column(name = "dc_format")
-  @NotNull
+  @NotNull(groups = OnUpdate.class)
   @Size(max = 150)
   public String getDcFormat() {
     return dcFormat;

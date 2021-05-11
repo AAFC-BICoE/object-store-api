@@ -1,11 +1,15 @@
 package ca.gc.aafc.objectstore.api.entities;
 
 import ca.gc.aafc.dina.entity.DinaEntity;
+import ca.gc.aafc.dina.service.OnUpdate;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
+
+import org.hibernate.annotations.Generated;
+import org.hibernate.annotations.GenerationTime;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.NaturalIdCache;
 import org.hibernate.annotations.Type;
@@ -19,6 +23,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -65,6 +70,12 @@ public class ObjectUpload implements DinaEntity {
     this.id = id;
   }
 
+  @Override
+  @Transient
+  public UUID getUuid() {
+    return fileIdentifier;
+  }
+
   @NaturalId
   @NotNull
   @Column(name = "file_identifier", unique = true)
@@ -91,6 +102,7 @@ public class ObjectUpload implements DinaEntity {
   }
 
   @Column(name = "created_on", insertable = false, updatable = false)
+  @Generated(value = GenerationTime.INSERT)
   public OffsetDateTime getCreatedOn() {
     return this.createdOn;
   }
@@ -207,7 +219,7 @@ public class ObjectUpload implements DinaEntity {
 
   @Type(type = "pgsql_enum")
   @Enumerated(EnumType.STRING)
-  @NotNull
+  @NotNull(groups = OnUpdate.class)
   @Column(name = "dc_type")
   public DcType getDcType() {
     return dcType;

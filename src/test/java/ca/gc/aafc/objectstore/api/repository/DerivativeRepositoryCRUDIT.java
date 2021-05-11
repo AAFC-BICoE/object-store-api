@@ -1,17 +1,19 @@
 package ca.gc.aafc.objectstore.api.repository;
 
+import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.dto.DerivativeDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
-import ca.gc.aafc.objectstore.api.respository.DerivativeRepository;
+import ca.gc.aafc.objectstore.api.repository.DerivativeRepository;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import io.crnk.core.exception.BadRequestException;
 import io.crnk.core.exception.MethodNotAllowedException;
 import io.crnk.core.queryspec.QuerySpec;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,26 +23,34 @@ import javax.inject.Inject;
 import javax.validation.ValidationException;
 import java.util.UUID;
 
-public class DerivativeRepositoryCRUDIT extends BaseRepositoryTest {
+public class DerivativeRepositoryCRUDIT extends BaseIntegrationTest {
 
   @Inject
   private DerivativeRepository derivativeRepository;
-  private ObjectUpload upload;
+  private ObjectUpload uploadTest_1;
   private ObjectStoreMetadata acDerivedFrom;
 
   @BeforeEach
   void setUp() {
-    upload = ObjectUploadFactory.newObjectUpload().build();
-    upload.setEvaluatedMediaType(MediaType.IMAGE_JPEG_VALUE);
-    upload.setIsDerivative(true);
-    this.service.save(upload);
-    acDerivedFrom = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
-    this.service.save(acDerivedFrom);
-  }
+    uploadTest_1 = ObjectUploadFactory.newObjectUpload()
+      .isDerivative(true)
+      .evaluatedFileExtension(MediaType.IMAGE_JPEG_VALUE)
+      .build();
 
+    objectUploadService.create(uploadTest_1);
+
+    ObjectUpload uploadTest_2 = ObjectUploadFactory.newObjectUpload().build();
+
+    objectUploadService.create(uploadTest_2);
+
+    acDerivedFrom = ObjectStoreMetadataFactory.newObjectStoreMetadata()
+      .fileIdentifier(uploadTest_2.getFileIdentifier()).build();
+    objectStoreMetaDataService.create(acDerivedFrom);
+  }
+  
   @Test
   void create() {
-    DerivativeDto resource = derivativeRepository.create(newDerivative(upload.getFileIdentifier()));
+    DerivativeDto resource = derivativeRepository.create(newDerivative(uploadTest_1.getFileIdentifier()));
     DerivativeDto result = derivativeRepository.findOne(
       resource.getUuid(),
       new QuerySpec(DerivativeDto.class));
@@ -48,7 +58,7 @@ public class DerivativeRepositoryCRUDIT extends BaseRepositoryTest {
     Assertions.assertEquals(resource.getFileIdentifier(), result.getFileIdentifier());
     Assertions.assertEquals(resource.getDerivativeType(), result.getDerivativeType());
     Assertions.assertEquals(resource.getDcFormat(), result.getDcFormat());
-    Assertions.assertEquals(upload.getEvaluatedMediaType(), result.getDcFormat());
+    Assertions.assertEquals(uploadTest_1.getEvaluatedMediaType(), result.getDcFormat());
     // Auto generated fields
     Assertions.assertNotNull(result.getBucket());
     Assertions.assertNotNull(result.getFileExtension());
@@ -59,7 +69,7 @@ public class DerivativeRepositoryCRUDIT extends BaseRepositoryTest {
 
   @Test
   void create_WhenNoFileId_ThrowsValidationException() {
-    DerivativeDto noFileId = newDerivative(upload.getFileIdentifier());
+    DerivativeDto noFileId = newDerivative(uploadTest_1.getFileIdentifier());
     noFileId.setFileIdentifier(null);
     Assertions.assertThrows(ValidationException.class, () -> derivativeRepository.create(noFileId));
   }
@@ -75,7 +85,7 @@ public class DerivativeRepositoryCRUDIT extends BaseRepositoryTest {
   void create_WhenNotDerivative_ThrowsBadRequest() {
     ObjectUpload notDerivative = ObjectUploadFactory.newObjectUpload().build();
     notDerivative.setIsDerivative(false);
-    this.service.save(notDerivative);
+    objectUploadService.create(notDerivative);
     Assertions.assertThrows(
       BadRequestException.class,
       () -> derivativeRepository.create(newDerivative(notDerivative.getFileIdentifier())));

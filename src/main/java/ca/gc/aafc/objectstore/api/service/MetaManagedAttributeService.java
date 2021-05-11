@@ -6,11 +6,9 @@ import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
 import ca.gc.aafc.objectstore.api.validation.MetadataManagedAttributeValidator;
 import lombok.NonNull;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.Errors;
-import org.springframework.validation.ObjectError;
 
-import java.util.Optional;
+import java.time.OffsetDateTime;
+import java.util.UUID;
 
 @Service
 public class MetaManagedAttributeService extends DefaultDinaService<MetadataManagedAttribute> {
@@ -23,27 +21,35 @@ public class MetaManagedAttributeService extends DefaultDinaService<MetadataMana
   }
 
   public void validateMetaManagedAttribute(MetadataManagedAttribute entity) {
-    Errors errors = new BeanPropertyBindingResult(entity, entity.getUuid().toString());
-    metadataManagedAttributeValidator.validate(entity, errors);
-
-    if (!errors.hasErrors()) {
-      return;
-    }
-
-    Optional<String> errorMsg = errors.getAllErrors().stream().map(ObjectError::getDefaultMessage).findAny();
-    errorMsg.ifPresent(msg -> {
-      throw new IllegalArgumentException(msg);
-    });
+    validateBusinessRules(entity, metadataManagedAttributeValidator);
   }
 
   @Override
   protected void preCreate(MetadataManagedAttribute entity) {
+    entity.setUuid(UUID.randomUUID());
+    updateParentMetadata(entity);
     validateMetaManagedAttribute(entity);
   }
 
   @Override
   protected void preUpdate(MetadataManagedAttribute entity) {
+    updateParentMetadata(entity);
     validateMetaManagedAttribute(entity);
+  }
+
+  @Override
+  protected void preDelete(MetadataManagedAttribute entity) {
+    updateParentMetadata(entity);
+  }
+
+  /**
+   * MetadataManagedAttribute is considered a child value of ObjectStoreMetadata,
+   * so update the parent whenever this is modified.
+   * 
+   * This helps for auditing.
+   */
+  private void updateParentMetadata(MetadataManagedAttribute entity) {
+    entity.getObjectStoreMetadata().setXmpMetadataDate(OffsetDateTime.now());
   }
 
 }

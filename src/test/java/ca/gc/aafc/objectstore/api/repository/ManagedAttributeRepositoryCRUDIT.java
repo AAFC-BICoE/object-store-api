@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 
+import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -18,11 +19,11 @@ import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.dto.ManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute.ManagedAttributeType;
-import ca.gc.aafc.objectstore.api.respository.ManagedAttributeResourceRepository;
+import ca.gc.aafc.objectstore.api.repository.ManagedAttributeResourceRepository;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ManagedAttributeFactory;
 import io.crnk.core.queryspec.QuerySpec;
 
-public class ManagedAttributeRepositoryCRUDIT extends BaseRepositoryTest {
+public class ManagedAttributeRepositoryCRUDIT extends BaseIntegrationTest {
   
   @Inject
   private ManagedAttributeResourceRepository managedResourceRepository;
@@ -37,8 +38,7 @@ public class ManagedAttributeRepositoryCRUDIT extends BaseRepositoryTest {
         .description(ImmutableMap.of("en", "attrEn", "fr", "attrFr"))
         .build();
 
-    persist(testManagedAttribute);
-    return testManagedAttribute;
+    return managedAttributeService.create(testManagedAttribute);
   }
   
   @BeforeEach
