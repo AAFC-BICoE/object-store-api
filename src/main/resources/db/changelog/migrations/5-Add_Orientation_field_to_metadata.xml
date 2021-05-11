@@ -1,0 +1,15 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no" ?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd"
+        context="schema-change">
+    <changeSet context="schema-change" id="5-Add_Orientation_field_to_metadata" author="steven luu">
+      <addColumn tableName="metadata">
+        <column name="orientation" type="INTEGER"/>
+      </addColumn>
+      <sql>
+        ALTER TABLE metadata ADD CONSTRAINT orientation CHECK (orientation &gt;=1 AND orientation &lt;= 8)
+      </sql>  
+    </changeSet>
+</databaseChangeLog>

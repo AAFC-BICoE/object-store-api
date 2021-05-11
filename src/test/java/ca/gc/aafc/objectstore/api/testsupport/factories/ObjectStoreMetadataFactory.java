@@ -36,6 +36,7 @@ public class ObjectStoreMetadataFactory implements TestableEntityFactory<ObjectS
         .dcRights("Copyright Government of Canada")
         .xmpRightsOwner("Government of Canada")
         .xmpRightsUsageTerms("Government of Canada Usage Terms")
+        .orientation(1)
         .createdBy(RandomStringUtils.random(4));
   }
     
