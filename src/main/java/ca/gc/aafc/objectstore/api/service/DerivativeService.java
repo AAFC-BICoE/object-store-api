@@ -6,6 +6,7 @@ import ca.gc.aafc.dina.service.OnCreate;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.file.ThumbnailGenerator;
+import ca.gc.aafc.objectstore.api.validation.DerivativeValidator;
 import lombok.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -13,27 +14,31 @@ import org.springframework.validation.annotation.Validated;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.validation.Valid;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiFunction;
-import javax.validation.Valid;
 
 @Service
 public class DerivativeService extends DefaultDinaService<Derivative> {
   private final ThumbnailGenerator thumbnailGenerator;
+  private final DerivativeValidator validator;
 
   public DerivativeService(
     @NonNull BaseDAO baseDAO,
-    @NonNull ThumbnailGenerator thumbnailGenerator
+    @NonNull ThumbnailGenerator thumbnailGenerator,
+    @NonNull DerivativeValidator validator
   ) {
     super(baseDAO);
     this.thumbnailGenerator = thumbnailGenerator;
+    this.validator = validator;
   }
 
   @Override
   protected void preCreate(Derivative entity) {
     entity.setUuid(UUID.randomUUID());
     establishBiDirectionalAssociation(entity);
+    validateBusinessRules(entity, validator);
   }
 
   @Override
@@ -47,6 +52,7 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
   @Override
   protected void preUpdate(Derivative entity) {
     establishBiDirectionalAssociation(entity);
+    validateBusinessRules(entity, validator);
   }
 
   private static void establishBiDirectionalAssociation(Derivative entity) {
@@ -174,4 +180,5 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
       .bucket(bucket)
       .build();
   }
+
 }

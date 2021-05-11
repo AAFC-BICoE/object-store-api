@@ -13,6 +13,7 @@ import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.springframework.http.MediaType;
 
 import javax.inject.Inject;
 import java.util.UUID;
@@ -82,7 +83,7 @@ public class DerivativeCRUDIT extends BaseEntityCRUDIT {
       .acHashValue("abc")
       .acHashFunction("abcFunction")
       .dcType(DcType.IMAGE)
-      .dcFormat("format")
+      .dcFormat(MediaType.IMAGE_JPEG_VALUE)
       .createdBy(RandomStringUtils.random(4))
       .acDerivedFrom(child)
       .derivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE)
