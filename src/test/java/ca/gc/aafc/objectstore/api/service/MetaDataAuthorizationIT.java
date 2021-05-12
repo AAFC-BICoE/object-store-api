@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 
+import ca.gc.aafc.dina.repository.GoneException;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -97,7 +98,7 @@ public class MetaDataAuthorizationIT extends BaseIntegrationTest {
     ObjectStoreMetadataDto dto = repo.create(newMetaDto(GROUP_1));
     repo.delete(dto.getUuid());
     Assertions.assertThrows(
-      ResourceNotFoundException.class,
+      GoneException.class,
       () -> repo.findOne(dto.getUuid(), new QuerySpec(ObjectStoreMetadataDto.class)));
   }
 
