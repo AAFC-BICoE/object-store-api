@@ -1,10 +1,9 @@
 package ca.gc.aafc.objectstore.api.repository;
 
-import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.dina.mapper.DinaMapper;
 import ca.gc.aafc.dina.repository.DinaRepository;
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
-import ca.gc.aafc.dina.service.DefaultDinaService;
+import ca.gc.aafc.dina.service.DinaService;
 import ca.gc.aafc.objectstore.api.dto.MetadataManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
 import lombok.NonNull;
@@ -20,12 +19,12 @@ public class MetadataManagedAttributeRepository
   private final DinaAuthenticatedUser authenticatedUser;
 
   public MetadataManagedAttributeRepository(
-    @NonNull BaseDAO baseDAO,
+    @NonNull DinaService<MetadataManagedAttribute> dinaService,
     @NonNull DinaAuthenticatedUser authenticatedUser,
     @NonNull BuildProperties props
   ) {
     super(
-      new DefaultDinaService<>(baseDAO),
+      dinaService,
       Optional.empty(),
       Optional.empty(),
       new DinaMapper<>(MetadataManagedAttributeDto.class),

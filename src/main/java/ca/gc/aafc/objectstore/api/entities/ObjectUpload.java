@@ -1,7 +1,6 @@
 package ca.gc.aafc.objectstore.api.entities;
 
 import ca.gc.aafc.dina.entity.DinaEntity;
-import ca.gc.aafc.dina.service.OnUpdate;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.AllArgsConstructor;
@@ -219,7 +218,7 @@ public class ObjectUpload implements DinaEntity {
 
   @Type(type = "pgsql_enum")
   @Enumerated(EnumType.STRING)
-  @NotNull(groups = OnUpdate.class)
+  @NotNull
   @Column(name = "dc_type")
   public DcType getDcType() {
     return dcType;
