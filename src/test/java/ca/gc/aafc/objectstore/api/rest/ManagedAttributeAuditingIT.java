@@ -48,11 +48,6 @@ public class ManagedAttributeAuditingIT extends BaseIntegrationTest {
   private ObjectUpload objectUpload;
   private ManagedAttributeDto managedAttribute;
 
-  private static final String xmpRightsWebStatement = MinioTestConfiguration.TEST_XMP_RIGHTS_WEB_STATEMENT;
-  private static final String xmpRightsOwner = MinioTestConfiguration.TEST_XMP_RIGHTS_OWNER;
-  private static final String xmpRightsUsageTerms = MinioTestConfiguration.TEST_XMP_RIGHTS_USAGE_TERMS;
-  private static final String dcRights = MinioTestConfiguration.TEST_DC_RIGHTS;
-
   @BeforeEach
   void setUp() {
     objectUpload = MinioTestConfiguration.buildTestObjectUpload();
@@ -114,10 +109,6 @@ public class ManagedAttributeAuditingIT extends BaseIntegrationTest {
     ObjectStoreMetadataDto dto = new ObjectStoreMetadataDto();
     dto.setFileIdentifier(objectUpload.getFileIdentifier());
     dto.setBucket("b");
-    dto.setDcRights(dcRights);
-    dto.setXmpRightsOwner(xmpRightsOwner);
-    dto.setXmpRightsWebStatement(xmpRightsWebStatement);
-    dto.setXmpRightsUsageTerms(xmpRightsUsageTerms);
     return dto;
   }
 
