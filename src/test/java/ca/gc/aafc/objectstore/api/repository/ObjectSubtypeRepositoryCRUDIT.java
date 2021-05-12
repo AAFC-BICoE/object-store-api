@@ -15,7 +15,6 @@ import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.dto.ObjectSubtypeDto;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
-import ca.gc.aafc.objectstore.api.repository.ObjectSubtypeResourceRepository;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
 import io.crnk.core.queryspec.QuerySpec;
 

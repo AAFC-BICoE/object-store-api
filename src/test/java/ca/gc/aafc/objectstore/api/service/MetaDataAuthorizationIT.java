@@ -24,7 +24,6 @@ import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.repository.ObjectStoreResourceRepository;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
-import io.crnk.core.exception.ResourceNotFoundException;
 import io.crnk.core.queryspec.QuerySpec;
 
 @SpringBootTest(properties = "keycloak.enabled=true")
@@ -33,9 +32,6 @@ public class MetaDataAuthorizationIT extends BaseIntegrationTest {
   @Inject
   private ObjectStoreResourceRepository repo;
   private static final String GROUP_1 = "CNC";
-  private static final String dcRights = "Copyright Government of Canada";
-  private static final String xmpRightsOwner = "Government of Canada";
-  private static final String xmpRightsWebStatement = " Government of Canada Usage Terms";
   public ObjectUpload testObjectUpload;
   private ObjectStoreMetadata persisted;
 
@@ -116,9 +112,6 @@ public class MetaDataAuthorizationIT extends BaseIntegrationTest {
     meta.setBucket(group);
     meta.setXmpRightsUsageTerms(MinioTestConfiguration.TEST_USAGE_TERMS);
     meta.setCreatedBy(RandomStringUtils.random(4));
-    meta.setDcRights(dcRights);
-    meta.setXmpRightsWebStatement(xmpRightsWebStatement);
-    meta.setXmpRightsOwner(xmpRightsOwner);
     return meta;
   }
 

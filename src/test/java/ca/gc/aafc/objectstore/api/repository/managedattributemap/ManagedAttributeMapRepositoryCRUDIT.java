@@ -11,7 +11,6 @@ import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.exceptionmapping.ManagedAttributeChildConflictException;
 import ca.gc.aafc.objectstore.api.repository.ManagedAttributeResourceRepository;
 import ca.gc.aafc.objectstore.api.repository.ObjectStoreResourceRepository;
-import ca.gc.aafc.objectstore.api.repository.managedattributemap.ManagedAttributeMapRepository;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MetadataManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
@@ -22,7 +21,6 @@ import io.crnk.core.queryspec.QuerySpec;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.dao.InvalidDataAccessApiUsageException;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
