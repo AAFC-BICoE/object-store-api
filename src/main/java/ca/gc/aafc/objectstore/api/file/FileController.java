@@ -339,7 +339,7 @@ public class FileController {
           , null, 0, 1).isEmpty()) {
       DinaJsonMetaInfo meta = 
         AttributeMetaInfoProvider.DinaJsonMetaInfo.builder()
-        .properties(Collections.singletonMap("duplicate_found", "An object upload withe same sha1Hex field already exists"))
+        .warnings(Collections.singletonMap("duplicate_found", "An object upload withe same sha1Hex field already exists"))
         .build();
       dto.setMeta(meta);
     }

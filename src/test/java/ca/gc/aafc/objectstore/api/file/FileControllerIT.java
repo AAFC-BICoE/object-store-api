@@ -136,7 +136,7 @@ public class FileControllerIT extends BaseIntegrationTest {
     String expectedValue = "An object upload withe same sha1Hex field already exists";
 
     assertNotNull(sameUploadResponse);
-    assertTrue(sameUploadResponse.getMeta().getProperties().get(expectedKey).equals(expectedValue));
+    assertTrue(sameUploadResponse.getMeta().getWarnings().get(expectedKey).equals(expectedValue));
   }
 
   /**
