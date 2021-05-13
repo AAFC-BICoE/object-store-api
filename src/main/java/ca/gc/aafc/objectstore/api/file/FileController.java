@@ -45,7 +45,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.inject.Inject;
-import javax.persistence.criteria.Predicate;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.io.InputStream;
