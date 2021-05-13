@@ -319,7 +319,7 @@ public class FileController {
     if (objectUploadService.existsByProperty("sha1Hex", sha1Hex)) {
       meta = 
         AttributeMetaInfoProvider.DinaJsonMetaInfo.builder()
-        .warnings(Collections.singletonMap("duplicate_found", "An object upload withe same sha1Hex field already exists"))
+        .warnings(Collections.singletonMap("duplicate_found", messageSource.getMessage("warnings.duplicate.Sha1Hex", null, LocaleContextHolder.getLocale())))
         .build();
     }
     ObjectUpload objectUpload = objectUploadService.create(ObjectUpload.builder()
