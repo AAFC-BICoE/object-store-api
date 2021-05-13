@@ -316,6 +316,13 @@ public class FileController {
     Map<String, String> exifData,
     boolean isDerivative
   ) {
+    DinaJsonMetaInfo meta = null;
+    if (objectUploadService.existsByProperty(ObjectUpload.class, "sha1Hex", sha1Hex)) {
+      meta = 
+        AttributeMetaInfoProvider.DinaJsonMetaInfo.builder()
+        .warnings(Collections.singletonMap("duplicate_found", "An object upload withe same sha1Hex field already exists"))
+        .build();
+    }
     ObjectUpload objectUpload = objectUploadService.create(ObjectUpload.builder()
       .fileIdentifier(uuid)
       .createdBy(authenticatedUser.getUsername())
@@ -332,17 +339,7 @@ public class FileController {
       .isDerivative(isDerivative)
       .build());
     ObjectUploadDto dto = mapObjectUpload(objectUpload);
-    
-    if (!objectUploadService.findAll(
-      ObjectUpload.class,
-        (cb, root) -> new Predicate[]{cb.equal(root.get("sha1Hex"), sha1Hex)}
-          , null, 0, 1).isEmpty()) {
-      DinaJsonMetaInfo meta = 
-        AttributeMetaInfoProvider.DinaJsonMetaInfo.builder()
-        .warnings(Collections.singletonMap("duplicate_found", "An object upload withe same sha1Hex field already exists"))
-        .build();
-      dto.setMeta(meta);
-    }
+    dto.setMeta(meta);
     return dto;
   }
 
