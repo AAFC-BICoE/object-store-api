@@ -317,7 +317,7 @@ public class FileController {
     boolean isDerivative
   ) {
     DinaJsonMetaInfo meta = null;
-    if (objectUploadService.existsByProperty(ObjectUpload.class, "sha1Hex", sha1Hex)) {
+    if (objectUploadService.existsByProperty("sha1Hex", sha1Hex)) {
       meta = 
         AttributeMetaInfoProvider.DinaJsonMetaInfo.builder()
         .warnings(Collections.singletonMap("duplicate_found", "An object upload withe same sha1Hex field already exists"))

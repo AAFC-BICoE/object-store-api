@@ -11,12 +11,14 @@ import org.springframework.stereotype.Service;
 public class ObjectUploadService extends DefaultDinaService<ObjectUpload> {
 
   private final ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService;
+  private final BaseDAO baseDAO;
 
   public ObjectUploadService(
     @NonNull BaseDAO baseDAO,
     @NonNull ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService
   ) {
     super(baseDAO);
+    this.baseDAO = baseDAO;
     this.defaultValueSetterService = defaultValueSetterService;
   }
 
@@ -28,6 +30,11 @@ public class ObjectUploadService extends DefaultDinaService<ObjectUpload> {
     }
 
     entity.setDcType(defaultValueSetterService.dcTypeFromDcFormat(entity.getDetectedMediaType()));
+  }
+
+  //TODO: replace by defaultDinaService existsByProperty
+  public boolean existsByProperty(String property, Object value) {
+    return baseDAO.existsByProperty(ObjectUpload.class, property, value);
   }
 
 }
