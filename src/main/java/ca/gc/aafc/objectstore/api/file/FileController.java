@@ -2,6 +2,8 @@ package ca.gc.aafc.objectstore.api.file;
 
 import ca.gc.aafc.dina.mapper.DinaMapper;
 import ca.gc.aafc.dina.mapper.DinaMappingLayer;
+import ca.gc.aafc.dina.repository.meta.AttributeMetaInfoProvider;
+import ca.gc.aafc.dina.repository.meta.AttributeMetaInfoProvider.DinaJsonMetaInfo;
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.objectstore.api.dto.ObjectUploadDto;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
@@ -50,6 +52,7 @@ import java.security.DigestInputStream;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -312,6 +315,13 @@ public class FileController {
     Map<String, String> exifData,
     boolean isDerivative
   ) {
+    DinaJsonMetaInfo meta = null;
+    if (objectUploadService.existsByProperty("sha1Hex", sha1Hex)) {
+      meta = 
+        AttributeMetaInfoProvider.DinaJsonMetaInfo.builder()
+        .warnings(Collections.singletonMap("duplicate_found", messageSource.getMessage("warnings.duplicate.Sha1Hex", null, LocaleContextHolder.getLocale())))
+        .build();
+    }
     ObjectUpload objectUpload = objectUploadService.create(ObjectUpload.builder()
       .fileIdentifier(uuid)
       .createdBy(authenticatedUser.getUsername())
@@ -327,7 +337,9 @@ public class FileController {
       .exif(exifData)
       .isDerivative(isDerivative)
       .build());
-    return mapObjectUpload(objectUpload);
+    ObjectUploadDto dto = mapObjectUpload(objectUpload);
+    dto.setMeta(meta);
+    return dto;
   }
 
   /**

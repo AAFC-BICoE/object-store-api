@@ -41,6 +41,8 @@ import javax.transaction.Transactional;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -120,6 +122,21 @@ public class FileControllerIT extends BaseIntegrationTest {
     assertThrows(
       UnauthorizedException.class,
       () -> fileController.handleFileUpload(mockFile, "ivalid-bucket"));
+  }
+
+  @Test
+  public void fileUpload_SameSha1Hex_ObjectUploadEntryCreatedWithWarning() throws Exception {
+    MockMultipartFile mockFile = getFileUnderTest();
+    MockMultipartFile sameMockFile = getFileUnderTest();
+
+    fileController.handleFileUpload(mockFile, bucketUnderTest);
+    ObjectUploadDto sameUploadResponse = fileController.handleFileUpload(sameMockFile, bucketUnderTest);
+
+    String expectedKey = "duplicate_found";
+    String expectedValue = "An object upload withe same sha1Hex field already exists";
+
+    assertNotNull(sameUploadResponse);
+    assertTrue(sameUploadResponse.getMeta().getWarnings().get(expectedKey).equals(expectedValue));
   }
 
   /**
