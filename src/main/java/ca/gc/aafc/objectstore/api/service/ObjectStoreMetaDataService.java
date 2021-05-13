@@ -2,7 +2,6 @@ package ca.gc.aafc.objectstore.api.service;
 
 import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.dina.service.DefaultDinaService;
-import ca.gc.aafc.dina.service.OnCreate;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
@@ -12,11 +11,9 @@ import io.crnk.core.exception.BadRequestException;
 import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
 
 import javax.persistence.criteria.Predicate;
 import javax.validation.ValidationException;
-import javax.validation.Valid;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -63,8 +60,7 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
   }
 
   @Override
-  @Validated(OnCreate.class)
-  public ObjectStoreMetadata create(@Valid ObjectStoreMetadata entity) {
+  public ObjectStoreMetadata create(ObjectStoreMetadata entity) {
     ObjectStoreMetadata objectStoreMetadata = super.create(entity);
     handleThumbNailGeneration(objectStoreMetadata);
     return objectStoreMetadata;

@@ -81,13 +81,14 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
     osMetadata.setXmpRightsWebStatement(null); // default value from configuration should be used
     osMetadata.setDcRights(null); // default value from configuration should be used
     osMetadata.setXmpRightsOwner(null); // default value from configuration should be used
+    osMetadata.setXmpRightsUsageTerms(null); // default value from configuration should be used
     osMetadata.setAcDigitizationDate(dateTime4Test);
     osMetadata.setFileIdentifier(MinioTestConfiguration.TEST_FILE_IDENTIFIER);
     osMetadata.setFileExtension(MinioTestConfiguration.TEST_FILE_EXT);
     osMetadata.setBucket(MinioTestConfiguration.TEST_BUCKET);
     osMetadata.setPubliclyReleasable(true);
     osMetadata.setNotPubliclyReleasableReason("Classified");
-    osMetadata.setXmpRightsUsageTerms(MinioTestConfiguration.TEST_XMP_RIGHTS_USAGE_TERMS);
+
     osMetadata.setDerivatives(null);
     return osMetadata;
   }
