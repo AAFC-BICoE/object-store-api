@@ -27,7 +27,9 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.tika.mime.MediaType;
 import org.apache.tika.mime.MimeTypeException;
+import org.apache.tika.parser.executable.ExecutableParser;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.io.InputStreamResource;
@@ -140,6 +142,11 @@ public class FileController {
     MediaTypeDetectionStrategy.MediaTypeDetectionResult mtdr = mediaTypeDetectionStrategy
       .detectMediaType(prIs.getReadAheadBuffer(), file.getContentType(), file.getOriginalFilename());
 
+    ExecutableParser ep = new ExecutableParser();
+    MediaType detectMediaType = mtdr.getDetectedMediaType();
+    if (ep.getSupportedTypes(null).contains(detectMediaType)) {
+      // DO SOMETHING
+    }
     MessageDigest md = MessageDigest.getInstance(DIGEST_ALGORITHM);
 
     storeFile(bucket, uuid, mtdr, new DigestInputStream(prIs.getInputStream(), md), isDerivative);
