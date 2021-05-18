@@ -148,7 +148,8 @@ public class FileController {
     ExecutableParser ep = new ExecutableParser();
     MediaType detectedMediaType = mtdr.getDetectedMediaType();
     if (ep.getSupportedTypes(null).contains(detectedMediaType)) {
-      throw new IllegalArgumentException(detectedMediaType.getType());
+      throw new IllegalArgumentException(messageSource.getMessage(
+        "supportedMediaType.illegal", new String[]{detectedMediaType.getSubtype()}, LocaleContextHolder.getLocale()), null);
     }
     MessageDigest md = MessageDigest.getInstance(DIGEST_ALGORITHM);
 

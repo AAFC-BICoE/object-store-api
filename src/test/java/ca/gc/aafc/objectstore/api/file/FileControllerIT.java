@@ -105,10 +105,15 @@ public class FileControllerIT extends BaseIntegrationTest {
 
   @Test
   public void fileUpload_InvalidMediaType_throwsIllegalArgumentException() throws Exception {
-    MockMultipartFile mockFile = createMockMultipartFile("executable.exe", "application/x-executable");
+    MockMultipartFile mockFile = createMockMultipartFile("testExecutable", "application/x-sharedlib");
 
-    assertThrows(IllegalArgumentException.class, () -> fileController.handleFileUpload(mockFile, bucketUnderTest));
+    IllegalArgumentException error = assertThrows(IllegalArgumentException.class, () -> fileController.handleFileUpload(mockFile, bucketUnderTest));
 
+    String expectedMessage = "Media type x-sharedlib is invalid.";
+    String actualMessage = error.getLocalizedMessage();
+
+    //assertTrue(expectedMessage.equals(actualMessage));
+    assertEquals(expectedMessage, actualMessage);
   }
 
   @Transactional
