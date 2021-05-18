@@ -12,9 +12,11 @@ import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.crnk.core.resource.annotations.JsonApiField;
 import io.crnk.core.resource.annotations.JsonApiId;
 import io.crnk.core.resource.annotations.JsonApiRelation;
 import io.crnk.core.resource.annotations.JsonApiResource;
+import io.crnk.core.resource.annotations.PatchStrategy;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.javers.core.metamodel.annotation.DiffIgnore;
@@ -106,6 +108,7 @@ public class ObjectStoreMetadataDto {
 
   private String group;
 
+  @JsonApiField(patchStrategy = PatchStrategy.SET)
   private Map<String, String> managedAttributeValues = new HashMap<>();
 
   public void applyObjectSubtype(ObjectSubtype objectSubtype) {
