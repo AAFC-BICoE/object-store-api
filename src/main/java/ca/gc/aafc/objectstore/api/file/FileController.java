@@ -30,6 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MediaType;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.parser.executable.ExecutableParser;
+import org.apache.tika.parser.external.ExternalParser;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.io.InputStreamResource;
@@ -44,6 +45,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.MediaTypeNotSupportedStatusException;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.inject.Inject;
@@ -55,6 +57,7 @@ import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -143,9 +146,9 @@ public class FileController {
       .detectMediaType(prIs.getReadAheadBuffer(), file.getContentType(), file.getOriginalFilename());
 
     ExecutableParser ep = new ExecutableParser();
-    MediaType detectMediaType = mtdr.getDetectedMediaType();
-    if (ep.getSupportedTypes(null).contains(detectMediaType)) {
-      // DO SOMETHING
+    MediaType detectedMediaType = mtdr.getDetectedMediaType();
+    if (!ep.getSupportedTypes(null).contains(detectedMediaType)) {
+      throw new IllegalArgumentException(detectedMediaType.getType());
     }
     MessageDigest md = MessageDigest.getInstance(DIGEST_ALGORITHM);
 
