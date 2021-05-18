@@ -8,5 +8,5 @@
     <include file="db/changelog/migrations/3-Make_dcFormat_not_null_at_the_database_level.xml"/>
     <include file="db/changelog/migrations/4-Remove-legacy-soft-delete.xml"/>
     <include file="db/changelog/migrations/5-Add_Orientation_field_to_metadata.xml"/>
-
+    <include file="db/changelog/migrations/6-re_implement_managed_attributes.xml"/>
 </databaseChangeLog>

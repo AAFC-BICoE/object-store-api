@@ -15,7 +15,6 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.crnk.core.resource.annotations.JsonApiId;
 import io.crnk.core.resource.annotations.JsonApiRelation;
 import io.crnk.core.resource.annotations.JsonApiResource;
-import io.crnk.core.resource.annotations.LookupIncludeBehavior;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.javers.core.metamodel.annotation.DiffIgnore;
@@ -81,15 +80,6 @@ public class ObjectStoreMetadataDto {
 
   @JsonInclude(Include.NON_EMPTY)
   private String[] acTags;
-
-  @JsonApiRelation
-  @DiffIgnore
-  private List<MetadataManagedAttributeDto> managedAttribute;
-
-  // AUTOMATICALLY_ALWAYS because it should be fetched using a call to
-  // MetadataToManagedAttributeMapRepository.
-  @JsonApiRelation(lookUp = LookupIncludeBehavior.AUTOMATICALLY_ALWAYS)
-  private ManagedAttributeMapDto managedAttributeMap;
 
   @JsonApiExternalRelation(type = "person")
   @JsonApiRelation
