@@ -12,7 +12,6 @@ import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFacto
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import io.crnk.core.queryspec.QuerySpec;
-import io.crnk.core.resource.list.ResourceList;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -23,13 +22,10 @@ import org.springframework.http.MediaType;
 import javax.inject.Inject;
 import javax.persistence.criteria.Predicate;
 import javax.validation.ValidationException;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
 
@@ -92,19 +88,9 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
     assertEquals(
       testObjectStoreMetadata.getAcDigitizationDate(),
       objectStoreMetadataDto.getAcDigitizationDate());
-  }
-
-  @Test
-  public void findMeta_whenManagedAttributeMapRequested_noExceptionThrown() {
-    QuerySpec querySpec = new QuerySpec(ObjectStoreMetadataDto.class);
-    querySpec.includeRelation(Collections.singletonList("managedAttributeMap"));
-
-    ResourceList<ObjectStoreMetadataDto> objectStoreMetadataDto = objectStoreResourceRepository.findAll(
-      querySpec);
-    assertNotNull(objectStoreMetadataDto);
-    // We cannot check for the presence of the ManagedAttributeMap in in this test, because Crnk
-    // fetches relations marked with "LookupIncludeBehavior.AUTOMATICALLY_ALWAYS" outside of "findAll".
-    // The test for this inclusion are done in MetadataToManagedAttributeMapRepositoryCRUDIT.
+    assertEquals(
+      testObjectStoreMetadata.getManagedAttributeValues(),
+      objectStoreMetadataDto.getManagedAttributeValues());
   }
 
   @Test

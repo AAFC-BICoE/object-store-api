@@ -25,7 +25,9 @@ import org.javers.core.metamodel.annotation.TypeName;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -103,6 +105,8 @@ public class ObjectStoreMetadataDto {
   private String acSubType;
 
   private String group;
+
+  private Map<String, String> managedAttributeValues = new HashMap<>();
 
   public void applyObjectSubtype(ObjectSubtype objectSubtype) {
     if (objectSubtype != null &&
