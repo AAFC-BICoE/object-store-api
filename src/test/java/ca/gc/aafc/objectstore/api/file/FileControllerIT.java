@@ -103,6 +103,14 @@ public class FileControllerIT extends BaseIntegrationTest {
     assertEquals(mockFile.getOriginalFilename(), response.getHeaders().getContentDisposition().getFilename());
   }
 
+  @Test
+  public void fileUpload_InvalidMediaType_throwsIllegalArgumentException() throws Exception {
+    MockMultipartFile mockFile = createMockMultipartFile("executable.exe", "application/x-executable");
+
+    assertThrows(IllegalArgumentException.class, () -> fileController.handleFileUpload(mockFile, bucketUnderTest));
+
+  }
+
   @Transactional
   @Test
   public void fileUpload_OnValidUpload_ObjectUploadEntryCreated() throws Exception {
