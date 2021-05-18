@@ -16,7 +16,6 @@ import io.crnk.core.exception.UnauthorizedException;
 import io.minio.errors.ErrorResponseException;
 import io.minio.errors.InsufficientDataException;
 import io.minio.errors.InternalException;
-import io.minio.errors.InvalidBucketNameException;
 import io.minio.errors.InvalidResponseException;
 import io.minio.errors.ServerException;
 import io.minio.errors.XmlParserException;
@@ -41,8 +40,6 @@ import javax.transaction.Transactional;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
-import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -162,7 +159,7 @@ public class FileControllerIT extends BaseIntegrationTest {
   @Test
   public void downloadDerivative() throws IOException, InvalidKeyException, NoSuchAlgorithmException,
     XmlParserException, InvalidResponseException, ServerException, InternalException, MimeTypeException,
-    InvalidBucketNameException, InsufficientDataException, ErrorResponseException {
+    InsufficientDataException, ErrorResponseException {
     MockMultipartFile mockFile = getFileUnderTest();
     ObjectUploadDto uploadResponse = fileController.handleDerivativeUpload(mockFile, bucketUnderTest);
     ObjectUpload objectUpload = ObjectUploadFactory.newObjectUpload().build();
