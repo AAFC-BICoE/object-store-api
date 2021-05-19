@@ -24,7 +24,7 @@ public class MinioTestContainer extends GenericContainer<MinioTestContainer> {
     this.withEnv(MINIO_ACCESS_KEY, ACCESS_KEY);
     this.withEnv(MINIO_SECRET_KEY, SECRET_KEY);
     this.withCommand(COMMAND);
-    this.withExposedPorts(PORT);
+    this.addFixedExposedPort(PORT, PORT);
     this.setWaitStrategy(new HttpWaitStrategy()
       .forPort(PORT)
       .forPath(HEALTH_ENDPOINT)
