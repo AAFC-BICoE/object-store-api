@@ -10,7 +10,6 @@ import ca.gc.aafc.objectstore.api.repository.ManagedAttributeResourceRepository;
 import ca.gc.aafc.objectstore.api.repository.ObjectStoreResourceRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
-import io.crnk.core.queryspec.PathSpec;
 import io.crnk.core.queryspec.QuerySpec;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
@@ -77,7 +76,6 @@ public class ManagedAttributeAuditingIT extends BaseIntegrationTest {
 
   private ObjectStoreMetadataDto findMetaData(UUID uuid) {
     QuerySpec querySpec = new QuerySpec(ObjectStoreMetadataDto.class);
-    querySpec.includeRelation(PathSpec.of("managedAttribute"));
     return metadataRepository.findOne(uuid, querySpec);
   }
 
