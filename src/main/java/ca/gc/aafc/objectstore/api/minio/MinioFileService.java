@@ -171,10 +171,12 @@ public class MinioFileService implements FileInformationService {
         .contentType(objectStat.contentType())
         .headerMap(objectStat.headers().toMultimap())
         .build());
-    } catch (ErrorResponseException | InvalidKeyException | IllegalArgumentException |
+    } catch (InvalidKeyException | IllegalArgumentException |
       InsufficientDataException | InternalException | InvalidResponseException |
       NoSuchAlgorithmException | XmlParserException | ServerException erEx) {
       throw new IOException(erEx);
+    } catch (ErrorResponseException e) {
+      return Optional.empty();
     }
   }
 
