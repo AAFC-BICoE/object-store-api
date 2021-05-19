@@ -14,6 +14,7 @@ import org.springframework.http.MediaType;
 
 import javax.inject.Inject;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 
 class MinioFileServiceTest extends BaseIntegrationTest {
 
@@ -43,12 +44,14 @@ class MinioFileServiceTest extends BaseIntegrationTest {
   @Test
   void storeFile_whenFileExists_FileOverWritten() {
     String fileName = "name";
+    byte[] firstFile = "firstFile".getBytes();
     fileService.storeFile(
       fileName,
-      new ByteArrayInputStream("firstFile".getBytes()),
+      new ByteArrayInputStream(firstFile),
       MediaType.TEXT_PLAIN_VALUE,
       BUCKET,
       false);
+    Assertions.assertArrayEquals(firstFile, returnBytesForFile(fileName));
 
     byte[] expected = "dina".getBytes();
     fileService.storeFile(
@@ -58,12 +61,7 @@ class MinioFileServiceTest extends BaseIntegrationTest {
       BUCKET,
       false);
 
-    byte[] resultBytes = IOUtils.toByteArray(fileService.getFile(fileName, BUCKET, false)
-      .orElseThrow(() -> {
-        Assertions.fail("The file was not persisted");
-        return null;
-      }));
-    Assertions.assertArrayEquals(expected, resultBytes);
+    Assertions.assertArrayEquals(expected, returnBytesForFile(fileName));
   }
 
   @SneakyThrows
@@ -79,12 +77,7 @@ class MinioFileServiceTest extends BaseIntegrationTest {
       BUCKET,
       false);
 
-    byte[] resultBytes = IOUtils.toByteArray(fileService.getFile(fileName, BUCKET, false)
-      .orElseThrow(() -> {
-        Assertions.fail("The file was not persisted");
-        return null;
-      }));
-    Assertions.assertArrayEquals(bytes, resultBytes);
+    Assertions.assertArrayEquals(bytes, returnBytesForFile(fileName));
   }
 
   @SneakyThrows
@@ -107,5 +100,13 @@ class MinioFileServiceTest extends BaseIntegrationTest {
       false);
 
     Assertions.assertFalse(fileService.getFile(fileName, "fake", false).isPresent());
+  }
+
+  private byte[] returnBytesForFile(String fileName) throws IOException {
+    return IOUtils.toByteArray(fileService.getFile(fileName, BUCKET, false)
+      .orElseThrow(() -> {
+        Assertions.fail("The file was not persisted");
+        return null;
+      }));
   }
 }
