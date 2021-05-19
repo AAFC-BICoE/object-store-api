@@ -18,6 +18,7 @@ import io.minio.errors.InternalException;
 import io.minio.errors.InvalidResponseException;
 import io.minio.errors.ServerException;
 import io.minio.errors.XmlParserException;
+import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
@@ -144,10 +145,12 @@ public class MinioFileService implements FileInformationService {
             .bucket(bucketName)
             .object(getFileLocation(fileName, isDerivative))
             .build()));
-    } catch (ErrorResponseException | InvalidKeyException | IllegalArgumentException |
+    } catch (InvalidKeyException | IllegalArgumentException |
       InsufficientDataException | InternalException | InvalidResponseException |
       NoSuchAlgorithmException | XmlParserException | ServerException erEx) {
       throw new IOException(erEx);
+    } catch (ErrorResponseException e) {
+      return Optional.empty();
     }
   }
 

@@ -13,6 +13,7 @@ import org.springframework.http.MediaType;
 
 import javax.inject.Inject;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 
 class MinioFileServiceTest extends BaseIntegrationTest {
 
@@ -57,4 +58,25 @@ class MinioFileServiceTest extends BaseIntegrationTest {
     Assertions.assertArrayEquals(bytes, resultBytes);
   }
 
+  @SneakyThrows
+  @Test
+  void getFile_WhenFileDoesNotExist_OptionalEmptyReturned()  {
+    Assertions.assertFalse(fileService.getFile("fileName", BUCKET, false).isPresent());
+  }
+
+  @SneakyThrows
+  @Test
+  void getFile_WhenBucketDoesNotExist_OptionalEmptyReturned()  {
+    byte[] bytes = "dina".getBytes();
+    String fileName = "name";
+
+    fileService.storeFile(
+      fileName,
+      new ByteArrayInputStream(bytes),
+      MediaType.TEXT_PLAIN_VALUE,
+      BUCKET,
+      false);
+
+    Assertions.assertFalse(fileService.getFile(fileName, "fake", false).isPresent());
+  }
 }
