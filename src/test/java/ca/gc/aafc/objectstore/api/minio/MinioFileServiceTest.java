@@ -102,6 +102,12 @@ class MinioFileServiceTest extends BaseIntegrationTest {
     Assertions.assertFalse(fileService.getFile(fileName, "fake", false).isPresent());
   }
 
+  @Test
+  void bucketExists() {
+    Assertions.assertTrue(fileService.bucketExists(BUCKET));
+    Assertions.assertFalse(fileService.bucketExists("fake"));
+  }
+
   private byte[] returnBytesForFile(String fileName) throws IOException {
     return IOUtils.toByteArray(fileService.getFile(fileName, BUCKET, false)
       .orElseThrow(() -> {
