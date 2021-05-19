@@ -1,6 +1,7 @@
 package ca.gc.aafc.objectstore.api.minio;
 
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
+import io.minio.BucketExistsArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import lombok.SneakyThrows;
@@ -13,7 +14,6 @@ import org.springframework.http.MediaType;
 
 import javax.inject.Inject;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 
 class MinioFileServiceTest extends BaseIntegrationTest {
 
@@ -34,7 +34,36 @@ class MinioFileServiceTest extends BaseIntegrationTest {
   @SneakyThrows
   @BeforeEach
   void setUp() {
-    client.makeBucket(MakeBucketArgs.builder().bucket(BUCKET).build());
+    if (!client.bucketExists(BucketExistsArgs.builder().bucket(BUCKET).build())) {
+      client.makeBucket(MakeBucketArgs.builder().bucket(BUCKET).build());
+    }
+  }
+
+  @SneakyThrows
+  @Test
+  void storeFile_whenFileExists_FileOverWritten() {
+    String fileName = "name";
+    fileService.storeFile(
+      fileName,
+      new ByteArrayInputStream("firstFile".getBytes()),
+      MediaType.TEXT_PLAIN_VALUE,
+      BUCKET,
+      false);
+
+    byte[] expected = "dina".getBytes();
+    fileService.storeFile(
+      fileName,
+      new ByteArrayInputStream(expected),
+      MediaType.TEXT_PLAIN_VALUE,
+      BUCKET,
+      false);
+
+    byte[] resultBytes = IOUtils.toByteArray(fileService.getFile(fileName, BUCKET, false)
+      .orElseThrow(() -> {
+        Assertions.fail("The file was not persisted");
+        return null;
+      }));
+    Assertions.assertArrayEquals(expected, resultBytes);
   }
 
   @SneakyThrows
@@ -60,13 +89,13 @@ class MinioFileServiceTest extends BaseIntegrationTest {
 
   @SneakyThrows
   @Test
-  void getFile_WhenFileDoesNotExist_OptionalEmptyReturned()  {
+  void getFile_WhenFileDoesNotExist_OptionalEmptyReturned() {
     Assertions.assertFalse(fileService.getFile("fileName", BUCKET, false).isPresent());
   }
 
   @SneakyThrows
   @Test
-  void getFile_WhenBucketDoesNotExist_OptionalEmptyReturned()  {
+  void getFile_WhenBucketDoesNotExist_OptionalEmptyReturned() {
     byte[] bytes = "dina".getBytes();
     String fileName = "name";
 
