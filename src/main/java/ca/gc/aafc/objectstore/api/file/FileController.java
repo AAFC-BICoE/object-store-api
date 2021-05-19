@@ -45,6 +45,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.server.UnsupportedMediaTypeStatusException;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -67,6 +68,8 @@ public class FileController {
   public static final String DIGEST_ALGORITHM = "SHA-1";
   private static final int MAX_NUMBER_OF_ATTEMPT_RANDOM_UUID = 5;
   private static final int READ_AHEAD_BUFFER_SIZE = 10 * 1024;
+  private static final ExecutableParser ep = new ExecutableParser();
+
 
   private final DinaMappingLayer<ObjectUploadDto, ObjectUpload> mappingLayer;
   private final ObjectUploadService objectUploadService;
@@ -142,11 +145,10 @@ public class FileController {
     MediaTypeDetectionStrategy.MediaTypeDetectionResult mtdr = mediaTypeDetectionStrategy
       .detectMediaType(prIs.getReadAheadBuffer(), file.getContentType(), file.getOriginalFilename());
 
-    ExecutableParser ep = new ExecutableParser();
     MediaType detectedMediaType = mtdr.getDetectedMediaType();
     if (ep.getSupportedTypes(null).contains(detectedMediaType)) {
-      throw new IllegalArgumentException(messageSource.getMessage(
-        "supportedMediaType.illegal", new String[]{detectedMediaType.getSubtype()}, LocaleContextHolder.getLocale()), null);
+      throw new UnsupportedMediaTypeStatusException(messageSource.getMessage(
+        "supportedMediaType.illegal", new String[]{detectedMediaType.getSubtype()}, LocaleContextHolder.getLocale()));
     }
     MessageDigest md = MessageDigest.getInstance(DIGEST_ALGORITHM);
 
