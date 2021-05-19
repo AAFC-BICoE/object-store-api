@@ -68,7 +68,7 @@ public class FileController {
   public static final String DIGEST_ALGORITHM = "SHA-1";
   private static final int MAX_NUMBER_OF_ATTEMPT_RANDOM_UUID = 5;
   private static final int READ_AHEAD_BUFFER_SIZE = 10 * 1024;
-  private static final ExecutableParser ep = new ExecutableParser();
+  private static final ExecutableParser EXECUTABLE_PARSER = new ExecutableParser();
 
 
   private final DinaMappingLayer<ObjectUploadDto, ObjectUpload> mappingLayer;
@@ -146,7 +146,7 @@ public class FileController {
       .detectMediaType(prIs.getReadAheadBuffer(), file.getContentType(), file.getOriginalFilename());
 
     MediaType detectedMediaType = mtdr.getDetectedMediaType();
-    if (ep.getSupportedTypes(null).contains(detectedMediaType)) {
+    if (EXECUTABLE_PARSER.getSupportedTypes(null).contains(detectedMediaType)) {
       throw new UnsupportedMediaTypeStatusException(messageSource.getMessage(
         "supportedMediaType.illegal", new String[]{detectedMediaType.getSubtype()}, LocaleContextHolder.getLocale()));
     }
