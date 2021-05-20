@@ -50,17 +50,17 @@ public class MinioFileService implements FileInformationService {
   }
 
   /**
-   * Utility method that can turn a {@link Path} into a Minio object name. {@link Path} is different depending
-   * on the OS but the Minio object name will always be the same.
+   * Utility method that can turn a {@link Path} into a Minio object name.
+   * {@link Path} is different depending on the OS but the Minio object name will
+   * always be the same.
    *
    * @param path
    * @return minio object name
    */
   public static String toMinioObjectName(Path path) {
     Objects.requireNonNull(path);
-    return Streams.stream(path.iterator())
-      .map(p -> p.getFileName().toString())
-      .collect(Collectors.joining("/"));
+    return Streams.stream(path.iterator()).map(p -> p.getFileName().toString())
+        .collect(Collectors.joining("/"));
   }
 
   /**
@@ -93,11 +93,11 @@ public class MinioFileService implements FileInformationService {
     InternalException {
 
     minioClient.putObject(PutObjectArgs.builder()
-      .bucket(bucket)
-      .object(getFileLocation(fileName, isDerivative))
-      .stream(iStream, UNKNOWN_OBJECT_SIZE, DEFAULT_PART_SIZE)
-      .contentType(contentType)
-      .build());
+        .bucket(bucket)
+        .object(getFileLocation(fileName, isDerivative))
+        .stream(iStream, UNKNOWN_OBJECT_SIZE, DEFAULT_PART_SIZE)
+        .contentType(contentType)
+        .build());
   }
 
   /**
@@ -110,8 +110,8 @@ public class MinioFileService implements FileInformationService {
     try {
       if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build())) {
         minioClient.makeBucket(MakeBucketArgs.builder()
-          .bucket(bucketName)
-          .build());
+            .bucket(bucketName)
+            .build());
       }
     } catch (InvalidKeyException | ErrorResponseException | IllegalArgumentException
       | InsufficientDataException | InternalException
@@ -133,11 +133,7 @@ public class MinioFileService implements FileInformationService {
     return false;
   }
 
-  public Optional<InputStream> getFile(
-    String fileName,
-    String bucketName,
-    boolean isDerivative
-  ) throws IOException {
+  public Optional<InputStream> getFile(String fileName, String bucketName, boolean isDerivative) throws IOException {
     try {
       return Optional.ofNullable(
         minioClient.getObject(
@@ -166,9 +162,9 @@ public class MinioFileService implements FileInformationService {
     StatObjectResponse objectStat;
     try {
       objectStat = minioClient.statObject(
-        StatObjectArgs.builder()
-          .bucket(bucketName)
-          .object(getFileLocation(fileName, isDerivative)).build());
+          StatObjectArgs.builder()
+              .bucket(bucketName)
+              .object(getFileLocation(fileName, isDerivative)).build());
 
       return Optional.of(FileObjectInfo.builder()
         .length(objectStat.size())
