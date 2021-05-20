@@ -172,11 +172,8 @@ public class FileController {
 
     // For the download of an object use the originalFilename provided (if possible)
     return download(bucket, metadata.getFilename(),
-      generateDownloadFilename(
-        metadata.getOriginalFilename(),
-        metadata.getFilename(),
-        metadata.getFileExtension()),
-      false, metadata.getDcFormat());
+        generateDownloadFilename(metadata.getOriginalFilename(), metadata.getFilename(), metadata.getFileExtension()),
+        false, metadata.getDcFormat());
   }
 
   @GetMapping("/file/{bucket}/derivative/{fileId}")
@@ -206,12 +203,12 @@ public class FileController {
 
   /**
    * Internal download function.
-   *
-   * @param bucket           name of the bucket where to find the file
-   * @param fileName         filename of the file in Minio
+   * @param bucket name of the bucket where to find the file
+   * @param fileName filename of the file in Minio
    * @param downloadFilename filename to use for the download
-   * @param isDerivative     used to look in the right subfolder in Minio
-   * @param mediaType        media type to include in the headers of the download
+   * @param isDerivative used to look in the right subfolder in Minio
+   * @param mediaType media type to include in the headers of the download
+   * @return
    * @throws IOException
    */
   private ResponseEntity<InputStreamResource> download(
@@ -235,7 +232,7 @@ public class FileController {
   /**
    * Utility method to generate a NOT_FOUND ResponseStatusException based on the given parameters.
    *
-   * @param bucket   the bucket
+   * @param bucket the bucket
    * @param filename the name of the file
    * @return a ResponseStatusException Not found
    */
@@ -321,10 +318,8 @@ public class FileController {
     if (objectUploadService.existsByProperty("sha1Hex", sha1Hex)) {
       meta =
         AttributeMetaInfoProvider.DinaJsonMetaInfo.builder()
-          .warnings(Collections.singletonMap(
-            "duplicate_found",
-            messageSource.getMessage("warnings.duplicate.Sha1Hex", null, LocaleContextHolder.getLocale())))
-          .build();
+        .warnings(Collections.singletonMap("duplicate_found", messageSource.getMessage("warnings.duplicate.Sha1Hex", null, LocaleContextHolder.getLocale())))
+        .build();
     }
     ObjectUpload objectUpload = objectUploadService.create(ObjectUpload.builder()
       .fileIdentifier(uuid)
@@ -424,16 +419,12 @@ public class FileController {
    *
    * @param originalFilename filename provided by the client at upload time
    * @param internalFilename name internal to the system made from the identifier
-   * @param fileExtension    file extension determined by the system including the dot (.)
+   * @param fileExtension file extension determined by the system including the dot (.)
+   * @return
    */
-  private String generateDownloadFilename(
-    String originalFilename,
-    String internalFilename,
-    String fileExtension
-  ) {
+  private String generateDownloadFilename(String originalFilename, String internalFilename, String fileExtension) {
     // if there is no original file name of the filename is just an extension
-    if (StringUtils.isEmpty(originalFilename) || StringUtils.isEmpty(FilenameUtils.getBaseName(
-      originalFilename))) {
+    if (StringUtils.isEmpty(originalFilename) || StringUtils.isEmpty(FilenameUtils.getBaseName(originalFilename))) {
       return internalFilename;
     }
     // use the internal extension since we are also returning the internal media type
