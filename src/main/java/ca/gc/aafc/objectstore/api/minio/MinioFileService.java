@@ -18,6 +18,8 @@ import io.minio.errors.InternalException;
 import io.minio.errors.InvalidResponseException;
 import io.minio.errors.ServerException;
 import io.minio.errors.XmlParserException;
+import io.minio.messages.ErrorResponse;
+import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
@@ -149,7 +151,13 @@ public class MinioFileService implements FileInformationService {
       NoSuchAlgorithmException | XmlParserException | ServerException erEx) {
       throw new IOException(erEx);
     } catch (ErrorResponseException e) {
-      return Optional.empty();
+      ErrorResponse errorResponse = e.errorResponse();
+      String code = errorResponse.code();
+      if (isNoFileOrBucket(code)) {
+        return Optional.empty();
+      } else {
+        throw new IOException(e);
+      }
     }
   }
 
@@ -190,5 +198,10 @@ public class MinioFileService implements FileInformationService {
       NoSuchAlgorithmException | ServerException | XmlParserException e) {
       throw new IOException(e);
     }
+  }
+
+  private static boolean isNoFileOrBucket(@NonNull String code) {
+    return code.equalsIgnoreCase(S3ErrorCodes.NO_SUCH_KEY.getErrorCode()) ||
+      code.equalsIgnoreCase(S3ErrorCodes.NO_SUCH_BUCKET.getErrorCode());
   }
 }
