@@ -16,25 +16,25 @@ public class ManagedAttributeFactory implements TestableEntityFactory<ObjectStor
   public ObjectStoreManagedAttribute getEntityInstance() {
     return newManagedAttribute().build();
   }
-  
+
   /**
    * Static method that can be called to return a configured builder that can be further customized
    * to return the actual entity object, call the .build() method on a builder.
-   * 
+   *
    * @return Pre-configured builder with all mandatory fields set
    */
-  public static ObjectStoreManagedAttribute.ManagedAttributeBuilder newManagedAttribute() {
+  public static ObjectStoreManagedAttribute.ObjectStoreManagedAttributeBuilder newManagedAttribute() {
     return ObjectStoreManagedAttribute.builder()
         .uuid(UUID.randomUUID())
         .name(TestableEntityFactory.generateRandomNameLettersOnly(12))
         .description(ImmutableMap.of("en", "test description"))
         .createdBy("createdBy")
         .managedAttributeType(ManagedAttributeType.STRING);
-   } 
-  
+   }
+
   /**
    * A utility method to create a list of qty number of Chains with no configuration.
-   * 
+   *
    * @param qty The number of Chains populated in the list
    * @return List of Chain
    */
@@ -46,17 +46,17 @@ public class ManagedAttributeFactory implements TestableEntityFactory<ObjectStor
    * A utility method to create a list of qty number of Chain with an incrementing attribute
    * based on the configuration argument. An example of configuration would be the functional
    * interface (bldr, index) -> bldr.name(" string" + index)
-   * 
+   *
    * @param qty           The number of Chain that is populated in the list.
    * @param configuration the function to apply, usually to differentiate the different entities in
    *                      the list.
    * @return List of Chain
    */
   public static List<ObjectStoreManagedAttribute> newListOf(int qty,
-                                                            BiFunction<ObjectStoreManagedAttribute.ManagedAttributeBuilder, Integer, ObjectStoreManagedAttribute.ManagedAttributeBuilder> configuration) {
-    
+                                                            BiFunction<ObjectStoreManagedAttribute.ObjectStoreManagedAttributeBuilder, Integer, ObjectStoreManagedAttribute.ObjectStoreManagedAttributeBuilder> configuration) {
+
     return TestableEntityFactory.newEntity(qty, ManagedAttributeFactory::newManagedAttribute, configuration,
-        ObjectStoreManagedAttribute.ManagedAttributeBuilder::build);
+        ObjectStoreManagedAttribute.ObjectStoreManagedAttributeBuilder::build);
   }
 
 }
