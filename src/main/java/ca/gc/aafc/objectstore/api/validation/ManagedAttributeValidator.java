@@ -1,6 +1,6 @@
 package ca.gc.aafc.objectstore.api.validation;
 
-import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
+import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
@@ -18,12 +18,12 @@ public class ManagedAttributeValidator implements Validator {
 
   @Override
   public boolean supports(Class<?> clazz) {
-    return ManagedAttribute.class.isAssignableFrom(clazz);
+    return ObjectStoreManagedAttribute.class.isAssignableFrom(clazz);
   }
 
   @Override
   public void validate(Object target, Errors errors) {
-    ManagedAttribute ma = (ManagedAttribute) target;
+    ObjectStoreManagedAttribute ma = (ObjectStoreManagedAttribute) target;
     if (ma.getDescription().isEmpty()) {
       String errorMessage = messageSource.getMessage("description.isEmpty", null,
         LocaleContextHolder.getLocale());

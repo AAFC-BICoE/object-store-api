@@ -6,14 +6,14 @@ import java.util.function.BiFunction;
 
 import com.google.common.collect.ImmutableMap;
 
-import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
+import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
 import ca.gc.aafc.dina.entity.ManagedAttribute.ManagedAttributeType;
 
-public class ManagedAttributeFactory implements TestableEntityFactory<ManagedAttribute> {
+public class ManagedAttributeFactory implements TestableEntityFactory<ObjectStoreManagedAttribute> {
 
   @Override
-  public ManagedAttribute getEntityInstance() {
+  public ObjectStoreManagedAttribute getEntityInstance() {
     return newManagedAttribute().build();
   }
   
@@ -23,8 +23,8 @@ public class ManagedAttributeFactory implements TestableEntityFactory<ManagedAtt
    * 
    * @return Pre-configured builder with all mandatory fields set
    */
-  public static ManagedAttribute.ManagedAttributeBuilder newManagedAttribute() {
-    return ManagedAttribute.builder()
+  public static ObjectStoreManagedAttribute.ManagedAttributeBuilder newManagedAttribute() {
+    return ObjectStoreManagedAttribute.builder()
         .uuid(UUID.randomUUID())
         .name(TestableEntityFactory.generateRandomNameLettersOnly(12))
         .description(ImmutableMap.of("en", "test description"))
@@ -38,7 +38,7 @@ public class ManagedAttributeFactory implements TestableEntityFactory<ManagedAtt
    * @param qty The number of Chains populated in the list
    * @return List of Chain
    */
-  public static List<ManagedAttribute> newListOf(int qty) {
+  public static List<ObjectStoreManagedAttribute> newListOf(int qty) {
     return newListOf(qty, null);
   }
 
@@ -52,11 +52,11 @@ public class ManagedAttributeFactory implements TestableEntityFactory<ManagedAtt
    *                      the list.
    * @return List of Chain
    */
-  public static List<ManagedAttribute> newListOf(int qty,
-      BiFunction<ManagedAttribute.ManagedAttributeBuilder, Integer, ManagedAttribute.ManagedAttributeBuilder> configuration) {
+  public static List<ObjectStoreManagedAttribute> newListOf(int qty,
+                                                            BiFunction<ObjectStoreManagedAttribute.ManagedAttributeBuilder, Integer, ObjectStoreManagedAttribute.ManagedAttributeBuilder> configuration) {
     
     return TestableEntityFactory.newEntity(qty, ManagedAttributeFactory::newManagedAttribute, configuration,
-        ManagedAttribute.ManagedAttributeBuilder::build);
+        ObjectStoreManagedAttribute.ManagedAttributeBuilder::build);
   }
 
 }

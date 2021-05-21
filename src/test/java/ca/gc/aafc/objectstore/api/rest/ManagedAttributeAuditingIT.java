@@ -4,7 +4,7 @@ import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.MinioTestConfiguration;
 import ca.gc.aafc.objectstore.api.dto.ManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
-import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
+import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.repository.ManagedAttributeResourceRepository;
 import ca.gc.aafc.objectstore.api.repository.ObjectStoreResourceRepository;
@@ -48,7 +48,7 @@ public class ManagedAttributeAuditingIT extends BaseIntegrationTest {
     managed.setName("name");
     managed.setUuid(UUID.randomUUID());
     managed.setDescription(ImmutableMap.of("en", "en"));
-    managed.setManagedAttributeType(ManagedAttribute.ManagedAttributeType.STRING);
+    managed.setManagedAttributeType(ObjectStoreManagedAttribute.ManagedAttributeType.STRING);
 
     managedAttribute = managedRepo.create(managed);
   }

@@ -1,6 +1,6 @@
 package ca.gc.aafc.objectstore.api.crud;
 
-import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
+import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
@@ -87,7 +87,7 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
 
   @Test
   public void testRelationships() {
-    ManagedAttribute ma = ManagedAttributeFactory.newManagedAttribute().build();
+    ObjectStoreManagedAttribute ma = ManagedAttributeFactory.newManagedAttribute().build();
     managedAttributeService.create(ma);
 
     ObjectSubtype ost = ObjectSubtypeFactory.newObjectSubtype().build();
