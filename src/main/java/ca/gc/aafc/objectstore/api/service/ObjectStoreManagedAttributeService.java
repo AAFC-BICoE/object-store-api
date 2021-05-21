@@ -12,11 +12,11 @@ import java.util.Map;
 import java.util.UUID;
 
 @Service
-public class ManagedAttributeService extends ca.gc.aafc.dina.service.ManagedAttributeService<ObjectStoreManagedAttribute> {
+public class ObjectStoreManagedAttributeService extends ca.gc.aafc.dina.service.ManagedAttributeService<ObjectStoreManagedAttribute> {
 
   private final ManagedAttributeValidator managedAttributeValidator;
 
-  public ManagedAttributeService(
+  public ObjectStoreManagedAttributeService(
     @NonNull BaseDAO baseDAO,
     @NonNull ManagedAttributeValidator managedAttributeValidator
   ) {
