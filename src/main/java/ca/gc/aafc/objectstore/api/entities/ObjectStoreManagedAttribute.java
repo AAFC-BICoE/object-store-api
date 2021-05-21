@@ -35,7 +35,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 
-@Entity
+@Entity(name = "managed_attribute")
 @TypeDefs({@TypeDef(name = "pgsql_enum", typeClass = PostgreSQLEnumType.class),
   @TypeDef(name = "string-array", typeClass = StringArrayType.class),
   @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)})
