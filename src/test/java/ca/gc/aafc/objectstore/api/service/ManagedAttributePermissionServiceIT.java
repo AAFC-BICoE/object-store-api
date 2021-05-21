@@ -4,7 +4,7 @@ package ca.gc.aafc.objectstore.api.service;
 import ca.gc.aafc.dina.testsupport.security.WithMockKeycloakUser;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.dto.ManagedAttributeDto;
-import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
+import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.objectstore.api.repository.ManagedAttributeResourceRepository;
 
 import com.google.common.collect.ImmutableMap;
@@ -26,14 +26,14 @@ public class ManagedAttributePermissionServiceIT extends BaseIntegrationTest {
   private ManagedAttributeResourceRepository repoUnderTest;
 
   /** An existing managed attribute in the database. */
-  private ManagedAttribute managedAttribute;
+  private ObjectStoreManagedAttribute managedAttribute;
 
   @BeforeEach
   public void persistManagedAttribute() {
-    managedAttribute = ManagedAttribute.builder()
+    managedAttribute = ObjectStoreManagedAttribute.builder()
       .name(RandomStringUtils.randomAlphabetic(4))
       .description(ImmutableMap.of("en", "Test"))
-      .managedAttributeType(ManagedAttribute.ManagedAttributeType.STRING)
+      .managedAttributeType(ObjectStoreManagedAttribute.ManagedAttributeType.STRING)
       .createdBy("test-method")
       .build();
     managedAttributeService.create(managedAttribute);
@@ -94,7 +94,7 @@ public class ManagedAttributePermissionServiceIT extends BaseIntegrationTest {
     ManagedAttributeDto dto = new ManagedAttributeDto();
     dto.setName(RandomStringUtils.randomAlphabetic(4));
     dto.setDescription(ImmutableMap.of("en", "Test"));
-    dto.setManagedAttributeType(ManagedAttribute.ManagedAttributeType.STRING);
+    dto.setManagedAttributeType(ObjectStoreManagedAttribute.ManagedAttributeType.STRING);
     return dto;
   }
 

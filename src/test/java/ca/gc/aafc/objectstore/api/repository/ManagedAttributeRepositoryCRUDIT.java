@@ -17,7 +17,7 @@ import com.google.common.collect.ImmutableMap;
 
 import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.dto.ManagedAttributeDto;
-import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
+import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.dina.entity.ManagedAttribute.ManagedAttributeType;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ManagedAttributeFactory;
 import io.crnk.core.queryspec.QuerySpec;
@@ -27,11 +27,11 @@ public class ManagedAttributeRepositoryCRUDIT extends BaseIntegrationTest {
   @Inject
   private ManagedAttributeResourceRepository managedResourceRepository;
   
-  private ManagedAttribute testManagedAttribute;
+  private ObjectStoreManagedAttribute testManagedAttribute;
 
   private final static String DINA_USER_NAME = DinaAuthenticatedUserConfig.USER_NAME;
 
-  private ManagedAttribute createTestManagedAttribute() throws JsonProcessingException {
+  private ObjectStoreManagedAttribute createTestManagedAttribute() throws JsonProcessingException {
     testManagedAttribute = ManagedAttributeFactory.newManagedAttribute()
         .acceptedValues(new String[] { "dosal" })
         .description(ImmutableMap.of("en", "attrEn", "fr", "attrFr"))

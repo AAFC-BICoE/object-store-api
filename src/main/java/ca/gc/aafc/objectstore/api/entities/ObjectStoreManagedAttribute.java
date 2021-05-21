@@ -35,7 +35,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 
-@Entity
+@Entity(name = "managed_attribute")
 @TypeDefs({@TypeDef(name = "pgsql_enum", typeClass = PostgreSQLEnumType.class),
   @TypeDef(name = "string-array", typeClass = StringArrayType.class),
   @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)})
@@ -44,7 +44,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @SuppressFBWarnings(justification = "ok for Hibernate Entity", value = { "EI_EXPOSE_REP", "EI_EXPOSE_REP2" })
 @NaturalIdCache
-public class ManagedAttribute implements ca.gc.aafc.dina.entity.ManagedAttribute {
+public class ObjectStoreManagedAttribute implements ca.gc.aafc.dina.entity.ManagedAttribute {
 
   private Integer id;
   private UUID uuid;

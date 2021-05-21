@@ -6,6 +6,7 @@ import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.BiFunction;
 
@@ -37,6 +38,7 @@ public class ObjectStoreMetadataFactory implements TestableEntityFactory<ObjectS
         .xmpRightsOwner("Government of Canada")
         .xmpRightsUsageTerms("Government of Canada Usage Terms")
         .orientation(1)
+        .managedAttributeValues(Map.of("key","Value"))
         .createdBy(RandomStringUtils.random(4));
   }
     

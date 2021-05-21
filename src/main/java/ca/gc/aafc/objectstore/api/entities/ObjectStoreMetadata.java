@@ -1,14 +1,19 @@
 package ca.gc.aafc.objectstore.api.entities;
 
-import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import com.vladmihalcea.hibernate.type.array.StringArrayType;
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import lombok.Builder;
+import lombok.RequiredArgsConstructor;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -21,17 +26,12 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-
-import com.vladmihalcea.hibernate.type.array.StringArrayType;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
-import org.hibernate.annotations.UpdateTimestamp;
-
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import lombok.Builder;
-import lombok.RequiredArgsConstructor;
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * The Class ObjectStoreMetadata.
@@ -39,6 +39,7 @@ import lombok.RequiredArgsConstructor;
 @Entity
 @Table(name = "metadata")
 @TypeDef(name = "string-array", typeClass = StringArrayType.class)
+@TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
 @SuppressFBWarnings({"EI_EXPOSE_REP", "EI_EXPOSE_REP2"})
 @RequiredArgsConstructor
 public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
@@ -59,7 +60,7 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
 
   private String[] acTags;
 
-  private List<MetadataManagedAttribute> managedAttribute;
+  private Map<String, String> managedAttributeValues;
 
   private UUID acMetadataCreator;
   private UUID dcCreator;
@@ -100,7 +101,7 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
     String xmpRightsUsageTerms,
     String originalFilename,
     String[] acTags,
-    List<MetadataManagedAttribute> managedAttribute,
+    Map<String, String> managedAttributeValues,
     UUID acMetadataCreator,
     UUID dcCreator,
     List<Derivative> derivatives,
@@ -131,7 +132,7 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
     this.xmpRightsUsageTerms = xmpRightsUsageTerms;
     this.originalFilename = originalFilename;
     this.acTags = acTags;
-    this.managedAttribute = CollectionUtils.isNotEmpty(managedAttribute) ? managedAttribute : new ArrayList<>();
+    this.managedAttributeValues = MapUtils.isNotEmpty(managedAttributeValues) ? managedAttributeValues : new HashMap<>();
     this.acMetadataCreator = acMetadataCreator;
     this.dcCreator = dcCreator;
     this.derivatives = CollectionUtils.isNotEmpty(derivatives) ? derivatives : new ArrayList<>();
@@ -220,15 +221,6 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
   @Deprecated
   public void setCreatedDate(OffsetDateTime createdDate) {
     this.createdOn = createdDate;
-  }
-
-  @OneToMany(mappedBy = "objectStoreMetadata", fetch = FetchType.LAZY)
-  public List<MetadataManagedAttribute> getManagedAttribute() {
-    return managedAttribute;
-  }
-
-  public void setManagedAttribute(List<MetadataManagedAttribute> managedAttribute) {
-    this.managedAttribute = managedAttribute;
   }
 
   @NotNull
@@ -389,4 +381,13 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
   public void setGroup(String group) {
   }
 
+  @Type(type = "jsonb")
+  @NotNull
+  public Map<String, String> getManagedAttributeValues() {
+    return managedAttributeValues;
+  }
+
+  public void setManagedAttributeValues(Map<String, String> managedAttributeValues) {
+    this.managedAttributeValues = managedAttributeValues;
+  }
 }

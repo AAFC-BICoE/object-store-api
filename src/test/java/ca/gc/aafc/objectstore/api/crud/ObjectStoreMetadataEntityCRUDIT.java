@@ -1,16 +1,13 @@
 package ca.gc.aafc.objectstore.api.crud;
 
-import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
-import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
+import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ManagedAttributeFactory;
-import ca.gc.aafc.objectstore.api.testsupport.factories.MetadataManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -63,6 +60,7 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
     assertEquals(objectStoreMetaUnderTest.getDcCreator(), fetchedObjectStoreMeta.getDcCreator());
     assertEquals(objectStoreMetaUnderTest.getCreatedBy(), fetchedObjectStoreMeta.getCreatedBy());
     assertEquals(objectStoreMetaUnderTest.getId(), fetchedObjectStoreMeta.getId());
+    assertEquals(objectStoreMetaUnderTest.getManagedAttributeValues(),fetchedObjectStoreMeta.getManagedAttributeValues());
     assertEquals(
       objectStoreMetaUnderTest.getAcMetadataCreator(),
       fetchedObjectStoreMeta.getAcMetadataCreator());
@@ -89,7 +87,7 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
 
   @Test
   public void testRelationships() {
-    ManagedAttribute ma = ManagedAttributeFactory.newManagedAttribute().build();
+    ObjectStoreManagedAttribute ma = ManagedAttributeFactory.newManagedAttribute().build();
     managedAttributeService.create(ma);
 
     ObjectSubtype ost = ObjectSubtypeFactory.newObjectSubtype().build();
@@ -108,26 +106,6 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
 
     ObjectStoreMetadata restoredOsm = objectStoreMetaDataService.findOne(osm.getUuid(), ObjectStoreMetadata.class);
     assertNotNull(restoredOsm.getId());
-
-    OffsetDateTime initialTimestamp = restoredOsm.getXmpMetadataDate();
-
-    // link the 2 entities
-    MetadataManagedAttribute mma = MetadataManagedAttributeFactory.newMetadataManagedAttribute()
-    .objectStoreMetadata(restoredOsm)
-    .managedAttribute(ma)
-    .assignedValue("test value")
-    .build();
-
-    metaManagedAttributeService.create(mma);
-
-    OffsetDateTime newTimestamp = restoredOsm.getXmpMetadataDate();
-
-    // Adding a MetadataManagedAttribute should update the parent ObjectStoreMetadata:
-    assertNotEquals(newTimestamp, initialTimestamp);
-
-    MetadataManagedAttribute restoredMma = metaManagedAttributeService.findOne(
-      mma.getUuid(), MetadataManagedAttribute.class);
-    assertEquals(restoredOsm.getId(), restoredMma.getObjectStoreMetadata().getId());
 
     // Test read-only getAcSubTypeId Formula field:
     assertEquals(ost.getId(), restoredOsm.getAcSubTypeId());
