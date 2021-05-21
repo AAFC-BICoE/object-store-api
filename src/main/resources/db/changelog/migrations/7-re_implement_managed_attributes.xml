@@ -4,7 +4,7 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd"
         context="schema-change">
-    <changeSet context="schema-change" id="6-re_implement_managed_attributes" author="keyukj">
+    <changeSet context="schema-change" id="7-re_implement_managed_attributes" author="keyukj">
         <dropTable tableName="metadata_managed_attribute" />
         <addColumn tableName="metadata">
             <column name="managed_attribute_values" type="jsonb" defaultValue="{}" />
