@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import org.apache.commons.lang3.StringUtils;
 
 import ca.gc.aafc.dina.jpa.BaseDAO;
-import ca.gc.aafc.dina.service.DefaultDinaService;
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
 import ca.gc.aafc.objectstore.api.validation.ManagedAttributeValidator;
 import lombok.NonNull;
@@ -19,7 +18,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @Service
-public class ManagedAttributeService extends DefaultDinaService<ManagedAttribute> {
+public class ManagedAttributeService extends ca.gc.aafc.dina.service.ManagedAttributeService<ManagedAttribute> {
 
   private final ManagedAttributeValidator managedAttributeValidator;
 
@@ -33,6 +32,7 @@ public class ManagedAttributeService extends DefaultDinaService<ManagedAttribute
     entity.setUuid(UUID.randomUUID());
     cleanDescription(entity);
     validateManagedAttribute(entity);
+    super.preCreate(entity);
   }
 
   @Override

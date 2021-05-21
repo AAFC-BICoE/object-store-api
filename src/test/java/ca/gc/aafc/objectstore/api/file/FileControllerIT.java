@@ -34,6 +34,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.server.UnsupportedMediaTypeStatusException;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -98,6 +99,18 @@ public class FileControllerIT extends BaseIntegrationTest {
 
     // on download, the original file name should be returned
     assertEquals(mockFile.getOriginalFilename(), response.getHeaders().getContentDisposition().getFilename());
+  }
+
+  @Test
+  public void fileUpload_InvalidMediaType_throwsIllegalArgumentException() throws Exception {
+    MockMultipartFile mockFile = createMockMultipartFile("testExecutable", "application/x-sharedlib");
+
+    UnsupportedMediaTypeStatusException error = assertThrows(UnsupportedMediaTypeStatusException.class, () -> fileController.handleFileUpload(mockFile, bucketUnderTest));
+
+    String expectedMessage = "415 UNSUPPORTED_MEDIA_TYPE \"Media type x-sharedlib is invalid.\"";
+    String actualMessage = error.getLocalizedMessage();
+
+    assertEquals(expectedMessage, actualMessage);
   }
 
   @Transactional

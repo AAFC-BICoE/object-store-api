@@ -18,7 +18,7 @@ import com.google.common.collect.ImmutableMap;
 import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.dto.ManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
-import ca.gc.aafc.objectstore.api.entities.ManagedAttribute.ManagedAttributeType;
+import ca.gc.aafc.dina.entity.ManagedAttribute.ManagedAttributeType;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ManagedAttributeFactory;
 import io.crnk.core.queryspec.QuerySpec;
 

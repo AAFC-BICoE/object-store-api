@@ -14,7 +14,7 @@ import org.springframework.validation.ValidationUtils;
 
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
-import ca.gc.aafc.objectstore.api.entities.ManagedAttribute.ManagedAttributeType;
+import ca.gc.aafc.dina.entity.ManagedAttribute.ManagedAttributeType;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MetadataManagedAttributeFactory;
 

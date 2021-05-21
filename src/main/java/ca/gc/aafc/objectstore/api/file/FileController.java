@@ -26,7 +26,9 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.tika.mime.MediaType;
 import org.apache.tika.mime.MimeTypeException;
+import org.apache.tika.parser.executable.ExecutableParser;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.io.InputStreamResource;
@@ -42,6 +44,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.server.UnsupportedMediaTypeStatusException;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -64,6 +67,8 @@ public class FileController {
   public static final String DIGEST_ALGORITHM = "SHA-1";
   private static final int MAX_NUMBER_OF_ATTEMPT_RANDOM_UUID = 5;
   private static final int READ_AHEAD_BUFFER_SIZE = 10 * 1024;
+  private static final ExecutableParser EXECUTABLE_PARSER = new ExecutableParser();
+
 
   private final DinaMappingLayer<ObjectUploadDto, ObjectUpload> mappingLayer;
   private final ObjectUploadService objectUploadService;
@@ -139,6 +144,11 @@ public class FileController {
     MediaTypeDetectionStrategy.MediaTypeDetectionResult mtdr = mediaTypeDetectionStrategy
       .detectMediaType(prIs.getReadAheadBuffer(), file.getContentType(), file.getOriginalFilename());
 
+    MediaType detectedMediaType = mtdr.getDetectedMediaType();
+    if (EXECUTABLE_PARSER.getSupportedTypes(null).contains(detectedMediaType)) {
+      throw new UnsupportedMediaTypeStatusException(messageSource.getMessage(
+        "supportedMediaType.illegal", new String[]{detectedMediaType.getSubtype()}, LocaleContextHolder.getLocale()));
+    }
     MessageDigest md = MessageDigest.getInstance(DIGEST_ALGORITHM);
 
     storeFile(bucket, uuid, mtdr, new DigestInputStream(prIs.getInputStream(), md), isDerivative);

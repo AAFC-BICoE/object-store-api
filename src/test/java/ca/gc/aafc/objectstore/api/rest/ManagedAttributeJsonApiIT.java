@@ -6,7 +6,7 @@ import java.util.Map;
 import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
 import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.dto.ManagedAttributeDto;
-import ca.gc.aafc.objectstore.api.entities.ManagedAttribute.ManagedAttributeType;
+import ca.gc.aafc.dina.entity.ManagedAttribute.ManagedAttributeType;
 
 public class ManagedAttributeJsonApiIT extends BaseJsonApiIntegrationTest {
 
