@@ -13,7 +13,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
-import ca.gc.aafc.objectstore.api.entities.ManagedAttribute.ManagedAttributeType;
+import ca.gc.aafc.dina.entity.ManagedAttribute.ManagedAttributeType;
 import ca.gc.aafc.objectstore.api.entities.MetadataManagedAttribute;
 
 @Component

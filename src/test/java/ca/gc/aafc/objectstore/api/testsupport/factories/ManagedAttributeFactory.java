@@ -7,8 +7,8 @@ import java.util.function.BiFunction;
 import com.google.common.collect.ImmutableMap;
 
 import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
-import ca.gc.aafc.objectstore.api.entities.ManagedAttribute.ManagedAttributeType;
 import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
+import ca.gc.aafc.dina.entity.ManagedAttribute.ManagedAttributeType;
 
 public class ManagedAttributeFactory implements TestableEntityFactory<ManagedAttribute> {
 
