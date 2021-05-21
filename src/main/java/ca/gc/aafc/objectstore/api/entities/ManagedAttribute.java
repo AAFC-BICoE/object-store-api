@@ -14,11 +14,14 @@ import javax.persistence.Id;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import com.vladmihalcea.hibernate.type.array.StringArrayType;
 import com.vladmihalcea.hibernate.type.basic.PostgreSQLEnumType;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
 import org.hibernate.annotations.NaturalId;
@@ -27,7 +30,6 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 
-import ca.gc.aafc.dina.entity.DinaEntity;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -42,11 +44,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @SuppressFBWarnings(justification = "ok for Hibernate Entity", value = { "EI_EXPOSE_REP", "EI_EXPOSE_REP2" })
 @NaturalIdCache
-public class ManagedAttribute implements DinaEntity {
-
-  public enum ManagedAttributeType {
-    INTEGER, STRING
-  }
+public class ManagedAttribute implements ca.gc.aafc.dina.entity.ManagedAttribute {
 
   private Integer id;
   private UUID uuid;
@@ -56,6 +54,13 @@ public class ManagedAttribute implements DinaEntity {
   private OffsetDateTime createdOn;
   private String createdBy;
   private Map<String, String> description;
+
+  @NotBlank
+  @Size(max = 50)
+  @Column(updatable = false)
+  @Getter
+  @Setter
+  private String key;
 
   @Type(type = "jsonb")
   @Column(name = "description", columnDefinition = "jsonb")
