@@ -14,6 +14,9 @@ embedded.postgresql:
   init-script-file: create-test-users.sql
   database: object_store_test
   schema: object_store
+embedded.minio:
+  enabled: true
+  image: minio/minio
 external-types:
   providerMap:
     person: "Agent/api/v1/person"

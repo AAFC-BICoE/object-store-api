@@ -7,7 +7,6 @@ import io.minio.MinioClient;
 import lombok.SneakyThrows;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -18,7 +17,6 @@ import java.io.IOException;
 
 class MinioFileServiceTest extends BaseIntegrationTest {
 
-  private static final MinioTestContainer minioTestContainer = MinioTestContainer.getInstance();
   public static final String BUCKET = "bucket";
 
   @Inject
@@ -26,11 +24,6 @@ class MinioFileServiceTest extends BaseIntegrationTest {
 
   @Inject
   private MinioClient client;
-
-  @BeforeAll
-  static void beforeAll() {
-    minioTestContainer.start();
-  }
 
   @SneakyThrows
   @BeforeEach
