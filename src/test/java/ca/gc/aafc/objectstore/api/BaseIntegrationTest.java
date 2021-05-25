@@ -1,15 +1,8 @@
 package ca.gc.aafc.objectstore.api;
 
-import javax.inject.Inject;
-
-import ca.gc.aafc.objectstore.api.minio.MinioTestContainerInitializer;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.transaction.annotation.Transactional;
-
 import ca.gc.aafc.dina.testsupport.DatabaseSupportService;
 import ca.gc.aafc.dina.testsupport.PostgresTestContainerInitializer;
+import ca.gc.aafc.objectstore.api.minio.MinioTestContainerInitializer;
 import ca.gc.aafc.objectstore.api.service.DerivativeService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreManagedAttributeService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
