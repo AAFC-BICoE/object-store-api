@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.Predicate;
 import javax.validation.ValidationException;
-
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -25,8 +24,6 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
 
   private final ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService;
 
-  private final MetaManagedAttributeService metaManagedAttributeService;
-
   private final BaseDAO baseDAO;
 
   private final DerivativeService derivativeService;
@@ -34,20 +31,16 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
   public ObjectStoreMetaDataService(
     @NonNull BaseDAO baseDAO,
     @NonNull ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService,
-    @NonNull MetaManagedAttributeService metaManagedAttributeService,
     @NonNull DerivativeService derivativeService
   ) {
     super(baseDAO);
     this.baseDAO = baseDAO;
     this.defaultValueSetterService = defaultValueSetterService;
-    this.metaManagedAttributeService = metaManagedAttributeService;
     this.derivativeService = derivativeService;
   }
 
   @Override
   protected void preCreate(ObjectStoreMetadata entity) {
-    validateMetaManagedAttribute(entity);
-
     entity.setUuid(UUID.randomUUID());
 
     defaultValueSetterService.assignDefaultValues(entity);
@@ -56,7 +49,7 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
       setAcSubType(entity, entity.getAcSubType());
     }
     handleFileRelatedData(entity);
-    
+
   }
 
   @Override
@@ -66,18 +59,8 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
     return objectStoreMetadata;
   }
 
-  private void validateMetaManagedAttribute(ObjectStoreMetadata entity) {
-    if (entity.getManagedAttribute() != null) {
-      entity.getManagedAttribute().forEach(
-        metaManagedAttributeService::validateMetaManagedAttribute
-      );
-    }
-  }
-
   @Override
   protected void preUpdate(ObjectStoreMetadata entity) {
-    validateMetaManagedAttribute(entity);
-
     ObjectSubtype temp = entity.getAcSubType();
 
     if (temp != null) {
@@ -148,7 +131,7 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
       .orElseThrow(() -> new IllegalArgumentException("A thumbnail subtype is not present"));
   }
 
-    /**
+  /**
    * Method responsible for dealing with validation and setting of data related to files.
    *
    * @param objectMetadata - The metadata of the data to set.
@@ -158,7 +141,7 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
     throws ValidationException {
     // we need to validate at least that bucket name and fileIdentifier are there
     if (StringUtils.isBlank(objectMetadata.getBucket())
-        || StringUtils.isBlank(Objects.toString(objectMetadata.getFileIdentifier(), ""))) {
+      || StringUtils.isBlank(Objects.toString(objectMetadata.getFileIdentifier(), ""))) {
       throw new ValidationException("fileIdentifier and bucket should be provided");
     }
 
@@ -195,6 +178,7 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
 
   /**
    * findOne implementation specific to ObjectStoreMetadata
+   *
    * @param uuid
    * @return
    */

@@ -12,10 +12,11 @@ import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.crnk.core.resource.annotations.JsonApiField;
 import io.crnk.core.resource.annotations.JsonApiId;
 import io.crnk.core.resource.annotations.JsonApiRelation;
 import io.crnk.core.resource.annotations.JsonApiResource;
-import io.crnk.core.resource.annotations.LookupIncludeBehavior;
+import io.crnk.core.resource.annotations.PatchStrategy;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.javers.core.metamodel.annotation.DiffIgnore;
@@ -26,7 +27,9 @@ import org.javers.core.metamodel.annotation.TypeName;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -82,15 +85,6 @@ public class ObjectStoreMetadataDto {
   @JsonInclude(Include.NON_EMPTY)
   private String[] acTags;
 
-  @JsonApiRelation
-  @DiffIgnore
-  private List<MetadataManagedAttributeDto> managedAttribute;
-
-  // AUTOMATICALLY_ALWAYS because it should be fetched using a call to
-  // MetadataToManagedAttributeMapRepository.
-  @JsonApiRelation(lookUp = LookupIncludeBehavior.AUTOMATICALLY_ALWAYS)
-  private ManagedAttributeMapDto managedAttributeMap;
-
   @JsonApiExternalRelation(type = "person")
   @JsonApiRelation
   private ExternalRelationDto acMetadataCreator;
@@ -113,6 +107,9 @@ public class ObjectStoreMetadataDto {
   private String acSubType;
 
   private String group;
+
+  @JsonApiField(patchStrategy = PatchStrategy.SET)
+  private Map<String, String> managedAttributeValues = new HashMap<>();
 
   public void applyObjectSubtype(ObjectSubtype objectSubtype) {
     if (objectSubtype != null &&

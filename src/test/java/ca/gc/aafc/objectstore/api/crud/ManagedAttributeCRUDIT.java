@@ -14,12 +14,12 @@ import com.google.common.collect.ImmutableMap;
 
 import org.junit.jupiter.api.Test;
 
-import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
+import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ManagedAttributeFactory;
 
 public class ManagedAttributeCRUDIT extends BaseEntityCRUDIT {
      
-  private ManagedAttribute managedAttributeUnderTest = ManagedAttributeFactory.newManagedAttribute()
+  private ObjectStoreManagedAttribute managedAttributeUnderTest = ManagedAttributeFactory.newManagedAttribute()
       .acceptedValues(new String[] { "a", "b" })
       .description(ImmutableMap.of("en", "attrEn", "fr", "attrFr"))
       .createdBy("createdBy")
@@ -36,7 +36,7 @@ public class ManagedAttributeCRUDIT extends BaseEntityCRUDIT {
 
   @Test
   public void testSave_whenDescriptionIsBlank_throwValidationException() {
-    ManagedAttribute blankDescription = ManagedAttributeFactory.newManagedAttribute()
+    ObjectStoreManagedAttribute blankDescription = ManagedAttributeFactory.newManagedAttribute()
       .acceptedValues(new String[] { "a", "b" })
       .description(ImmutableMap.of("en", ""))
       .build();
@@ -48,8 +48,8 @@ public class ManagedAttributeCRUDIT extends BaseEntityCRUDIT {
 
   @Override
   public void testFind() {
-    ManagedAttribute fetchedObjectStoreMeta = managedAttributeService.findOne(
-      managedAttributeUnderTest.getUuid(), ManagedAttribute.class);
+    ObjectStoreManagedAttribute fetchedObjectStoreMeta = managedAttributeService.findOne(
+      managedAttributeUnderTest.getUuid(), ObjectStoreManagedAttribute.class);
     assertEquals(managedAttributeUnderTest.getId(), fetchedObjectStoreMeta.getId());
 
     assertArrayEquals(new String[] { "a", "b" }, managedAttributeUnderTest.getAcceptedValues());
@@ -64,6 +64,6 @@ public class ManagedAttributeCRUDIT extends BaseEntityCRUDIT {
     UUID uuid = managedAttributeUnderTest.getUuid();
     managedAttributeService.delete(managedAttributeUnderTest);
     assertNull(managedAttributeService.findOne(
-      uuid, ManagedAttribute.class));
+      uuid, ObjectStoreManagedAttribute.class));
   }
 }

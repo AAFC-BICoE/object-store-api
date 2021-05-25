@@ -5,7 +5,7 @@ import ca.gc.aafc.dina.repository.DinaRepository;
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.dina.service.DinaService;
 import ca.gc.aafc.objectstore.api.dto.ManagedAttributeDto;
-import ca.gc.aafc.objectstore.api.entities.ManagedAttribute;
+import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.objectstore.api.service.ManagedAttributeAuthorizationService;
 import lombok.NonNull;
 import org.springframework.boot.info.BuildProperties;
@@ -15,12 +15,12 @@ import java.util.Optional;
 
 @Repository
 public class ManagedAttributeResourceRepository
-  extends DinaRepository<ManagedAttributeDto, ManagedAttribute> {
+  extends DinaRepository<ManagedAttributeDto, ObjectStoreManagedAttribute> {
 
   private final Optional<DinaAuthenticatedUser> authenticatedUser;
 
   public ManagedAttributeResourceRepository(
-    @NonNull DinaService<ManagedAttribute> dinaService,
+    @NonNull DinaService<ObjectStoreManagedAttribute> dinaService,
     @NonNull ManagedAttributeAuthorizationService authorizationService,
     Optional<DinaAuthenticatedUser> authenticatedUser,
     @NonNull BuildProperties props
@@ -31,7 +31,7 @@ public class ManagedAttributeResourceRepository
       Optional.empty(),
       new DinaMapper<>(ManagedAttributeDto.class),
       ManagedAttributeDto.class,
-      ManagedAttribute.class, null, null,
+      ObjectStoreManagedAttribute.class, null, null,
       props);
     this.authenticatedUser = authenticatedUser;
   }
