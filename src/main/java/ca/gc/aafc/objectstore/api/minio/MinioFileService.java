@@ -203,11 +203,12 @@ public class MinioFileService implements FileInformationService {
     }
 
     Optional<S3ErrorCode> errorCode = S3ErrorCode.fromErrorCode(errorResponse.code());
-    if(errorCode.isPresent()) {
+    if (errorCode.isPresent()) {
       switch (errorCode.get()) {
         case NO_SUCH_KEY:
         case NO_SUCH_BUCKET:
-         return true;
+          return true;
+        default:
       }
     }
     return false;
