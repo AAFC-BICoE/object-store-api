@@ -18,8 +18,8 @@ import io.minio.errors.InternalException;
 import io.minio.errors.InvalidResponseException;
 import io.minio.errors.ServerException;
 import io.minio.errors.XmlParserException;
+import io.minio.messages.ErrorResponse;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -146,7 +146,7 @@ public class MinioFileService implements FileInformationService {
       NoSuchAlgorithmException | XmlParserException | ServerException erEx) {
       throw new IOException(erEx);
     } catch (ErrorResponseException e) {
-      if (isNoFileOrBucket(e.errorResponse().code())) {
+      if (isNotFoundError(e.errorResponse())) {
         return Optional.empty();
       } else {
         throw new IOException(e);
@@ -176,7 +176,7 @@ public class MinioFileService implements FileInformationService {
       NoSuchAlgorithmException | XmlParserException | ServerException erEx) {
       throw new IOException(erEx);
     } catch (ErrorResponseException e) {
-      if (isNoFileOrBucket(e.errorResponse().code())) {
+      if (isNotFoundError(e.errorResponse())) {
         return Optional.empty();
       } else {
         throw new IOException(e);
@@ -197,11 +197,19 @@ public class MinioFileService implements FileInformationService {
     }
   }
 
-  private static boolean isNoFileOrBucket(String code) {
-    if (StringUtils.isBlank(code)) {
+  private static boolean isNotFoundError(ErrorResponse errorResponse) {
+    if (errorResponse == null) {
       return false;
     }
-    return code.equalsIgnoreCase(S3ErrorCodes.NO_SUCH_KEY.getErrorCode()) ||
-      code.equalsIgnoreCase(S3ErrorCodes.NO_SUCH_BUCKET.getErrorCode());
+
+    Optional<S3ErrorCode> errorCode = S3ErrorCode.fromErrorCode(errorResponse.code());
+    if(errorCode.isPresent()) {
+      switch (errorCode.get()) {
+        case NO_SUCH_KEY:
+        case NO_SUCH_BUCKET:
+         return true;
+      }
+    }
+    return false;
   }
 }
