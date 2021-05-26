@@ -130,6 +130,8 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
     assertEquals(objectUploadTest.getFileIdentifier(), result.getFileIdentifier());
     assertEquals(acSubType.getUuid(), result.getAcSubType().getUuid());
     assertEquals(MinioTestConfiguration.TEST_USAGE_TERMS, result.getXmpRightsUsageTerms());
+    assertEquals(testManagedAttribute.getAcceptedValues()[0],
+      result.getManagedAttributeValues().get(testManagedAttribute.getKey()));
   }
 
   @Test
