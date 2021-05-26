@@ -2,7 +2,6 @@ package ca.gc.aafc.objectstore.api;
 
 import ca.gc.aafc.dina.testsupport.DatabaseSupportService;
 import ca.gc.aafc.dina.testsupport.PostgresTestContainerInitializer;
-import ca.gc.aafc.objectstore.api.minio.MinioTestContainerInitializer;
 import ca.gc.aafc.objectstore.api.service.DerivativeService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreManagedAttributeService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
@@ -18,7 +17,7 @@ import javax.inject.Inject;
 @SpringBootTest(classes = ObjectStoreApiLauncher.class)
 @TestPropertySource(properties = "spring.config.additional-location=classpath:application-test.yml")
 @Transactional
-@ContextConfiguration(initializers = {PostgresTestContainerInitializer.class, MinioTestContainerInitializer.class})
+@ContextConfiguration(initializers = {PostgresTestContainerInitializer.class})
 public abstract class BaseIntegrationTest {
 
   @Inject

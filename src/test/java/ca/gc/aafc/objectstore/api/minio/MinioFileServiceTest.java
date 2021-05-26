@@ -10,11 +10,13 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ContextConfiguration;
 
 import javax.inject.Inject;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
+@ContextConfiguration(initializers = MinioTestContainerInitializer.class)
 class MinioFileServiceTest extends BaseIntegrationTest {
 
   public static final String BUCKET = "bucket";
