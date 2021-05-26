@@ -20,7 +20,7 @@ public class ObjectStoreManagedAttributeService extends ca.gc.aafc.dina.service.
     @NonNull BaseDAO baseDAO,
     @NonNull ManagedAttributeValidator managedAttributeValidator
   ) {
-    super(baseDAO);
+    super(baseDAO, ObjectStoreManagedAttribute.class);
     this.managedAttributeValidator = managedAttributeValidator;
   }
 
