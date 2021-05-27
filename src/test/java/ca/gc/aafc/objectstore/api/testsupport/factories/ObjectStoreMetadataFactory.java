@@ -6,7 +6,6 @@ import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.function.BiFunction;
 
@@ -16,15 +15,15 @@ public class ObjectStoreMetadataFactory implements TestableEntityFactory<ObjectS
   public ObjectStoreMetadata getEntityInstance() {
     return newObjectStoreMetadata().build();
   }
-  
+
   /**
    * Static method that can be called to return a configured builder that can be further customized
    * to return the actual entity object, call the .build() method on a builder.
-   * 
+   *
    * @return Pre-configured builder with all mandatory fields set
    */
   public static ObjectStoreMetadata.ObjectStoreMetadataBuilder newObjectStoreMetadata() {
-    
+
     return  ObjectStoreMetadata.builder()
         .uuid(UUID.randomUUID())
         .fileIdentifier(UUID.randomUUID())
@@ -38,13 +37,12 @@ public class ObjectStoreMetadataFactory implements TestableEntityFactory<ObjectS
         .xmpRightsOwner("Government of Canada")
         .xmpRightsUsageTerms("Government of Canada Usage Terms")
         .orientation(1)
-        .managedAttributeValues(Map.of("key","Value"))
         .createdBy(RandomStringUtils.random(4));
   }
-    
+
   /**
    * A utility method to create a list of qty number of Chains with no configuration.
-   * 
+   *
    * @param qty The number of Chains populated in the list
    * @return List of Chain
    */
@@ -56,7 +54,7 @@ public class ObjectStoreMetadataFactory implements TestableEntityFactory<ObjectS
    * A utility method to create a list of qty number of Chain with an incrementing attribute
    * based on the configuration argument. An example of configuration would be the functional
    * interface (bldr, index) -> bldr.name(" string" + index)
-   * 
+   *
    * @param qty           The number of Chain that is populated in the list.
    * @param configuration the function to apply, usually to differentiate the different entities in
    *                      the list.
@@ -64,9 +62,9 @@ public class ObjectStoreMetadataFactory implements TestableEntityFactory<ObjectS
    */
   public static List<ObjectStoreMetadata> newListOf(int qty,
       BiFunction<ObjectStoreMetadata.ObjectStoreMetadataBuilder, Integer, ObjectStoreMetadata.ObjectStoreMetadataBuilder> configuration) {
-    
+
     return TestableEntityFactory.newEntity(qty, ObjectStoreMetadataFactory::newObjectStoreMetadata, configuration,
         ObjectStoreMetadata.ObjectStoreMetadataBuilder::build);
   }
-  
+
 }

@@ -5,12 +5,15 @@ import ca.gc.aafc.objectstore.api.MinioTestConfiguration;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectSubtypeDto;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
+import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
+import com.google.common.collect.ImmutableMap;
 import io.crnk.core.queryspec.QuerySpec;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -23,6 +26,7 @@ import javax.inject.Inject;
 import javax.persistence.criteria.Predicate;
 import javax.validation.ValidationException;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -31,6 +35,8 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
 
   @Inject
   private ObjectStoreResourceRepository objectStoreResourceRepository;
+
+  private ObjectStoreManagedAttribute testManagedAttribute;
 
   private ObjectStoreMetadata testObjectStoreMetadata;
 
@@ -43,11 +49,20 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
     objectStoreMetaDataService.create(testObjectStoreMetadata);
   }
 
+  private void createTestManagedAttribute() {
+    testManagedAttribute = ManagedAttributeFactory.newManagedAttribute()
+      .acceptedValues(new String[]{"dosal"})
+      .description(ImmutableMap.of("en", "attrEn", "fr", "attrFr"))
+      .build();
+    managedAttributeService.create(testManagedAttribute);
+  }
+
   @BeforeEach
   public void setup() {
     objectUpload = createObjectUpload();
     createTestObjectStoreMetadata();
     createAcSubType();
+    createTestManagedAttribute();
   }
 
   /**
@@ -105,6 +120,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
     dto.setDcType(acSubType.getDcType());
     dto.setXmpRightsUsageTerms(MinioTestConfiguration.TEST_USAGE_TERMS);
     dto.setCreatedBy(RandomStringUtils.random(4));
+    dto.setManagedAttributeValues(Map.of(testManagedAttribute.getKey(), testManagedAttribute.getAcceptedValues()[0]));
 
     UUID dtoUuid = objectStoreResourceRepository.create(dto).getUuid();
 
@@ -114,6 +130,8 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
     assertEquals(objectUploadTest.getFileIdentifier(), result.getFileIdentifier());
     assertEquals(acSubType.getUuid(), result.getAcSubType().getUuid());
     assertEquals(MinioTestConfiguration.TEST_USAGE_TERMS, result.getXmpRightsUsageTerms());
+    assertEquals(testManagedAttribute.getAcceptedValues()[0],
+      result.getManagedAttributeValues().get(testManagedAttribute.getKey()));
   }
 
   @Test
