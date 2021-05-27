@@ -18,7 +18,6 @@ import io.crnk.core.exception.UnauthorizedException;
 import io.minio.errors.ErrorResponseException;
 import io.minio.errors.InsufficientDataException;
 import io.minio.errors.InternalException;
-import io.minio.errors.InvalidBucketNameException;
 import io.minio.errors.InvalidResponseException;
 import io.minio.errors.ServerException;
 import io.minio.errors.XmlParserException;
@@ -110,7 +109,7 @@ public class FileController {
     @RequestParam("file") MultipartFile file,
     @PathVariable String bucket
   ) throws IOException, MimeTypeException, NoSuchAlgorithmException, ServerException, ErrorResponseException,
-    InternalException, XmlParserException, InvalidResponseException, InvalidBucketNameException,
+    InternalException, XmlParserException, InvalidResponseException,
     InsufficientDataException, InvalidKeyException {
     return handleUpload(file, bucket, true);
   }
@@ -120,7 +119,7 @@ public class FileController {
   public ObjectUploadDto handleFileUpload(
     @RequestParam("file") MultipartFile file,
     @PathVariable String bucket
-  ) throws InvalidKeyException, NoSuchAlgorithmException, InvalidBucketNameException, ErrorResponseException,
+  ) throws InvalidKeyException, NoSuchAlgorithmException, ErrorResponseException,
     InternalException, InsufficientDataException, InvalidResponseException, MimeTypeException, XmlParserException,
     IOException, ServerException {
     return handleUpload(file, bucket, false);
@@ -131,7 +130,7 @@ public class FileController {
     @NonNull String bucket,
     boolean isDerivative
   ) throws IOException, MimeTypeException, NoSuchAlgorithmException, InvalidKeyException, ErrorResponseException,
-    InsufficientDataException, InternalException, InvalidBucketNameException, InvalidResponseException,
+    InsufficientDataException, InternalException, InvalidResponseException,
     XmlParserException, ServerException {
     //Authenticate before anything else
     handleAuthentication(bucket);
@@ -292,7 +291,7 @@ public class FileController {
     InputStream iStream,
     boolean isDerivative
   ) throws IOException, InvalidKeyException, ErrorResponseException, InsufficientDataException, InternalException,
-    InvalidBucketNameException, InvalidResponseException, NoSuchAlgorithmException, XmlParserException, ServerException {
+    InvalidResponseException, NoSuchAlgorithmException, XmlParserException, ServerException {
     // make bucket if it does not exist
     minioService.ensureBucketExists(bucket);
 
@@ -327,7 +326,7 @@ public class FileController {
   ) {
     DinaJsonMetaInfo meta = null;
     if (objectUploadService.existsByProperty("sha1Hex", sha1Hex)) {
-      meta = 
+      meta =
         AttributeMetaInfoProvider.DinaJsonMetaInfo.builder()
         .warnings(Collections.singletonMap("duplicate_found", messageSource.getMessage("warnings.duplicate.Sha1Hex", null, LocaleContextHolder.getLocale())))
         .build();

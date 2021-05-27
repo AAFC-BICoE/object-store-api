@@ -5,7 +5,7 @@
 
 	<groupId>ca.gc.aafc</groupId>
 	<artifactId>object-store.api</artifactId>
-	<version>0.23</version>
+	<version>0.25-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>Object-Store API</name>
@@ -21,7 +21,7 @@
 		<java.version>11</java.version>
 
 		<javax.interceptor-api>1.2.2</javax.interceptor-api>
-		<minio.version>7.1.4</minio.version>
+		<minio.version>8.1.0</minio.version>
 		<tika.version>1.25</tika.version>
 		<thumbnailator.version>0.4.14</thumbnailator.version>
 		<pdfbox.version>2.0.22</pdfbox.version>
