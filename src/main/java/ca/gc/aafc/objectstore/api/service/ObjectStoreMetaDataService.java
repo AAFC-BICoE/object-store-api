@@ -2,35 +2,29 @@ package ca.gc.aafc.objectstore.api.service;
 
 import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.dina.service.DefaultDinaService;
-import ca.gc.aafc.dina.validation.ManagedAttributeValueValidator;
-import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.file.FileController;
 import ca.gc.aafc.objectstore.api.file.ThumbnailGenerator;
+import ca.gc.aafc.objectstore.api.validation.ObjectStoreManagedAttributeValueValidator;
 import io.crnk.core.exception.BadRequestException;
 import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.context.MessageSource;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.BeanPropertyBindingResult;
 
-import javax.inject.Named;
 import javax.persistence.criteria.Predicate;
 import javax.validation.ValidationException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMetadata>
   implements ObjectStoreMetadataReadService {
 
   private final ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService;
-  private final ManagedAttributeValueValidator<ObjectStoreManagedAttribute> valueValidator;
+  private final ObjectStoreManagedAttributeValueValidator valueValidator;
 
   private final BaseDAO baseDAO;
 
@@ -40,14 +34,13 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
     @NonNull BaseDAO baseDAO,
     @NonNull ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService,
     @NonNull DerivativeService derivativeService,
-    @NonNull ObjectStoreManagedAttributeService osmas,
-    @Named("validationMessageSource") MessageSource messageSource
+    @NonNull ObjectStoreManagedAttributeValueValidator valueValidator
   ) {
     super(baseDAO);
     this.baseDAO = baseDAO;
     this.defaultValueSetterService = defaultValueSetterService;
     this.derivativeService = derivativeService;
-    this.valueValidator = new ManagedAttributeValueValidator<>(messageSource, osmas);
+    this.valueValidator = valueValidator;
   }
 
   @Override
@@ -61,7 +54,8 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
     }
     handleFileRelatedData(entity);
 
-    validateManagedAttributes(entity);
+    valueValidator.validateManagedAttributes(entity.getManagedAttributeValues(),
+      entity.getUuid() != null ? entity.getUuid().toString() : "");
   }
 
   @Override
@@ -87,7 +81,8 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
     }
 
     handleFileRelatedData(entity);
-    validateManagedAttributes(entity);
+    valueValidator.validateManagedAttributes(entity.getManagedAttributeValues(),
+      entity.getUuid() != null ? entity.getUuid().toString() : "");
   }
 
   /**
@@ -197,18 +192,5 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
    */
   public ObjectStoreMetadata findOne(UUID uuid) {
     return findOne(uuid, ObjectStoreMetadata.class);
-  }
-
-  private void validateManagedAttributes(ObjectStoreMetadata entity) {
-    BeanPropertyBindingResult errors = new BeanPropertyBindingResult(
-      entity, entity.getUuid() != null ? entity.getUuid().toString() : "");
-    this.valueValidator.validate(entity.getManagedAttributeValues(), errors);
-    if (errors.hasErrors()) {
-      throw new ValidationException(String.join(". ",
-        errors.getAllErrors()
-          .stream()
-          .map(DefaultMessageSourceResolvable::getCode)
-          .collect(Collectors.toSet())));
-    }
   }
 }
