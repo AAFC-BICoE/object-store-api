@@ -7,7 +7,6 @@ import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.file.FileController;
 import ca.gc.aafc.objectstore.api.file.ThumbnailGenerator;
-import ca.gc.aafc.objectstore.api.validation.ObjectStoreManagedAttributeValueValidator;
 import io.crnk.core.exception.BadRequestException;
 import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
@@ -24,7 +23,6 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
   implements ObjectStoreMetadataReadService {
 
   private final ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService;
-  private final ObjectStoreManagedAttributeValueValidator valueValidator;
 
   private final BaseDAO baseDAO;
 
@@ -33,14 +31,12 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
   public ObjectStoreMetaDataService(
     @NonNull BaseDAO baseDAO,
     @NonNull ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService,
-    @NonNull DerivativeService derivativeService,
-    @NonNull ObjectStoreManagedAttributeValueValidator valueValidator
+    @NonNull DerivativeService derivativeService
   ) {
     super(baseDAO);
     this.baseDAO = baseDAO;
     this.defaultValueSetterService = defaultValueSetterService;
     this.derivativeService = derivativeService;
-    this.valueValidator = valueValidator;
   }
 
   @Override
@@ -54,8 +50,6 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
     }
     handleFileRelatedData(entity);
 
-    valueValidator.validateManagedAttributes(entity.getManagedAttributeValues(),
-      entity.getUuid() != null ? entity.getUuid().toString() : "");
   }
 
   @Override
@@ -81,8 +75,6 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
     }
 
     handleFileRelatedData(entity);
-    valueValidator.validateManagedAttributes(entity.getManagedAttributeValues(),
-      entity.getUuid() != null ? entity.getUuid().toString() : "");
   }
 
   /**
@@ -193,4 +185,5 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
   public ObjectStoreMetadata findOne(UUID uuid) {
     return findOne(uuid, ObjectStoreMetadata.class);
   }
+
 }
