@@ -17,7 +17,7 @@
     </update>
   </changeSet>
 
-  <changeSet context="data-migration" id="6-Add_key_to_managed_attribute_3" author="cgendreau">
+  <changeSet context="schema-change" id="6-Add_key_to_managed_attribute_3" author="cgendreau">
     <addNotNullConstraint columnName="key" tableName="managed_attribute"/>
     <addUniqueConstraint
             columnNames="key"
