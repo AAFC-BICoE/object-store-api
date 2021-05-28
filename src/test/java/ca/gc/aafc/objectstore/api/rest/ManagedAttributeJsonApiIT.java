@@ -5,12 +5,12 @@ import java.util.Map;
 
 import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
 import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
-import ca.gc.aafc.objectstore.api.dto.ManagedAttributeDto;
+import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
 import ca.gc.aafc.dina.entity.ManagedAttribute.ManagedAttributeType;
 
 public class ManagedAttributeJsonApiIT extends BaseJsonApiIntegrationTest {
 
-  private ManagedAttributeDto managedAttribute;
+  private ObjectStoreManagedAttributeDto managedAttribute;
   
   private static final String SCHEMA_NAME = "ManagedAttribute";
   private static final String RESOURCE_UNDER_TEST = "managed-attribute";
@@ -31,7 +31,7 @@ public class ManagedAttributeJsonApiIT extends BaseJsonApiIntegrationTest {
   protected Map<String, Object> buildCreateAttributeMap() {
     String[] acceptedValues  = new String[] {"CataloguedObject"};
     
-    managedAttribute = new ManagedAttributeDto();
+    managedAttribute = new ObjectStoreManagedAttributeDto();
     managedAttribute.setAcceptedValues(acceptedValues);
     managedAttribute.setName(TestableEntityFactory.generateRandomNameLettersOnly(12));
     managedAttribute.setManagedAttributeType(ManagedAttributeType.STRING);

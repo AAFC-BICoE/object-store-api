@@ -4,7 +4,7 @@ import ca.gc.aafc.dina.mapper.DinaMapper;
 import ca.gc.aafc.dina.repository.DinaRepository;
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.dina.service.DinaService;
-import ca.gc.aafc.objectstore.api.dto.ManagedAttributeDto;
+import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.objectstore.api.service.ManagedAttributeAuthorizationService;
 import lombok.NonNull;
@@ -15,7 +15,7 @@ import java.util.Optional;
 
 @Repository
 public class ManagedAttributeResourceRepository
-  extends DinaRepository<ManagedAttributeDto, ObjectStoreManagedAttribute> {
+  extends DinaRepository<ObjectStoreManagedAttributeDto, ObjectStoreManagedAttribute> {
 
   private final Optional<DinaAuthenticatedUser> authenticatedUser;
 
@@ -29,15 +29,15 @@ public class ManagedAttributeResourceRepository
       dinaService,
       Optional.of(authorizationService),
       Optional.empty(),
-      new DinaMapper<>(ManagedAttributeDto.class),
-      ManagedAttributeDto.class,
+      new DinaMapper<>(ObjectStoreManagedAttributeDto.class),
+      ObjectStoreManagedAttributeDto.class,
       ObjectStoreManagedAttribute.class, null, null,
       props);
     this.authenticatedUser = authenticatedUser;
   }
 
   @Override
-  public <S extends ManagedAttributeDto> S create(S resource) {
+  public <S extends ObjectStoreManagedAttributeDto> S create(S resource) {
     authenticatedUser.ifPresent(user -> resource.setCreatedBy(user.getUsername()));
     return super.create(resource);
   }
