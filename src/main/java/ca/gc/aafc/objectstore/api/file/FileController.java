@@ -28,6 +28,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MediaType;
 import org.apache.tika.mime.MimeTypeException;
+import org.apache.tika.parser.Parser;
 import org.apache.tika.parser.executable.ExecutableParser;
 import org.apache.tika.parser.pkg.CompressorParser;
 import org.apache.tika.parser.pkg.PackageParser;
@@ -73,10 +74,8 @@ public class FileController {
   public static final String DIGEST_ALGORITHM = "SHA-1";
   private static final int MAX_NUMBER_OF_ATTEMPT_RANDOM_UUID = 5;
   private static final int READ_AHEAD_BUFFER_SIZE = 10 * 1024;
-  private static final Set<MediaType> SUPPORTED_MEDIA_TYPE = combine((new ExecutableParser()).getSupportedTypes(null), 
-    (new CompressorParser()).getSupportedTypes(null),
-    (new PackageParser()).getSupportedTypes(null),
-    (new RarParser()).getSupportedTypes(null));
+  private static final Set<MediaType> SUPPORTED_MEDIA_TYPE = getSupportedMediaTypesFromParsers(
+      new ExecutableParser(), new CompressorParser(), new PackageParser(), new RarParser());
 
   private final DinaMappingLayer<ObjectUploadDto, ObjectUpload> mappingLayer;
   private final ObjectUploadService objectUploadService;
@@ -449,11 +448,16 @@ public class FileController {
     return FilenameUtils.getBaseName(originalFilename) + fileExtension;
   }
 
-  private static Set<MediaType> combine(Set<MediaType>... sets) {
+  /**
+   * Return an immutable set of all the supported media type of the provided parsers.
+   * @param parsers
+   * @return
+   */
+  private static Set<MediaType> getSupportedMediaTypesFromParsers(Parser... parsers) {
     Set<MediaType> collection = new HashSet<>();
-    Stream.of(sets).forEach(collection::addAll);
+    Stream.of(parsers).map( p -> p.getSupportedTypes(null)).forEach(collection::addAll);
  
-    return collection;
+    return Set.copyOf(collection);
   }
 
 }
