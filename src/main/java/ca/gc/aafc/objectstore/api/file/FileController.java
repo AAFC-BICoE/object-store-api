@@ -28,7 +28,11 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MediaType;
 import org.apache.tika.mime.MimeTypeException;
+import org.apache.tika.parser.Parser;
 import org.apache.tika.parser.executable.ExecutableParser;
+import org.apache.tika.parser.pkg.CompressorParser;
+import org.apache.tika.parser.pkg.PackageParser;
+import org.apache.tika.parser.pkg.RarParser;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.io.InputStreamResource;
@@ -54,10 +58,14 @@ import java.security.DigestInputStream;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -67,8 +75,8 @@ public class FileController {
   public static final String DIGEST_ALGORITHM = "SHA-1";
   private static final int MAX_NUMBER_OF_ATTEMPT_RANDOM_UUID = 5;
   private static final int READ_AHEAD_BUFFER_SIZE = 10 * 1024;
-  private static final ExecutableParser EXECUTABLE_PARSER = new ExecutableParser();
-
+  private static final Set<MediaType> UNSUPPORTED_MEDIA_TYPE = getSupportedMediaTypesFromParsers(
+      new ExecutableParser(), new CompressorParser(), new PackageParser(), new RarParser());
 
   private final DinaMappingLayer<ObjectUploadDto, ObjectUpload> mappingLayer;
   private final ObjectUploadService objectUploadService;
@@ -145,7 +153,7 @@ public class FileController {
       .detectMediaType(prIs.getReadAheadBuffer(), file.getContentType(), file.getOriginalFilename());
 
     MediaType detectedMediaType = mtdr.getDetectedMediaType();
-    if (EXECUTABLE_PARSER.getSupportedTypes(null).contains(detectedMediaType)) {
+    if (UNSUPPORTED_MEDIA_TYPE.contains(detectedMediaType)) {
       throw new UnsupportedMediaTypeStatusException(messageSource.getMessage(
         "supportedMediaType.illegal", new String[]{detectedMediaType.getSubtype()}, LocaleContextHolder.getLocale()));
     }
@@ -439,6 +447,18 @@ public class FileController {
     }
     // use the internal extension since we are also returning the internal media type
     return FilenameUtils.getBaseName(originalFilename) + fileExtension;
+  }
+
+  /**
+   * Return an immutable set of all the supported media type of the provided parsers.
+   * @param parsers
+   * @return
+   */
+  private static Set<MediaType> getSupportedMediaTypesFromParsers(Parser... parsers) {
+    return Stream.of(parsers)
+        .map(p -> p.getSupportedTypes(null))
+        .flatMap(Collection::stream)
+        .collect(Collectors.toSet());
   }
 
 }

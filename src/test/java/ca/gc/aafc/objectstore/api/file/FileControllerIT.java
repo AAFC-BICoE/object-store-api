@@ -102,12 +102,24 @@ public class FileControllerIT extends BaseIntegrationTest {
   }
 
   @Test
-  public void fileUpload_InvalidMediaType_throwsIllegalArgumentException() throws Exception {
+  public void fileUpload_InvalidMediaTypeExecutable_throwsIllegalArgumentException() throws Exception {
     MockMultipartFile mockFile = createMockMultipartFile("testExecutable", "application/x-sharedlib");
 
     UnsupportedMediaTypeStatusException error = assertThrows(UnsupportedMediaTypeStatusException.class, () -> fileController.handleFileUpload(mockFile, bucketUnderTest));
 
     String expectedMessage = "415 UNSUPPORTED_MEDIA_TYPE \"Media type x-sharedlib is invalid.\"";
+    String actualMessage = error.getLocalizedMessage();
+
+    assertEquals(expectedMessage, actualMessage);
+  }
+
+  @Test
+  public void fileUpload_InvalidMediaTypeZIP_throwsIllegalArgumentException() throws Exception {
+    MockMultipartFile mockFile = createMockMultipartFile("test.zip", "application/zip");
+
+    UnsupportedMediaTypeStatusException error = assertThrows(UnsupportedMediaTypeStatusException.class, () -> fileController.handleFileUpload(mockFile, bucketUnderTest));
+
+    String expectedMessage = "415 UNSUPPORTED_MEDIA_TYPE \"Media type zip is invalid.\"";
     String actualMessage = error.getLocalizedMessage();
 
     assertEquals(expectedMessage, actualMessage);
