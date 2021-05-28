@@ -29,6 +29,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MediaType;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.parser.executable.ExecutableParser;
+import org.apache.tika.parser.pkg.CompressorParser;
+import org.apache.tika.parser.pkg.PackageParser;
+import org.apache.tika.parser.pkg.RarParser;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.io.InputStreamResource;
@@ -68,6 +71,9 @@ public class FileController {
   private static final int MAX_NUMBER_OF_ATTEMPT_RANDOM_UUID = 5;
   private static final int READ_AHEAD_BUFFER_SIZE = 10 * 1024;
   private static final ExecutableParser EXECUTABLE_PARSER = new ExecutableParser();
+  private static final CompressorParser COMPRESSOR_PARSER = new CompressorParser();
+  private static final PackageParser PACKAGE_PARSER = new PackageParser();
+  private static final RarParser RAR_PARSER = new RarParser();
 
 
   private final DinaMappingLayer<ObjectUploadDto, ObjectUpload> mappingLayer;
@@ -145,7 +151,10 @@ public class FileController {
       .detectMediaType(prIs.getReadAheadBuffer(), file.getContentType(), file.getOriginalFilename());
 
     MediaType detectedMediaType = mtdr.getDetectedMediaType();
-    if (EXECUTABLE_PARSER.getSupportedTypes(null).contains(detectedMediaType)) {
+    if (EXECUTABLE_PARSER.getSupportedTypes(null).contains(detectedMediaType) 
+      || COMPRESSOR_PARSER.getSupportedTypes(null).contains(detectedMediaType)
+      || PACKAGE_PARSER.getSupportedTypes(null).contains(detectedMediaType)
+      || RAR_PARSER.getSupportedTypes(null).contains(detectedMediaType)) {
       throw new UnsupportedMediaTypeStatusException(messageSource.getMessage(
         "supportedMediaType.illegal", new String[]{detectedMediaType.getSubtype()}, LocaleContextHolder.getLocale()));
     }
