@@ -5,7 +5,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ManagedAttributeAuthorizationService implements DinaAuthorizationService {
+public class ObjectStoreManagedAttributeAuthorizationService implements DinaAuthorizationService {
   @Override
   @PreAuthorize("hasDinaRole(@currentUser, 'COLLECTION_MANAGER')")
   public void authorizeCreate(Object entity) {

@@ -5,7 +5,7 @@ import ca.gc.aafc.dina.testsupport.security.WithMockKeycloakUser;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
-import ca.gc.aafc.objectstore.api.repository.ManagedAttributeResourceRepository;
+import ca.gc.aafc.objectstore.api.repository.ObjectStoreManagedAttributeResourceRepository;
 
 import com.google.common.collect.ImmutableMap;
 import io.crnk.core.exception.ResourceNotFoundException;
@@ -20,10 +20,10 @@ import org.springframework.security.access.AccessDeniedException;
 import javax.inject.Inject;
 
 @SpringBootTest(properties = "keycloak.enabled=true")
-public class ManagedAttributePermissionServiceIT extends BaseIntegrationTest {
+public class ObjectStoreManagedAttributePermissionServiceIT extends BaseIntegrationTest {
 
   @Inject
-  private ManagedAttributeResourceRepository repoUnderTest;
+  private ObjectStoreManagedAttributeResourceRepository repoUnderTest;
 
   /** An existing managed attribute in the database. */
   private ObjectStoreManagedAttribute managedAttribute;

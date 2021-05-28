@@ -15,11 +15,11 @@ import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.Test;
 
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
-import ca.gc.aafc.objectstore.api.testsupport.factories.ManagedAttributeFactory;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreManagedAttributeFactory;
 
-public class ManagedAttributeCRUDIT extends BaseEntityCRUDIT {
+public class ObjectStoreManagedAttributeCRUDIT extends BaseEntityCRUDIT {
      
-  private ObjectStoreManagedAttribute managedAttributeUnderTest = ManagedAttributeFactory.newManagedAttribute()
+  private ObjectStoreManagedAttribute managedAttributeUnderTest = ObjectStoreManagedAttributeFactory.newManagedAttribute()
       .acceptedValues(new String[] { "a", "b" })
       .description(ImmutableMap.of("en", "attrEn", "fr", "attrFr"))
       .createdBy("createdBy")
@@ -36,7 +36,7 @@ public class ManagedAttributeCRUDIT extends BaseEntityCRUDIT {
 
   @Test
   public void testSave_whenDescriptionIsBlank_throwValidationException() {
-    ObjectStoreManagedAttribute blankDescription = ManagedAttributeFactory.newManagedAttribute()
+    ObjectStoreManagedAttribute blankDescription = ObjectStoreManagedAttributeFactory.newManagedAttribute()
       .acceptedValues(new String[] { "a", "b" })
       .description(ImmutableMap.of("en", ""))
       .build();

@@ -8,7 +8,7 @@ import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
 import ca.gc.aafc.dina.entity.ManagedAttribute.ManagedAttributeType;
 
-public class ManagedAttributeJsonApiIT extends BaseJsonApiIntegrationTest {
+public class ObjectStoreManagedAttributeJsonApiIT extends BaseJsonApiIntegrationTest {
 
   private ObjectStoreManagedAttributeDto managedAttribute;
   

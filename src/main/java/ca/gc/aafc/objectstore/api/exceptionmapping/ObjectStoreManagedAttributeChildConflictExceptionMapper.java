@@ -9,12 +9,12 @@ import org.springframework.http.HttpStatus;
 import javax.inject.Named;
 
 @Named
-public class ManagedAttributeChildConflictExceptionMapper implements ExceptionMapper<ManagedAttributeChildConflictException> {
+public class ObjectStoreManagedAttributeChildConflictExceptionMapper implements ExceptionMapper<ObjectStoreManagedAttributeChildConflictException> {
 
   public static final HttpStatus HTTP_STATUS = HttpStatus.CONFLICT;
 
   @Override
-  public ErrorResponse toErrorResponse(ManagedAttributeChildConflictException e) {
+  public ErrorResponse toErrorResponse(ObjectStoreManagedAttributeChildConflictException e) {
     ErrorData errorData = ErrorData.builder()
       .setDetail(e.getMessage())
       .setTitle(HTTP_STATUS.getReasonPhrase())
@@ -27,7 +27,7 @@ public class ManagedAttributeChildConflictExceptionMapper implements ExceptionMa
   }
 
   @Override
-  public ManagedAttributeChildConflictException fromErrorResponse(ErrorResponse errorResponse) {
+  public ObjectStoreManagedAttributeChildConflictException fromErrorResponse(ErrorResponse errorResponse) {
     throw new MethodNotAllowedException("crnk client unsupported");
   }
 

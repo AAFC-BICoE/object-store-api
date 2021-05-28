@@ -6,7 +6,7 @@ import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.dina.service.DinaService;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
-import ca.gc.aafc.objectstore.api.service.ManagedAttributeAuthorizationService;
+import ca.gc.aafc.objectstore.api.service.ObjectStoreManagedAttributeAuthorizationService;
 import lombok.NonNull;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.stereotype.Repository;
@@ -14,14 +14,14 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public class ManagedAttributeResourceRepository
+public class ObjectStoreManagedAttributeResourceRepository
   extends DinaRepository<ObjectStoreManagedAttributeDto, ObjectStoreManagedAttribute> {
 
   private final Optional<DinaAuthenticatedUser> authenticatedUser;
 
-  public ManagedAttributeResourceRepository(
+  public ObjectStoreManagedAttributeResourceRepository(
     @NonNull DinaService<ObjectStoreManagedAttribute> dinaService,
-    @NonNull ManagedAttributeAuthorizationService authorizationService,
+    @NonNull ObjectStoreManagedAttributeAuthorizationService authorizationService,
     Optional<DinaAuthenticatedUser> authenticatedUser,
     @NonNull BuildProperties props
   ) {

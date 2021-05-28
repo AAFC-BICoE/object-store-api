@@ -10,7 +10,7 @@ import java.util.List;
  * could also be translated.
  */
 @RequiredArgsConstructor
-public class ManagedAttributeChildConflictException extends RuntimeException {
+public class ObjectStoreManagedAttributeChildConflictException extends RuntimeException {
 
   public final String managedAttributeId;
   public final List<String> childrenIds;
