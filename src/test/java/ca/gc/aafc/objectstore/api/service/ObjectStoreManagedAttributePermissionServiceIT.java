@@ -3,9 +3,9 @@ package ca.gc.aafc.objectstore.api.service;
 
 import ca.gc.aafc.dina.testsupport.security.WithMockKeycloakUser;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
-import ca.gc.aafc.objectstore.api.dto.ManagedAttributeDto;
+import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
-import ca.gc.aafc.objectstore.api.repository.ManagedAttributeResourceRepository;
+import ca.gc.aafc.objectstore.api.repository.ObjectStoreManagedAttributeResourceRepository;
 
 import com.google.common.collect.ImmutableMap;
 import io.crnk.core.exception.ResourceNotFoundException;
@@ -20,10 +20,10 @@ import org.springframework.security.access.AccessDeniedException;
 import javax.inject.Inject;
 
 @SpringBootTest(properties = "keycloak.enabled=true")
-public class ManagedAttributePermissionServiceIT extends BaseIntegrationTest {
+public class ObjectStoreManagedAttributePermissionServiceIT extends BaseIntegrationTest {
 
   @Inject
-  private ManagedAttributeResourceRepository repoUnderTest;
+  private ObjectStoreManagedAttributeResourceRepository repoUnderTest;
 
   /** An existing managed attribute in the database. */
   private ObjectStoreManagedAttribute managedAttribute;
@@ -44,7 +44,7 @@ public class ManagedAttributePermissionServiceIT extends BaseIntegrationTest {
   void create_unauthorizedUser_ThrowsAccessDenied() {
     Assertions.assertThrows(
       AccessDeniedException.class,
-      () -> repoUnderTest.create(new ManagedAttributeDto()));
+      () -> repoUnderTest.create(new ObjectStoreManagedAttributeDto()));
   }
 
   @WithMockKeycloakUser(groupRole = {"group 1:COLLECTION_MANAGER"})
@@ -56,24 +56,24 @@ public class ManagedAttributePermissionServiceIT extends BaseIntegrationTest {
   @WithMockKeycloakUser(groupRole = {"group 1:STAFF"})
   @Test
   void delete_unauthorizedUser_ThrowAccessDenied() {
-    Assertions.assertNotNull(repoUnderTest.findOne(managedAttribute.getUuid(), new QuerySpec(ManagedAttributeDto.class)));
+    Assertions.assertNotNull(repoUnderTest.findOne(managedAttribute.getUuid(), new QuerySpec(ObjectStoreManagedAttributeDto.class)));
     Assertions.assertThrows(AccessDeniedException.class, () -> repoUnderTest.delete(managedAttribute.getUuid()));
   }
 
   @WithMockKeycloakUser(groupRole = {"group 1:COLLECTION_MANAGER"})
   @Test
   void delete_authorizedUser_DoesNotThrowAccessDenied() {
-    Assertions.assertNotNull(repoUnderTest.findOne(managedAttribute.getUuid(), new QuerySpec(ManagedAttributeDto.class)));
+    Assertions.assertNotNull(repoUnderTest.findOne(managedAttribute.getUuid(), new QuerySpec(ObjectStoreManagedAttributeDto.class)));
     Assertions.assertDoesNotThrow(() -> repoUnderTest.delete(managedAttribute.getUuid()));
     Assertions.assertThrows(
       ResourceNotFoundException.class,
-      () -> repoUnderTest.findOne(managedAttribute.getUuid(), new QuerySpec(ManagedAttributeDto.class)));
+      () -> repoUnderTest.findOne(managedAttribute.getUuid(), new QuerySpec(ObjectStoreManagedAttributeDto.class)));
   }
 
   @WithMockKeycloakUser(groupRole = {"group 1:STAFF"})
   @Test
   void update_unauthorizedUser_ThrowAccessDenied() {
-    var dto = repoUnderTest.findOne(managedAttribute.getUuid(), new QuerySpec(ManagedAttributeDto.class));
+    var dto = repoUnderTest.findOne(managedAttribute.getUuid(), new QuerySpec(ObjectStoreManagedAttributeDto.class));
  
     Assertions.assertNotNull(dto);
     Assertions.assertThrows(AccessDeniedException.class, () -> repoUnderTest.save(dto));
@@ -82,16 +82,16 @@ public class ManagedAttributePermissionServiceIT extends BaseIntegrationTest {
   @WithMockKeycloakUser(groupRole = {"group 1:COLLECTION_MANAGER"})
   @Test
   void update_authorizedUser_DoesNotThrowAccessDenied() {
-    ManagedAttributeDto dto = repoUnderTest.create(createDto());
+    ObjectStoreManagedAttributeDto dto = repoUnderTest.create(createDto());
 
-    ManagedAttributeDto persistedDto = repoUnderTest.findOne(
+    ObjectStoreManagedAttributeDto persistedDto = repoUnderTest.findOne(
       dto.getUuid(),
-      new QuerySpec(ManagedAttributeDto.class));
+      new QuerySpec(ObjectStoreManagedAttributeDto.class));
     Assertions.assertDoesNotThrow(() -> repoUnderTest.save(persistedDto));
   }
 
-  private static ManagedAttributeDto createDto() {
-    ManagedAttributeDto dto = new ManagedAttributeDto();
+  private static ObjectStoreManagedAttributeDto createDto() {
+    ObjectStoreManagedAttributeDto dto = new ObjectStoreManagedAttributeDto();
     dto.setName(RandomStringUtils.randomAlphabetic(4));
     dto.setDescription(ImmutableMap.of("en", "Test"));
     dto.setManagedAttributeType(ObjectStoreManagedAttribute.ManagedAttributeType.STRING);

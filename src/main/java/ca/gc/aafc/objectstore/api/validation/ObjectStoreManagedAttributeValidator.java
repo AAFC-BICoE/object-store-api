@@ -8,11 +8,11 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 @Component
-public class ManagedAttributeValidator implements Validator {
+public class ObjectStoreManagedAttributeValidator implements Validator {
 
   private final MessageSource messageSource;
 
-  public ManagedAttributeValidator(MessageSource messageSource) {
+  public ObjectStoreManagedAttributeValidator(MessageSource messageSource) {
     this.messageSource = messageSource;
   }
 

@@ -2,11 +2,11 @@ package ca.gc.aafc.objectstore.api.rest;
 
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.MinioTestConfiguration;
-import ca.gc.aafc.objectstore.api.dto.ManagedAttributeDto;
+import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
-import ca.gc.aafc.objectstore.api.repository.ManagedAttributeResourceRepository;
+import ca.gc.aafc.objectstore.api.repository.ObjectStoreManagedAttributeResourceRepository;
 import ca.gc.aafc.objectstore.api.repository.ObjectStoreResourceRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
@@ -22,13 +22,13 @@ import org.junit.jupiter.api.Test;
 import javax.inject.Inject;
 import java.util.UUID;
 
-public class ManagedAttributeAuditingIT extends BaseIntegrationTest {
+public class ObjectStoreManagedAttributeAuditingIT extends BaseIntegrationTest {
 
   @Inject
   private ObjectStoreResourceRepository metadataRepository;
 
   @Inject
-  private ManagedAttributeResourceRepository managedRepo;
+  private ObjectStoreManagedAttributeResourceRepository managedRepo;
 
   @Inject
   private Javers javers;
@@ -37,14 +37,14 @@ public class ManagedAttributeAuditingIT extends BaseIntegrationTest {
   private ObjectMapper objectMapper;
 
   private ObjectUpload objectUpload;
-  private ManagedAttributeDto managedAttribute;
+  private ObjectStoreManagedAttributeDto managedAttribute;
 
   @BeforeEach
   void setUp() {
     objectUpload = MinioTestConfiguration.buildTestObjectUpload();
     objectUploadService.create(objectUpload);
 
-    ManagedAttributeDto managed = new ManagedAttributeDto();
+    ObjectStoreManagedAttributeDto managed = new ObjectStoreManagedAttributeDto();
     managed.setName("name");
     managed.setUuid(UUID.randomUUID());
     managed.setDescription(ImmutableMap.of("en", "en"));

@@ -2,7 +2,7 @@ package ca.gc.aafc.objectstore.api.service;
 
 import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
-import ca.gc.aafc.objectstore.api.validation.ManagedAttributeValidator;
+import ca.gc.aafc.objectstore.api.validation.ObjectStoreManagedAttributeValidator;
 import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -14,11 +14,11 @@ import java.util.UUID;
 @Service
 public class ObjectStoreManagedAttributeService extends ca.gc.aafc.dina.service.ManagedAttributeService<ObjectStoreManagedAttribute> {
 
-  private final ManagedAttributeValidator managedAttributeValidator;
+  private final ObjectStoreManagedAttributeValidator managedAttributeValidator;
 
   public ObjectStoreManagedAttributeService(
     @NonNull BaseDAO baseDAO,
-    @NonNull ManagedAttributeValidator managedAttributeValidator
+    @NonNull ObjectStoreManagedAttributeValidator managedAttributeValidator
   ) {
     super(baseDAO, ObjectStoreManagedAttribute.class);
     this.managedAttributeValidator = managedAttributeValidator;

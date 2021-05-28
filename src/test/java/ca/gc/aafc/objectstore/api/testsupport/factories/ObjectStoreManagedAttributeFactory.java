@@ -10,7 +10,7 @@ import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
 import ca.gc.aafc.dina.entity.ManagedAttribute.ManagedAttributeType;
 
-public class ManagedAttributeFactory implements TestableEntityFactory<ObjectStoreManagedAttribute> {
+public class ObjectStoreManagedAttributeFactory implements TestableEntityFactory<ObjectStoreManagedAttribute> {
 
   @Override
   public ObjectStoreManagedAttribute getEntityInstance() {
@@ -55,7 +55,7 @@ public class ManagedAttributeFactory implements TestableEntityFactory<ObjectStor
   public static List<ObjectStoreManagedAttribute> newListOf(int qty,
                                                             BiFunction<ObjectStoreManagedAttribute.ObjectStoreManagedAttributeBuilder, Integer, ObjectStoreManagedAttribute.ObjectStoreManagedAttributeBuilder> configuration) {
 
-    return TestableEntityFactory.newEntity(qty, ManagedAttributeFactory::newManagedAttribute, configuration,
+    return TestableEntityFactory.newEntity(qty, ObjectStoreManagedAttributeFactory::newManagedAttribute, configuration,
         ObjectStoreManagedAttribute.ObjectStoreManagedAttributeBuilder::build);
   }
 
