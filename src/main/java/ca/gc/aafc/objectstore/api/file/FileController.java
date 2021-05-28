@@ -58,9 +58,12 @@ import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -70,11 +73,10 @@ public class FileController {
   public static final String DIGEST_ALGORITHM = "SHA-1";
   private static final int MAX_NUMBER_OF_ATTEMPT_RANDOM_UUID = 5;
   private static final int READ_AHEAD_BUFFER_SIZE = 10 * 1024;
-  private static final ExecutableParser EXECUTABLE_PARSER = new ExecutableParser();
-  private static final CompressorParser COMPRESSOR_PARSER = new CompressorParser();
-  private static final PackageParser PACKAGE_PARSER = new PackageParser();
-  private static final RarParser RAR_PARSER = new RarParser();
-
+  private static final Set<MediaType> SUPPORTED_MEDIA_TYPE = combine((new ExecutableParser()).getSupportedTypes(null), 
+    (new CompressorParser()).getSupportedTypes(null),
+    (new PackageParser()).getSupportedTypes(null),
+    (new RarParser()).getSupportedTypes(null));
 
   private final DinaMappingLayer<ObjectUploadDto, ObjectUpload> mappingLayer;
   private final ObjectUploadService objectUploadService;
@@ -151,10 +153,7 @@ public class FileController {
       .detectMediaType(prIs.getReadAheadBuffer(), file.getContentType(), file.getOriginalFilename());
 
     MediaType detectedMediaType = mtdr.getDetectedMediaType();
-    if (EXECUTABLE_PARSER.getSupportedTypes(null).contains(detectedMediaType) 
-      || COMPRESSOR_PARSER.getSupportedTypes(null).contains(detectedMediaType)
-      || PACKAGE_PARSER.getSupportedTypes(null).contains(detectedMediaType)
-      || RAR_PARSER.getSupportedTypes(null).contains(detectedMediaType)) {
+    if (SUPPORTED_MEDIA_TYPE.contains(detectedMediaType)) {
       throw new UnsupportedMediaTypeStatusException(messageSource.getMessage(
         "supportedMediaType.illegal", new String[]{detectedMediaType.getSubtype()}, LocaleContextHolder.getLocale()));
     }
@@ -448,6 +447,13 @@ public class FileController {
     }
     // use the internal extension since we are also returning the internal media type
     return FilenameUtils.getBaseName(originalFilename) + fileExtension;
+  }
+
+  private static Set<MediaType> combine(Set<MediaType>... sets) {
+    Set<MediaType> collection = new HashSet<>();
+    Stream.of(sets).forEach(collection::addAll);
+ 
+    return collection;
   }
 
 }
