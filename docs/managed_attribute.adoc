@@ -1,0 +1,56 @@
+= Managed Attributes
+
+User-defined Managed Attributes can be created to add custom metadata to a stored object.
+
+== Getting Managed Attribute values through the REST API
+
+Include a client-friendly map of all of a stored object's managed attribute values using
+JSONAPI's "include" URL parameter:
+
+```
+GET /api/v1/managed-attribute/{Id}
+
+{
+  "data": {
+    "id": "d290f1ee-6c54-4b01-90e6-d701748f0851",
+    "type": "managed-attribute",
+    "attributes": {
+      "name": "specimen_view",
+      "managedAttributeType": "STRING",
+      "acceptedValues": [
+        "dorsal"
+      ],
+      "createdDate": "2020-01-01",
+      "description": {
+        "fr": "Description en Français",
+        "en": "English description"
+      }
+    }
+  }
+}
+```
+
+== Setting Managed Attribute accepted values through the REST API
+
+Send a POST request with the following URL and body structure:
+
+```
+POST /api/v1/managed-attribute
+
+{
+  "data": {
+    "type": "managed-attribute",
+    "attributes": {
+      "name": "specimen_view",
+      "managedAttributeType": "STRING",
+      "acceptedValues": [
+        "dorsal"
+      ],
+      "description": {
+        "fr": "Description en Français",
+        "en": "English description"
+      }
+    }
+  }
+}
+```
