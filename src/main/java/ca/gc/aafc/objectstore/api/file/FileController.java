@@ -58,12 +58,14 @@ import java.security.DigestInputStream;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @RestController
@@ -74,7 +76,7 @@ public class FileController {
   public static final String DIGEST_ALGORITHM = "SHA-1";
   private static final int MAX_NUMBER_OF_ATTEMPT_RANDOM_UUID = 5;
   private static final int READ_AHEAD_BUFFER_SIZE = 10 * 1024;
-  private static final Set<MediaType> SUPPORTED_MEDIA_TYPE = getSupportedMediaTypesFromParsers(
+  private static final Set<MediaType> UNSUPPORTED_MEDIA_TYPE = getSupportedMediaTypesFromParsers(
       new ExecutableParser(), new CompressorParser(), new PackageParser(), new RarParser());
 
   private final DinaMappingLayer<ObjectUploadDto, ObjectUpload> mappingLayer;
@@ -152,7 +154,7 @@ public class FileController {
       .detectMediaType(prIs.getReadAheadBuffer(), file.getContentType(), file.getOriginalFilename());
 
     MediaType detectedMediaType = mtdr.getDetectedMediaType();
-    if (SUPPORTED_MEDIA_TYPE.contains(detectedMediaType)) {
+    if (UNSUPPORTED_MEDIA_TYPE.contains(detectedMediaType)) {
       throw new UnsupportedMediaTypeStatusException(messageSource.getMessage(
         "supportedMediaType.illegal", new String[]{detectedMediaType.getSubtype()}, LocaleContextHolder.getLocale()));
     }
@@ -454,10 +456,10 @@ public class FileController {
    * @return
    */
   private static Set<MediaType> getSupportedMediaTypesFromParsers(Parser... parsers) {
-    Set<MediaType> collection = new HashSet<>();
-    Stream.of(parsers).map( p -> p.getSupportedTypes(null)).forEach(collection::addAll);
- 
-    return Set.copyOf(collection);
+    return Stream.of(parsers)
+        .map(p -> p.getSupportedTypes(null))
+        .flatMap(Collection::stream)
+        .collect(Collectors.toSet());
   }
 
 }
