@@ -46,6 +46,18 @@ public class ObjectStoreManagedAttributeCRUDIT extends BaseEntityCRUDIT {
       () -> managedAttributeService.create(blankDescription));
   }
 
+  @Test
+  public void testSave_whenDescriptionIsNull_throwValidationException() {
+    ObjectStoreManagedAttribute nullDescription = ObjectStoreManagedAttributeFactory.newManagedAttribute()
+      .acceptedValues(new String[] { "a", "b" })
+      .description(null)
+      .build();
+
+    assertThrows(
+      ValidationException.class,
+      () -> managedAttributeService.create(nullDescription));
+  }
+
   @Override
   public void testFind() {
     ObjectStoreManagedAttribute fetchedObjectStoreMeta = managedAttributeService.findOne(
