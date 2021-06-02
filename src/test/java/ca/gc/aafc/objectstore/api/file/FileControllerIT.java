@@ -2,7 +2,6 @@ package ca.gc.aafc.objectstore.api.file;
 
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
-import ca.gc.aafc.objectstore.api.MinioTestConfiguration;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectUploadDto;
 import ca.gc.aafc.objectstore.api.entities.DcType;
@@ -26,7 +25,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MimeTypeException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.context.annotation.Import;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -47,7 +45,6 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@Import(MinioTestConfiguration.class)
 @ContextConfiguration(initializers = MinioTestContainerInitializer.class)
 public class FileControllerIT extends BaseIntegrationTest {
 
@@ -88,12 +85,6 @@ public class FileControllerIT extends BaseIntegrationTest {
     // file can only be downloaded if we attach metadata to it
     ObjectStoreMetadataDto metadataForFile = new ObjectStoreMetadataDto();
     metadataForFile.setBucket(bucketUnderTest);
-
-    //TODO remove when dina-base can handle it
-    metadataForFile.setXmpRightsWebStatement(MinioTestConfiguration.TEST_XMP_RIGHTS_WEB_STATEMENT);
-    metadataForFile.setDcRights(MinioTestConfiguration.TEST_DC_RIGHTS);
-    metadataForFile.setXmpRightsOwner(MinioTestConfiguration.TEST_XMP_RIGHTS_OWNER);
-    metadataForFile.setXmpRightsUsageTerms(MinioTestConfiguration.TEST_XMP_RIGHTS_USAGE_TERMS);
 
     metadataForFile.setFileIdentifier(uploadResponse.getFileIdentifier());
     objectStoreResourceRepository.create(metadataForFile);
