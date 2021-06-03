@@ -1,15 +1,20 @@
 package ca.gc.aafc.objectstore.api.rest;
 
+import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.objectstore.api.MinioTestConfiguration;
+import ca.gc.aafc.objectstore.api.dto.DerivativeDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
+import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
+import ca.gc.aafc.objectstore.api.entities.Derivative.DerivativeType;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 
 import java.time.OffsetDateTime;
 import java.util.Arrays;
@@ -17,14 +22,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
+public class DerivativeJsonApiIT extends BaseJsonApiIntegrationTest {
 
-  private static final String SCHEMA_NAME = "Metadata";
-  private static final String RESOURCE_UNDER_TEST = "metadata";
+  private static final String SCHEMA_NAME = "Derivative";
+  private static final String RESOURCE_UNDER_TEST = "derivative";
   
   private ObjectStoreMetadataDto objectStoreMetadata;
   private ObjectSubtype oSubtype;
   private ObjectUpload oUpload;
+  private String metadataUuid;
 
   @BeforeEach
   public void setup() {
@@ -92,19 +98,13 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
   }
 
   @Test
-  public void sendInvalidFileIdentifier() {
-    ObjectStoreMetadataDto osMetadata = buildObjectStoreMetadataDto();
-    osMetadata.setFileIdentifier(UUID.randomUUID());
-    sendPost(getResourceUnderTest(), toJsonAPIMap(toAttributeMap(osMetadata), null),
-        HttpStatus.UNPROCESSABLE_ENTITY.value());
-  }
-
-  @Test
   public void create_ReturnsCode201() {
     ObjectStoreMetadataDto osMetadata = buildObjectStoreMetadataDto();
     osMetadata.setFileIdentifier(oUpload.getFileIdentifier());
-    sendPost(getResourceUnderTest(), toJsonAPIMap(toAttributeMap(osMetadata), null),
+    metadataUuid = sendPost("metadata", JsonAPITestHelper.toJsonAPIMap("metadata", toAttributeMap(osMetadata), null, null),
         HttpStatus.CREATED.value());
+    
+    sendPost(getResourceUnderTest(), toJsonAPIMap(toAttributeMap(newDerivative(oUpload.getFileIdentifier())), toRelationshipMap(buildRelationshipList())), HttpStatus.CREATED.value());
   }
 
   @Override
@@ -120,8 +120,22 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
   @Override
   protected List<Relationship> buildRelationshipList() {
     return Arrays.asList(
-      Relationship.of("dcCreator", "person", UUID.randomUUID().toString()),
-      Relationship.of("acMetadataCreator", "person", UUID.randomUUID().toString()));
+      Relationship.of("acDerivedFrom", "metadata", metadataUuid));
+  }
+
+  private DerivativeDto newDerivative(UUID fileIdentifier) {
+    DerivativeDto dto = new DerivativeDto();
+    dto.setDcType(DcType.IMAGE);
+    dto.setAcDerivedFrom(null);
+    dto.setGeneratedFromDerivative(null);
+    dto.setDerivativeType(DerivativeType.THUMBNAIL_IMAGE);
+    dto.setFileIdentifier(fileIdentifier);
+    dto.setFileExtension(".jpg");
+    dto.setAcHashFunction("abcFunction");
+    dto.setAcHashValue("abc");
+    dto.setDcFormat(MediaType.IMAGE_JPEG_VALUE);
+    dto.setCreatedBy("user");
+    return dto;
   }
 
 }
