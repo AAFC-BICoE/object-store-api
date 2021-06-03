@@ -99,14 +99,6 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
         HttpStatus.UNPROCESSABLE_ENTITY.value());
   }
 
-  @Test
-  public void create_ReturnsCode201() {
-    ObjectStoreMetadataDto osMetadata = buildObjectStoreMetadataDto();
-    osMetadata.setFileIdentifier(oUpload.getFileIdentifier());
-    sendPost(getResourceUnderTest(), toJsonAPIMap(toAttributeMap(osMetadata), null),
-        HttpStatus.CREATED.value());
-  }
-
   @Override
   protected Map<String, Object> buildUpdateAttributeMap() {
 
