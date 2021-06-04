@@ -5,6 +5,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -17,6 +18,8 @@ import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.Root;
 
 import org.apache.http.client.utils.URIBuilder;
+import org.hamcrest.Matchers;
+import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openapi4j.core.exception.ResolutionException;
@@ -247,12 +250,19 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
     }
     
     String includeParam = "?include=" + relationships.stream().map(Relationship::getName).collect(Collectors.joining(","));
-    ValidatableResponse response = given().when().get(getResourceUnderTest() + "/" + resourceId + includeParam).then()
+    Response response = given().when().get(getResourceUnderTest() + "/" + resourceId + includeParam);
+    ValidatableResponse validatableResponse = response.then()
         .statusCode(HttpStatus.OK.value());
-    
+
+        
     for(Relationship rel : relationships) {
-      response.body("data.relationships." + rel.getName() + ".data.id",
+      if (response.getBody().jsonPath().getList("data.relationships." + rel.getName() + ".data").size() > 0){
+        validatableResponse.body("data.relationships." + rel.getName() + ".data[0].id",
           equalTo(rel.getId()));
+      } else {
+        validatableResponse.body("data.relationships." + rel.getName() + ".data.id",
+            equalTo(rel.getId()));
+      }
     }
   }
   

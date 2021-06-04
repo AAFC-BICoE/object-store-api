@@ -1,15 +1,25 @@
 package ca.gc.aafc.objectstore.api.rest;
 
+import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.objectstore.api.MinioTestConfiguration;
+import ca.gc.aafc.objectstore.api.dto.DerivativeDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
+import ca.gc.aafc.objectstore.api.entities.DcType;
+import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
+import ca.gc.aafc.objectstore.api.entities.Derivative.DerivativeType;
+import ca.gc.aafc.objectstore.api.testsupport.factories.DerivativeFactory;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 
 import java.time.OffsetDateTime;
 import java.util.Arrays;
@@ -24,10 +34,19 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
   
   private ObjectStoreMetadataDto objectStoreMetadata;
   private ObjectSubtype oSubtype;
+  private String derivativeUUID;
   private ObjectUpload oUpload;
+  private ObjectUpload oUpload_derivative;
 
   @BeforeEach
   public void setup() {
+    oUpload_derivative = MinioTestConfiguration.buildTestObjectUpload();
+    oUpload_derivative.setIsDerivative(true);
+    oUpload_derivative.setFileIdentifier(UUID.randomUUID());
+
+    ObjectUpload oUpload_acDerivedFrom = ObjectUploadFactory.newObjectUpload()
+      .build();
+
     oUpload = MinioTestConfiguration.buildTestObjectUpload();
 
     oSubtype = ObjectSubtypeFactory
@@ -39,7 +58,21 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
     service.runInNewTransaction(em -> {
       em.persist(oSubtype);
       em.persist(oUpload);
+      em.persist(oUpload_derivative);
+      em.persist(oUpload_acDerivedFrom);
     });
+
+    ObjectStoreMetadataDto osMetadata = buildObjectStoreMetadataDto();
+    osMetadata.setFileIdentifier(oUpload_acDerivedFrom.getFileIdentifier());
+    String metadataUuid = sendPost("metadata", JsonAPITestHelper.toJsonAPIMap("metadata", toAttributeMap(osMetadata), null, null),
+        HttpStatus.CREATED.value());
+
+    DerivativeDto derivative = buildDerivativeDto();
+    derivative.setFileIdentifier(oUpload_derivative.getFileIdentifier());
+    derivativeUUID = sendPost("derivative", JsonAPITestHelper.toJsonAPIMap("derivative", toAttributeMap(derivative), 
+      toRelationshipMap(Arrays.asList(
+        Relationship.of("acDerivedFrom", "metadata", metadataUuid))), null),
+        HttpStatus.CREATED.value());
 
   }
 
@@ -48,9 +81,11 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
    */
   @AfterEach
   public void tearDown() {
+    deleteEntityByUUID("fileIdentifier", oUpload_derivative.getFileIdentifier(), Derivative.class);
     deleteEntityByUUID("fileIdentifier", MinioTestConfiguration.TEST_FILE_IDENTIFIER, ObjectStoreMetadata.class);
     deleteEntityByUUID("uuid", oSubtype.getUuid(), ObjectSubtype.class);
     deleteEntityByUUID("fileIdentifier", MinioTestConfiguration.TEST_FILE_IDENTIFIER, ObjectUpload.class);
+    deleteEntityByUUID("fileIdentifier", oUpload_derivative.getFileIdentifier(), ObjectUpload.class);
   }
   
   @Override
@@ -113,7 +148,23 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
   protected List<Relationship> buildRelationshipList() {
     return Arrays.asList(
       Relationship.of("dcCreator", "person", UUID.randomUUID().toString()),
-      Relationship.of("acMetadataCreator", "person", UUID.randomUUID().toString()));
+      Relationship.of("acMetadataCreator", "person", UUID.randomUUID().toString()),
+      Relationship.of("derivatives", "derivative", derivativeUUID));
+  }
+
+  private DerivativeDto buildDerivativeDto() {
+    DerivativeDto dto = new DerivativeDto();
+    dto.setDcType(DcType.IMAGE);
+    dto.setAcDerivedFrom(null);
+    dto.setGeneratedFromDerivative(null);
+    dto.setDerivativeType(DerivativeType.THUMBNAIL_IMAGE);
+    dto.setFileIdentifier(oUpload_derivative.getFileIdentifier());
+    dto.setFileExtension(".jpg");
+    dto.setAcHashFunction("abcFunction");
+    dto.setAcHashValue("abc");
+    dto.setDcFormat(MediaType.IMAGE_JPEG_VALUE);
+    dto.setCreatedBy("user");
+    return dto;
   }
 
 }
