@@ -10,7 +10,6 @@ import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.entities.Derivative.DerivativeType;
-import ca.gc.aafc.objectstore.api.testsupport.factories.DerivativeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
@@ -34,7 +33,7 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
   
   private ObjectStoreMetadataDto objectStoreMetadata;
   private ObjectSubtype oSubtype;
-  private String derivativeUUID;
+  private String derivativeUuid;
   private ObjectUpload oUpload;
   private ObjectUpload oUpload_derivative;
 
@@ -69,7 +68,7 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
 
     DerivativeDto derivative = buildDerivativeDto();
     derivative.setFileIdentifier(oUpload_derivative.getFileIdentifier());
-    derivativeUUID = sendPost("derivative", JsonAPITestHelper.toJsonAPIMap("derivative", toAttributeMap(derivative), 
+    derivativeUuid = sendPost("derivative", JsonAPITestHelper.toJsonAPIMap("derivative", toAttributeMap(derivative), 
       toRelationshipMap(Arrays.asList(
         Relationship.of("acDerivedFrom", "metadata", metadataUuid))), null),
         HttpStatus.CREATED.value());
@@ -148,8 +147,14 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
   protected List<Relationship> buildRelationshipList() {
     return Arrays.asList(
       Relationship.of("dcCreator", "person", UUID.randomUUID().toString()),
-      Relationship.of("acMetadataCreator", "person", UUID.randomUUID().toString()),
-      Relationship.of("derivatives", "derivative", derivativeUUID));
+      Relationship.of("acMetadataCreator", "person", UUID.randomUUID().toString()));
+  }
+
+  @Override
+  protected Map<String, Object> buildArrayRelationship() {
+    return Map.of("derivatives", Map.of("data", List.of(Map.of(
+      "id", derivativeUuid, 
+      "type", "derivative"))));
   }
 
   private DerivativeDto buildDerivativeDto() {

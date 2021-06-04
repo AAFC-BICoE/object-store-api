@@ -5,9 +5,10 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -18,8 +19,6 @@ import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.Root;
 
 import org.apache.http.client.utils.URIBuilder;
-import org.hamcrest.Matchers;
-import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openapi4j.core.exception.ResolutionException;
@@ -133,6 +132,15 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
     return null;
   }
 
+  /**
+   * Override if a relationships arrays are required.
+   * 
+   * @return list of relationships arrays or empty map if none
+   */  
+  protected Map<String, Object> buildArrayRelationship() {
+    return Collections.emptyMap();
+  }
+
 
   /**
    * Load Json Schema via network remote url
@@ -179,10 +187,17 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
   protected Map<String, Object> toJsonAPIMap(Map<String, Object> attributeMap, Map<String, Object> relationshipMap) {
     return JsonAPITestHelper.toJsonAPIMap(getResourceUnderTest(), attributeMap, relationshipMap, null);
   }
+
+  protected static Map<String, Object> combineMaps(Map<String, Object> map1, Map<String, Object> map2) {
+    Map<String, Object> combinedMaps = new HashMap<>();
+    combinedMaps.putAll(map1);
+    combinedMaps.putAll(map2);
+    return combinedMaps;
+  }
   
   protected static Map<String, Object> toRelationshipMap(List<Relationship> relationship) {
     if( relationship == null) {
-      return null;
+      return Collections.emptyMap();
     }
     
     ImmutableMap.Builder<String, Object> relationships = new ImmutableMap.Builder<>();
@@ -220,7 +235,8 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
   public void resourceUnderTest_whenIdExists_returnOkAndBody()
       throws IOException, URISyntaxException, ResolutionException, ValidationException {
     List<Relationship> relationships = buildRelationshipList();
-    String id = sendPost(toJsonAPIMap(buildCreateAttributeMap(), toRelationshipMap(relationships)));
+    Map<String, Object> relationshipMap = combineMaps(toRelationshipMap(relationships), buildArrayRelationship());
+    String id = sendPost(toJsonAPIMap(buildCreateAttributeMap(), relationshipMap));
     
     // Test with the crnk-compact header.
     ValidatableResponse responseCompact = given().header("crnk-compact", "true").when()
@@ -256,7 +272,7 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
 
         
     for(Relationship rel : relationships) {
-      if (response.getBody().jsonPath().getList("data.relationships." + rel.getName() + ".data").size() > 0){
+      if (response.getBody().jsonPath().get("data.relationships." + rel.getName() + ".data").getClass().isArray()) {
         validatableResponse.body("data.relationships." + rel.getName() + ".data[0].id",
           equalTo(rel.getId()));
       } else {
@@ -288,8 +304,9 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
   //@Test
   public void resourceUnderTest_whenMultipleResources_returnOkAndBody()
       throws IOException, URISyntaxException, ResolutionException, ValidationException {
-    String id1 = sendPost(toJsonAPIMap(buildCreateAttributeMap(), toRelationshipMap(buildRelationshipList())));
-    String id2 = sendPost(toJsonAPIMap(buildCreateAttributeMap(), toRelationshipMap(buildRelationshipList())));
+    Map<String, Object> relationshipMap = combineMaps(toRelationshipMap(buildRelationshipList()), buildArrayRelationship());
+    String id1 = sendPost(toJsonAPIMap(buildCreateAttributeMap(), relationshipMap));
+    String id2 = sendPost(toJsonAPIMap(buildCreateAttributeMap(), relationshipMap));
 
     // Test with the crnk-compact header.
     ValidatableResponse responseCompact = given().header("crnk-compact", "true").when()
@@ -314,19 +331,22 @@ public abstract class BaseJsonApiIntegrationTest extends BaseHttpIntegrationTest
 
   @Test
   public void resourceUnderTest_whenDeleteExisting_returnNoContent() {
-    String id = sendPost(toJsonAPIMap(buildCreateAttributeMap(), toRelationshipMap(buildRelationshipList())));
+    Map<String, Object> relationshipMap = combineMaps(toRelationshipMap(buildRelationshipList()), buildArrayRelationship());
+    String id = sendPost(toJsonAPIMap(buildCreateAttributeMap(), relationshipMap));
     sendDelete(id);
   }
   
   @Test
   public void resourceUnderTest_whenUpdating_returnOkAndResourceIsUpdated() {
+    Map<String, Object> relationshipMap = combineMaps(toRelationshipMap(buildRelationshipList()), buildArrayRelationship());
+
     // Setup: create an resource
 
-    String id = sendPost(toJsonAPIMap(buildCreateAttributeMap(), toRelationshipMap(buildRelationshipList())));
+    String id = sendPost(toJsonAPIMap(buildCreateAttributeMap(), relationshipMap));
     Map<String, Object> updatedAttributeMap = buildUpdateAttributeMap();
     
     // update the resource
-    sendPatch(id, JsonAPITestHelper.toJsonAPIMap(getResourceUnderTest(), updatedAttributeMap, toRelationshipMap(buildRelationshipList()), id));
+    sendPatch(id, JsonAPITestHelper.toJsonAPIMap(getResourceUnderTest(), updatedAttributeMap, relationshipMap, id));
 
     ValidatableResponse responseUpdate = sendGet(id);
     // verify
