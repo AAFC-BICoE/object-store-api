@@ -139,12 +139,6 @@ public class DerivativeJsonApiIT extends BaseJsonApiIntegrationTest {
     sendPatch(id, HttpStatus.METHOD_NOT_ALLOWED.value(), JsonAPITestHelper.toJsonAPIMap(getResourceUnderTest(), updatedAttributeMap, toRelationshipMap(buildRelationshipList()), id));
   }
 
-  @Test
-  public void create_ReturnsCode201() {
-    derivativeDto = buildDerivativeDto();
-    sendPost(getResourceUnderTest(), toJsonAPIMap(toAttributeMap(derivativeDto), toRelationshipMap(buildRelationshipList())), HttpStatus.CREATED.value());
-  }
-
   @Override
   protected Map<String, Object> buildUpdateAttributeMap() {
 
