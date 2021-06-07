@@ -58,6 +58,6 @@ public class ObjectStoreManagedAttributeJsonApiIT extends BaseJsonApiIntegration
 
   @Override
   protected void sendDelete(String id) {
-    sendDelete(id, HttpStatus.INTERNAL_SERVER_ERROR.value());
+    sendDelete(id, HttpStatus.METHOD_NOT_ALLOWED.value());
   }
 }

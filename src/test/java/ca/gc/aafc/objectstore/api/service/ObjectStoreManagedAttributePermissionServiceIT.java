@@ -8,6 +8,8 @@ import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.objectstore.api.repository.ObjectStoreManagedAttributeResourceRepository;
 
 import com.google.common.collect.ImmutableMap;
+
+import io.crnk.core.exception.MethodNotAllowedException;
 import io.crnk.core.exception.ResourceNotFoundException;
 import io.crnk.core.queryspec.QuerySpec;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -55,9 +57,9 @@ public class ObjectStoreManagedAttributePermissionServiceIT extends BaseIntegrat
 
   @WithMockKeycloakUser(groupRole = {"group 1:STAFF"})
   @Test
-  void delete_unauthorizedUser_ThrowAccessDenied() {
+  void delete_unauthorizedUser_ThrowMethodNotAllowedException() {
     Assertions.assertNotNull(repoUnderTest.findOne(managedAttribute.getUuid(), new QuerySpec(ObjectStoreManagedAttributeDto.class)));
-    Assertions.assertThrows(AccessDeniedException.class, () -> repoUnderTest.delete(managedAttribute.getUuid()));
+    Assertions.assertThrows(MethodNotAllowedException.class, () -> repoUnderTest.delete(managedAttribute.getUuid()));
   }
 
   @WithMockKeycloakUser(groupRole = {"group 1:COLLECTION_MANAGER"})
@@ -65,7 +67,7 @@ public class ObjectStoreManagedAttributePermissionServiceIT extends BaseIntegrat
   void delete_authorizedUser_DoesNotThrowAccessDenied() {
     Assertions.assertNotNull(repoUnderTest.findOne(managedAttribute.getUuid(), new QuerySpec(ObjectStoreManagedAttributeDto.class)));
     Assertions.assertThrows(
-      UnsupportedOperationException.class,
+      MethodNotAllowedException.class,
       () -> repoUnderTest.delete(managedAttribute.getUuid()));
   }
 
