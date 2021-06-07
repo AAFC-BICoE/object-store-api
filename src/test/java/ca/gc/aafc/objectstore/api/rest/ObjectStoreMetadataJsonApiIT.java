@@ -44,8 +44,8 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
     oUpload_derivative.setIsDerivative(true);
     oUpload_derivative.setFileIdentifier(UUID.randomUUID());
 
-     oUpload_acDerivedFrom = ObjectUploadFactory.newObjectUpload()
-      .build();
+    oUpload_acDerivedFrom = MinioTestConfiguration.buildTestObjectUpload();
+    oUpload_acDerivedFrom.setFileIdentifier(UUID.randomUUID());
 
     oUpload = MinioTestConfiguration.buildTestObjectUpload();
 
@@ -82,11 +82,12 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
   @AfterEach
   public void tearDown() {
     deleteEntityByUUID("fileIdentifier", oUpload_derivative.getFileIdentifier(), Derivative.class);
-    deleteEntityByUUID("fileIdentifier", oUpload_acDerivedFrom.getFileIdentifier(), ObjectStoreMetadata.class);
     deleteEntityByUUID("fileIdentifier", MinioTestConfiguration.TEST_FILE_IDENTIFIER, ObjectStoreMetadata.class);
+    deleteEntityByUUID("fileIdentifier", oUpload_acDerivedFrom.getFileIdentifier(), ObjectStoreMetadata.class);
     deleteEntityByUUID("uuid", oSubtype.getUuid(), ObjectSubtype.class);
-    deleteEntityByUUID("fileIdentifier", MinioTestConfiguration.TEST_FILE_IDENTIFIER, ObjectUpload.class);
     deleteEntityByUUID("fileIdentifier", oUpload_derivative.getFileIdentifier(), ObjectUpload.class);
+    deleteEntityByUUID("fileIdentifier", MinioTestConfiguration.TEST_FILE_IDENTIFIER, ObjectUpload.class);
+    deleteEntityByUUID("fileIdentifier", oUpload_acDerivedFrom.getFileIdentifier(), ObjectUpload.class);
   }
   
   @Override
