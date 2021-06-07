@@ -64,10 +64,9 @@ public class ObjectStoreManagedAttributePermissionServiceIT extends BaseIntegrat
   @Test
   void delete_authorizedUser_DoesNotThrowAccessDenied() {
     Assertions.assertNotNull(repoUnderTest.findOne(managedAttribute.getUuid(), new QuerySpec(ObjectStoreManagedAttributeDto.class)));
-    Assertions.assertDoesNotThrow(() -> repoUnderTest.delete(managedAttribute.getUuid()));
     Assertions.assertThrows(
-      ResourceNotFoundException.class,
-      () -> repoUnderTest.findOne(managedAttribute.getUuid(), new QuerySpec(ObjectStoreManagedAttributeDto.class)));
+      UnsupportedOperationException.class,
+      () -> repoUnderTest.delete(managedAttribute.getUuid()));
   }
 
   @WithMockKeycloakUser(groupRole = {"group 1:STAFF"})

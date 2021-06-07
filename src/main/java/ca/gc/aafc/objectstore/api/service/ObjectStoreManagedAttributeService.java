@@ -16,16 +16,12 @@ public class ObjectStoreManagedAttributeService extends ca.gc.aafc.dina.service.
 
   private final ObjectStoreManagedAttributeValidator managedAttributeValidator;
 
-  @NonNull
-  private final BaseDAO baseDAO;
-
   public ObjectStoreManagedAttributeService(
     @NonNull BaseDAO baseDAO,
     @NonNull ObjectStoreManagedAttributeValidator managedAttributeValidator
   ) {
     super(baseDAO, ObjectStoreManagedAttribute.class);
     this.managedAttributeValidator = managedAttributeValidator;
-    this.baseDAO = baseDAO;
   }
 
   @Override
@@ -40,12 +36,6 @@ public class ObjectStoreManagedAttributeService extends ca.gc.aafc.dina.service.
   protected void preUpdate(ObjectStoreManagedAttribute entity) {
     cleanDescription(entity);
     validateManagedAttribute(entity);
-  }
-
-  @Override
-  public void delete(ObjectStoreManagedAttribute entity) {
-    preDelete(entity);
-    baseDAO.delete(entity);
   }
 
   public void validateManagedAttribute(ObjectStoreManagedAttribute entity) {
