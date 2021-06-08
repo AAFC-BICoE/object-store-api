@@ -21,10 +21,10 @@
 		<java.version>11</java.version>
 
 		<javax.interceptor-api>1.2.2</javax.interceptor-api>
-		<minio.version>8.1.0</minio.version>
-		<tika.version>1.25</tika.version>
+		<minio.version>8.2.1</minio.version>
+		<tika.version>1.26</tika.version>
 		<thumbnailator.version>0.4.14</thumbnailator.version>
-		<pdfbox.version>2.0.22</pdfbox.version>
+		<pdfbox.version>2.0.23</pdfbox.version>
 		<imageio.version>3.6.4</imageio.version>
 
 		<spotbugs-maven-plugin.version>4.2.0</spotbugs-maven-plugin.version>
