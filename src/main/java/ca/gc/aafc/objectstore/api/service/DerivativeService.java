@@ -37,7 +37,6 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
   protected void preCreate(Derivative entity) {
     entity.setUuid(UUID.randomUUID());
     establishBiDirectionalAssociation(entity);
-    applyBusinessRule(entity, validator);
   }
 
   @Override
@@ -50,6 +49,10 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
   @Override
   protected void preUpdate(Derivative entity) {
     establishBiDirectionalAssociation(entity);
+  }
+
+  @Override
+  public void validateBusinessRules(Derivative entity) {
     applyBusinessRule(entity, validator);
   }
 
