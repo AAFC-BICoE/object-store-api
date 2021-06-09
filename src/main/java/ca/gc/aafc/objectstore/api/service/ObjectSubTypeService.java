@@ -10,14 +10,19 @@ import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import java.util.UUID;
 
 import lombok.NonNull;
+import org.springframework.validation.SmartValidator;
 
 @Service
 public class ObjectSubTypeService extends DefaultDinaService<ObjectSubtype> {
 
   private final MessageSource messageSource;
 
-  public ObjectSubTypeService(@NonNull BaseDAO baseDAO, MessageSource messageSource) {
-    super(baseDAO);
+  public ObjectSubTypeService(
+    @NonNull BaseDAO baseDAO,
+    MessageSource messageSource,
+    @NonNull SmartValidator smartValidator
+  ) {
+    super(baseDAO, smartValidator);
     this.messageSource = messageSource;
   }
 
