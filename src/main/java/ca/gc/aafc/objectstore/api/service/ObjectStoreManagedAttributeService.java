@@ -30,17 +30,16 @@ public class ObjectStoreManagedAttributeService extends ca.gc.aafc.dina.service.
   protected void preCreate(ObjectStoreManagedAttribute entity) {
     entity.setUuid(UUID.randomUUID());
     cleanDescription(entity);
-    validateManagedAttribute(entity);
     super.preCreate(entity);
   }
 
   @Override
   protected void preUpdate(ObjectStoreManagedAttribute entity) {
     cleanDescription(entity);
-    validateManagedAttribute(entity);
   }
 
-  public void validateManagedAttribute(ObjectStoreManagedAttribute entity) {
+  @Override
+  public void validateBusinessRules(ObjectStoreManagedAttribute entity) {
     applyBusinessRule(entity, managedAttributeValidator);
   }
 
