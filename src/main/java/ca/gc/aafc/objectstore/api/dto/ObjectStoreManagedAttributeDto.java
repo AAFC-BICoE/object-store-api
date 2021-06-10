@@ -18,8 +18,8 @@ import lombok.Data;
 @SuppressFBWarnings({ "EI_EXPOSE_REP", "EI_EXPOSE_REP2" })
 @RelatedEntity(ObjectStoreManagedAttribute.class)
 @Data
-@JsonApiResource(type = "managed-attribute")
-public class ManagedAttributeDto {
+@JsonApiResource(type = "managed-attribute") 
+public class ObjectStoreManagedAttributeDto {
 
   @JsonApiId
   @Id
@@ -27,6 +27,7 @@ public class ManagedAttributeDto {
   private UUID uuid;
 
   private String name;
+  private String key;
   private ManagedAttributeType managedAttributeType;
   private String[] acceptedValues;
   private OffsetDateTime createdOn;

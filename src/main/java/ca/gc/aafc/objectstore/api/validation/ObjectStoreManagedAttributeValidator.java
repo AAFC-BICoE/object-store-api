@@ -1,6 +1,8 @@
 package ca.gc.aafc.objectstore.api.validation;
 
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
+
+import org.apache.commons.collections.MapUtils;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
@@ -8,11 +10,11 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 @Component
-public class ManagedAttributeValidator implements Validator {
+public class ObjectStoreManagedAttributeValidator implements Validator {
 
   private final MessageSource messageSource;
 
-  public ManagedAttributeValidator(MessageSource messageSource) {
+  public ObjectStoreManagedAttributeValidator(MessageSource messageSource) {
     this.messageSource = messageSource;
   }
 
@@ -24,12 +26,10 @@ public class ManagedAttributeValidator implements Validator {
   @Override
   public void validate(Object target, Errors errors) {
     ObjectStoreManagedAttribute ma = (ObjectStoreManagedAttribute) target;
-    if (ma.getDescription().isEmpty()) {
+    if (MapUtils.isEmpty(ma.getDescription())) {
       String errorMessage = messageSource.getMessage("description.isEmpty", null,
         LocaleContextHolder.getLocale());
       errors.rejectValue("description", "description.isEmpty", null, errorMessage);
     }
-
   }
-
 }

@@ -4,7 +4,7 @@ import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
-import ca.gc.aafc.objectstore.api.testsupport.factories.ManagedAttributeFactory;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
@@ -87,7 +87,7 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
 
   @Test
   public void testRelationships() {
-    ObjectStoreManagedAttribute ma = ManagedAttributeFactory.newManagedAttribute().build();
+    ObjectStoreManagedAttribute ma = ObjectStoreManagedAttributeFactory.newManagedAttribute().build();
     managedAttributeService.create(ma);
 
     ObjectSubtype ost = ObjectSubtypeFactory.newObjectSubtype().build();

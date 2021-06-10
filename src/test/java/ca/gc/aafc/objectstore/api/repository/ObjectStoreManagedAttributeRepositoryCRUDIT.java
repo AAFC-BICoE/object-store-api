@@ -16,23 +16,23 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ImmutableMap;
 
 import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
-import ca.gc.aafc.objectstore.api.dto.ManagedAttributeDto;
+import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.dina.entity.ManagedAttribute.ManagedAttributeType;
-import ca.gc.aafc.objectstore.api.testsupport.factories.ManagedAttributeFactory;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreManagedAttributeFactory;
 import io.crnk.core.queryspec.QuerySpec;
 
-public class ManagedAttributeRepositoryCRUDIT extends BaseIntegrationTest {
+public class ObjectStoreManagedAttributeRepositoryCRUDIT extends BaseIntegrationTest {
   
   @Inject
-  private ManagedAttributeResourceRepository managedResourceRepository;
+  private ObjectStoreManagedAttributeResourceRepository managedResourceRepository;
   
   private ObjectStoreManagedAttribute testManagedAttribute;
 
   private final static String DINA_USER_NAME = DinaAuthenticatedUserConfig.USER_NAME;
 
   private ObjectStoreManagedAttribute createTestManagedAttribute() throws JsonProcessingException {
-    testManagedAttribute = ManagedAttributeFactory.newManagedAttribute()
+    testManagedAttribute = ObjectStoreManagedAttributeFactory.newManagedAttribute()
         .acceptedValues(new String[] { "dosal" })
         .description(ImmutableMap.of("en", "attrEn", "fr", "attrFr"))
         .build();
@@ -47,8 +47,8 @@ public class ManagedAttributeRepositoryCRUDIT extends BaseIntegrationTest {
 
   @Test
   public void findManagedAttribute_whenNoFieldsAreSelected_manageAttributeReturnedWithAllFields() {
-    ManagedAttributeDto managedAttributeDto = managedResourceRepository
-        .findOne(testManagedAttribute.getUuid(), new QuerySpec(ManagedAttributeDto.class));
+    ObjectStoreManagedAttributeDto managedAttributeDto = managedResourceRepository
+        .findOne(testManagedAttribute.getUuid(), new QuerySpec(ObjectStoreManagedAttributeDto.class));
     assertNotNull(managedAttributeDto);
     assertEquals(testManagedAttribute.getUuid(), managedAttributeDto.getUuid());
     assertArrayEquals(testManagedAttribute.getAcceptedValues(),
@@ -62,16 +62,16 @@ public class ManagedAttributeRepositoryCRUDIT extends BaseIntegrationTest {
 
   @Test
   public void create_WithAuthenticatedUser_SetsCreatedBy() {
-    ManagedAttributeDto ma = new ManagedAttributeDto();
+    ObjectStoreManagedAttributeDto ma = new ObjectStoreManagedAttributeDto();
     ma.setUuid(UUID.randomUUID());
     ma.setName("name");
     ma.setManagedAttributeType(ManagedAttributeType.STRING);
     ma.setAcceptedValues(new String[] { "dosal" });
     ma.setDescription(ImmutableMap.of("en", "attrEn", "fr", "attrFr"));
 
-    ManagedAttributeDto result = managedResourceRepository.findOne(
+    ObjectStoreManagedAttributeDto result = managedResourceRepository.findOne(
       managedResourceRepository.create(ma).getUuid(),
-      new QuerySpec(ManagedAttributeDto.class));
+      new QuerySpec(ObjectStoreManagedAttributeDto.class));
     assertEquals(DINA_USER_NAME, result.getCreatedBy());
   }
     

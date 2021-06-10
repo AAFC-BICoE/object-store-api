@@ -9,7 +9,7 @@ import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
-import ca.gc.aafc.objectstore.api.testsupport.factories.ManagedAttributeFactory;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
@@ -50,7 +50,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
   }
 
   private void createTestManagedAttribute() {
-    testManagedAttribute = ManagedAttributeFactory.newManagedAttribute()
+    testManagedAttribute = ObjectStoreManagedAttributeFactory.newManagedAttribute()
       .acceptedValues(new String[]{"dosal"})
       .description(ImmutableMap.of("en", "attrEn", "fr", "attrFr"))
       .build();
