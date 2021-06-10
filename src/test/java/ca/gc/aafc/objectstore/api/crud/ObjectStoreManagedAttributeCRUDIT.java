@@ -15,11 +15,11 @@ import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.Test;
 
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
-import ca.gc.aafc.objectstore.api.testsupport.factories.ManagedAttributeFactory;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreManagedAttributeFactory;
 
-public class ManagedAttributeCRUDIT extends BaseEntityCRUDIT {
+public class ObjectStoreManagedAttributeCRUDIT extends BaseEntityCRUDIT {
      
-  private ObjectStoreManagedAttribute managedAttributeUnderTest = ManagedAttributeFactory.newManagedAttribute()
+  private ObjectStoreManagedAttribute managedAttributeUnderTest = ObjectStoreManagedAttributeFactory.newManagedAttribute()
       .acceptedValues(new String[] { "a", "b" })
       .description(ImmutableMap.of("en", "attrEn", "fr", "attrFr"))
       .createdBy("createdBy")
@@ -36,7 +36,7 @@ public class ManagedAttributeCRUDIT extends BaseEntityCRUDIT {
 
   @Test
   public void testSave_whenDescriptionIsBlank_throwValidationException() {
-    ObjectStoreManagedAttribute blankDescription = ManagedAttributeFactory.newManagedAttribute()
+    ObjectStoreManagedAttribute blankDescription = ObjectStoreManagedAttributeFactory.newManagedAttribute()
       .acceptedValues(new String[] { "a", "b" })
       .description(ImmutableMap.of("en", ""))
       .build();
@@ -44,6 +44,18 @@ public class ManagedAttributeCRUDIT extends BaseEntityCRUDIT {
     assertThrows(
       ValidationException.class,
       () -> managedAttributeService.create(blankDescription));
+  }
+
+  @Test
+  public void testSave_whenDescriptionIsNull_throwValidationException() {
+    ObjectStoreManagedAttribute nullDescription = ObjectStoreManagedAttributeFactory.newManagedAttribute()
+      .acceptedValues(new String[] { "a", "b" })
+      .description(null)
+      .build();
+
+    assertThrows(
+      ValidationException.class,
+      () -> managedAttributeService.create(nullDescription));
   }
 
   @Override
@@ -62,8 +74,10 @@ public class ManagedAttributeCRUDIT extends BaseEntityCRUDIT {
   @Override
   public void testRemove() {
     UUID uuid = managedAttributeUnderTest.getUuid();
-    managedAttributeService.delete(managedAttributeUnderTest);
-    assertNull(managedAttributeService.findOne(
+    assertThrows(
+      UnsupportedOperationException.class,
+      () -> managedAttributeService.delete(managedAttributeUnderTest));
+    assertNotNull(managedAttributeService.findOne(
       uuid, ObjectStoreManagedAttribute.class));
   }
 }
