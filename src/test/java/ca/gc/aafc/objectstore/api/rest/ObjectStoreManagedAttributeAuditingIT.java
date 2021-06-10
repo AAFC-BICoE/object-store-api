@@ -1,13 +1,14 @@
 package ca.gc.aafc.objectstore.api.rest;
 
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
-import ca.gc.aafc.objectstore.api.MinioTestConfiguration;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.repository.ObjectStoreManagedAttributeResourceRepository;
 import ca.gc.aafc.objectstore.api.repository.ObjectStoreResourceRepository;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import io.crnk.core.queryspec.QuerySpec;
@@ -41,7 +42,7 @@ public class ObjectStoreManagedAttributeAuditingIT extends BaseIntegrationTest {
 
   @BeforeEach
   void setUp() {
-    objectUpload = MinioTestConfiguration.buildTestObjectUpload();
+    objectUpload = ObjectUploadFactory.buildTestObjectUpload();
     objectUploadService.create(objectUpload);
 
     ObjectStoreManagedAttributeDto managed = new ObjectStoreManagedAttributeDto();
