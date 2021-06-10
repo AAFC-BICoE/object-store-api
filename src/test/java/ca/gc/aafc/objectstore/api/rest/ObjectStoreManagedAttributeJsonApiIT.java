@@ -3,6 +3,8 @@ package ca.gc.aafc.objectstore.api.rest;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.http.HttpStatus;
+
 import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
 import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
@@ -52,5 +54,10 @@ public class ObjectStoreManagedAttributeJsonApiIT extends BaseJsonApiIntegration
     managedAttribute.setAcceptedValues(acceptedValues);
     
     return toAttributeMap(managedAttribute);
+  }
+
+  @Override
+  protected void sendDelete(String id) {
+    sendDelete(id, HttpStatus.METHOD_NOT_ALLOWED.value());
   }
 }
