@@ -1,11 +1,12 @@
 package ca.gc.aafc.objectstore.api.rest;
 
-import ca.gc.aafc.objectstore.api.MinioTestConfiguration;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,7 +29,7 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
 
   @BeforeEach
   public void setup() {
-    oUpload = MinioTestConfiguration.buildTestObjectUpload();
+    oUpload = ObjectUploadFactory.buildTestObjectUpload();
 
     oSubtype = ObjectSubtypeFactory
       .newObjectSubtype()
@@ -48,9 +49,9 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
    */
   @AfterEach
   public void tearDown() {
-    deleteEntityByUUID("fileIdentifier", MinioTestConfiguration.TEST_FILE_IDENTIFIER, ObjectStoreMetadata.class);
+    deleteEntityByUUID("fileIdentifier", ObjectUploadFactory.TEST_FILE_IDENTIFIER, ObjectStoreMetadata.class);
     deleteEntityByUUID("uuid", oSubtype.getUuid(), ObjectSubtype.class);
-    deleteEntityByUUID("fileIdentifier", MinioTestConfiguration.TEST_FILE_IDENTIFIER, ObjectUpload.class);
+    deleteEntityByUUID("fileIdentifier", ObjectUploadFactory.TEST_FILE_IDENTIFIER, ObjectUpload.class);
   }
   
   @Override
@@ -81,9 +82,9 @@ public class ObjectStoreMetadataJsonApiIT extends BaseJsonApiIntegrationTest {
     osMetadata.setXmpRightsOwner(null); // default value from configuration should be used
     osMetadata.setXmpRightsUsageTerms(null); // default value from configuration should be used
     osMetadata.setAcDigitizationDate(dateTime4Test);
-    osMetadata.setFileIdentifier(MinioTestConfiguration.TEST_FILE_IDENTIFIER);
-    osMetadata.setFileExtension(MinioTestConfiguration.TEST_FILE_EXT);
-    osMetadata.setBucket(MinioTestConfiguration.TEST_BUCKET);
+    osMetadata.setFileIdentifier(ObjectUploadFactory.TEST_FILE_IDENTIFIER);
+    osMetadata.setFileExtension(ObjectUploadFactory.TEST_FILE_EXT);
+    osMetadata.setBucket(ObjectUploadFactory.TEST_BUCKET);
     osMetadata.setPubliclyReleasable(true);
     osMetadata.setNotPubliclyReleasableReason("Classified");
 

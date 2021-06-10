@@ -16,7 +16,6 @@ import org.springframework.security.access.AccessDeniedException;
 
 import ca.gc.aafc.dina.testsupport.security.WithMockKeycloakUser;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
-import ca.gc.aafc.objectstore.api.MinioTestConfiguration;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
@@ -32,6 +31,7 @@ public class MetaDataAuthorizationIT extends BaseIntegrationTest {
   @Inject
   private ObjectStoreResourceRepository repo;
   private static final String GROUP_1 = "CNC";
+  private static final String TEST_USAGE_TERMS = "test user terms";
   public ObjectUpload testObjectUpload;
   private ObjectStoreMetadata persisted;
 
@@ -110,7 +110,7 @@ public class MetaDataAuthorizationIT extends BaseIntegrationTest {
     meta.setFileIdentifier(testObjectUpload.getFileIdentifier());
     meta.setDcType(DcType.IMAGE);
     meta.setBucket(group);
-    meta.setXmpRightsUsageTerms(MinioTestConfiguration.TEST_USAGE_TERMS);
+    meta.setXmpRightsUsageTerms(TEST_USAGE_TERMS);
     meta.setCreatedBy(RandomStringUtils.random(4));
     return meta;
   }
