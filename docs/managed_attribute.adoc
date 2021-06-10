@@ -4,28 +4,37 @@ User-defined Managed Attributes can be created to add custom metadata to a store
 
 == Getting Managed Attribute values through the REST API
 
-Include a client-friendly map of all of a stored object's managed attribute values using
-JSONAPI's "include" URL parameter:
+Send a GET request with the following URL and body structure:
 
 ```
 GET /api/v1/managed-attribute/{Id}
 
+RESPONSE BODY:
+
 {
   "data": {
-    "id": "d290f1ee-6c54-4b01-90e6-d701748f0851",
+    "id": "aa1c5ac5-0a83-42cb-a475-d4e0b7fdd2fc",
     "type": "managed-attribute",
+    "links": {
+      "self": "/api/v1/managed-attribute/aa1c5ac5-0a83-42cb-a475-d4e0b7fdd2fc"
+    },
     "attributes": {
       "name": "specimen_view",
       "managedAttributeType": "STRING",
       "acceptedValues": [
         "dorsal"
       ],
-      "createdDate": "2020-01-01",
+      "createdOn": "2021-06-10T19:44:17.864551Z",
+      "createdBy": "dev",
       "description": {
         "fr": "Description en Français",
         "en": "English description"
       }
     }
+  },
+  "meta": {
+    "totalResourceCount": 1,
+    "moduleVersion": "0.24"
   }
 }
 ```
@@ -37,6 +46,8 @@ Send a POST request with the following URL and body structure:
 ```
 POST /api/v1/managed-attribute
 
+REQUEST BODY:
+
 {
   "data": {
     "type": "managed-attribute",
@@ -53,4 +64,40 @@ POST /api/v1/managed-attribute
     }
   }
 }
+
+RESPONSE BODY:
+
+{
+  "data": {
+    "id": "aa1c5ac5-0a83-42cb-a475-d4e0b7fdd2fc",
+    "type": "managed-attribute",
+    "links": {
+      "self": "/api/v1/managed-attribute/aa1c5ac5-0a83-42cb-a475-d4e0b7fdd2fc"
+    },
+    "attributes": {
+      "name": "specimen_view",
+      "managedAttributeType": "STRING",
+      "acceptedValues": [
+        "dorsal"
+      ],
+      "createdOn": "2021-06-10T19:44:17.864551Z",
+      "createdBy": "dev",
+      "description": {
+        "fr": "Description en Français",
+        "en": "English description"
+      }
+    }
+  },
+  "meta": {
+    "totalResourceCount": 1,
+    "moduleVersion": "0.24"
+  }
+}
+```
+
+== Posting a Meta data with a managed attribute value
+
+```
+POST /api/v1/metadata
+
 ```
