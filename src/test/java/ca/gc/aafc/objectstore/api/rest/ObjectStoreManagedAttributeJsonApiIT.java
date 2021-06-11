@@ -82,19 +82,12 @@ public class ObjectStoreManagedAttributeJsonApiIT extends BaseJsonApiIntegration
     sendPatch(id, JsonAPITestHelper.toJsonAPIMap(getResourceUnderTest(), updatedAttributeMap, toRelationshipMap(buildRelationshipList()), id));
 
     ValidatableResponse responseUpdate = sendGet(id);
-    // verify
-    for (String attributeKey : updatedAttributeMap.keySet()) {
-      //uuid is used as id in the response, so should not verify
-      if("uuid".equals(attributeKey))
-        continue;
-      if("key".equals(attributeKey)) {
-        responseUpdate.body("data.attributes." + attributeKey,
-          not(updatedAttributeMap.get(attributeKey)));
-        continue;
-      }
-      responseUpdate.body("data.attributes." + attributeKey,
-          equalTo(attributeMap.get(attributeKey)));
-    }
+
+    responseUpdate.body("data.attributes.key",
+      not(updatedAttributeMap.get("key")));
+
+    responseUpdate.body("data.attributes.name",
+      equalTo(attributeMap.get("name")));
 
     // cleanup
     sendDelete(id);
