@@ -1,5 +1,7 @@
 package ca.gc.aafc.objectstore.api.crud;
 
+import ca.gc.aafc.objectstore.api.entities.DcType;
+import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
@@ -8,13 +10,17 @@ import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreManagedAttrib
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
+
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.MediaType;
 
 import javax.persistence.criteria.Predicate;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -86,6 +92,44 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
   }
 
   @Test
+  public void testRemoveDerivativeWhenMetadataIsDeleted() {
+
+    ObjectStoreMetadata osm = ObjectStoreMetadataFactory
+      .newObjectStoreMetadata()
+      .acDigitizationDate(TEST_OFFSET_DT)
+      .fileIdentifier(objectUpload.getFileIdentifier())
+      .build();
+
+    objectStoreMetaDataService.create(osm);
+
+    Derivative derivative = newDerivative(osm);
+    derivativeService.create(derivative);
+
+    ObjectUpload op = ObjectUploadFactory.newObjectUpload().build();
+    objectUploadService.create(op);
+    
+    List<Derivative> derivatives = new ArrayList<>();
+    derivatives.add(derivative);
+    
+    ObjectStoreMetadata objectStoreMetadata = ObjectStoreMetadataFactory
+      .newObjectStoreMetadata()
+      .acDigitizationDate(TEST_OFFSET_DT)
+      .derivatives(derivatives)
+      .fileIdentifier(op.getFileIdentifier())
+      .build();
+
+    objectStoreMetaDataService.create(objectStoreMetadata);
+    UUID uuid = objectStoreMetadata.getUuid();
+    UUID derivativeUuid = derivative.getUuid();
+    objectStoreMetaDataService.delete(objectStoreMetadata);
+
+    assertNull(objectStoreMetaDataService.findOne(
+      uuid, ObjectStoreMetadata.class));
+    assertNull(derivativeService.findOne(
+      derivativeUuid, Derivative.class));
+  }
+
+  @Test
   public void testRelationships() {
     ObjectStoreManagedAttribute ma = ObjectStoreManagedAttributeFactory.newManagedAttribute().build();
     managedAttributeService.create(ma);
@@ -121,6 +165,22 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
     return objectStoreMetaDataService.findAll(ObjectStoreMetadata.class,
       (criteriaBuilder, objectStoreMetadataRoot) -> new Predicate[0],
       null, 0, 100);
+  }  
+  
+  private Derivative newDerivative(ObjectStoreMetadata child) {
+    return Derivative.builder()
+      .uuid(UUID.randomUUID())
+      .fileIdentifier(UUID.randomUUID())
+      .fileExtension(".jpg")
+      .bucket("mybucket")
+      .acHashValue("abc")
+      .acHashFunction("abcFunction")
+      .dcType(DcType.IMAGE)
+      .dcFormat(MediaType.IMAGE_JPEG_VALUE)
+      .createdBy(RandomStringUtils.random(4))
+      .acDerivedFrom(child)
+      .derivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE)
+      .build();
   }
 
 }
