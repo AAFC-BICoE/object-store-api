@@ -1,5 +1,6 @@
 package ca.gc.aafc.objectstore.api.file;
 
+import ca.gc.aafc.dina.workbook.WorkbookConverter;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
@@ -41,6 +42,7 @@ import javax.transaction.Transactional;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -93,6 +95,13 @@ public class FileControllerIT extends BaseIntegrationTest {
 
     // on download, the original file name should be returned
     assertEquals(mockFile.getOriginalFilename(), response.getHeaders().getContentDisposition().getFilename());
+  }
+
+  @Test
+  public void fileUploadConversion_OnValidSpreadsheet_contentReturned() throws Exception {
+    MockMultipartFile mockFile = createMockMultipartFile("test_spreadsheet.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE);
+    List<WorkbookConverter.WorkbookRow> content = fileController.handleFileConversion(mockFile);
+    assertFalse(content.isEmpty());
   }
 
   @Test
@@ -228,8 +237,8 @@ public class FileControllerIT extends BaseIntegrationTest {
     String fileNameInClasspath,
     String mediaType
   ) throws IOException {
-    Resource imageFile = resourceLoader.getResource("classpath:" + fileNameInClasspath);
-    byte[] bytes = IOUtils.toByteArray(imageFile.getInputStream());
+    Resource testFile = resourceLoader.getResource("classpath:" + fileNameInClasspath);
+    byte[] bytes = IOUtils.toByteArray(testFile.getInputStream());
 
     return new MockMultipartFile("file", "testfile" + "." + FilenameUtils.getExtension(fileNameInClasspath), mediaType, bytes);
   }

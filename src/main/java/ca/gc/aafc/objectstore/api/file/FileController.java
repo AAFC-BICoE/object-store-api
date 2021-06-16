@@ -5,6 +5,7 @@ import ca.gc.aafc.dina.mapper.DinaMappingLayer;
 import ca.gc.aafc.dina.repository.meta.AttributeMetaInfoProvider;
 import ca.gc.aafc.dina.repository.meta.AttributeMetaInfoProvider.DinaJsonMetaInfo;
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
+import ca.gc.aafc.dina.workbook.WorkbookConverter;
 import ca.gc.aafc.objectstore.api.dto.ObjectUploadDto;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
@@ -60,6 +61,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -131,6 +133,22 @@ public class FileController {
     InternalException, InsufficientDataException, InvalidResponseException, MimeTypeException, XmlParserException,
     IOException, ServerException {
     return handleUpload(file, bucket, false);
+  }
+
+  @PostMapping("/conversion/workbook")
+  public List<WorkbookConverter.WorkbookRow> handleFileConversion(
+      @RequestParam("file") MultipartFile file
+  ) throws IOException, MimeTypeException {
+    MediaTypeDetectionStrategy.MediaTypeDetectionResult mtdr = mediaTypeDetectionStrategy
+        .detectMediaType(file.getInputStream(), file.getContentType(), file.getOriginalFilename());
+    MediaType detectedMediaType = mtdr.getDetectedMediaType();
+
+    // TODO change for WorkbookConverter.isSupportedType when it will be ready
+    if(!"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet".equals(detectedMediaType.toString())) {
+      throw new UnsupportedMediaTypeStatusException(messageSource.getMessage(
+          "supportedMediaType.illegal", new String[]{detectedMediaType.getSubtype()}, LocaleContextHolder.getLocale()));
+    }
+    return WorkbookConverter.convert(file.getInputStream());
   }
 
   private ObjectUploadDto handleUpload(
