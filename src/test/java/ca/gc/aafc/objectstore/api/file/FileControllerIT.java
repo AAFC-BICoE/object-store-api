@@ -110,7 +110,7 @@ public class FileControllerIT extends BaseIntegrationTest {
 
     UnsupportedMediaTypeStatusException error = assertThrows(UnsupportedMediaTypeStatusException.class, () -> fileController.handleFileUpload(mockFile, bucketUnderTest));
 
-    String expectedMessage = "415 UNSUPPORTED_MEDIA_TYPE \"Media type x-sharedlib is invalid.\"";
+    String expectedMessage = "415 UNSUPPORTED_MEDIA_TYPE \"Media type application/x-sharedlib is invalid.\"";
     String actualMessage = error.getLocalizedMessage();
 
     assertEquals(expectedMessage, actualMessage);
@@ -122,7 +122,7 @@ public class FileControllerIT extends BaseIntegrationTest {
 
     UnsupportedMediaTypeStatusException error = assertThrows(UnsupportedMediaTypeStatusException.class, () -> fileController.handleFileUpload(mockFile, bucketUnderTest));
 
-    String expectedMessage = "415 UNSUPPORTED_MEDIA_TYPE \"Media type zip is invalid.\"";
+    String expectedMessage = "415 UNSUPPORTED_MEDIA_TYPE \"Media type application/zip is invalid.\"";
     String actualMessage = error.getLocalizedMessage();
 
     assertEquals(expectedMessage, actualMessage);
