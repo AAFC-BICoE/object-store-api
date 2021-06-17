@@ -48,12 +48,14 @@ public class ObjectStoreManagedAttribute implements ca.gc.aafc.dina.entity.Manag
 
   private Integer id;
   private UUID uuid;
-  private String name;
   private ManagedAttributeType managedAttributeType;
   private String[] acceptedValues;
   private OffsetDateTime createdOn;
   private String createdBy;
   private Map<String, String> description;
+  
+  @Column(updatable = false)
+  private String name;
 
   @NotBlank
   @Size(max = 50)
