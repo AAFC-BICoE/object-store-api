@@ -1,4 +1,4 @@
-package ca.gc.openapi;
+package ca.gc.aafc.objectstore.api.openapi;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -48,7 +48,7 @@ public class ObjectStoreMetadataOpenApiIT extends BaseRestAssuredTest {
   protected DatabaseSupportService service;
 
   private static final String SPEC_HOST = "raw.githubusercontent.com";
-  private static final String ROOT_SPEC_PATH = "DINA-Web/object-store-specs/master/schema/object-store-api.yml";
+  private static final String ROOT_SPEC_PATH = "luusteve/object-store-specs/23081_Change_objectStoreMetadataJsonApiIT_implementation/schema/object-store-api.yml";
   
   private static final String SCHEMA_NAME = "Metadata";
   private static final String RESOURCE_UNDER_TEST = "metadata";
