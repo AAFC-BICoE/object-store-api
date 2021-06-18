@@ -19,6 +19,7 @@ public class MinioTestContainer extends GenericContainer<MinioTestContainer> {
 
   public MinioTestContainer(String image) {
     super(DockerImageName.parse(image));
+    this.withExposedPorts(PORT);
     this.withEnv(MINIO_ACCESS_KEY, ACCESS_KEY);
     this.withEnv(MINIO_SECRET_KEY, SECRET_KEY);
     this.withCommand(COMMAND);
