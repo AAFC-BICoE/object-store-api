@@ -1,7 +1,10 @@
 package ca.gc.aafc.objectstore.api.rest;
 
 import static io.restassured.RestAssured.given;
+import static org.junit.jupiter.api.Assertions.fail;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Map;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -10,6 +13,7 @@ import javax.persistence.criteria.Root;
 
 import com.google.common.collect.ImmutableMap;
 
+import org.apache.http.client.utils.URIBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,13 +29,24 @@ import io.restassured.response.Response;
 public class DcTypeJsonSerializationIT extends BaseHttpIntegrationTest {
 
   private static final String RESOURCE_UNDER_TEST = "object-subtype";
+  private static final String JSON_API_CONTENT_TYPE = "application/vnd.api+json";
+  private static final String API_BASE_PATH = "/api/v1";
   private static final String AC_SUB_TYPE = TestableEntityFactory.generateRandomNameLettersOnly(5);
 
   @BeforeEach
   public void setup() {
+    URIBuilder uriBuilder = new URIBuilder();
+    uriBuilder.setScheme("http");
+    uriBuilder.setHost("localhost");
+    URI tmpURI = null;
+    try {
+      tmpURI = uriBuilder.build();
+    } catch (URISyntaxException e) {
+      fail(e.getMessage());
+    }
     RestAssured.port = testPort;
-    RestAssured.baseURI = BaseJsonApiIntegrationTest.IT_BASE_URI.toString();
-    RestAssured.basePath = BaseJsonApiIntegrationTest.API_BASE_PATH;
+    RestAssured.baseURI = tmpURI.toString();
+    RestAssured.basePath = API_BASE_PATH;
   }
 
   @AfterEach
@@ -60,7 +75,7 @@ public class DcTypeJsonSerializationIT extends BaseHttpIntegrationTest {
   private Response sendPostWithDcType(String dcType) {
     return given()
         .header("crnk-compact", "true")
-        .contentType(BaseJsonApiIntegrationTest.JSON_API_CONTENT_TYPE)
+        .contentType(JSON_API_CONTENT_TYPE)
         .body(getPostBody(dcType))
         .when()
         .post(RESOURCE_UNDER_TEST);
