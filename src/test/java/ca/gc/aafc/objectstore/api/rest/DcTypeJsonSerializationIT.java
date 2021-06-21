@@ -1,10 +1,7 @@
 package ca.gc.aafc.objectstore.api.rest;
 
 import static io.restassured.RestAssured.given;
-import static org.junit.jupiter.api.Assertions.fail;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Map;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -13,9 +10,7 @@ import javax.persistence.criteria.Root;
 
 import com.google.common.collect.ImmutableMap;
 
-import org.apache.http.client.utils.URIBuilder;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
@@ -23,7 +18,6 @@ import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.objectstore.api.BaseHttpIntegrationTest;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import io.crnk.core.engine.http.HttpStatus;
-import io.restassured.RestAssured;
 import io.restassured.response.Response;
 
 public class DcTypeJsonSerializationIT extends BaseHttpIntegrationTest {
