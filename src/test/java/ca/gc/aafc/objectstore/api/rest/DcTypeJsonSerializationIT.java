@@ -30,24 +30,8 @@ public class DcTypeJsonSerializationIT extends BaseHttpIntegrationTest {
 
   private static final String RESOURCE_UNDER_TEST = "object-subtype";
   private static final String JSON_API_CONTENT_TYPE = "application/vnd.api+json";
-  private static final String API_BASE_PATH = "/api/v1";
+  private static final String API_BASE_PATH = "/api/v1/";
   private static final String AC_SUB_TYPE = TestableEntityFactory.generateRandomNameLettersOnly(5);
-
-  @BeforeEach
-  public void setup() {
-    URIBuilder uriBuilder = new URIBuilder();
-    uriBuilder.setScheme("http");
-    uriBuilder.setHost("localhost");
-    URI tmpURI = null;
-    try {
-      tmpURI = uriBuilder.build();
-    } catch (URISyntaxException e) {
-      fail(e.getMessage());
-    }
-    RestAssured.port = testPort;
-    RestAssured.baseURI = tmpURI.toString();
-    RestAssured.basePath = API_BASE_PATH;
-  }
 
   @AfterEach
   public void tearDown() {
@@ -75,6 +59,8 @@ public class DcTypeJsonSerializationIT extends BaseHttpIntegrationTest {
   private Response sendPostWithDcType(String dcType) {
     return given()
         .header("crnk-compact", "true")
+        .port(testPort)
+        .basePath(API_BASE_PATH)
         .contentType(JSON_API_CONTENT_TYPE)
         .body(getPostBody(dcType))
         .when()
