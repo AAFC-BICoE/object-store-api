@@ -105,23 +105,9 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
     Derivative derivative = newDerivative(osm);
     derivativeService.create(derivative);
 
-    ObjectUpload op = ObjectUploadFactory.newObjectUpload().build();
-    objectUploadService.create(op);
-    
-    List<Derivative> derivatives = new ArrayList<>();
-    derivatives.add(derivative);
-    
-    ObjectStoreMetadata objectStoreMetadata = ObjectStoreMetadataFactory
-      .newObjectStoreMetadata()
-      .acDigitizationDate(TEST_OFFSET_DT)
-      .derivatives(derivatives)
-      .fileIdentifier(op.getFileIdentifier())
-      .build();
-
-    objectStoreMetaDataService.create(objectStoreMetadata);
-    UUID uuid = objectStoreMetadata.getUuid();
+    UUID uuid = osm.getUuid();
     UUID derivativeUuid = derivative.getUuid();
-    objectStoreMetaDataService.delete(objectStoreMetadata);
+    objectStoreMetaDataService.delete(osm);
 
     assertNull(objectStoreMetaDataService.findOne(
       uuid, ObjectStoreMetadata.class));
