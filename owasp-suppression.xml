@@ -11,8 +11,7 @@
         <cve>CVE-2017-1000190</cve>
     </suppress>
     <suppress>
-        <!-- Keycloak 12.0.0 is not released and we are only using the adapter -->
-        <notes>file name: keycloak-core-11.0.2.jar</notes>
-        <cve>CVE-2020-14389</cve>
+        <notes>Keycloak 12</notes>
+        <cve>CVE-2021-20195</cve>
     </suppress>
 </suppressions>
