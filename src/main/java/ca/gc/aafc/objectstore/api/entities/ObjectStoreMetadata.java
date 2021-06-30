@@ -256,7 +256,7 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
     this.xmpRightsOwner = xmpRightsOwner;
   }
 
-  @OneToMany(mappedBy = "acDerivedFrom", cascade = CascadeType.PERSIST)
+  @OneToMany(mappedBy = "acDerivedFrom", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
   public List<Derivative> getDerivatives() {
     return derivatives;
   }
