@@ -144,7 +144,7 @@ public class FileController {
     MediaType detectedMediaType = mtdr.getDetectedMediaType();
 
     // TODO change for WorkbookConverter.isSupportedType when it will be ready
-    if(WorkbookConverter.isSupported(detectedMediaType.toString())) {
+    if(!WorkbookConverter.isSupported(detectedMediaType.toString())) {
       throw new UnsupportedMediaTypeStatusException(messageSource.getMessage(
           "supportedMediaType.illegal", new String[]{detectedMediaType.toString()}, LocaleContextHolder.getLocale()));
     }
