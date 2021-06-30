@@ -4,7 +4,9 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.transaction.Transactional;
 
@@ -20,6 +22,7 @@ import ca.gc.aafc.dina.testsupport.PostgresTestContainerInitializer;
 import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
 import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.dina.testsupport.specs.OpenAPI3Assertions;
+import ca.gc.aafc.dina.testsupport.specs.ValidationRestrictionOptions;
 import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.ObjectStoreApiLauncher;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
@@ -68,7 +71,7 @@ public class ObjectStoreManagedAttributeOpenApiIT extends BaseRestAssuredTest {
       JsonAPITestHelper.toAttributeMap(objectStoreManagedAttributeDto),
       null,
       null))
-      .extract().asString());
+      .extract().asString(), ValidationRestrictionOptions.builder().allowAdditionalFields(true).allowableMissingFields(Set.of("createdDate")).build());
   }
 
   private ObjectStoreManagedAttributeDto buildObjectStoreManagedAttributeDto() {
