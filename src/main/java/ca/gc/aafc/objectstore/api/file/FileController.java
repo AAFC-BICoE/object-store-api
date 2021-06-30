@@ -144,7 +144,7 @@ public class FileController {
     MediaType detectedMediaType = mtdr.getDetectedMediaType();
 
     // TODO change for WorkbookConverter.isSupportedType when it will be ready
-    if(!"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet".equals(detectedMediaType.toString())) {
+    if(WorkbookConverter.isSupported(detectedMediaType.toString())) {
       throw new UnsupportedMediaTypeStatusException(messageSource.getMessage(
           "supportedMediaType.illegal", new String[]{detectedMediaType.toString()}, LocaleContextHolder.getLocale()));
     }
