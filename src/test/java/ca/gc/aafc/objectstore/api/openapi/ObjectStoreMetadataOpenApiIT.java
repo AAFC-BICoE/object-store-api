@@ -4,7 +4,10 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.OffsetDateTime;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -26,6 +29,7 @@ import ca.gc.aafc.dina.testsupport.DatabaseSupportService;
 import ca.gc.aafc.dina.testsupport.PostgresTestContainerInitializer;
 import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.dina.testsupport.specs.OpenAPI3Assertions;
+import ca.gc.aafc.dina.testsupport.specs.ValidationRestrictionOptions;
 import ca.gc.aafc.objectstore.api.ObjectStoreApiLauncher;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
@@ -111,12 +115,13 @@ public class ObjectStoreMetadataOpenApiIT extends BaseRestAssuredTest {
           "dcCreator", getExternalType("person"),
           "acMetadataCreator", getExternalType("person")),
       null))
-      .extract().asString());
+      .extract().asString(), ValidationRestrictionOptions.builder().allowAdditionalFields(true).allowableMissingFields(Set.of("acDerivedFrom", "deletedDate", "managedAttributes", "acSubtype")).build());
 
   }
 
   private ObjectStoreMetadataDto buildObjectStoreMetadataDto() {
     OffsetDateTime dateTime4Test = OffsetDateTime.now();
+
     // file related data has to match what is set by TestConfiguration
     ObjectStoreMetadataDto osMetadata = new ObjectStoreMetadataDto();
     osMetadata.setUuid(null);
@@ -134,6 +139,9 @@ public class ObjectStoreMetadataOpenApiIT extends BaseRestAssuredTest {
     osMetadata.setNotPubliclyReleasableReason("Classified");
     osMetadata.setDcCreator(null);
     osMetadata.setAcMetadataCreator(null);
+    osMetadata.setAcCaption("acCaption");
+    osMetadata.setAcSubType("acSubType");
+    osMetadata.setAcTags(new String[]{"acTags"});
 
     osMetadata.setDerivatives(null);
     return osMetadata;
