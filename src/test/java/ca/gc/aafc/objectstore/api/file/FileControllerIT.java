@@ -1,5 +1,6 @@
 package ca.gc.aafc.objectstore.api.file;
 
+import ca.gc.aafc.dina.workbook.WorkbookConverter;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
@@ -41,6 +42,7 @@ import javax.transaction.Transactional;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -96,12 +98,19 @@ public class FileControllerIT extends BaseIntegrationTest {
   }
 
   @Test
+  public void fileUploadConversion_OnValidSpreadsheet_contentReturned() throws Exception {
+    MockMultipartFile mockFile = createMockMultipartFile("test_spreadsheet.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE);
+    List<WorkbookConverter.WorkbookRow> content = fileController.handleFileConversion(mockFile);
+    assertFalse(content.isEmpty());
+  }
+
+  @Test
   public void fileUpload_InvalidMediaTypeExecutable_throwsIllegalArgumentException() throws Exception {
     MockMultipartFile mockFile = createMockMultipartFile("testExecutable", "application/x-sharedlib");
 
     UnsupportedMediaTypeStatusException error = assertThrows(UnsupportedMediaTypeStatusException.class, () -> fileController.handleFileUpload(mockFile, bucketUnderTest));
 
-    String expectedMessage = "415 UNSUPPORTED_MEDIA_TYPE \"Media type x-sharedlib is invalid.\"";
+    String expectedMessage = "415 UNSUPPORTED_MEDIA_TYPE \"Media type application/x-sharedlib is invalid.\"";
     String actualMessage = error.getLocalizedMessage();
 
     assertEquals(expectedMessage, actualMessage);
@@ -113,7 +122,7 @@ public class FileControllerIT extends BaseIntegrationTest {
 
     UnsupportedMediaTypeStatusException error = assertThrows(UnsupportedMediaTypeStatusException.class, () -> fileController.handleFileUpload(mockFile, bucketUnderTest));
 
-    String expectedMessage = "415 UNSUPPORTED_MEDIA_TYPE \"Media type zip is invalid.\"";
+    String expectedMessage = "415 UNSUPPORTED_MEDIA_TYPE \"Media type application/zip is invalid.\"";
     String actualMessage = error.getLocalizedMessage();
 
     assertEquals(expectedMessage, actualMessage);
@@ -228,8 +237,8 @@ public class FileControllerIT extends BaseIntegrationTest {
     String fileNameInClasspath,
     String mediaType
   ) throws IOException {
-    Resource imageFile = resourceLoader.getResource("classpath:" + fileNameInClasspath);
-    byte[] bytes = IOUtils.toByteArray(imageFile.getInputStream());
+    Resource testFile = resourceLoader.getResource("classpath:" + fileNameInClasspath);
+    byte[] bytes = IOUtils.toByteArray(testFile.getInputStream());
 
     return new MockMultipartFile("file", "testfile" + "." + FilenameUtils.getExtension(fileNameInClasspath), mediaType, bytes);
   }
