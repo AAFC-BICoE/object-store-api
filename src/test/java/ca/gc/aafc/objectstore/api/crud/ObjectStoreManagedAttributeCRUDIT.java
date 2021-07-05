@@ -74,8 +74,10 @@ public class ObjectStoreManagedAttributeCRUDIT extends BaseEntityCRUDIT {
   @Override
   public void testRemove() {
     UUID uuid = managedAttributeUnderTest.getUuid();
-    managedAttributeService.delete(managedAttributeUnderTest);
-    assertNull(managedAttributeService.findOne(
+    assertThrows(
+      UnsupportedOperationException.class,
+      () -> managedAttributeService.delete(managedAttributeUnderTest));
+    assertNotNull(managedAttributeService.findOne(
       uuid, ObjectStoreManagedAttribute.class));
   }
 }

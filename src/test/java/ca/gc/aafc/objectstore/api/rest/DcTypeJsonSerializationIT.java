@@ -11,7 +11,6 @@ import javax.persistence.criteria.Root;
 import com.google.common.collect.ImmutableMap;
 
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
@@ -19,20 +18,14 @@ import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.objectstore.api.BaseHttpIntegrationTest;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import io.crnk.core.engine.http.HttpStatus;
-import io.restassured.RestAssured;
 import io.restassured.response.Response;
 
 public class DcTypeJsonSerializationIT extends BaseHttpIntegrationTest {
 
   private static final String RESOURCE_UNDER_TEST = "object-subtype";
+  private static final String JSON_API_CONTENT_TYPE = "application/vnd.api+json";
+  private static final String API_BASE_PATH = "/api/v1/";
   private static final String AC_SUB_TYPE = TestableEntityFactory.generateRandomNameLettersOnly(5);
-
-  @BeforeEach
-  public void setup() {
-    RestAssured.port = testPort;
-    RestAssured.baseURI = BaseJsonApiIntegrationTest.IT_BASE_URI.toString();
-    RestAssured.basePath = BaseJsonApiIntegrationTest.API_BASE_PATH;
-  }
 
   @AfterEach
   public void tearDown() {
@@ -60,7 +53,9 @@ public class DcTypeJsonSerializationIT extends BaseHttpIntegrationTest {
   private Response sendPostWithDcType(String dcType) {
     return given()
         .header("crnk-compact", "true")
-        .contentType(BaseJsonApiIntegrationTest.JSON_API_CONTENT_TYPE)
+        .port(testPort)
+        .basePath(API_BASE_PATH)
+        .contentType(JSON_API_CONTENT_TYPE)
         .body(getPostBody(dcType))
         .when()
         .post(RESOURCE_UNDER_TEST);
