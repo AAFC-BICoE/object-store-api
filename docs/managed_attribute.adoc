@@ -1,0 +1,220 @@
+= Managed Attributes
+
+User-defined Managed Attributes can be created to add custom metadata to a stored object.
+
+== Getting Managed Attribute values through the REST API
+
+Send a GET request with the following URL:
+
+```
+GET /api/v1/managed-attribute/{Id}
+
+RESPONSE BODY:
+
+{
+  "data": {
+    "id": "aa1c5ac5-0a83-42cb-a475-d4e0b7fdd2fc",
+    "type": "managed-attribute",
+    "links": {
+      "self": "/api/v1/managed-attribute/aa1c5ac5-0a83-42cb-a475-d4e0b7fdd2fc"
+    },
+    "attributes": {
+      "name": "specimen_view",
+      "managedAttributeType": "STRING",
+      "acceptedValues": [
+        "dorsal"
+      ],
+      "createdOn": "2021-06-10T19:44:17.864551Z",
+      "createdBy": "dev",
+      "description": {
+        "fr": "Description en Français",
+        "en": "English description"
+      }
+    }
+  },
+  "meta": {
+    "totalResourceCount": 1,
+    "moduleVersion": "0.24"
+  }
+}
+```
+
+== Setting Managed Attribute accepted values through the REST API
+
+Send a POST request with the following URL and body structure:
+
+```
+POST /api/v1/managed-attribute
+
+REQUEST BODY:
+
+{
+  "data": {
+    "type": "managed-attribute",
+    "attributes": {
+      "name": "specimen_view",
+      "managedAttributeType": "STRING",
+      "acceptedValues": [
+        "dorsal"
+      ],
+      "description": {
+        "fr": "Description en Français",
+        "en": "English description"
+      }
+    }
+  }
+}
+
+RESPONSE BODY:
+
+{
+  "data": {
+    "id": "aa1c5ac5-0a83-42cb-a475-d4e0b7fdd2fc",
+    "type": "managed-attribute",
+    "links": {
+      "self": "/api/v1/managed-attribute/aa1c5ac5-0a83-42cb-a475-d4e0b7fdd2fc"
+    },
+    "attributes": {
+      "name": "specimen_view",
+      "managedAttributeType": "STRING",
+      "acceptedValues": [
+        "dorsal"
+      ],
+      "createdOn": "2021-06-10T19:44:17.864551Z",
+      "createdBy": "dev",
+      "description": {
+        "fr": "Description en Français",
+        "en": "English description"
+      }
+    }
+  },
+  "meta": {
+    "totalResourceCount": 1,
+    "moduleVersion": "0.24"
+  }
+}
+```
+
+== Posting a Meta data with a managed attribute value
+
+== Upload a file
+
+1. Send a POST request to the `/api/v1/file/{bucket}` endpoint.
+
+Example request:
+
+```sh
+curl -i http://localhost:8081/api/v1/file/mybucket -F file=@./my-image.png;type=image/png
+```
+
+Example response:
+
+```sh
+{
+	"fileIdentifier": "0050559c-beae-48d6-a2b0-91f5a666fad1",
+	"metaFileEntryVersion": "1.0",
+	"originalFilename": "example-png.png",
+	"sha1Hex": "c0c1d898ed827d6db02a03df941225184277d9e5",
+	"receivedMediaType": "image/png",
+	"detectedMediaType": "image/png",
+	"detectedFileExtension": ".png",
+	"evaluatedMediaType": "image/png",
+	"evaluatedFileExtension": ".png",
+	"sizeInBytes": 976,
+	"thumbnailIdentifier": "b9f6f58b-1b41-400f-b178-f91d11221b7c"
+}
+
+```
+
+2. Send a POST request to the `/api/v1/metadata` endpoint to create a Metadata record for the stored
+object, using the fileIdentifier from the upload response and the key and an accepted value from the posted managed-attribute
+
+```sh
+curl -X POST http://localhost:8081/api/v1/metadata \
+-H "Content-Type: application/vnd.api+json" \
+-H "Accept: application/vnd.api+json" \
+--data-binary @- << EOF
+{
+  "data": {
+    "type": "metadata",
+    "attributes": {
+      "managedAttributeValues": {
+            "specimen_view": "dorsal"
+        },
+      "bucket": "mybucket",
+      "dcType": "Image",
+      "fileExtension": ".png",
+      "fileIdentifier": "0050559c-beae-48d6-a2b0-91f5a666fad1"
+    }
+  }
+}
+EOF
+```
+
+Example of valid attribute value response:
+```
+{
+    "data": {
+        "id": "54df3f57-7577-4997-9148-68553efbffae",
+        "type": "metadata",
+        "links": {
+            "self": "/api/v1/metadata/54df3f57-7577-4997-9148-68553efbffae"
+        },
+        "attributes": {
+            "createdBy": "dev",
+            "createdOn": "2021-06-10T21:11:51.783642Z",
+            "bucket": "mybucket",
+            "fileIdentifier": "aaab886b-e2e6-46ff-8da0-5aeff46e48a0",
+            "fileExtension": ".png",
+            "dcFormat": "image/png",
+            "dcType": "IMAGE",
+            "acDigitizationDate": null,
+            "xmpMetadataDate": "2021-06-10T21:11:51.872084Z",
+            "xmpRightsWebStatement": "https://open.canada.ca/en/open-government-licence-canada",
+            "dcRights": "Copyright Government of Canada",
+            "xmpRightsOwner": "Government of Canada",
+            "xmpRightsUsageTerms": "Government of Canada Usage Term",
+            "orientation": null,
+            "originalFilename": "my-image.png",
+            "acHashFunction": "SHA-1",
+            "acHashValue": "cedf4a9d0cecfb8c39732cd9bd61b7938cb0a5ca",
+            "createdDate": "2021-06-10T21:11:51.783642Z",
+            "publiclyReleasable": true,
+            "group": "mybucket",
+            "managedAttributeValues": {
+                "specimen_view": "dorsal"
+            }
+        },
+        "relationships": {
+            "derivatives": {
+                "links": {
+                    "self": "/api/v1/metadata/54df3f57-7577-4997-9148-68553efbffae/relationships/derivatives",
+                    "related": "/api/v1/metadata/54df3f57-7577-4997-9148-68553efbffae/derivatives"
+                }
+            },
+            "acMetadataCreator": {
+                "links": {
+                    "self": "/api/v1/metadata/54df3f57-7577-4997-9148-68553efbffae/relationships/acMetadataCreator",
+                    "related": "/api/v1/metadata/54df3f57-7577-4997-9148-68553efbffae/acMetadataCreator"
+                }
+            },
+            "dcCreator": {
+                "links": {
+                    "self": "/api/v1/metadata/54df3f57-7577-4997-9148-68553efbffae/relationships/dcCreator",
+                    "related": "/api/v1/metadata/54df3f57-7577-4997-9148-68553efbffae/dcCreator"
+                }
+            }
+        }
+    },
+    "meta": {
+        "totalResourceCount": 1,
+        "external": [
+            {
+                "type": "person",
+                "href": "Agent/api/v1/person"
+            }
+        ],
+        "moduleVersion": "0.24"
+    }
+}
+```

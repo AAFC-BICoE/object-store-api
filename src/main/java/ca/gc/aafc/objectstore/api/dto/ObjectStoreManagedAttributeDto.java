@@ -11,6 +11,7 @@ import ca.gc.aafc.dina.dto.RelatedEntity;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.dina.entity.ManagedAttribute.ManagedAttributeType;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.crnk.core.resource.annotations.JsonApiField;
 import io.crnk.core.resource.annotations.JsonApiId;
 import io.crnk.core.resource.annotations.JsonApiResource;
 import lombok.Data;
@@ -26,8 +27,12 @@ public class ObjectStoreManagedAttributeDto {
   @PropertyName("id")
   private UUID uuid;
 
+  @JsonApiField(patchable = false)
   private String name;
+  
+  @JsonApiField(patchable = false)
   private String key;
+
   private ManagedAttributeType managedAttributeType;
   private String[] acceptedValues;
   private OffsetDateTime createdOn;

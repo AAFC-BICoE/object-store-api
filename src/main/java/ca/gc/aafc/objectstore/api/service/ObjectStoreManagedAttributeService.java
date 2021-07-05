@@ -6,6 +6,7 @@ import ca.gc.aafc.objectstore.api.validation.ObjectStoreManagedAttributeValidato
 import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.SmartValidator;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,9 +19,10 @@ public class ObjectStoreManagedAttributeService extends ca.gc.aafc.dina.service.
 
   public ObjectStoreManagedAttributeService(
     @NonNull BaseDAO baseDAO,
-    @NonNull ObjectStoreManagedAttributeValidator managedAttributeValidator
+    @NonNull ObjectStoreManagedAttributeValidator managedAttributeValidator,
+    SmartValidator smartValidator
   ) {
-    super(baseDAO, ObjectStoreManagedAttribute.class);
+    super(baseDAO, smartValidator, ObjectStoreManagedAttribute.class);
     this.managedAttributeValidator = managedAttributeValidator;
   }
 
@@ -28,18 +30,17 @@ public class ObjectStoreManagedAttributeService extends ca.gc.aafc.dina.service.
   protected void preCreate(ObjectStoreManagedAttribute entity) {
     entity.setUuid(UUID.randomUUID());
     cleanDescription(entity);
-    validateManagedAttribute(entity);
     super.preCreate(entity);
   }
 
   @Override
   protected void preUpdate(ObjectStoreManagedAttribute entity) {
     cleanDescription(entity);
-    validateManagedAttribute(entity);
   }
 
-  public void validateManagedAttribute(ObjectStoreManagedAttribute entity) {
-    validateBusinessRules(entity, managedAttributeValidator);
+  @Override
+  public void validateBusinessRules(ObjectStoreManagedAttribute entity) {
+    applyBusinessRule(entity, managedAttributeValidator);
   }
 
   /**

@@ -11,6 +11,7 @@ import io.crnk.core.exception.BadRequestException;
 import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.SmartValidator;
 
 import javax.persistence.criteria.Predicate;
 import javax.validation.ValidationException;
@@ -31,9 +32,10 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
   public ObjectStoreMetaDataService(
     @NonNull BaseDAO baseDAO,
     @NonNull ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService,
-    @NonNull DerivativeService derivativeService
+    @NonNull DerivativeService derivativeService,
+    @NonNull SmartValidator smartValidator
   ) {
-    super(baseDAO);
+    super(baseDAO, smartValidator);
     this.baseDAO = baseDAO;
     this.defaultValueSetterService = defaultValueSetterService;
     this.derivativeService = derivativeService;

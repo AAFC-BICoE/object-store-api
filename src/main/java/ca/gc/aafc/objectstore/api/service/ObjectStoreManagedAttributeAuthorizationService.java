@@ -1,6 +1,6 @@
 package ca.gc.aafc.objectstore.api.service;
 
-import ca.gc.aafc.dina.service.DinaAuthorizationService;
+import ca.gc.aafc.dina.security.DinaAuthorizationService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
