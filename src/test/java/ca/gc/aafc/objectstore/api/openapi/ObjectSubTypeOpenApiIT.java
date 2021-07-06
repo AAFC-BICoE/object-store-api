@@ -1,5 +1,7 @@
 package ca.gc.aafc.objectstore.api.openapi;
 
+
+import java.util.Set;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -16,6 +18,7 @@ import ca.gc.aafc.dina.testsupport.BaseRestAssuredTest;
 import ca.gc.aafc.dina.testsupport.PostgresTestContainerInitializer;
 import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.dina.testsupport.specs.OpenAPI3Assertions;
+import ca.gc.aafc.dina.testsupport.specs.ValidationRestrictionOptions;
 import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.ObjectStoreApiLauncher;
 import ca.gc.aafc.objectstore.api.dto.ObjectSubtypeDto;
@@ -29,7 +32,7 @@ import lombok.SneakyThrows;
 @TestPropertySource(properties = "spring.config.additional-location=classpath:application-test.yml")
 @Transactional
 @ContextConfiguration(initializers = {PostgresTestContainerInitializer.class})
-public class ObjectSubTypeOpenApiIt extends BaseRestAssuredTest {
+public class ObjectSubTypeOpenApiIT extends BaseRestAssuredTest {
 
   private static final String SPEC_HOST = "raw.githubusercontent.com";
   private static final String ROOT_SPEC_PATH = "DINA-Web/object-store-specs/master/schema/object-store-api.yml";
@@ -46,7 +49,7 @@ public class ObjectSubTypeOpenApiIt extends BaseRestAssuredTest {
     URI_BUILDER.setPath(ROOT_SPEC_PATH);
   }
 
-  protected ObjectSubTypeOpenApiIt() {
+  protected ObjectSubTypeOpenApiIT() {
     super("/api/v1/");
   }
 
@@ -65,7 +68,7 @@ public class ObjectSubTypeOpenApiIt extends BaseRestAssuredTest {
       JsonAPITestHelper.toAttributeMap(objectSubtypeDto),
       null,
       null))
-      .extract().asString());
+      .extract().asString(), ValidationRestrictionOptions.builder().allowAdditionalFields(true).allowableMissingFields(Set.of("acSubtype")).build());
   }
 
   private ObjectSubtypeDto buildObjectSubtypeDto() {
