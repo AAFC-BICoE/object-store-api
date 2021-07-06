@@ -6,7 +6,6 @@ import java.net.URL;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 import java.util.Map;
-import java.util.Set;
 
 import javax.inject.Inject;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -20,7 +19,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
@@ -29,7 +27,6 @@ import ca.gc.aafc.dina.testsupport.DatabaseSupportService;
 import ca.gc.aafc.dina.testsupport.PostgresTestContainerInitializer;
 import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.dina.testsupport.specs.OpenAPI3Assertions;
-import ca.gc.aafc.dina.testsupport.specs.ValidationRestrictionOptions;
 import ca.gc.aafc.objectstore.api.ObjectStoreApiLauncher;
 import ca.gc.aafc.objectstore.api.dto.DerivativeDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
@@ -63,7 +60,9 @@ public class DerivativeOpenApiIT extends BaseRestAssuredTest {
 
   private ObjectUpload objectUpload;
   private ObjectUpload objectUpload_meta;
+  private ObjectUpload objectUpload_generatedFrom;
   private String metadataUuid;
+  private String derivativeUuid;
   
   protected DerivativeOpenApiIT() {
     super("/api/v1/");
@@ -80,17 +79,31 @@ public class DerivativeOpenApiIT extends BaseRestAssuredTest {
     objectUpload.setIsDerivative(true);
 
     objectUpload_meta = ObjectUploadFactory.buildTestObjectUpload();
+
+    objectUpload_generatedFrom = ObjectUploadFactory.buildTestObjectUpload();
+    objectUpload_generatedFrom.setFileIdentifier(UUID.randomUUID());
+    objectUpload_generatedFrom.setIsDerivative(true);
     
     // we need to run the setup in another transaction and commit it otherwise it can't be visible
     // to the test web server.
     service.runInNewTransaction(em -> {
       em.persist(objectUpload);
       em.persist(objectUpload_meta);
+      em.persist(objectUpload_generatedFrom);
     });
 
     ObjectStoreMetadataDto osMetadata = buildObjectStoreMetadataDto();
 
     metadataUuid = sendPost("metadata", JsonAPITestHelper.toJsonAPIMap("metadata", JsonAPITestHelper.toAttributeMap(osMetadata), null, null)).extract().body().jsonPath().get("data.id");
+
+    DerivativeDto derivative = buildDerivativeDto(objectUpload_generatedFrom.getFileIdentifier());
+
+    derivativeUuid = sendPost(RESOURCE_UNDER_TEST, JsonAPITestHelper.toJsonAPIMap(
+      RESOURCE_UNDER_TEST, 
+      JsonAPITestHelper.toAttributeMap(derivative),
+      Map.of(
+          "acDerivedFrom", getRelationshipType("metadata", metadataUuid)),
+      null)).extract().body().jsonPath().get("data.id");
 
   }
 
@@ -100,9 +113,11 @@ public class DerivativeOpenApiIT extends BaseRestAssuredTest {
   @AfterEach
   public void tearDown() {
     deleteEntityByUUID("fileIdentifier", objectUpload.getFileIdentifier(), Derivative.class);
+    deleteEntityByUUID("fileIdentifier", objectUpload_generatedFrom.getFileIdentifier(), Derivative.class);
     deleteEntityByUUID("fileIdentifier", objectUpload_meta.getFileIdentifier(), ObjectStoreMetadata.class);
     deleteEntityByUUID("fileIdentifier", objectUpload_meta.getFileIdentifier(), ObjectUpload.class);
     deleteEntityByUUID("fileIdentifier", objectUpload.getFileIdentifier(), ObjectUpload.class);
+    deleteEntityByUUID("fileIdentifier", objectUpload_generatedFrom.getFileIdentifier(), ObjectUpload.class);
   }
 
   @Test
@@ -114,9 +129,10 @@ public class DerivativeOpenApiIT extends BaseRestAssuredTest {
       RESOURCE_UNDER_TEST, 
       JsonAPITestHelper.toAttributeMap(derivativeDto),
       Map.of(
-          "acDerivedFrom", getRelationshipType("metadata", metadataUuid)),
+          "acDerivedFrom", getRelationshipType("metadata", metadataUuid),
+          "generatedFromDerivative", getRelationshipType("derivative", derivativeUuid)),
       null))
-      .extract().asString(), ValidationRestrictionOptions.builder().allowAdditionalFields(true).allowableMissingFields(Set.of("generatedFromDerivative")).build());
+      .extract().asString());
   }
 
   private Map<String, Object> getRelationshipType(String type, String uuid) {
