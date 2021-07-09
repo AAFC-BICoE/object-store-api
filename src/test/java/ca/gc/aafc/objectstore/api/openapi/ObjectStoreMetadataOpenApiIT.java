@@ -4,6 +4,7 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -19,6 +20,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
@@ -29,10 +31,14 @@ import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.dina.testsupport.specs.OpenAPI3Assertions;
 import ca.gc.aafc.dina.testsupport.specs.ValidationRestrictionOptions;
 import ca.gc.aafc.objectstore.api.ObjectStoreApiLauncher;
+import ca.gc.aafc.objectstore.api.dto.DerivativeDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
+import ca.gc.aafc.objectstore.api.entities.DcType;
+import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
+import ca.gc.aafc.objectstore.api.entities.Derivative.DerivativeType;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import lombok.SneakyThrows;
@@ -59,6 +65,9 @@ public class ObjectStoreMetadataOpenApiIT extends BaseRestAssuredTest {
 
   private ObjectSubtype oSubtype;
   private ObjectUpload oUpload;
+  private ObjectUpload oUpload_derivative;
+  private ObjectUpload oUpload_acDerivedFrom;
+  private String derivativeUuid;
   
   static {
     URI_BUILDER.setScheme("https");
@@ -76,6 +85,14 @@ public class ObjectStoreMetadataOpenApiIT extends BaseRestAssuredTest {
   
   @BeforeEach
   public void setup() {
+
+    oUpload_derivative = ObjectUploadFactory.buildTestObjectUpload();
+    oUpload_derivative.setIsDerivative(true);
+    oUpload_derivative.setFileIdentifier(UUID.randomUUID());
+
+    oUpload_acDerivedFrom = ObjectUploadFactory.buildTestObjectUpload();
+    oUpload_acDerivedFrom.setFileIdentifier(UUID.randomUUID());
+
     oUpload = ObjectUploadFactory.buildTestObjectUpload();
 
     oSubtype = ObjectSubtypeFactory
@@ -87,7 +104,19 @@ public class ObjectStoreMetadataOpenApiIT extends BaseRestAssuredTest {
     service.runInNewTransaction(em -> {
       em.persist(oSubtype);
       em.persist(oUpload);
+      em.persist(oUpload_derivative);
+      em.persist(oUpload_acDerivedFrom);
     });
+
+    ObjectStoreMetadataDto osMetadata = buildObjectStoreMetadataDto();
+    osMetadata.setFileIdentifier(oUpload_acDerivedFrom.getFileIdentifier());
+    String metadataUuid = sendPost("metadata", JsonAPITestHelper.toJsonAPIMap("metadata", JsonAPITestHelper.toAttributeMap(osMetadata), null, null)).extract().body().jsonPath().get("data.id");
+
+    DerivativeDto derivative = buildDerivativeDto();
+    derivative.setFileIdentifier(oUpload_derivative.getFileIdentifier());
+    derivativeUuid = sendPost("derivative", JsonAPITestHelper.toJsonAPIMap("derivative", JsonAPITestHelper.toAttributeMap(derivative), 
+    Map.of(
+      "acDerivedFrom", getRelationshipType("metadata", metadataUuid)), null)).extract().body().jsonPath().get("data.id");
 
   }
 
@@ -96,9 +125,13 @@ public class ObjectStoreMetadataOpenApiIT extends BaseRestAssuredTest {
    */
   @AfterEach
   public void tearDown() {
+    deleteEntityByUUID("fileIdentifier", oUpload_derivative.getFileIdentifier(), Derivative.class);
     deleteEntityByUUID("fileIdentifier", ObjectUploadFactory.TEST_FILE_IDENTIFIER, ObjectStoreMetadata.class);
+    deleteEntityByUUID("fileIdentifier", oUpload_acDerivedFrom.getFileIdentifier(), ObjectStoreMetadata.class);
     deleteEntityByUUID("uuid", oSubtype.getUuid(), ObjectSubtype.class);
+    deleteEntityByUUID("fileIdentifier", oUpload_derivative.getFileIdentifier(), ObjectUpload.class);
     deleteEntityByUUID("fileIdentifier", ObjectUploadFactory.TEST_FILE_IDENTIFIER, ObjectUpload.class);
+    deleteEntityByUUID("fileIdentifier", oUpload_acDerivedFrom.getFileIdentifier(), ObjectUpload.class);
   }
 
   @Test
@@ -110,8 +143,9 @@ public class ObjectStoreMetadataOpenApiIT extends BaseRestAssuredTest {
       RESOURCE_UNDER_TEST, 
       JsonAPITestHelper.toAttributeMap(objectStoreMetadataDto),
       Map.of(
-          "dcCreator", getExternalType("person"),
-          "acMetadataCreator", getExternalType("person")),
+          "dcCreator", getRelationshipType("person", UUID.randomUUID().toString()),
+          "acMetadataCreator", getRelationshipType("person", UUID.randomUUID().toString()),
+          "derivatives", getRelationshipListType("derivative", derivativeUuid)),
       null))
       .extract().asString(), ValidationRestrictionOptions.builder().allowAdditionalFields(true).allowableMissingFields(Set.of("acDerivedFrom", "deletedDate", "managedAttributes", "acSubtype")).build());
 
@@ -145,9 +179,30 @@ public class ObjectStoreMetadataOpenApiIT extends BaseRestAssuredTest {
     return osMetadata;
   }
 
-  private Map<String, Object> getExternalType(String type) {
+  private DerivativeDto buildDerivativeDto() {
+    DerivativeDto dto = new DerivativeDto();
+    dto.setDcType(DcType.IMAGE);
+    dto.setAcDerivedFrom(null);
+    dto.setGeneratedFromDerivative(null);
+    dto.setDerivativeType(DerivativeType.THUMBNAIL_IMAGE);
+    dto.setFileIdentifier(oUpload_derivative.getFileIdentifier());
+    dto.setFileExtension(".jpg");
+    dto.setAcHashFunction("abcFunction");
+    dto.setAcHashValue("abc");
+    dto.setDcFormat(MediaType.IMAGE_JPEG_VALUE);
+    dto.setCreatedBy("user");
+    return dto;
+  }
+
+  private Map<String, Object> getRelationshipListType(String type, String uuid) {
+    return Map.of("data", List.of(Map.of(
+      "id", uuid,
+      "type", type)));
+  }
+
+  private Map<String, Object> getRelationshipType(String type, String uuid) {
     return Map.of("data", Map.of(
-      "id", UUID.randomUUID().toString(),
+      "id", uuid,
       "type", type));
   }
 
