@@ -6,7 +6,6 @@ import java.net.URL;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -29,7 +28,6 @@ import ca.gc.aafc.dina.testsupport.DatabaseSupportService;
 import ca.gc.aafc.dina.testsupport.PostgresTestContainerInitializer;
 import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.dina.testsupport.specs.OpenAPI3Assertions;
-import ca.gc.aafc.dina.testsupport.specs.ValidationRestrictionOptions;
 import ca.gc.aafc.objectstore.api.ObjectStoreApiLauncher;
 import ca.gc.aafc.objectstore.api.dto.DerivativeDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
@@ -147,7 +145,7 @@ public class ObjectStoreMetadataOpenApiIT extends BaseRestAssuredTest {
           "acMetadataCreator", getRelationshipType("person", UUID.randomUUID().toString()),
           "derivatives", getRelationshipListType("derivative", derivativeUuid)),
       null))
-      .extract().asString(), ValidationRestrictionOptions.builder().allowAdditionalFields(true).allowableMissingFields(Set.of("acDerivedFrom", "deletedDate", "managedAttributes", "acSubtype")).build());
+      .extract().asString());
 
   }
 
@@ -158,7 +156,7 @@ public class ObjectStoreMetadataOpenApiIT extends BaseRestAssuredTest {
     ObjectStoreMetadataDto osMetadata = new ObjectStoreMetadataDto();
     osMetadata.setUuid(null);
     osMetadata.setAcHashFunction("SHA-1");
-    osMetadata.setDcType(null); //on creation null should be accepted
+    osMetadata.setDcType(oSubtype.getDcType());//on creation null should be accepted
     osMetadata.setXmpRightsWebStatement(null); // default value from configuration should be used
     osMetadata.setDcRights(null); // default value from configuration should be used
     osMetadata.setXmpRightsOwner(null); // default value from configuration should be used
@@ -172,7 +170,7 @@ public class ObjectStoreMetadataOpenApiIT extends BaseRestAssuredTest {
     osMetadata.setDcCreator(null);
     osMetadata.setAcMetadataCreator(null);
     osMetadata.setAcCaption("acCaption");
-    osMetadata.setAcSubType("acSubType");
+    osMetadata.setAcSubType(oSubtype.getAcSubtype());
     osMetadata.setAcTags(new String[]{"acTags"});
 
     osMetadata.setDerivatives(null);
