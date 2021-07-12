@@ -4,6 +4,7 @@ import ca.gc.aafc.dina.mapper.DinaMapper;
 import ca.gc.aafc.dina.repository.DinaRepository;
 import ca.gc.aafc.dina.repository.external.ExternalResourceProvider;
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
+import ca.gc.aafc.dina.security.DinaAuthorizationService;
 import ca.gc.aafc.objectstore.api.dto.DerivativeDto;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
@@ -29,12 +30,13 @@ public class DerivativeRepository extends DinaRepository<DerivativeDto, Derivati
   public DerivativeRepository(
     @NonNull DerivativeService derivativeService,
     ExternalResourceProvider externalResourceProvider,
+    DinaAuthorizationService groupAuthorizationService,
     @NonNull BuildProperties buildProperties,
     @NonNull DinaAuthenticatedUser authenticatedUser
   ) {
     super(
       derivativeService,
-      Optional.empty(),
+      groupAuthorizationService,
       Optional.empty(),
       new DinaMapper<>(DerivativeDto.class),
       DerivativeDto.class,

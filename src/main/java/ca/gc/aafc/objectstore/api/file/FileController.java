@@ -119,8 +119,8 @@ public class FileController {
     @RequestParam("file") MultipartFile file,
     @PathVariable String bucket
   ) throws IOException, MimeTypeException, NoSuchAlgorithmException, ServerException, ErrorResponseException,
-    InternalException, XmlParserException, InvalidResponseException,
-    InsufficientDataException, InvalidKeyException {
+      InternalException, XmlParserException, InvalidResponseException,
+      InsufficientDataException, InvalidKeyException {
     return handleUpload(file, bucket, true);
   }
 
@@ -130,8 +130,8 @@ public class FileController {
     @RequestParam("file") MultipartFile file,
     @PathVariable String bucket
   ) throws InvalidKeyException, NoSuchAlgorithmException, ErrorResponseException,
-    InternalException, InsufficientDataException, InvalidResponseException, MimeTypeException, XmlParserException,
-    IOException, ServerException {
+      InternalException, InsufficientDataException, InvalidResponseException, MimeTypeException, XmlParserException,
+      IOException, ServerException {
     return handleUpload(file, bucket, false);
   }
 
@@ -156,8 +156,8 @@ public class FileController {
     @NonNull String bucket,
     boolean isDerivative
   ) throws IOException, MimeTypeException, NoSuchAlgorithmException, InvalidKeyException, ErrorResponseException,
-    InsufficientDataException, InternalException, InvalidResponseException,
-    XmlParserException, ServerException {
+      InsufficientDataException, InternalException, InvalidResponseException,
+      XmlParserException, ServerException {
     //Authenticate before anything else
     handleAuthentication(bucket);
 
@@ -244,7 +244,7 @@ public class FileController {
    * @param downloadFilename filename to use for the download
    * @param isDerivative used to look in the right subfolder in Minio
    * @param mediaType media type to include in the headers of the download
-   * @return
+   * @return InputStreamResource
    * @throws IOException
    */
   private ResponseEntity<InputStreamResource> download(
@@ -317,7 +317,7 @@ public class FileController {
     InputStream iStream,
     boolean isDerivative
   ) throws IOException, InvalidKeyException, ErrorResponseException, InsufficientDataException, InternalException,
-    InvalidResponseException, NoSuchAlgorithmException, XmlParserException, ServerException {
+      InvalidResponseException, NoSuchAlgorithmException, XmlParserException, ServerException {
     // make bucket if it does not exist
     minioService.ensureBucketExists(bucket);
 

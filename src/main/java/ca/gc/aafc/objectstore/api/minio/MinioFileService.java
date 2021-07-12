@@ -88,9 +88,9 @@ public class MinioFileService implements FileInformationService {
     String bucket,
     boolean isDerivative
   )
-    throws ServerException, InsufficientDataException, ErrorResponseException, IOException,
-    NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException,
-    InternalException {
+      throws ServerException, InsufficientDataException, ErrorResponseException, IOException,
+      NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException,
+      InternalException {
 
     minioClient.putObject(PutObjectArgs.builder()
         .bucket(bucket)
