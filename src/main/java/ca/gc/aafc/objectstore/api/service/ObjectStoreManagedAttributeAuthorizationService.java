@@ -1,11 +1,11 @@
 package ca.gc.aafc.objectstore.api.service;
 
-import ca.gc.aafc.dina.security.DinaAuthorizationService;
+import ca.gc.aafc.dina.security.PermissionAuthorizationService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ObjectStoreManagedAttributeAuthorizationService implements DinaAuthorizationService {
+public class ObjectStoreManagedAttributeAuthorizationService extends PermissionAuthorizationService {
   @Override
   @PreAuthorize("hasDinaRole(@currentUser, 'COLLECTION_MANAGER')")
   public void authorizeCreate(Object entity) {

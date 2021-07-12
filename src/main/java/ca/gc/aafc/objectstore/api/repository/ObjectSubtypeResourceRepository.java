@@ -4,6 +4,7 @@ import ca.gc.aafc.dina.mapper.DinaMapper;
 import ca.gc.aafc.dina.repository.DinaRepository;
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.dina.service.DinaService;
+import ca.gc.aafc.dina.security.DinaAuthorizationService;
 import ca.gc.aafc.objectstore.api.dto.ObjectSubtypeDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import lombok.NonNull;
@@ -25,13 +26,14 @@ public class ObjectSubtypeResourceRepository
 
   public ObjectSubtypeResourceRepository(
     @NonNull DinaService<ObjectSubtype> dinaService,
+    DinaAuthorizationService groupAuthorizationService,
     MessageSource messageSource,
     Optional<DinaAuthenticatedUser> authenticatedUser,
     @NonNull BuildProperties props
   ) {
     super(
       dinaService,
-      Optional.empty(),
+      groupAuthorizationService,
       Optional.empty(),
       new DinaMapper<>(ObjectSubtypeDto.class),
       ObjectSubtypeDto.class,

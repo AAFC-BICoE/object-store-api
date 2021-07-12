@@ -51,4 +51,8 @@ public class ObjectUploadDto extends AttributeMetaInfoProvider {
     isDerivative = derivative;
   }
 
+  public UUID getUuid() {
+    return fileIdentifier;
+  }
+
 }
