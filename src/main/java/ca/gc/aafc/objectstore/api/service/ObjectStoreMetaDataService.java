@@ -140,7 +140,7 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
    * @throws ValidationException If a file identifier was not provided.
    */
   private void handleFileRelatedData(ObjectStoreMetadata objectMetadata)
-    throws ValidationException {
+      throws ValidationException {
     // we need to validate at least that bucket name and fileIdentifier are there
     if (StringUtils.isBlank(objectMetadata.getBucket())
       || StringUtils.isBlank(Objects.toString(objectMetadata.getFileIdentifier(), ""))) {
