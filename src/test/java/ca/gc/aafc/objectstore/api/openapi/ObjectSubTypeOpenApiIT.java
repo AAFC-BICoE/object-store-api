@@ -1,7 +1,5 @@
 package ca.gc.aafc.objectstore.api.openapi;
 
-
-import java.util.Set;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -18,7 +16,6 @@ import ca.gc.aafc.dina.testsupport.BaseRestAssuredTest;
 import ca.gc.aafc.dina.testsupport.PostgresTestContainerInitializer;
 import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.dina.testsupport.specs.OpenAPI3Assertions;
-import ca.gc.aafc.dina.testsupport.specs.ValidationRestrictionOptions;
 import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.ObjectStoreApiLauncher;
 import ca.gc.aafc.objectstore.api.dto.ObjectSubtypeDto;
@@ -68,7 +65,7 @@ public class ObjectSubTypeOpenApiIT extends BaseRestAssuredTest {
       JsonAPITestHelper.toAttributeMap(objectSubtypeDto),
       null,
       null))
-      .extract().asString(), ValidationRestrictionOptions.builder().allowAdditionalFields(true).allowableMissingFields(Set.of("acSubtype")).build());
+      .extract().asString());
   }
 
   private ObjectSubtypeDto buildObjectSubtypeDto() {
