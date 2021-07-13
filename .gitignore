@@ -8,3 +8,4 @@ docker-compose.override.yml
 /*.env
 /*.idea
 /*.vscode
+dbchangelog-4.4.xsd
