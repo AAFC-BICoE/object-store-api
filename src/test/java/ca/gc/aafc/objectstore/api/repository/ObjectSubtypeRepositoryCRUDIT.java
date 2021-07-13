@@ -31,7 +31,7 @@ public class ObjectSubtypeRepositoryCRUDIT extends BaseIntegrationTest {
     testObjectSubtype = ObjectSubtypeFactory.newObjectSubtype()
         .build();
 
-    return objectSubTypeService.create(testObjectSubtype);
+    return objectSubtypeService.create(testObjectSubtype);
   }
   
   @BeforeEach

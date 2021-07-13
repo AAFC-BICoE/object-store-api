@@ -70,14 +70,14 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
   private Boolean publiclyReleasable;
   private String notPubliclyReleasableReason;
 
-  private ObjectSubtype acSubType;
+  private ObjectSubtype acSubtype;
 
   private Integer orientation;
 
   /**
    * Read-only field to get the ac_sub_type_id to allow filtering by null values.
    */
-  private Integer acSubTypeId;
+  private Integer acSubtypeId;
 
   @Builder
   public ObjectStoreMetadata(
@@ -107,8 +107,8 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
     List<Derivative> derivatives,
     Boolean publiclyReleasable,
     String notPubliclyReleasableReason,
-    ObjectSubtype acSubType,
-    Integer acSubTypeId,
+    ObjectSubtype acSubtype,
+    Integer acSubtypeId,
     Integer orientation
   ) {
     super(
@@ -138,8 +138,8 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
     this.derivatives = CollectionUtils.isNotEmpty(derivatives) ? derivatives : new ArrayList<>();
     this.publiclyReleasable = publiclyReleasable;
     this.notPubliclyReleasableReason = notPubliclyReleasableReason;
-    this.acSubType = acSubType;
-    this.acSubTypeId = acSubTypeId;
+    this.acSubtype = acSubtype;
+    this.acSubtypeId = acSubtypeId;
     this.orientation = orientation;
   }
 
@@ -307,24 +307,24 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
 
   @ManyToOne
   @JoinColumn(name = "ac_sub_type_id", referencedColumnName = "id")
-  public ObjectSubtype getAcSubType() {
-    return acSubType;
+  public ObjectSubtype getAcSubtype() {
+    return acSubtype;
   }
 
-  public void setAcSubType(ObjectSubtype acSubType) {
-    this.acSubType = acSubType;
+  public void setAcSubtype(ObjectSubtype acSubtype) {
+    this.acSubtype = acSubtype;
   }
 
   /**
    * Read-only field to get the ac_derived_from_id to allow filtering by null values.
    */
   @Column(name = "ac_sub_type_id", updatable = false, insertable = false)
-  public Integer getAcSubTypeId() {
-    return acSubTypeId;
+  public Integer getAcSubtypeId() {
+    return acSubtypeId;
   }
 
-  public void setAcSubTypeId(Integer acSubTypeId) {
-    this.acSubTypeId = acSubTypeId;
+  public void setAcSubtypeId(Integer acSubtypeId) {
+    this.acSubtypeId = acSubtypeId;
   }
 
   @Column(name = "ac_metadata_creator_id")
