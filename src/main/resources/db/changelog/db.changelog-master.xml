@@ -10,4 +10,5 @@
     <include file="db/changelog/migrations/5-Add_Orientation_field_to_metadata.xml"/>
     <include file="db/changelog/migrations/6-Add_key_to_managed_attribute.xml"/>
     <include file="db/changelog/migrations/7-re_implement_managed_attributes.xml"/>
+    <include file="db/changelog/migrations/8-Add_group_to_ObjectSubtype.xml"/>
 </databaseChangeLog>

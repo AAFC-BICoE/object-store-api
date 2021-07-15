@@ -16,6 +16,7 @@ import ca.gc.aafc.dina.testsupport.BaseRestAssuredTest;
 import ca.gc.aafc.dina.testsupport.PostgresTestContainerInitializer;
 import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.dina.testsupport.specs.OpenAPI3Assertions;
+import ca.gc.aafc.dina.testsupport.specs.ValidationRestrictionOptions;
 import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.ObjectStoreApiLauncher;
 import ca.gc.aafc.objectstore.api.dto.ObjectSubtypeDto;
@@ -65,11 +66,12 @@ public class ObjectSubtypeOpenApiIT extends BaseRestAssuredTest {
       JsonAPITestHelper.toAttributeMap(objectSubtypeDto),
       null,
       null))
-      .extract().asString());
+      .extract().asString(), ValidationRestrictionOptions.builder().allowAdditionalFields(true).build());
   }
 
   private ObjectSubtypeDto buildObjectSubtypeDto() {
     ObjectSubtypeDto objectSubtype = new ObjectSubtypeDto();
+    objectSubtype.setGroup("dina");
     objectSubtype.setUuid(null);
     objectSubtype.setDcType(DcType.SOUND);
     objectSubtype.setAcSubtype("MusicalNotation");
