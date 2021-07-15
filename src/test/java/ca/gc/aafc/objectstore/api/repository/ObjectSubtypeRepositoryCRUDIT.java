@@ -53,6 +53,7 @@ public class ObjectSubtypeRepositoryCRUDIT extends BaseIntegrationTest {
   @Test
   public void create_WithAuthenticatedUser_SetsCreatedBy() {
     ObjectSubtypeDto os = new ObjectSubtypeDto();
+    os.setGroup("dina");
     os.setUuid(UUID.randomUUID());
     os.setAcSubtype("test subtype".toUpperCase());
     os.setDcType(DcType.IMAGE);

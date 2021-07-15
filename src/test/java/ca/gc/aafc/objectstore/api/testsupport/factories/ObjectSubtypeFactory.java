@@ -24,6 +24,7 @@ public class ObjectSubtypeFactory implements TestableEntityFactory<ObjectSubtype
   public static ObjectSubtype.ObjectSubtypeBuilder newObjectSubtype() {
     return ObjectSubtype.builder()
         .uuid(UUID.randomUUID())
+        .group("dina")
         .createdBy("createdBy")
         .dcType(DcType.IMAGE)
         .acSubtype(TestableEntityFactory.generateRandomNameLettersOnly(12).toUpperCase());
