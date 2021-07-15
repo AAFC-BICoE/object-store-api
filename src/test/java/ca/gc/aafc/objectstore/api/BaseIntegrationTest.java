@@ -5,7 +5,7 @@ import ca.gc.aafc.dina.testsupport.PostgresTestContainerInitializer;
 import ca.gc.aafc.objectstore.api.service.DerivativeService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreManagedAttributeService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
-import ca.gc.aafc.objectstore.api.service.ObjectSubTypeService;
+import ca.gc.aafc.objectstore.api.service.ObjectSubtypeService;
 import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
@@ -33,7 +33,7 @@ public abstract class BaseIntegrationTest {
   protected ObjectStoreMetaDataService objectStoreMetaDataService;
 
   @Inject
-  protected ObjectSubTypeService objectSubTypeService;
+  protected ObjectSubtypeService objectSubtypeService;
 
   @Inject
   protected ObjectUploadService objectUploadService;

@@ -13,11 +13,11 @@ import lombok.NonNull;
 import org.springframework.validation.SmartValidator;
 
 @Service
-public class ObjectSubTypeService extends DefaultDinaService<ObjectSubtype> {
+public class ObjectSubtypeService extends DefaultDinaService<ObjectSubtype> {
 
   private final MessageSource messageSource;
 
-  public ObjectSubTypeService(
+  public ObjectSubtypeService(
     @NonNull BaseDAO baseDAO,
     MessageSource messageSource,
     @NonNull SmartValidator smartValidator

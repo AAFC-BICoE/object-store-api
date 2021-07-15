@@ -39,7 +39,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
 
   private ObjectStoreMetadata testObjectStoreMetadata;
 
-  private ObjectSubtypeDto acSubType;
+  private ObjectSubtypeDto acSubtype;
 
   private ObjectUpload objectUpload;
   
@@ -60,7 +60,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
   public void setup() {
     objectUpload = createObjectUpload();
     createTestObjectStoreMetadata();
-    createAcSubType();
+    createAcSubtype();
     createTestManagedAttribute();
   }
   
@@ -78,13 +78,13 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
     objectUploadService.delete(objectUpload);
   }
   
-  private void createAcSubType() {
+  private void createAcSubtype() {
     ObjectSubtype oSubtype = ObjectSubtypeFactory.newObjectSubtype().build();
-    objectSubTypeService.create(oSubtype);
-    acSubType = new ObjectSubtypeDto();
-    acSubType.setUuid(oSubtype.getUuid());
-    acSubType.setAcSubtype(oSubtype.getAcSubtype());
-    acSubType.setDcType(oSubtype.getDcType());
+    objectSubtypeService.create(oSubtype);
+    acSubtype = new ObjectSubtypeDto();
+    acSubtype.setUuid(oSubtype.getUuid());
+    acSubtype.setAcSubtype(oSubtype.getAcSubtype());
+    acSubtype.setDcType(oSubtype.getDcType());
   }
   
   private ObjectUpload createObjectUpload() {
@@ -115,8 +115,8 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
         ObjectStoreMetadataDto dto = new ObjectStoreMetadataDto();
         dto.setBucket(objectUploadTest.getBucket());
         dto.setFileIdentifier(objectUploadTest.getFileIdentifier());
-        dto.setAcSubType(acSubType.getAcSubtype());
-        dto.setDcType(acSubType.getDcType());
+        dto.setAcSubtype(acSubtype.getAcSubtype());
+        dto.setDcType(acSubtype.getDcType());
         dto.setXmpRightsUsageTerms(ObjectUploadFactory.TEST_USAGE_TERMS);
         dto.setCreatedBy(RandomStringUtils.random(4));
         dto.setManagedAttributeValues(Map.of(testManagedAttribute.getKey(), testManagedAttribute.getAcceptedValues()[0]));
@@ -127,7 +127,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
         assertEquals(dtoUuid, result.getUuid());
         assertEquals(objectUploadTest.getBucket(), result.getBucket());
         assertEquals(objectUploadTest.getFileIdentifier(), result.getFileIdentifier());
-        assertEquals(acSubType.getUuid(), result.getAcSubType().getUuid());
+        assertEquals(acSubtype.getUuid(), result.getAcSubtype().getUuid());
         assertEquals(ObjectUploadFactory.TEST_USAGE_TERMS, result.getXmpRightsUsageTerms());
         assertEquals(testManagedAttribute.getAcceptedValues()[0],
         result.getManagedAttributeValues().get(testManagedAttribute.getKey()));
@@ -175,7 +175,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
           ObjectStoreMetadataDto updateMetadataDto = getDtoUnderTest();
           updateMetadataDto.setBucket(ObjectUploadFactory.TEST_BUCKET);
           updateMetadataDto.setFileIdentifier(ObjectUploadFactory.TEST_FILE_IDENTIFIER);
-          updateMetadataDto.setAcSubType(acSubType.getAcSubtype());
+          updateMetadataDto.setAcSubtype(acSubtype.getAcSubtype());
           updateMetadataDto.setXmpRightsUsageTerms(ObjectUploadFactory.TEST_USAGE_TERMS);
           
           objectStoreResourceRepository.save(updateMetadataDto);
@@ -183,7 +183,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
           ObjectStoreMetadata result = objectStoreMetaDataService.findOne(updateMetadataDto.getUuid());
           assertEquals(ObjectUploadFactory.TEST_BUCKET, result.getBucket());
           assertEquals(ObjectUploadFactory.TEST_FILE_IDENTIFIER, result.getFileIdentifier());
-          assertEquals(acSubType.getUuid(), result.getAcSubType().getUuid());
+          assertEquals(acSubtype.getUuid(), result.getAcSubtype().getUuid());
           assertEquals(ObjectUploadFactory.TEST_USAGE_TERMS, result.getXmpRightsUsageTerms());
           
           //Can break Relationships
@@ -192,21 +192,21 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
         
         private void assertRelationshipsRemoved() {
           ObjectStoreMetadataDto updateMetadataDto = getDtoUnderTest();
-          assertNotNull(updateMetadataDto.getAcSubType());
+          assertNotNull(updateMetadataDto.getAcSubtype());
           
-    updateMetadataDto.setAcSubType(null);
+    updateMetadataDto.setAcSubtype(null);
     
     objectStoreResourceRepository.save(updateMetadataDto);
     
     ObjectStoreMetadata result = objectStoreMetaDataService.findOne(updateMetadataDto.getUuid());
-    Assertions.assertNull(result.getAcSubType());
+    Assertions.assertNull(result.getAcSubtype());
   }
   
   private ObjectStoreMetadataDto newMetaDto() {
     ObjectStoreMetadataDto parentDTO = new ObjectStoreMetadataDto();
     parentDTO.setBucket(ObjectUploadFactory.TEST_BUCKET);
     parentDTO.setFileIdentifier(ObjectUploadFactory.TEST_FILE_IDENTIFIER);
-    parentDTO.setDcType(acSubType.getDcType());
+    parentDTO.setDcType(acSubtype.getDcType());
     parentDTO.setXmpRightsUsageTerms(ObjectUploadFactory.TEST_USAGE_TERMS);
     parentDTO.setCreatedBy(RandomStringUtils.random(4));
     return parentDTO;

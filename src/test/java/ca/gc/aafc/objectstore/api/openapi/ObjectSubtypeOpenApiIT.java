@@ -29,7 +29,7 @@ import lombok.SneakyThrows;
 @TestPropertySource(properties = "spring.config.additional-location=classpath:application-test.yml")
 @Transactional
 @ContextConfiguration(initializers = {PostgresTestContainerInitializer.class})
-public class ObjectSubTypeOpenApiIT extends BaseRestAssuredTest {
+public class ObjectSubtypeOpenApiIT extends BaseRestAssuredTest {
 
   private static final String SPEC_HOST = "raw.githubusercontent.com";
   private static final String ROOT_SPEC_PATH = "DINA-Web/object-store-specs/master/schema/object-store-api.yml";
@@ -46,7 +46,7 @@ public class ObjectSubTypeOpenApiIT extends BaseRestAssuredTest {
     URI_BUILDER.setPath(ROOT_SPEC_PATH);
   }
 
-  protected ObjectSubTypeOpenApiIT() {
+  protected ObjectSubtypeOpenApiIT() {
     super("/api/v1/");
   }
 

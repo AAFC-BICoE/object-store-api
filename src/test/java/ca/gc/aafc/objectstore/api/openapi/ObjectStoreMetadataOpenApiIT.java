@@ -170,7 +170,7 @@ public class ObjectStoreMetadataOpenApiIT extends BaseRestAssuredTest {
     osMetadata.setDcCreator(null);
     osMetadata.setAcMetadataCreator(null);
     osMetadata.setAcCaption("acCaption");
-    osMetadata.setAcSubType(oSubtype.getAcSubtype());
+    osMetadata.setAcSubtype(oSubtype.getAcSubtype());
     osMetadata.setAcTags(new String[]{"acTags"});
 
     osMetadata.setDerivatives(null);

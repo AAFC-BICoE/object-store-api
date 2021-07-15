@@ -120,25 +120,25 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
     managedAttributeService.create(ma);
 
     ObjectSubtype ost = ObjectSubtypeFactory.newObjectSubtype().build();
-    objectSubTypeService.create(ost);
+    objectSubtypeService.create(ost);
 
     ObjectStoreMetadata osm = ObjectStoreMetadataFactory
         .newObjectStoreMetadata()
         .acDigitizationDate(TEST_OFFSET_DT)
-        .acSubType(ost)
+        .acSubtype(ost)
         .fileIdentifier(objectUpload.getFileIdentifier())
         .build();
 
     // Use "true" here to detach the Metadata,
-    // which will make sure the getAcSubTypeId read-only field is populated when the Metadata is restored. 
+    // which will make sure the getAcSubtypeId read-only field is populated when the Metadata is restored. 
     objectStoreMetaDataService.create(osm);
 
     ObjectStoreMetadata restoredOsm = objectStoreMetaDataService.findOne(osm.getUuid(), ObjectStoreMetadata.class);
     assertNotNull(restoredOsm.getId());
 
-    // Test read-only getAcSubTypeId Formula field:
-    assertEquals(ost.getId(), restoredOsm.getAcSubTypeId());
-    assertEquals(ost.getId(), restoredOsm.getAcSubType().getId());
+    // Test read-only getAcSubtypeId Formula field:
+    assertEquals(ost.getId(), restoredOsm.getAcSubtypeId());
+    assertEquals(ost.getId(), restoredOsm.getAcSubtype().getId());
   }
 
   /**
