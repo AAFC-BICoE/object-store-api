@@ -6,6 +6,7 @@ import ca.gc.aafc.objectstore.api.minio.MinioFileService;
 import ca.gc.aafc.objectstore.api.minio.MinioTestContainerInitializer;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import lombok.SneakyThrows;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -35,15 +36,23 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
     ObjectUpload upload = ObjectUploadFactory.newObjectUpload().build();
     upload.setBucket(BUCKET);
     upload = objectUploadService.create(upload);
+    // todo how do we set created by two weeks ago?
 
+    String fileName = upload.getFileIdentifier().toString() + upload.getEvaluatedFileExtension();
     fileService.storeFile(
-      upload.getFileIdentifier().toString() + upload.getEvaluatedFileExtension(),
+      fileName,
       new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8)),
       upload.getEvaluatedMediaType(),
       BUCKET,
       upload.getIsDerivative());
 
+    serviceUnderTest.removeObjectOrphans();
 
+    Assertions.assertTrue(
+      fileService.getFile(fileName, BUCKET, false).isEmpty(),
+      "There should be no returned files");
+    Assertions.assertNull(objectUploadService.findOne(upload.getFileIdentifier(), ObjectUpload.class),
+      "There should be no upload record");
   }
 
   @Test

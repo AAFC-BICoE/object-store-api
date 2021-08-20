@@ -7,6 +7,7 @@ import lombok.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.SmartValidator;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -30,7 +31,7 @@ public class ObjectOrphanRemovalService extends DefaultDinaService<ObjectUpload>
   }
 
   private List<ObjectUpload> findOrphans() {
-    return null;
+    return Collections.emptyList();
   }
 
   private boolean checkAge(ObjectUpload objectUpload) {
