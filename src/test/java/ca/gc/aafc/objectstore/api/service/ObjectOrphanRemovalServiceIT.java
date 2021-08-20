@@ -10,10 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ContextConfiguration;
 
 import javax.inject.Inject;
-
 import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @ContextConfiguration(initializers = MinioTestContainerInitializer.class)
 class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
