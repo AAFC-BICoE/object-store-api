@@ -8,12 +8,14 @@ import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.springframework.test.context.ContextConfiguration;
 
 import javax.inject.Inject;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 
 @ContextConfiguration(initializers = MinioTestContainerInitializer.class)
 class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
@@ -29,9 +31,6 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
   @Inject
   private MinioFileService fileService;
 
-  @Inject
-  private JdbcTemplate jdbcTemplate;
-
   @SneakyThrows
   @Test
   void removeOrphans_WhenOrphan_OrphanRemoved() {
@@ -41,9 +40,6 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
     upload.setBucket(BUCKET);
     upload = objectUploadService.create(upload);
 
-    // Update created on date so uploads appear older.
-    jdbcTemplate.execute("UPDATE object_upload SET created_on = '1999-01-01'");
-
     String fileName = upload.getFileIdentifier().toString() + upload.getEvaluatedFileExtension();
     fileService.storeFile(
       fileName,
@@ -52,13 +48,20 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
       BUCKET,
       upload.getIsDerivative());
 
-    serviceUnderTest.removeObjectOrphans();
 
-    Assertions.assertTrue(
-      fileService.getFile(fileName, BUCKET, false).isEmpty(),
-      "There should be no returned files");
-    Assertions.assertNull(objectUploadService.findOne(upload.getFileIdentifier(), ObjectUpload.class),
-      "There should be no upload record");
+    // Mock LocalDateTime to simulate the passage of time.
+    LocalDateTime future = LocalDateTime.now().plusYears(3);
+    try (MockedStatic<LocalDateTime> mocked = Mockito.mockStatic(LocalDateTime.class)) {
+      mocked.when(LocalDateTime::now).thenReturn(future);
+
+      serviceUnderTest.removeObjectOrphans(); // method under test
+
+      Assertions.assertTrue(
+        fileService.getFile(fileName, BUCKET, false).isEmpty(),
+        "There should be no returned files");
+      Assertions.assertNull(objectUploadService.findOne(upload.getFileIdentifier(), ObjectUpload.class),
+        "There should be no upload record");
+    }
   }
 
   @Test
