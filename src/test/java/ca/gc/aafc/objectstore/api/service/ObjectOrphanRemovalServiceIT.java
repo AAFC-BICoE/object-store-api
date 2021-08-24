@@ -8,6 +8,7 @@ import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 
 import javax.inject.Inject;
@@ -28,6 +29,9 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
   @Inject
   private MinioFileService fileService;
 
+  @Inject
+  private JdbcTemplate jdbcTemplate;
+
   @SneakyThrows
   @Test
   void removeOrphans_WhenOrphan_OrphanRemoved() {
@@ -36,7 +40,9 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
     ObjectUpload upload = ObjectUploadFactory.newObjectUpload().build();
     upload.setBucket(BUCKET);
     upload = objectUploadService.create(upload);
-    // todo how do we set created by two weeks ago?
+
+    // Update created on date so uploads appear older.
+    jdbcTemplate.execute("UPDATE object_upload SET created_on = '1999-01-01'");
 
     String fileName = upload.getFileIdentifier().toString() + upload.getEvaluatedFileExtension();
     fileService.storeFile(
