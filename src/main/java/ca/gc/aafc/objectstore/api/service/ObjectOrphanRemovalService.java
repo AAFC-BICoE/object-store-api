@@ -37,9 +37,7 @@ public class ObjectOrphanRemovalService {
   }
 
   private boolean checkAge(ObjectUpload objectUpload) {
-    return objectUpload.getCreatedOn()
-      .toLocalDate()
-      .isBefore(LocalDateTime.now().minusWeeks(2).toLocalDate());
+    return objectUpload.getCreatedOn().toLocalDate().isBefore(LocalDateTime.now().minusWeeks(2).toLocalDate());
   }
 
   private void deleteUpload(ObjectUpload objectUpload) {
