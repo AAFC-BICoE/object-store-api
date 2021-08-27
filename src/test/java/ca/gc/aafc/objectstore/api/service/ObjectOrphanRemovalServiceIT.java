@@ -8,14 +8,13 @@ import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import org.springframework.test.context.ContextConfiguration;
 
 import javax.inject.Inject;
+import javax.persistence.criteria.Predicate;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @ContextConfiguration(initializers = MinioTestContainerInitializer.class)
 class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
@@ -36,9 +35,18 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
   void removeOrphans_WhenOrphan_OrphanRemoved() {
     fileService.ensureBucketExists(BUCKET);
 
-    ObjectUpload upload = ObjectUploadFactory.newObjectUpload().build();
-    upload.setBucket(BUCKET);
-    upload = objectUploadService.create(upload);
+    service.runInNewTransaction(em -> {
+      ObjectUpload upload = ObjectUploadFactory.newObjectUpload().build();
+      upload.setCreatedOn(OffsetDateTime.now().minusYears(3));
+      upload.setBucket(BUCKET);
+      em.persist(upload);
+      em.createNativeQuery("UPDATE object_upload SET created_on = created_on - interval '2 years'")
+        .executeUpdate(); // Mock record created in the past
+    });
+
+    ObjectUpload upload = objectUploadService.findAll(
+      ObjectUpload.class, (criteriaBuilder, objectUploadRoot) -> new Predicate[]{},
+      null, 0, 10).get(0);
 
     String fileName = upload.getFileIdentifier().toString() + upload.getEvaluatedFileExtension();
     fileService.storeFile(
@@ -48,20 +56,14 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
       BUCKET,
       upload.getIsDerivative());
 
+    serviceUnderTest.removeObjectOrphans(); // method under test
 
-    // Mock LocalDateTime to simulate the passage of time.
-    LocalDateTime future = LocalDateTime.now().plusYears(3);
-    try (MockedStatic<LocalDateTime> mocked = Mockito.mockStatic(LocalDateTime.class)) {
-      mocked.when(LocalDateTime::now).thenReturn(future);
-
-      serviceUnderTest.removeObjectOrphans(); // method under test
-
-      Assertions.assertTrue(
-        fileService.getFile(fileName, BUCKET, false).isEmpty(),
-        "There should be no returned files");
-      Assertions.assertNull(objectUploadService.findOne(upload.getFileIdentifier(), ObjectUpload.class),
-        "There should be no upload record");
-    }
+    Assertions.assertTrue(
+      fileService.getFile(fileName, BUCKET, false).isEmpty(),
+      "There should be no returned files");
+    Assertions.assertNull(
+      objectUploadService.findOne(upload.getFileIdentifier(), ObjectUpload.class),
+      "There should be no upload record");
   }
 
   @Test
