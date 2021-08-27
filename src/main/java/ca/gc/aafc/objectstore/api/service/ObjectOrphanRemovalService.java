@@ -7,9 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -33,21 +31,14 @@ public class ObjectOrphanRemovalService {
   }
 
   private List<ObjectUpload> findOrphans() {
-    List<ObjectUpload> all = objectUploadService.findAll(
+    return objectUploadService.findAll(
       ObjectUpload.class,
       (criteriaBuilder, objectUploadRoot) -> {
-        CriteriaQuery<ObjectUpload> query = criteriaBuilder.createQuery(ObjectUpload.class);
-        Subquery<UUID> subquery = query.subquery(UUID.class);
-        Root<ObjectStoreMetadata> from = subquery.from(ObjectStoreMetadata.class);
-        subquery.select(from.get("fileIdentifier"));
+        Subquery<UUID> metaSubQuery = criteriaBuilder.createQuery(ObjectUpload.class).subquery(UUID.class);
         return new Predicate[]{
-          criteriaBuilder.in(objectUploadRoot.get("fileIdentifier"))
-            .value(subquery.select(from.get("fileIdentifier"))).not()};
-      },
-      null,
-      0,
-      Integer.MAX_VALUE);
-    return all;
+          criteriaBuilder.in(objectUploadRoot.get("fileIdentifier")).value(
+            metaSubQuery.select(metaSubQuery.from(ObjectStoreMetadata.class).get("fileIdentifier"))).not()};
+      }, null, 0, Integer.MAX_VALUE);
   }
 
   private boolean checkAge(ObjectUpload objectUpload) {
