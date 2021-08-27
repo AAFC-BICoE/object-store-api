@@ -4,6 +4,7 @@ import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.minio.MinioFileService;
 import ca.gc.aafc.objectstore.api.minio.MinioTestContainerInitializer;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
@@ -24,6 +25,9 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
 
   @Inject
   private ObjectOrphanRemovalService serviceUnderTest;
+
+  @Inject
+  private ObjectStoreMetaDataService metaDataService;
 
   @Inject
   private ObjectUploadService objectUploadService;
@@ -81,9 +85,34 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
       "There should be a upload record");
   }
 
+  @SneakyThrows
   @Test
   void removeOrphans_WhenLinkedToMetadata() {
+    service.runInNewTransaction(em -> {
+      ObjectUpload upload = ObjectUploadFactory.newObjectUpload().build();
+      upload.setBucket(BUCKET);
+      em.persist(upload);
+      em.createNativeQuery("UPDATE object_upload SET created_on = created_on - interval '3 weeks'")
+        .executeUpdate(); // Mock record created in the past
+    });
 
+    ObjectUpload upload = objectUploadService.findAll(ObjectUpload.class,
+      (criteriaBuilder, objectUploadRoot) -> new Predicate[]{}, null, 0, 10).get(0);
+
+    String fileName = storeFileForUpload(upload);
+
+    metaDataService.create(ObjectStoreMetadataFactory.newObjectStoreMetadata()
+      .fileIdentifier(upload.getFileIdentifier())
+      .build());
+
+    serviceUnderTest.removeObjectOrphans(); // method under test
+
+    Assertions.assertTrue(
+      fileService.getFile(fileName, BUCKET, false).isPresent(),
+      "There should be a returned file");
+    Assertions.assertNotNull(
+      objectUploadService.findOne(upload.getFileIdentifier(), ObjectUpload.class),
+      "There should be a upload record");
   }
 
   @Test
