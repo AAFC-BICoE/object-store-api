@@ -14,7 +14,6 @@ import javax.inject.Inject;
 import javax.persistence.criteria.Predicate;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
-import java.time.OffsetDateTime;
 
 @ContextConfiguration(initializers = MinioTestContainerInitializer.class)
 class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
@@ -37,16 +36,14 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
 
     service.runInNewTransaction(em -> {
       ObjectUpload upload = ObjectUploadFactory.newObjectUpload().build();
-      upload.setCreatedOn(OffsetDateTime.now().minusYears(3));
       upload.setBucket(BUCKET);
       em.persist(upload);
       em.createNativeQuery("UPDATE object_upload SET created_on = created_on - interval '2 years'")
         .executeUpdate(); // Mock record created in the past
     });
 
-    ObjectUpload upload = objectUploadService.findAll(
-      ObjectUpload.class, (criteriaBuilder, objectUploadRoot) -> new Predicate[]{},
-      null, 0, 10).get(0);
+    ObjectUpload upload = objectUploadService.findAll(ObjectUpload.class,
+      (criteriaBuilder, objectUploadRoot) -> new Predicate[]{}, null, 0, 10).get(0);
 
     String fileName = upload.getFileIdentifier().toString() + upload.getEvaluatedFileExtension();
     fileService.storeFile(
