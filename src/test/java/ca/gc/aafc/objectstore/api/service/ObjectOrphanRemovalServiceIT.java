@@ -38,7 +38,7 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
       ObjectUpload upload = ObjectUploadFactory.newObjectUpload().build();
       upload.setBucket(BUCKET);
       em.persist(upload);
-      em.createNativeQuery("UPDATE object_upload SET created_on = created_on - interval '2 years'")
+      em.createNativeQuery("UPDATE object_upload SET created_on = created_on - interval '3 weeks'")
         .executeUpdate(); // Mock record created in the past
     });
 
