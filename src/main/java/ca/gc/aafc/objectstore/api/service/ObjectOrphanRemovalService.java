@@ -1,5 +1,6 @@
 package ca.gc.aafc.objectstore.api.service;
 
+import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.minio.MinioFileService;
@@ -35,9 +36,12 @@ public class ObjectOrphanRemovalService {
       ObjectUpload.class,
       (criteriaBuilder, objectUploadRoot) -> {
         Subquery<UUID> metaSubQuery = criteriaBuilder.createQuery(ObjectUpload.class).subquery(UUID.class);
+        Subquery<UUID> derivSubQuery = criteriaBuilder.createQuery(Derivative.class).subquery(UUID.class);
         return new Predicate[]{
           criteriaBuilder.in(objectUploadRoot.get("fileIdentifier")).value(
-            metaSubQuery.select(metaSubQuery.from(ObjectStoreMetadata.class).get("fileIdentifier"))).not()};
+            metaSubQuery.select(metaSubQuery.from(ObjectStoreMetadata.class).get("fileIdentifier"))).not(),
+          criteriaBuilder.in(objectUploadRoot.get("fileIdentifier")).value(
+            derivSubQuery.select(derivSubQuery.from(ObjectStoreMetadata.class).get("fileIdentifier"))).not()};
       }, null, 0, Integer.MAX_VALUE);
   }
 
