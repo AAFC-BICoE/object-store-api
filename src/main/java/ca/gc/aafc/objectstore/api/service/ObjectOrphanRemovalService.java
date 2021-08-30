@@ -6,6 +6,7 @@ import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.minio.MinioFileService;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.Predicate;
@@ -16,6 +17,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Log4j2
 public class ObjectOrphanRemovalService {
 
   private static final String FILE_IDENTIFIER_KEY = "fileIdentifier";
@@ -52,14 +54,18 @@ public class ObjectOrphanRemovalService {
 
   private void deleteUpload(ObjectUpload objectUpload) {
     objectUploadService.delete(objectUpload);
+    log.info("object upload with file identifier: "
+      + objectUpload.getFileIdentifier().toString() + " has been removed");
   }
 
   @SneakyThrows
   private void deleteMinioFile(ObjectUpload objectUpload) {
+    String fileName = objectUpload.getFileIdentifier() + objectUpload.getEvaluatedFileExtension();
     fileService.removeFile(
       objectUpload.getBucket(),
-      objectUpload.getFileIdentifier() + objectUpload.getEvaluatedFileExtension(),
+      fileName,
       objectUpload.getIsDerivative());
+    log.info(fileName + " removed from minio");
   }
 
 }
