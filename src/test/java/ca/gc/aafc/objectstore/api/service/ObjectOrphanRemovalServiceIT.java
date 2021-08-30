@@ -94,7 +94,7 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
 
   @SneakyThrows
   @Test
-  void removeOrphans_WhenLinkedToMetadata() {
+  void removeOrphans_WhenLinkedToMetadata_OrphanNotRemoved() {
     service.runInNewTransaction(em -> {
       ObjectUpload upload = ObjectUploadFactory.newObjectUpload().build();
       upload.setBucket(BUCKET);
@@ -124,7 +124,7 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
 
   @SneakyThrows
   @Test
-  void removeOrphans_WhenLinkedToDerivative() {
+  void removeOrphans_WhenLinkedToDerivative_OrphanNotRemoved() {
     ObjectUpload acDerivedRecord = objectUploadService.create(
       ObjectUploadFactory.newObjectUpload().bucket(BUCKET).build());
 
@@ -169,6 +169,37 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
     Assertions.assertNotNull(
       objectUploadService.findOne(derivativeUpload.getFileIdentifier(), ObjectUpload.class),
       "There should be a derivativeUpload record");
+  }
+
+  @SneakyThrows
+  @Test
+  void removeOrphans_WhenOrphanFileIsDerivativeFile_OrphanRemoved() {
+    service.runInNewTransaction(em -> {
+      ObjectUpload upload = ObjectUploadFactory.newObjectUpload().build();
+      upload.setIsDerivative(true);
+      upload.setBucket(BUCKET);
+      em.persist(upload);
+      em.createNativeQuery("UPDATE object_upload SET created_on = created_on - interval '3 weeks'")
+        .executeUpdate(); // Mock record created in the past
+    });
+
+    ObjectUpload derivativeUpload = objectUploadService.findAll(ObjectUpload.class,
+        (criteriaBuilder, objectUploadRoot) -> new Predicate[]{}, null, 0, 10)
+      .stream().filter(ObjectUpload::getIsDerivative).findFirst().orElseGet(() -> {
+        Assertions.fail("a derivative record should of been generated");
+        return null;
+      });
+
+    String fileName = storeFileForUpload(derivativeUpload);
+
+    serviceUnderTest.removeObjectOrphans(); // method under test
+
+    Assertions.assertTrue(
+      fileService.getFile(fileName, BUCKET, true).isEmpty(),
+      "There should be no returned files");
+    Assertions.assertNull(
+      objectUploadService.findOne(derivativeUpload.getFileIdentifier(), ObjectUpload.class),
+      "There should be no upload record");
   }
 
   @SneakyThrows
