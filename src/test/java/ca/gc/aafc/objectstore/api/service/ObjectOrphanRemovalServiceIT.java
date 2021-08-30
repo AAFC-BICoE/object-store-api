@@ -1,6 +1,9 @@
 package ca.gc.aafc.objectstore.api.service;
 
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
+import ca.gc.aafc.objectstore.api.entities.DcType;
+import ca.gc.aafc.objectstore.api.entities.Derivative;
+import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.minio.MinioFileService;
 import ca.gc.aafc.objectstore.api.minio.MinioTestContainerInitializer;
@@ -10,6 +13,7 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 
 import javax.inject.Inject;
@@ -31,6 +35,9 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
 
   @Inject
   private ObjectUploadService objectUploadService;
+
+  @Inject
+  private DerivativeService derivativeService;
 
   @Inject
   private MinioFileService fileService;
@@ -115,9 +122,53 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
       "There should be a upload record");
   }
 
+  @SneakyThrows
   @Test
   void removeOrphans_WhenLinkedToDerivative() {
+    ObjectUpload acDerivedRecord = objectUploadService.create(
+      ObjectUploadFactory.newObjectUpload().bucket(BUCKET).build());
 
+    ObjectStoreMetadata acDerivedFrom = metaDataService.create(
+      ObjectStoreMetadataFactory.newObjectStoreMetadata().fileIdentifier(acDerivedRecord.getFileIdentifier())
+        .build());
+
+    service.runInNewTransaction(em -> {
+      ObjectUpload upload = ObjectUploadFactory.newObjectUpload().build();
+      upload.setIsDerivative(true);
+      upload.setBucket(BUCKET);
+      em.persist(upload);
+      em.createNativeQuery("UPDATE object_upload SET created_on = created_on - interval '3 weeks'")
+        .executeUpdate(); // Mock record created in the past
+    });
+
+    ObjectUpload derivativeUpload = objectUploadService.findAll(ObjectUpload.class,
+        (criteriaBuilder, objectUploadRoot) -> new Predicate[]{}, null, 0, 10)
+      .stream().filter(ObjectUpload::getIsDerivative).findFirst().orElseGet(() -> {
+        Assertions.fail("a derivative record should of been generated");
+        return null;
+      });
+
+    String fileName = storeFileForUpload(derivativeUpload);
+
+    derivativeService.create(Derivative.builder()
+      .fileIdentifier(derivativeUpload.getFileIdentifier())
+      .fileExtension(derivativeUpload.getEvaluatedFileExtension())
+      .bucket(derivativeUpload.getBucket())
+      .acDerivedFrom(acDerivedFrom)
+      .createdBy(derivativeUpload.getCreatedBy())
+      .acHashValue("abc")
+      .dcType(DcType.TEXT)
+      .dcFormat(MediaType.TEXT_PLAIN_VALUE)
+      .build());
+
+    serviceUnderTest.removeObjectOrphans(); // method under test
+
+    Assertions.assertTrue(
+      fileService.getFile(fileName, BUCKET, true).isPresent(),
+      "There should be a returned file");
+    Assertions.assertNotNull(
+      objectUploadService.findOne(derivativeUpload.getFileIdentifier(), ObjectUpload.class),
+      "There should be a derivativeUpload record");
   }
 
   @SneakyThrows
