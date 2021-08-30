@@ -10,6 +10,7 @@ import ca.gc.aafc.objectstore.api.minio.MinioTestContainerInitializer;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import lombok.SneakyThrows;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,6 +22,7 @@ import javax.persistence.criteria.Predicate;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 @ContextConfiguration(initializers = MinioTestContainerInitializer.class)
 class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
@@ -45,6 +47,14 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
   @BeforeEach
   void setUp() throws IOException {
     fileService.ensureBucketExists(BUCKET);
+  }
+
+  @AfterEach
+  void tearDown() {
+    // Test clean up
+    objectUploadService.findAll(ObjectUpload.class,
+        (criteriaBuilder, objectUploadRoot) -> new Predicate[]{}, null, 0, 10)
+      .forEach(objectUpload -> objectUploadService.delete(objectUpload));
   }
 
   @SneakyThrows
@@ -103,8 +113,9 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
         .executeUpdate(); // Mock record created in the past
     });
 
-    ObjectUpload upload = objectUploadService.findAll(ObjectUpload.class,
-      (criteriaBuilder, objectUploadRoot) -> new Predicate[]{}, null, 0, 10).get(0);
+    List<ObjectUpload> all = objectUploadService.findAll(ObjectUpload.class,
+      (criteriaBuilder, objectUploadRoot) -> new Predicate[]{}, null, 0, 10);
+    ObjectUpload upload = all.get(0);
 
     String fileName = storeFileForUpload(upload);
 
