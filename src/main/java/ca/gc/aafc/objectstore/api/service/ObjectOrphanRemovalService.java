@@ -41,7 +41,7 @@ public class ObjectOrphanRemovalService {
           criteriaBuilder.in(objectUploadRoot.get("fileIdentifier")).value(
             metaSubQuery.select(metaSubQuery.from(ObjectStoreMetadata.class).get("fileIdentifier"))).not(),
           criteriaBuilder.in(objectUploadRoot.get("fileIdentifier")).value(
-            derivSubQuery.select(derivSubQuery.from(ObjectStoreMetadata.class).get("fileIdentifier"))).not()};
+            derivSubQuery.select(derivSubQuery.from(Derivative.class).get("fileIdentifier"))).not()};
       }, null, 0, Integer.MAX_VALUE);
   }
 
