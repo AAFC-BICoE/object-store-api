@@ -47,30 +47,20 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
   @BeforeEach
   void setUp() throws IOException {
     fileService.ensureBucketExists(BUCKET);
+    findUploads().forEach(objectUpload -> objectUploadService.delete(objectUpload));
   }
 
   @AfterEach
   void tearDown() {
     // Test clean up
-    objectUploadService.findAll(ObjectUpload.class,
-        (criteriaBuilder, objectUploadRoot) -> new Predicate[]{}, null, 0, 10)
-      .forEach(objectUpload -> objectUploadService.delete(objectUpload));
+    findUploads().forEach(objectUpload -> objectUploadService.delete(objectUpload));
   }
 
   @SneakyThrows
   @Test
   void removeOrphans_WhenOrphanAndOlderThen2Weeks_OrphanRemoved() {
-    service.runInNewTransaction(em -> {
-      ObjectUpload upload = ObjectUploadFactory.newObjectUpload().build();
-      upload.setBucket(BUCKET);
-      em.persist(upload);
-      em.createNativeQuery("UPDATE object_upload SET created_on = created_on - interval '3 weeks'")
-        .executeUpdate(); // Mock record created in the past and orphan
-    });
-
-    ObjectUpload upload = objectUploadService.findAll(ObjectUpload.class,
-      (criteriaBuilder, objectUploadRoot) -> new Predicate[]{}, null, 0, 10).get(0);
-
+    persistOrphanRecord();
+    ObjectUpload upload = findUploads().get(0);
     String fileName = storeFileForUpload(upload);
 
     serviceUnderTest.removeObjectOrphans(); // method under test
@@ -89,7 +79,6 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
     ObjectUpload upload = ObjectUploadFactory.newObjectUpload().build();
     upload.setBucket(BUCKET);
     upload = objectUploadService.create(upload); // record will have current date and is orphan
-
     String fileName = storeFileForUpload(upload);
 
     serviceUnderTest.removeObjectOrphans(); // method under test
@@ -105,18 +94,8 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
   @SneakyThrows
   @Test
   void removeOrphans_WhenLinkedToMetadata_OrphanNotRemoved() {
-    service.runInNewTransaction(em -> {
-      ObjectUpload upload = ObjectUploadFactory.newObjectUpload().build();
-      upload.setBucket(BUCKET);
-      em.persist(upload);
-      em.createNativeQuery("UPDATE object_upload SET created_on = created_on - interval '3 weeks'")
-        .executeUpdate(); // Mock record created in the past
-    });
-
-    List<ObjectUpload> all = objectUploadService.findAll(ObjectUpload.class,
-      (criteriaBuilder, objectUploadRoot) -> new Predicate[]{}, null, 0, 10);
-    ObjectUpload upload = all.get(0);
-
+    persistOrphanRecord();
+    ObjectUpload upload = findUploads().get(0);
     String fileName = storeFileForUpload(upload);
 
     metaDataService.create(ObjectStoreMetadataFactory.newObjectStoreMetadata()
@@ -138,23 +117,13 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
   void removeOrphans_WhenLinkedToDerivative_OrphanNotRemoved() {
     ObjectUpload acDerivedRecord = objectUploadService.create(
       ObjectUploadFactory.newObjectUpload().bucket(BUCKET).build());
-
     ObjectStoreMetadata acDerivedFrom = metaDataService.create(
       ObjectStoreMetadataFactory.newObjectStoreMetadata().fileIdentifier(acDerivedRecord.getFileIdentifier())
         .build());
+    persistOrphanDerivative();
 
-    service.runInNewTransaction(em -> {
-      ObjectUpload upload = ObjectUploadFactory.newObjectUpload().build();
-      upload.setIsDerivative(true);
-      upload.setBucket(BUCKET);
-      em.persist(upload);
-      em.createNativeQuery("UPDATE object_upload SET created_on = created_on - interval '3 weeks'")
-        .executeUpdate(); // Mock record created in the past
-    });
-
-    ObjectUpload derivativeUpload = objectUploadService.findAll(ObjectUpload.class,
-        (criteriaBuilder, objectUploadRoot) -> new Predicate[]{}, null, 0, 10)
-      .stream().filter(ObjectUpload::getIsDerivative).findFirst().orElseGet(() -> {
+    ObjectUpload derivativeUpload = findUploads().stream().filter(ObjectUpload::getIsDerivative).findFirst()
+      .orElseGet(() -> {
         Assertions.fail("a derivative record should of been generated");
         return null;
       });
@@ -185,22 +154,12 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
   @SneakyThrows
   @Test
   void removeOrphans_WhenOrphanFileIsDerivativeFile_OrphanRemoved() {
-    service.runInNewTransaction(em -> {
-      ObjectUpload upload = ObjectUploadFactory.newObjectUpload().build();
-      upload.setIsDerivative(true);
-      upload.setBucket(BUCKET);
-      em.persist(upload);
-      em.createNativeQuery("UPDATE object_upload SET created_on = created_on - interval '3 weeks'")
-        .executeUpdate(); // Mock record created in the past
-    });
-
-    ObjectUpload derivativeUpload = objectUploadService.findAll(ObjectUpload.class,
-        (criteriaBuilder, objectUploadRoot) -> new Predicate[]{}, null, 0, 10)
-      .stream().filter(ObjectUpload::getIsDerivative).findFirst().orElseGet(() -> {
+    persistOrphanDerivative();
+    ObjectUpload derivativeUpload = findUploads().stream().filter(ObjectUpload::getIsDerivative).findFirst()
+      .orElseGet(() -> {
         Assertions.fail("a derivative record should of been generated");
         return null;
       });
-
     String fileName = storeFileForUpload(derivativeUpload);
 
     serviceUnderTest.removeObjectOrphans(); // method under test
@@ -211,6 +170,32 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
     Assertions.assertNull(
       objectUploadService.findOne(derivativeUpload.getFileIdentifier(), ObjectUpload.class),
       "There should be no upload record");
+  }
+
+  private List<ObjectUpload> findUploads() {
+    return objectUploadService.findAll(ObjectUpload.class,
+      (criteriaBuilder, objectUploadRoot) -> new Predicate[]{}, null, 0, 20);
+  }
+
+  private void persistOrphanRecord() {
+    service.runInNewTransaction(em -> {
+      ObjectUpload upload = ObjectUploadFactory.newObjectUpload().build();
+      upload.setBucket(BUCKET);
+      em.persist(upload);
+      em.createNativeQuery("UPDATE object_upload SET created_on = created_on - interval '3 weeks'")
+        .executeUpdate(); // Mock record created in the past and orphan
+    });
+  }
+
+  private void persistOrphanDerivative() {
+    service.runInNewTransaction(em -> {
+      ObjectUpload upload = ObjectUploadFactory.newObjectUpload().build();
+      upload.setIsDerivative(true);
+      upload.setBucket(BUCKET);
+      em.persist(upload);
+      em.createNativeQuery("UPDATE object_upload SET created_on = created_on - interval '3 weeks'")
+        .executeUpdate(); // Mock record created in the past
+    });
   }
 
   @SneakyThrows
