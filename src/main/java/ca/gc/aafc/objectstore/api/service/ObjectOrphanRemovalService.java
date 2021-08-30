@@ -59,7 +59,8 @@ public class ObjectOrphanRemovalService {
   private void deleteMinioFile(ObjectUpload objectUpload) {
     fileService.removeFile(
       objectUpload.getBucket(),
-      objectUpload.getFileIdentifier() + objectUpload.getEvaluatedFileExtension());
+      objectUpload.getFileIdentifier() + objectUpload.getEvaluatedFileExtension(),
+      objectUpload.getIsDerivative());
   }
 
 }
