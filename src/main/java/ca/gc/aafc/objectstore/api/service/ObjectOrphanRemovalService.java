@@ -18,13 +18,14 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ObjectOrphanRemovalService {
 
+  private static final String FILE_IDENTIFIER_KEY = "fileIdentifier";
   private final ObjectUploadService objectUploadService;
   private final MinioFileService fileService;
 
   public void removeObjectOrphans() {
     List<ObjectUpload> orphans = findOrphans();
     orphans.forEach(objectUpload -> {
-      if (checkAge(objectUpload)) {
+      if (isAgeOlderThenTwoWeeks(objectUpload)) {
         deleteUpload(objectUpload);
         deleteMinioFile(objectUpload);
       }
@@ -38,17 +39,16 @@ public class ObjectOrphanRemovalService {
         Subquery<UUID> metaSubQuery = criteriaBuilder.createQuery(ObjectUpload.class).subquery(UUID.class);
         Subquery<UUID> derivSubQuery = criteriaBuilder.createQuery(Derivative.class).subquery(UUID.class);
         return new Predicate[]{
-          criteriaBuilder.in(objectUploadRoot.get("fileIdentifier")).value(
-            metaSubQuery.select(metaSubQuery.from(ObjectStoreMetadata.class).get("fileIdentifier"))).not(),
-          criteriaBuilder.in(objectUploadRoot.get("fileIdentifier")).value(
-            derivSubQuery.select(derivSubQuery.from(Derivative.class).get("fileIdentifier"))).not()};
+          criteriaBuilder.in(objectUploadRoot.get(FILE_IDENTIFIER_KEY)).value(
+            metaSubQuery.select(metaSubQuery.from(ObjectStoreMetadata.class).get(FILE_IDENTIFIER_KEY))).not(),
+          criteriaBuilder.in(objectUploadRoot.get(FILE_IDENTIFIER_KEY)).value(
+            derivSubQuery.select(derivSubQuery.from(Derivative.class).get(FILE_IDENTIFIER_KEY))).not()};
       }, null, 0, Integer.MAX_VALUE);
   }
 
-  private boolean checkAge(ObjectUpload objectUpload) {
-    return objectUpload.getCreatedOn()
-      .toLocalDate()
-      .isBefore(LocalDateTime.now().minusWeeks(2).toLocalDate());
+  private boolean isAgeOlderThenTwoWeeks(ObjectUpload objectUpload) {
+    return objectUpload.getCreatedOn().toLocalDate().isBefore(
+      LocalDateTime.now().minusWeeks(2).toLocalDate());
   }
 
   private void deleteUpload(ObjectUpload objectUpload) {
