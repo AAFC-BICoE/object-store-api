@@ -5,7 +5,7 @@
 
 	<groupId>ca.gc.aafc</groupId>
 	<artifactId>object-store.api</artifactId>
-	<version>0.25</version>
+	<version>0.27-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>Object-Store API</name>
@@ -14,7 +14,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.4.6</version>
+		<version>2.5.2</version>
 	</parent>
 
 	<properties>
@@ -33,11 +33,11 @@
 		<dependency-check.version>6.1.6</dependency-check.version>
 		<jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
 		<maven-checkstyle-plugin.version>3.1.1</maven-checkstyle-plugin.version>
-		<checkstyle.version>8.41</checkstyle.version>
+		<checkstyle.version>8.44</checkstyle.version>
 		<asciidoctor-maven-plugin.version>2.1.0</asciidoctor-maven-plugin.version>
 		<asciidoctorj.diagram.version>2.0.2</asciidoctorj.diagram.version>
 		<hibernate-types-52.version>2.10.2</hibernate-types-52.version>
-		<dina-base-api.version>0.59</dina-base-api.version>
+		<dina-base-api.version>0.61</dina-base-api.version>
 
 		<!-- Override to avoid NoClassDefFoundError: org/apache/maven/doxia/siterenderer/DocumentContent -->
 		<maven-site-plugin.version>3.7.1</maven-site-plugin.version>
@@ -182,6 +182,11 @@
 				<version>${maven-checkstyle-plugin.version}</version>
 				<dependencies>
 					<dependency>
+            <groupId>io.github.aafc-bicoe</groupId>
+            <artifactId>dina-base-api</artifactId>
+            <version>${dina-base-api.version}</version>
+          </dependency>
+					<dependency>
 						<groupId>com.puppycrawl.tools</groupId>
 						<artifactId>checkstyle</artifactId>
 						<version>${checkstyle.version}</version>
@@ -193,6 +198,30 @@
 					<logViolationsToConsole>true</logViolationsToConsole>
 				</configuration>
 			</plugin>
+			<plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-dependency-plugin</artifactId>
+      <executions>
+          <execution>
+              <id>unpack</id>
+              <phase>generate-sources</phase>
+              <goals>
+                  <goal>unpack</goal>
+              </goals>
+              <configuration>
+                  <artifactItems>
+                      <artifactItem>
+                          <groupId>io.github.aafc-bicoe</groupId>
+                          <artifactId>dina-base-api</artifactId>
+                          <version>${dina-base-api.version}</version>
+                          <outputDirectory>${basedir}/src/main/resources/db/changelog/xsd</outputDirectory>
+                          <includes>dbchangelog-4.4.xsd</includes>
+                      </artifactItem>
+                  </artifactItems>
+              </configuration>
+          </execution>
+      </executions>
+      </plugin>
 			<plugin>
 				<groupId>com.github.spotbugs</groupId>
 				<artifactId>spotbugs-maven-plugin</artifactId>

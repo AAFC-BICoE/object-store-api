@@ -81,7 +81,7 @@ public class MediaTypeDetectionStrategy {
    * @param is will be consumed but not closed
    * @param receivedMediaType
    * @param originalFilename
-   * @return
+   * @return MediaTypeDetectionResult
    * @throws IOException
    * @throws MimeTypeException
    */

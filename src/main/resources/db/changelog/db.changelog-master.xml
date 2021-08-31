@@ -1,7 +1,7 @@
 <?xml version="1.1" encoding="UTF-8" standalone="no"?>
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog db/changelog/xsd/dbchangelog-4.4.xsd">
     <include file="db/changelog/db.changelog-init.xml"/>
     <include file="db/changelog/migrations/1-Remove_app_managed_on_object_sub_type.xml"/>
     <include file="db/changelog/migrations/2-Add_Dc_Format_To_Derivative.xml"/>
@@ -10,4 +10,5 @@
     <include file="db/changelog/migrations/5-Add_Orientation_field_to_metadata.xml"/>
     <include file="db/changelog/migrations/6-Add_key_to_managed_attribute.xml"/>
     <include file="db/changelog/migrations/7-re_implement_managed_attributes.xml"/>
+    <include file="db/changelog/migrations/8-Add_group_to_ObjectSubtype.xml"/>
 </databaseChangeLog>

@@ -25,4 +25,5 @@ public class ObjectSubtypeDto {
   private String acSubtype;
   private String createdBy;
   private OffsetDateTime createdOn;
+  private String group;
 }

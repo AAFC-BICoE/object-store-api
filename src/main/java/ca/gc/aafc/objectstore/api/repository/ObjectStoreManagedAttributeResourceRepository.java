@@ -29,7 +29,7 @@ public class ObjectStoreManagedAttributeResourceRepository
   ) {
     super(
       dinaService,
-      Optional.of(authorizationService),
+      authorizationService,
       Optional.empty(),
       new DinaMapper<>(ObjectStoreManagedAttributeDto.class),
       ObjectStoreManagedAttributeDto.class,

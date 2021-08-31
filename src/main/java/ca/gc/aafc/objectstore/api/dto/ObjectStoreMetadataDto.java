@@ -39,7 +39,7 @@ import java.util.function.Supplier;
 @Data
 @JsonApiResource(type = ObjectStoreMetadataDto.TYPENAME)
 @TypeName(ObjectStoreMetadataDto.TYPENAME)
-@CustomFieldAdapter(adapters = ObjectStoreMetadataDto.AcSubTypeAdapter.class)
+@CustomFieldAdapter(adapters = ObjectStoreMetadataDto.AcSubtypeAdapter.class)
 public class ObjectStoreMetadataDto {
 
   public static final String TYPENAME = "metadata";
@@ -104,7 +104,7 @@ public class ObjectStoreMetadataDto {
 
   @JsonInclude(Include.NON_EMPTY)
   @IgnoreDinaMapping(reason = "Custom Resolved field")
-  private String acSubType;
+  private String acSubtype;
 
   private String group;
 
@@ -115,22 +115,22 @@ public class ObjectStoreMetadataDto {
     if (objectSubtype != null &&
         objectSubtype.getDcType() != null &&
         StringUtils.isNotBlank(objectSubtype.getAcSubtype())) {
-      setAcSubType(objectSubtype.getAcSubtype());
+      setAcSubtype(objectSubtype.getAcSubtype());
     } else {
-      setAcSubType(null);
+      setAcSubtype(null);
     }
   }
   public ObjectSubtype supplyObjectSubtype() {
-    if (getDcType() == null || StringUtils.isBlank(getAcSubType())) {
+    if (getDcType() == null || StringUtils.isBlank(getAcSubtype())) {
       return null;
     }
     return ObjectSubtype.builder()
         .dcType(getDcType())
-        .acSubtype(getAcSubType())
+        .acSubtype(getAcSubtype())
         .build();
   }
 
-  public static class AcSubTypeAdapter
+  public static class AcSubtypeAdapter
     implements DinaFieldAdapter<ObjectStoreMetadataDto, ObjectStoreMetadata, ObjectSubtype, ObjectSubtype> {
 
     @Override
@@ -145,12 +145,12 @@ public class ObjectStoreMetadataDto {
 
     @Override
     public Consumer<ObjectSubtype> entityApplyMethod(ObjectStoreMetadata entityRef) {
-      return entityRef::setAcSubType;
+      return entityRef::setAcSubtype;
     }
 
     @Override
     public Supplier<ObjectSubtype> entitySupplyMethod(ObjectStoreMetadata entityRef) {
-      return entityRef::getAcSubType;
+      return entityRef::getAcSubtype;
     }
 
     @Override

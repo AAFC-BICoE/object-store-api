@@ -4,9 +4,8 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -34,10 +33,8 @@ import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
-import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.entities.Derivative.DerivativeType;
-import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import lombok.SneakyThrows;
 
@@ -48,73 +45,65 @@ import lombok.SneakyThrows;
 @TestPropertySource(properties = "spring.config.additional-location=classpath:application-test.yml")
 @Transactional
 @ContextConfiguration(initializers = {PostgresTestContainerInitializer.class})
-public class ObjectStoreMetadataOpenApiIT extends BaseRestAssuredTest {
+public class DerivativeOpenApiIT extends BaseRestAssuredTest {
 
   @Inject
-  protected DatabaseSupportService service;
+  private DatabaseSupportService service;
 
   private static final String SPEC_HOST = "raw.githubusercontent.com";
   private static final String ROOT_SPEC_PATH = "DINA-Web/object-store-specs/master/schema/object-store-api.yml";
-  
-  private static final String SCHEMA_NAME = "Metadata";
-  private static final String RESOURCE_UNDER_TEST = "metadata";
 
-  private static final URIBuilder URI_BUILDER = new URIBuilder();
+  private static final String SCHEMA_NAME = "Derivative";
+  private static final String RESOURCE_UNDER_TEST = "derivative";
 
-  private ObjectSubtype oSubtype;
-  private ObjectUpload oUpload;
-  private ObjectUpload oUpload_derivative;
-  private ObjectUpload oUpload_acDerivedFrom;
+  private static final URIBuilder URI_BUILDER = createSchemaUriBuilder(SPEC_HOST, ROOT_SPEC_PATH);
+
+  private ObjectUpload objectUpload;
+  private ObjectUpload objectUpload_meta;
+  private ObjectUpload objectUpload_generatedFrom;
+  private String metadataUuid;
   private String derivativeUuid;
   
-  static {
-    URI_BUILDER.setScheme("https");
-    URI_BUILDER.setHost(SPEC_HOST);
-    URI_BUILDER.setPath(ROOT_SPEC_PATH);
-  }
-
-  protected ObjectStoreMetadataOpenApiIT() {
+  protected DerivativeOpenApiIT() {
     super("/api/v1/");
   }
 
   public static URL getOpenAPISpecsURL() throws URISyntaxException, MalformedURLException {
     return URI_BUILDER.build().toURL();
   }
-  
+
   @BeforeEach
   public void setup() {
+    objectUpload = ObjectUploadFactory.buildTestObjectUpload();
+    objectUpload.setFileIdentifier(UUID.randomUUID());
+    objectUpload.setIsDerivative(true);
 
-    oUpload_derivative = ObjectUploadFactory.buildTestObjectUpload();
-    oUpload_derivative.setIsDerivative(true);
-    oUpload_derivative.setFileIdentifier(UUID.randomUUID());
+    objectUpload_meta = ObjectUploadFactory.buildTestObjectUpload();
 
-    oUpload_acDerivedFrom = ObjectUploadFactory.buildTestObjectUpload();
-    oUpload_acDerivedFrom.setFileIdentifier(UUID.randomUUID());
-
-    oUpload = ObjectUploadFactory.buildTestObjectUpload();
-
-    oSubtype = ObjectSubtypeFactory
-      .newObjectSubtype()
-      .build();
+    objectUpload_generatedFrom = ObjectUploadFactory.buildTestObjectUpload();
+    objectUpload_generatedFrom.setFileIdentifier(UUID.randomUUID());
+    objectUpload_generatedFrom.setIsDerivative(true);
     
     // we need to run the setup in another transaction and commit it otherwise it can't be visible
     // to the test web server.
     service.runInNewTransaction(em -> {
-      em.persist(oSubtype);
-      em.persist(oUpload);
-      em.persist(oUpload_derivative);
-      em.persist(oUpload_acDerivedFrom);
+      em.persist(objectUpload);
+      em.persist(objectUpload_meta);
+      em.persist(objectUpload_generatedFrom);
     });
 
     ObjectStoreMetadataDto osMetadata = buildObjectStoreMetadataDto();
-    osMetadata.setFileIdentifier(oUpload_acDerivedFrom.getFileIdentifier());
-    String metadataUuid = sendPost("metadata", JsonAPITestHelper.toJsonAPIMap("metadata", JsonAPITestHelper.toAttributeMap(osMetadata), null, null)).extract().body().jsonPath().get("data.id");
 
-    DerivativeDto derivative = buildDerivativeDto();
-    derivative.setFileIdentifier(oUpload_derivative.getFileIdentifier());
-    derivativeUuid = sendPost("derivative", JsonAPITestHelper.toJsonAPIMap("derivative", JsonAPITestHelper.toAttributeMap(derivative), 
-    Map.of(
-      "acDerivedFrom", getRelationshipType("metadata", metadataUuid)), null)).extract().body().jsonPath().get("data.id");
+    metadataUuid = sendPost("metadata", JsonAPITestHelper.toJsonAPIMap("metadata", JsonAPITestHelper.toAttributeMap(osMetadata), null, null)).extract().body().jsonPath().get("data.id");
+
+    DerivativeDto derivative = buildDerivativeDto(objectUpload_generatedFrom.getFileIdentifier());
+
+    derivativeUuid = sendPost(RESOURCE_UNDER_TEST, JsonAPITestHelper.toJsonAPIMap(
+      RESOURCE_UNDER_TEST, 
+      JsonAPITestHelper.toAttributeMap(derivative),
+      Map.of(
+          "acDerivedFrom", getRelationshipType("metadata", metadataUuid)),
+      null)).extract().body().jsonPath().get("data.id");
 
   }
 
@@ -123,40 +112,57 @@ public class ObjectStoreMetadataOpenApiIT extends BaseRestAssuredTest {
    */
   @AfterEach
   public void tearDown() {
-    deleteEntityByUUID("fileIdentifier", oUpload_derivative.getFileIdentifier(), Derivative.class);
-    deleteEntityByUUID("fileIdentifier", ObjectUploadFactory.TEST_FILE_IDENTIFIER, ObjectStoreMetadata.class);
-    deleteEntityByUUID("fileIdentifier", oUpload_acDerivedFrom.getFileIdentifier(), ObjectStoreMetadata.class);
-    deleteEntityByUUID("uuid", oSubtype.getUuid(), ObjectSubtype.class);
-    deleteEntityByUUID("fileIdentifier", oUpload_derivative.getFileIdentifier(), ObjectUpload.class);
-    deleteEntityByUUID("fileIdentifier", ObjectUploadFactory.TEST_FILE_IDENTIFIER, ObjectUpload.class);
-    deleteEntityByUUID("fileIdentifier", oUpload_acDerivedFrom.getFileIdentifier(), ObjectUpload.class);
+    deleteEntityByUUID("fileIdentifier", objectUpload.getFileIdentifier(), Derivative.class);
+    deleteEntityByUUID("fileIdentifier", objectUpload_generatedFrom.getFileIdentifier(), Derivative.class);
+    deleteEntityByUUID("fileIdentifier", objectUpload_meta.getFileIdentifier(), ObjectStoreMetadata.class);
+    deleteEntityByUUID("fileIdentifier", objectUpload_meta.getFileIdentifier(), ObjectUpload.class);
+    deleteEntityByUUID("fileIdentifier", objectUpload.getFileIdentifier(), ObjectUpload.class);
+    deleteEntityByUUID("fileIdentifier", objectUpload_generatedFrom.getFileIdentifier(), ObjectUpload.class);
   }
 
   @Test
   @SneakyThrows
-  void metadata_SpecValid() {
-    ObjectStoreMetadataDto objectStoreMetadataDto = buildObjectStoreMetadataDto();
+  void derivative_SpecValid() {
+    DerivativeDto derivativeDto = buildDerivativeDto(objectUpload.getFileIdentifier());
     OpenAPI3Assertions.assertRemoteSchema(getOpenAPISpecsURL(), SCHEMA_NAME,
     sendPost(RESOURCE_UNDER_TEST, JsonAPITestHelper.toJsonAPIMap(
       RESOURCE_UNDER_TEST, 
-      JsonAPITestHelper.toAttributeMap(objectStoreMetadataDto),
+      JsonAPITestHelper.toAttributeMap(derivativeDto),
       Map.of(
-          "dcCreator", getRelationshipType("person", UUID.randomUUID().toString()),
-          "acMetadataCreator", getRelationshipType("person", UUID.randomUUID().toString()),
-          "derivatives", getRelationshipListType("derivative", derivativeUuid)),
+          "acDerivedFrom", getRelationshipType("metadata", metadataUuid),
+          "generatedFromDerivative", getRelationshipType("derivative", derivativeUuid)),
       null))
       .extract().asString());
+  }
 
+  private Map<String, Object> getRelationshipType(String type, String uuid) {
+    return Map.of("data", Map.of(
+      "id", uuid,
+      "type", type));
+  }
+
+  private DerivativeDto buildDerivativeDto(UUID fileIdentifier) {
+    DerivativeDto dto = new DerivativeDto();
+    dto.setDcType(DcType.IMAGE);
+    dto.setAcDerivedFrom(null);
+    dto.setGeneratedFromDerivative(null);
+    dto.setDerivativeType(DerivativeType.THUMBNAIL_IMAGE);
+    dto.setFileIdentifier(fileIdentifier);
+    dto.setFileExtension(".jpg");
+    dto.setAcHashFunction("abcFunction");
+    dto.setAcHashValue("abc");
+    dto.setDcFormat(MediaType.IMAGE_JPEG_VALUE);
+    dto.setCreatedBy("user");
+    return dto;
   }
 
   private ObjectStoreMetadataDto buildObjectStoreMetadataDto() {
     OffsetDateTime dateTime4Test = OffsetDateTime.now();
-
     // file related data has to match what is set by TestConfiguration
     ObjectStoreMetadataDto osMetadata = new ObjectStoreMetadataDto();
     osMetadata.setUuid(null);
     osMetadata.setAcHashFunction("SHA-1");
-    osMetadata.setDcType(oSubtype.getDcType());//on creation null should be accepted
+    osMetadata.setDcType(null); //on creation null should be accepted
     osMetadata.setXmpRightsWebStatement(null); // default value from configuration should be used
     osMetadata.setDcRights(null); // default value from configuration should be used
     osMetadata.setXmpRightsOwner(null); // default value from configuration should be used
@@ -167,41 +173,9 @@ public class ObjectStoreMetadataOpenApiIT extends BaseRestAssuredTest {
     osMetadata.setBucket(ObjectUploadFactory.TEST_BUCKET);
     osMetadata.setPubliclyReleasable(true);
     osMetadata.setNotPubliclyReleasableReason("Classified");
-    osMetadata.setDcCreator(null);
-    osMetadata.setAcMetadataCreator(null);
-    osMetadata.setAcCaption("acCaption");
-    osMetadata.setAcSubtype(oSubtype.getAcSubtype());
-    osMetadata.setAcTags(new String[]{"acTags"});
-
+    
     osMetadata.setDerivatives(null);
     return osMetadata;
-  }
-
-  private DerivativeDto buildDerivativeDto() {
-    DerivativeDto dto = new DerivativeDto();
-    dto.setDcType(DcType.IMAGE);
-    dto.setAcDerivedFrom(null);
-    dto.setGeneratedFromDerivative(null);
-    dto.setDerivativeType(DerivativeType.THUMBNAIL_IMAGE);
-    dto.setFileIdentifier(oUpload_derivative.getFileIdentifier());
-    dto.setFileExtension(".jpg");
-    dto.setAcHashFunction("abcFunction");
-    dto.setAcHashValue("abc");
-    dto.setDcFormat(MediaType.IMAGE_JPEG_VALUE);
-    dto.setCreatedBy("user");
-    return dto;
-  }
-
-  private Map<String, Object> getRelationshipListType(String type, String uuid) {
-    return Map.of("data", List.of(Map.of(
-      "id", uuid,
-      "type", type)));
-  }
-
-  private Map<String, Object> getRelationshipType(String type, String uuid) {
-    return Map.of("data", Map.of(
-      "id", uuid,
-      "type", type));
   }
 
   private <T> void deleteEntityByUUID(String uuidPropertyName, UUID uuid, Class<T> entityClass) {
@@ -213,5 +187,5 @@ public class ObjectStoreMetadataOpenApiIT extends BaseRestAssuredTest {
       em.createQuery(query).executeUpdate();
     });
   }
-
+  
 }

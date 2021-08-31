@@ -47,8 +47,8 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
 
     defaultValueSetterService.assignDefaultValues(entity);
 
-    if (entity.getAcSubType() != null) {
-      setAcSubType(entity, entity.getAcSubType());
+    if (entity.getAcSubtype() != null) {
+      setAcSubtype(entity, entity.getAcSubtype());
     }
     handleFileRelatedData(entity);
 
@@ -63,50 +63,50 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
 
   @Override
   protected void preUpdate(ObjectStoreMetadata entity) {
-    ObjectSubtype temp = entity.getAcSubType();
+    ObjectSubtype temp = entity.getAcSubtype();
 
     if (temp != null) {
       /*
        * Need to flush the entities current state here to allow further JPA
        * transactions
        */
-      entity.setAcSubType(null);
+      entity.setAcSubtype(null);
       baseDAO.update(entity);
 
-      setAcSubType(entity, temp);
+      setAcSubtype(entity, temp);
     }
 
     handleFileRelatedData(entity);
   }
 
   /**
-   * Set a given ObjectStoreMetadata with database backed acSubType based of the given acSubType.
+   * Set a given ObjectStoreMetadata with database backed acSubtype based of the given acSubtype.
    *
    * @param metadata  - metadata to set
-   * @param acSubType - acSubType to fetch
+   * @param acSubtype - acSubtype to fetch
    */
-  private void setAcSubType(
+  private void setAcSubtype(
     @NonNull ObjectStoreMetadata metadata,
-    @NonNull ObjectSubtype acSubType
+    @NonNull ObjectSubtype acSubtype
   ) {
-    if (acSubType.getDcType() == null || StringUtils.isBlank(acSubType.getAcSubtype())) {
-      metadata.setAcSubType(null);
-      metadata.setAcSubTypeId(null);
+    if (acSubtype.getDcType() == null || StringUtils.isBlank(acSubtype.getAcSubtype())) {
+      metadata.setAcSubtype(null);
+      metadata.setAcSubtypeId(null);
     } else {
       ObjectSubtype fetchedType = this.findAll(ObjectSubtype.class,
         (criteriaBuilder, objectRoot) -> new Predicate[]{
-          criteriaBuilder.equal(objectRoot.get("acSubtype"), acSubType.getAcSubtype()),
-          criteriaBuilder.equal(objectRoot.get("dcType"), acSubType.getDcType()),
+          criteriaBuilder.equal(objectRoot.get("acSubtype"), acSubtype.getAcSubtype()),
+          criteriaBuilder.equal(objectRoot.get("dcType"), acSubtype.getDcType()),
         }, null, 0, 1)
-        .stream().findFirst().orElseThrow(() -> throwBadRequest(acSubType));
-      metadata.setAcSubType(fetchedType);
-      metadata.setAcSubTypeId(fetchedType.getId());
+        .stream().findFirst().orElseThrow(() -> throwBadRequest(acSubtype));
+      metadata.setAcSubtype(fetchedType);
+      metadata.setAcSubtypeId(fetchedType.getId());
     }
   }
 
-  private BadRequestException throwBadRequest(ObjectSubtype acSubType) {
+  private BadRequestException throwBadRequest(ObjectSubtype acSubtype) {
     return new BadRequestException(
-      acSubType.getAcSubtype() + "/" + acSubType.getDcType() + " is not a valid acSubType/dcType");
+      acSubtype.getAcSubtype() + "/" + acSubtype.getDcType() + " is not a valid acSubtype/dcType");
   }
 
   /**
@@ -122,7 +122,7 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
     derivativeService.generateThumbnail(bucket, sourceFilename, derivedId, evaluatedMediaType, null, false);
   }
 
-  public ObjectSubtype getThumbNailSubType() {
+  public ObjectSubtype getThumbNailSubtype() {
     return this.findAll(ObjectSubtype.class,
       (criteriaBuilder, objectRoot) -> new Predicate[]{
         criteriaBuilder.equal(objectRoot.get("acSubtype"), ThumbnailGenerator.THUMBNAIL_AC_SUB_TYPE),
@@ -140,7 +140,7 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
    * @throws ValidationException If a file identifier was not provided.
    */
   private void handleFileRelatedData(ObjectStoreMetadata objectMetadata)
-    throws ValidationException {
+      throws ValidationException {
     // we need to validate at least that bucket name and fileIdentifier are there
     if (StringUtils.isBlank(objectMetadata.getBucket())
       || StringUtils.isBlank(Objects.toString(objectMetadata.getFileIdentifier(), ""))) {
