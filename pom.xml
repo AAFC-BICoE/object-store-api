@@ -14,7 +14,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.5.2</version>
+		<version>2.5.3</version>
 	</parent>
 
 	<properties>
@@ -37,7 +37,7 @@
 		<asciidoctor-maven-plugin.version>2.1.0</asciidoctor-maven-plugin.version>
 		<asciidoctorj.diagram.version>2.0.2</asciidoctorj.diagram.version>
 		<hibernate-types-52.version>2.10.2</hibernate-types-52.version>
-		<dina-base-api.version>0.61</dina-base-api.version>
+		<dina-base-api.version>0.65</dina-base-api.version>
 
 		<!-- Override to avoid NoClassDefFoundError: org/apache/maven/doxia/siterenderer/DocumentContent -->
 		<maven-site-plugin.version>3.7.1</maven-site-plugin.version>
