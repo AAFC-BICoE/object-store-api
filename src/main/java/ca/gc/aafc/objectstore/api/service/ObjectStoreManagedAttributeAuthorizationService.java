@@ -20,4 +20,9 @@ public class ObjectStoreManagedAttributeAuthorizationService extends PermissionA
   @PreAuthorize("hasDinaRole(@currentUser, 'COLLECTION_MANAGER')")
   public void authorizeDelete(Object entity) {
   }
+
+  @Override
+  public String getName() {
+    return "ObjectStoreManagedAttributeAuthorizationService";
+  }
 }
