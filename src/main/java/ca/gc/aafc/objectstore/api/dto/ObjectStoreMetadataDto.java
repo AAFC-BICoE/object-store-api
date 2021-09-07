@@ -81,10 +81,6 @@ public class ObjectStoreMetadataDto {
   private String acHashFunction;
   private String acHashValue;
 
-  @DiffIgnore
-  @Setter(AccessLevel.NONE)
-  private OffsetDateTime createdDate;
-
   @JsonInclude(Include.NON_EMPTY)
   private String[] acTags;
 
@@ -114,10 +110,6 @@ public class ObjectStoreMetadataDto {
 
   @JsonApiField(patchStrategy = PatchStrategy.SET)
   private Map<String, String> managedAttributeValues = new HashMap<>();
-
-  public OffsetDateTime getCreatedDate() {
-    return createdOn;
-  }
 
   public String getGroup() {
     return bucket;
