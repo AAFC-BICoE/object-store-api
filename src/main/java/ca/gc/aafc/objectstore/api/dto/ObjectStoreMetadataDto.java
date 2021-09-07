@@ -17,7 +17,9 @@ import io.crnk.core.resource.annotations.JsonApiId;
 import io.crnk.core.resource.annotations.JsonApiRelation;
 import io.crnk.core.resource.annotations.JsonApiResource;
 import io.crnk.core.resource.annotations.PatchStrategy;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.javers.core.metamodel.annotation.DiffIgnore;
 import org.javers.core.metamodel.annotation.Id;
@@ -79,9 +81,6 @@ public class ObjectStoreMetadataDto {
   private String acHashFunction;
   private String acHashValue;
 
-  @DiffIgnore
-  private OffsetDateTime createdDate;
-
   @JsonInclude(Include.NON_EMPTY)
   private String[] acTags;
 
@@ -106,10 +105,15 @@ public class ObjectStoreMetadataDto {
   @IgnoreDinaMapping(reason = "Custom Resolved field")
   private String acSubtype;
 
+  @Setter(AccessLevel.NONE)
   private String group;
 
   @JsonApiField(patchStrategy = PatchStrategy.SET)
   private Map<String, String> managedAttributeValues = new HashMap<>();
+
+  public String getGroup() {
+    return bucket;
+  }
 
   public void applyObjectSubtype(ObjectSubtype objectSubtype) {
     if (objectSubtype != null &&

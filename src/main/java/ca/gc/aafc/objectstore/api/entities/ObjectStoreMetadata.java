@@ -212,17 +212,6 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
     this.acTags = acTags;
   }
 
-  @Transient
-  @Deprecated
-  public OffsetDateTime getCreatedDate() {
-    return createdOn;
-  }
-
-  @Deprecated
-  public void setCreatedDate(OffsetDateTime createdDate) {
-    this.createdOn = createdDate;
-  }
-
   @NotNull
   @Column(name = "xmp_rights_web_statement")
   @Size(max = 250)
