@@ -6,6 +6,7 @@ import java.net.URL;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -14,6 +15,7 @@ import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
 
+import ca.gc.aafc.dina.testsupport.specs.ValidationRestrictionOptions;
 import org.apache.http.client.utils.URIBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -145,8 +147,8 @@ public class ObjectStoreMetadataOpenApiIT extends BaseRestAssuredTest {
           "acMetadataCreator", getRelationshipType("person", UUID.randomUUID().toString()),
           "derivatives", getRelationshipListType("derivative", derivativeUuid)),
       null))
-      .extract().asString());
-
+      .extract().asString(),
+      ValidationRestrictionOptions.builder().allowableMissingFields(Set.of("createdDate")).build());
   }
 
   private ObjectStoreMetadataDto buildObjectStoreMetadataDto() {
