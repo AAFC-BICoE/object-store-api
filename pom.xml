@@ -22,7 +22,7 @@
 
 		<javax.interceptor-api>1.2.2</javax.interceptor-api>
 		<minio.version>8.2.1</minio.version>
-		<tika.version>1.26</tika.version>
+		<tika.version>2.1.0</tika.version>
 		<thumbnailator.version>0.4.14</thumbnailator.version>
 		<pdfbox.version>2.0.24</pdfbox.version>
 		<imageio.version>3.6.4</imageio.version>
@@ -84,7 +84,12 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.tika</groupId>
-			<artifactId>tika-parsers</artifactId>
+			<artifactId>tika-core</artifactId>
+			<version>${tika.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.tika</groupId>
+			<artifactId>tika-parsers-standard-package</artifactId>
 			<version>${tika.version}</version>
 		</dependency>
 		
