@@ -62,26 +62,6 @@ public class ObjectStoreResourceRepository
     return (S) this.findOne(dto.getUuid(), new QuerySpec(ObjectStoreMetadataDto.class));
   }
 
-  @Override
-  public ObjectStoreMetadataDto findOne(Serializable id, QuerySpec querySpec) {
-    // Omit "managedAttributeMap" from the JPA include spec, because it is a generated object, not on the JPA model.
-    QuerySpec jpaFriendlyQuerySpec = querySpec.clone();
-    jpaFriendlyQuerySpec.getIncludedRelations()
-      .removeIf(include -> include.getPath().toString().equals("managedAttributeMap"));
-
-    return super.findOne(id, jpaFriendlyQuerySpec);
-  }
-
-  @Override
-  public ResourceList<ObjectStoreMetadataDto> findAll(QuerySpec querySpec) {
-    // Omit "managedAttributeMap" from the JPA include spec, because it is a generated object, not on the JPA model.
-    QuerySpec jpaFriendlyQuerySpec = querySpec.clone();
-    jpaFriendlyQuerySpec.getIncludedRelations()
-      .removeIf(include -> include.getPath().toString().equals("managedAttributeMap"));
-
-    return super.findAll(jpaFriendlyQuerySpec);
-  }
-
   @SuppressWarnings("unchecked")
   @Override
   public ObjectStoreMetadataDto create(ObjectStoreMetadataDto resource) {
