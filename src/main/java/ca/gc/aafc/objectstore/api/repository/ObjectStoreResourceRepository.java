@@ -10,14 +10,12 @@ import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
 import io.crnk.core.queryspec.QuerySpec;
-import io.crnk.core.resource.list.ResourceList;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
-import java.io.Serializable;
 import java.util.Optional;
 
 @Log4j2
