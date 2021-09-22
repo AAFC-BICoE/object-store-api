@@ -17,6 +17,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -110,5 +111,10 @@ public class Derivative extends AbstractObjectStoreMetadata {
 
   public void setGeneratedFromDerivative(Derivative generatedFromDerivative) {
     this.generatedFromDerivative = generatedFromDerivative;
+  }
+
+  @Transient
+  public String getGroup() {
+    return bucket;
   }
 }
