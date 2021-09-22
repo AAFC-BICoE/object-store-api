@@ -11,10 +11,12 @@ import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import io.crnk.core.queryspec.QuerySpec;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.AccessDeniedException;
 
 import javax.inject.Inject;
 import java.util.UUID;
@@ -49,9 +51,16 @@ public class DerivativeRepoAuthorizationIT extends BaseIntegrationTest {
 
   @Test
   @WithMockKeycloakUser(groupRole = {"CNC:STAFF"})
-  void create() {
-    DerivativeDto resource = derivativeRepository.create(newDerivative(uploadTest_1.getFileIdentifier()));
-    derivativeRepository.findOne(resource.getUuid(), new QuerySpec(DerivativeDto.class));
+  void create_WithValidGroup_DerivativeCreated() {
+    Assertions.assertNotNull(derivativeRepository.findOne(derivativeRepository.create(newDerivative(
+      uploadTest_1.getFileIdentifier())).getUuid(), new QuerySpec(DerivativeDto.class)));
+  }
+
+  @Test
+  @WithMockKeycloakUser(groupRole = {"INVALID_GROUP:STAFF"})
+  void create_WithInvalidGroup_ThrowsAccessDenied() {
+    Assertions.assertThrows(AccessDeniedException.class, () ->
+      derivativeRepository.create(newDerivative(uploadTest_1.getFileIdentifier())));
   }
 
   private DerivativeDto newDerivative(UUID fileIdentifier) {
@@ -60,6 +69,7 @@ public class DerivativeRepoAuthorizationIT extends BaseIntegrationTest {
     ObjectStoreMetadataDto from = new ObjectStoreMetadataDto();
     from.setUuid(acDerivedFrom.getUuid());
     dto.setAcDerivedFrom(from);
+    dto.setBucket(GROUP_1);
     dto.setDerivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE);
     dto.setFileIdentifier(fileIdentifier);
     return dto;
