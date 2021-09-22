@@ -72,7 +72,7 @@ public class MediaTypeDetectionStrategy {
     if (StringUtils.isBlank(filename) || StringUtils.isBlank(FilenameUtils.getExtension(filename))) {
       return null;
     }
-    return "." + FilenameUtils.getExtension(filename);
+    return "." + FilenameUtils.getExtension(filename).toLowerCase();
   }
   
   /**
