@@ -26,14 +26,14 @@ public class ObjectSubtypeResourceRepository
 
   public ObjectSubtypeResourceRepository(
     @NonNull DinaService<ObjectSubtype> dinaService,
-    DinaAuthorizationService groupAuthorizationService,
+    DinaAuthorizationService dinaAdminOnlyAuthorizationService,
     MessageSource messageSource,
     Optional<DinaAuthenticatedUser> authenticatedUser,
     @NonNull BuildProperties props
   ) {
     super(
       dinaService,
-      groupAuthorizationService,
+      dinaAdminOnlyAuthorizationService,
       Optional.empty(),
       new DinaMapper<>(ObjectSubtypeDto.class),
       ObjectSubtypeDto.class,

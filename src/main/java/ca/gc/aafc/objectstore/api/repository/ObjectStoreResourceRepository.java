@@ -10,14 +10,12 @@ import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
 import io.crnk.core.queryspec.QuerySpec;
-import io.crnk.core.resource.list.ResourceList;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
-import java.io.Serializable;
 import java.util.Optional;
 
 @Log4j2
@@ -60,26 +58,6 @@ public class ObjectStoreResourceRepository
   public <S extends ObjectStoreMetadataDto> S save(S resource) {
     S dto = super.save(resource);
     return (S) this.findOne(dto.getUuid(), new QuerySpec(ObjectStoreMetadataDto.class));
-  }
-
-  @Override
-  public ObjectStoreMetadataDto findOne(Serializable id, QuerySpec querySpec) {
-    // Omit "managedAttributeMap" from the JPA include spec, because it is a generated object, not on the JPA model.
-    QuerySpec jpaFriendlyQuerySpec = querySpec.clone();
-    jpaFriendlyQuerySpec.getIncludedRelations()
-      .removeIf(include -> include.getPath().toString().equals("managedAttributeMap"));
-
-    return super.findOne(id, jpaFriendlyQuerySpec);
-  }
-
-  @Override
-  public ResourceList<ObjectStoreMetadataDto> findAll(QuerySpec querySpec) {
-    // Omit "managedAttributeMap" from the JPA include spec, because it is a generated object, not on the JPA model.
-    QuerySpec jpaFriendlyQuerySpec = querySpec.clone();
-    jpaFriendlyQuerySpec.getIncludedRelations()
-      .removeIf(include -> include.getPath().toString().equals("managedAttributeMap"));
-
-    return super.findAll(jpaFriendlyQuerySpec);
   }
 
   @SuppressWarnings("unchecked")

@@ -10,6 +10,7 @@ import org.apache.tika.detect.DefaultDetector;
 import org.apache.tika.detect.Detector;
 import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.Metadata;
+import org.apache.tika.metadata.TikaCoreProperties;
 import org.apache.tika.mime.MediaType;
 import org.apache.tika.mime.MimeType;
 import org.apache.tika.mime.MimeTypeException;
@@ -71,7 +72,7 @@ public class MediaTypeDetectionStrategy {
     if (StringUtils.isBlank(filename) || StringUtils.isBlank(FilenameUtils.getExtension(filename))) {
       return null;
     }
-    return "." + FilenameUtils.getExtension(filename);
+    return "." + FilenameUtils.getExtension(filename).toLowerCase();
   }
   
   /**
@@ -91,7 +92,7 @@ public class MediaTypeDetectionStrategy {
 
     Metadata metadata = new Metadata();
     if (StringUtils.isNotBlank(originalFilename)) {
-      metadata.set(Metadata.RESOURCE_NAME_KEY, originalFilename);
+      metadata.set(TikaCoreProperties.RESOURCE_NAME_KEY, originalFilename);
     }
 
     MediaType detectedMediaType = TIKA_DETECTOR.detect(TikaInputStream.get(is), metadata);

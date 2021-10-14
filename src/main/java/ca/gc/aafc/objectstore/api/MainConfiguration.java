@@ -1,7 +1,9 @@
 package ca.gc.aafc.objectstore.api;
 
 import ca.gc.aafc.dina.DinaBaseApiAutoConfiguration;
+import ca.gc.aafc.dina.service.JaversDataService;
 import io.minio.MinioClient;
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -20,6 +22,7 @@ import java.util.concurrent.Executor;
 @ComponentScan(basePackageClasses = DinaBaseApiAutoConfiguration.class)
 @ImportAutoConfiguration(DinaBaseApiAutoConfiguration.class)
 @EnableAsync
+@MapperScan(basePackageClasses = JaversDataService.class)
 public class MainConfiguration implements AsyncConfigurer {
 
   @Bean
