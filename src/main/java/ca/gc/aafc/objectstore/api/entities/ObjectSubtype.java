@@ -48,7 +48,6 @@ public class ObjectSubtype implements DinaEntity {
   private UUID uuid;
   private String createdBy;
   private OffsetDateTime createdOn;
-  private String group;
 
   @NaturalId
   @NotNull
@@ -113,16 +112,6 @@ public class ObjectSubtype implements DinaEntity {
   @Generated(value = GenerationTime.INSERT)
   public OffsetDateTime getCreatedOn() {
     return this.createdOn;
-  }
-
-  @NotBlank
-  @Column(name = "_group")
-  public String getGroup() {
-    return this.group;
-  }
-
-  public void setGroup(String group) {
-    this.group = group;
   }
 
 }
