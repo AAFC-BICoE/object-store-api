@@ -71,7 +71,6 @@ public class ObjectSubtypeOpenApiIT extends BaseRestAssuredTest {
 
   private ObjectSubtypeDto buildObjectSubtypeDto() {
     ObjectSubtypeDto objectSubtype = new ObjectSubtypeDto();
-    objectSubtype.setGroup("dina");
     objectSubtype.setUuid(null);
     objectSubtype.setDcType(DcType.SOUND);
     objectSubtype.setAcSubtype("MusicalNotation");

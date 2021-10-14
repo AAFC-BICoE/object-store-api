@@ -65,7 +65,6 @@ public class DcTypeJsonSerializationIT extends BaseHttpIntegrationTest {
     ImmutableMap.Builder<String, Object> objAttribMap = new ImmutableMap.Builder<>();
     objAttribMap.put("dcType", dcType);
     objAttribMap.put("acSubtype", AC_SUB_TYPE);
-    objAttribMap.put("group", "dina");
 
     return JsonAPITestHelper.toJsonAPIMap(RESOURCE_UNDER_TEST, objAttribMap.build(), null, null);
   }
