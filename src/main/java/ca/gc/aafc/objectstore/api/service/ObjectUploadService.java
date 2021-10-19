@@ -12,7 +12,6 @@ import org.springframework.validation.SmartValidator;
 public class ObjectUploadService extends DefaultDinaService<ObjectUpload> {
 
   private final ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService;
-  private final BaseDAO baseDAO;
 
   public ObjectUploadService(
     @NonNull BaseDAO baseDAO,
@@ -20,7 +19,6 @@ public class ObjectUploadService extends DefaultDinaService<ObjectUpload> {
     @NonNull SmartValidator smartValidator
   ) {
     super(baseDAO, smartValidator);
-    this.baseDAO = baseDAO;
     this.defaultValueSetterService = defaultValueSetterService;
   }
 
@@ -34,9 +32,8 @@ public class ObjectUploadService extends DefaultDinaService<ObjectUpload> {
     entity.setDcType(defaultValueSetterService.dcTypeFromDcFormat(entity.getDetectedMediaType()));
   }
 
-  //TODO: replace by defaultDinaService existsByProperty
   public boolean existsByProperty(String property, Object value) {
-    return baseDAO.existsByProperty(ObjectUpload.class, property, value);
+    return existsByProperty(ObjectUpload.class, property, value);
   }
 
 }

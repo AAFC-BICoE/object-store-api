@@ -11,4 +11,6 @@
     <include file="db/changelog/migrations/6-Add_key_to_managed_attribute.xml"/>
     <include file="db/changelog/migrations/7-re_implement_managed_attributes.xml"/>
     <include file="db/changelog/migrations/8-Add_group_to_ObjectSubtype.xml"/>
+    <include file="db/changelog/migrations/9-Remove_group_from_ObjectSubType.xml"/>
+
 </databaseChangeLog>
