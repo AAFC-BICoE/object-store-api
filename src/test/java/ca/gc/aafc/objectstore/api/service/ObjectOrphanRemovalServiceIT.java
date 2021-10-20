@@ -28,6 +28,7 @@ import java.util.List;
 class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
 
   public static final String BUCKET = "bucket";
+  public static final String INTERVAL_2_WEEKS = "UPDATE object_upload SET created_on = created_on - interval '2 weeks'";
 
   @Inject
   private ObjectOrphanRemovalService serviceUnderTest;
@@ -182,8 +183,7 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
       ObjectUpload upload = ObjectUploadFactory.newObjectUpload().build();
       upload.setBucket(BUCKET);
       em.persist(upload);
-      em.createNativeQuery("UPDATE object_upload SET created_on = created_on - interval '3 weeks'")
-        .executeUpdate(); // Mock record created in the past and orphan
+      em.createNativeQuery(INTERVAL_2_WEEKS).executeUpdate(); // Mock record created in the past and orphan
     });
   }
 
@@ -193,8 +193,7 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
       upload.setIsDerivative(true);
       upload.setBucket(BUCKET);
       em.persist(upload);
-      em.createNativeQuery("UPDATE object_upload SET created_on = created_on - interval '3 weeks'")
-        .executeUpdate(); // Mock record created in the past
+      em.createNativeQuery(INTERVAL_2_WEEKS).executeUpdate(); // Mock record created in the past
     });
   }
 
