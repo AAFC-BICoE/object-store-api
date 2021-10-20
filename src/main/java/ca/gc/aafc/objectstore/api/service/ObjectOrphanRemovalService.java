@@ -60,7 +60,7 @@ public class ObjectOrphanRemovalService {
 
   @SneakyThrows
   private void deleteMinioFile(ObjectUpload objectUpload) {
-    String fileName = objectUpload.getFileIdentifier() + objectUpload.getEvaluatedFileExtension();
+    String fileName = objectUpload.getCompleteFileName();
     fileService.removeFile(
       objectUpload.getBucket(),
       fileName,
