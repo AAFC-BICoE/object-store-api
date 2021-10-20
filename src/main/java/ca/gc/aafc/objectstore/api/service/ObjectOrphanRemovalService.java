@@ -34,11 +34,19 @@ public class ObjectOrphanRemovalService {
     });
   }
 
+  /**
+   * Returns all Object Uploads that have no matching file identifiers associated with Derivatives or
+   * ObjectStoreMetadata. ObjectUpload.fileIdentifier NOT IN Derivatives.fileIdentifier AND
+   * ObjectStoreMetadata.fileIdentifier.
+   *
+   * @return all Object Uploads that have no matching file identifiers associated with Derivatives or
+   * ObjectStoreMetadata.
+   */
   private List<ObjectUpload> findOrphans() {
     return objectUploadService.findAll(
       ObjectUpload.class,
       (criteriaBuilder, objectUploadRoot) -> {
-        Subquery<UUID> metaSubQuery = criteriaBuilder.createQuery(ObjectUpload.class).subquery(UUID.class);
+        Subquery<UUID> metaSubQuery = criteriaBuilder.createQuery(ObjectStoreMetadata.class).subquery(UUID.class);
         Subquery<UUID> derivSubQuery = criteriaBuilder.createQuery(Derivative.class).subquery(UUID.class);
         return new Predicate[]{
           criteriaBuilder.in(objectUploadRoot.get(FILE_IDENTIFIER_KEY)).value(
