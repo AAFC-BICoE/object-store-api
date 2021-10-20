@@ -238,6 +238,7 @@ public class ObjectUpload implements DinaEntity {
     isDerivative = derivative;
   }
 
+  @Transient
   public String getCompleteFileName() {
     return this.getFileIdentifier() + this.getEvaluatedFileExtension();
   }
