@@ -27,7 +27,7 @@ public class ObjectOrphanRemovalService {
   public void removeObjectOrphans() {
     List<ObjectUpload> orphans = findOrphans();
     orphans.forEach(objectUpload -> {
-      if (isAgeOlderThenTwoWeeks(objectUpload)) {
+      if (isAgeOlderThenOneWeek(objectUpload)) {
         deleteUpload(objectUpload);
         deleteMinioFile(objectUpload);
       }
@@ -56,8 +56,8 @@ public class ObjectOrphanRemovalService {
       }, null, 0, Integer.MAX_VALUE);
   }
 
-  private boolean isAgeOlderThenTwoWeeks(ObjectUpload upload) {
-    return upload.getCreatedOn().toLocalDate().isBefore(LocalDateTime.now().minusWeeks(2).toLocalDate());
+  private boolean isAgeOlderThenOneWeek(ObjectUpload upload) {
+    return upload.getCreatedOn().toLocalDate().isBefore(LocalDateTime.now().minusWeeks(1).toLocalDate());
   }
 
   private void deleteUpload(ObjectUpload objectUpload) {
