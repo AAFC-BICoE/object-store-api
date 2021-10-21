@@ -56,7 +56,8 @@ public class ObjectOrphanRemovalService {
     return objectUploadService.findAll(
       ObjectUpload.class,
       (criteriaBuilder, objectUploadRoot) -> {
-        Subquery<UUID> metaSubQuery = criteriaBuilder.createQuery(ObjectStoreMetadata.class).subquery(UUID.class);
+        Subquery<UUID> metaSubQuery = criteriaBuilder.createQuery(ObjectStoreMetadata.class)
+          .subquery(UUID.class);
         Subquery<UUID> derivSubQuery = criteriaBuilder.createQuery(Derivative.class).subquery(UUID.class);
         return new Predicate[]{
           criteriaBuilder.in(objectUploadRoot.get(FILE_IDENTIFIER_KEY)).value(
@@ -68,12 +69,17 @@ public class ObjectOrphanRemovalService {
 
   private boolean isExpired(ObjectUpload upload) {
     LocalDateTime uploadDate = upload.getCreatedOn().toLocalDateTime();
-    LocalDateTime expiration = uploadDate
-      .plusSeconds(this.expiration.getSeconds())
-      .plusMinutes(this.expiration.getMinutes())
-      .plusHours(this.expiration.getHours())
-      .plusDays(this.expiration.getDays())
-      .plusWeeks(this.expiration.getWeeks());
+    LocalDateTime expiration;
+    if (this.expiration == null) {
+      expiration = uploadDate.plusWeeks(1);
+    } else {
+      expiration = uploadDate
+        .plusSeconds(this.expiration.getSeconds())
+        .plusMinutes(this.expiration.getMinutes())
+        .plusHours(this.expiration.getHours())
+        .plusDays(this.expiration.getDays())
+        .plusWeeks(this.expiration.getWeeks());
+    }
     return LocalDateTime.now().isAfter(expiration);
   }
 
