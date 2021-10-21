@@ -1,10 +1,10 @@
 package ca.gc.aafc.objectstore.api.service;
 
+import ca.gc.aafc.objectstore.api.OrphanRemovalConfiguration;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.minio.MinioFileService;
-import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -16,18 +16,28 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
 @Log4j2
 public class ObjectOrphanRemovalService {
 
   private static final String FILE_IDENTIFIER_KEY = "fileIdentifier";
   private final ObjectUploadService objectUploadService;
   private final MinioFileService fileService;
+  private final OrphanRemovalConfiguration.OrphanRemovalExpirationSetting expiration;
+
+  public ObjectOrphanRemovalService(
+    ObjectUploadService objectUploadService,
+    MinioFileService fileService,
+    OrphanRemovalConfiguration orphanRemovalConfiguration
+  ) {
+    this.objectUploadService = objectUploadService;
+    this.fileService = fileService;
+    this.expiration = orphanRemovalConfiguration.getExpiration();
+  }
 
   public void removeObjectOrphans() {
     List<ObjectUpload> orphans = findOrphans();
     orphans.forEach(objectUpload -> {
-      if (isAgeOlderThenOneWeek(objectUpload)) {
+      if (isExpired(objectUpload)) {
         deleteUpload(objectUpload);
         deleteMinioFile(objectUpload);
       }
@@ -56,8 +66,15 @@ public class ObjectOrphanRemovalService {
       }, null, 0, Integer.MAX_VALUE);
   }
 
-  private boolean isAgeOlderThenOneWeek(ObjectUpload upload) {
-    return upload.getCreatedOn().toLocalDate().isBefore(LocalDateTime.now().minusWeeks(1).toLocalDate());
+  private boolean isExpired(ObjectUpload upload) {
+    LocalDateTime uploadDate = upload.getCreatedOn().toLocalDateTime();
+    LocalDateTime expiration = uploadDate
+      .plusSeconds(this.expiration.getSeconds())
+      .plusMinutes(this.expiration.getMinutes())
+      .plusHours(this.expiration.getHours())
+      .plusDays(this.expiration.getDays())
+      .plusWeeks(this.expiration.getWeeks());
+    return LocalDateTime.now().isAfter(expiration);
   }
 
   private void deleteUpload(ObjectUpload objectUpload) {

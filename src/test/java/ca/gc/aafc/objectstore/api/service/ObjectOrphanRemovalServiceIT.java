@@ -1,6 +1,7 @@
 package ca.gc.aafc.objectstore.api.service;
 
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
+import ca.gc.aafc.objectstore.api.ObjectStoreApiLauncher;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -25,6 +27,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @ContextConfiguration(initializers = MinioTestContainerInitializer.class)
+@SpringBootTest(classes = ObjectStoreApiLauncher.class, properties = "orphan-removal.expiration.weeks=1")
 class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
 
   public static final String BUCKET = "bucket";
