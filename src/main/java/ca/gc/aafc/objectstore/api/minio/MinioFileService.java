@@ -184,11 +184,11 @@ public class MinioFileService implements FileInformationService {
     }
   }
 
-  public void removeFile(String bucket, String fileName) throws IOException {
+  public void removeFile(String bucket, String fileName, boolean isDerivative) throws IOException {
     try {
       minioClient.removeObject(RemoveObjectArgs.builder()
         .bucket(bucket)
-        .object(getFileLocation(fileName, false))
+        .object(getFileLocation(fileName, isDerivative))
         .build());
     } catch (ErrorResponseException | InsufficientDataException
       | InternalException | InvalidKeyException | InvalidResponseException |
