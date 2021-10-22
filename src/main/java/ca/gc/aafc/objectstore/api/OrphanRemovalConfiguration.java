@@ -5,7 +5,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.ConstructorBinding;
+import org.springframework.boot.convert.DurationUnit;
 import org.springframework.context.annotation.Configuration;
+
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 
 @Configuration
 @ConfigurationProperties(prefix = "orphan-removal")
@@ -19,11 +23,8 @@ public class OrphanRemovalConfiguration {
   @RequiredArgsConstructor
   @Getter
   public static class OrphanRemovalExpirationSetting {
-    private final int seconds;
-    private final int minutes;
-    private final int hours;
-    private final int days;
-    private final int weeks;
+    @DurationUnit(ChronoUnit.SECONDS)
+    private final Duration duration;
   }
 
 }

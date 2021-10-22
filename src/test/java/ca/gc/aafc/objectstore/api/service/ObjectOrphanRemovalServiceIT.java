@@ -27,7 +27,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @ContextConfiguration(initializers = MinioTestContainerInitializer.class)
-@SpringBootTest(classes = ObjectStoreApiLauncher.class, properties = "orphan-removal.expiration.weeks=1")
+@SpringBootTest(classes = ObjectStoreApiLauncher.class, properties = "orphan-removal.expiration.duration=12d")
 class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
 
   public static final String BUCKET = "bucket";
