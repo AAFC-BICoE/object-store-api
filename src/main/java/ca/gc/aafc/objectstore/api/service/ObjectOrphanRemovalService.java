@@ -7,10 +7,12 @@ import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.minio.MinioFileService;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Subquery;
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -34,6 +36,9 @@ public class ObjectOrphanRemovalService {
     this.expiration = orphanRemovalConfiguration.getExpiration();
   }
 
+  // Default cron expression '-' as default value will disable execution
+  @Scheduled(cron = "${orphan-removal.cron.expression:-}")
+  @Transactional
   public void removeObjectOrphans() {
     List<ObjectUpload> orphans = findOrphans();
     orphans.forEach(objectUpload -> {
@@ -70,10 +75,10 @@ public class ObjectOrphanRemovalService {
   private boolean isExpired(ObjectUpload upload) {
     LocalDateTime uploadDate = upload.getCreatedOn().toLocalDateTime();
     LocalDateTime expiration;
-    if (this.expiration == null || this.expiration.getDuration() == null) {
+    if (this.expiration == null || this.expiration.getObjectMaxAge() == null) {
       expiration = uploadDate.plusWeeks(1);
     } else {
-      expiration = uploadDate.plusSeconds(this.expiration.getDuration().getSeconds());
+      expiration = uploadDate.plusSeconds(this.expiration.getObjectMaxAge().getSeconds());
     }
     return LocalDateTime.now().isAfter(expiration);
   }

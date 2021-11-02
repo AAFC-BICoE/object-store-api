@@ -24,7 +24,7 @@ public class OrphanRemovalConfiguration {
   @Getter
   public static class OrphanRemovalExpirationSetting {
     @DurationUnit(ChronoUnit.SECONDS)
-    private final Duration duration;
+    private final Duration objectMaxAge;
   }
 
 }
