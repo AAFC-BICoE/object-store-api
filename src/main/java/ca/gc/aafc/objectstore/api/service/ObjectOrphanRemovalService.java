@@ -70,10 +70,10 @@ public class ObjectOrphanRemovalService {
   private boolean isExpired(ObjectUpload upload) {
     LocalDateTime uploadDate = upload.getCreatedOn().toLocalDateTime();
     LocalDateTime expiration;
-    if (this.expiration == null || this.expiration.getDuration() == null) {
+    if (this.expiration == null || this.expiration.getObjectMaxAge() == null) {
       expiration = uploadDate.plusWeeks(1);
     } else {
-      expiration = uploadDate.plusSeconds(this.expiration.getDuration().getSeconds());
+      expiration = uploadDate.plusSeconds(this.expiration.getObjectMaxAge().getSeconds());
     }
     return LocalDateTime.now().isAfter(expiration);
   }
