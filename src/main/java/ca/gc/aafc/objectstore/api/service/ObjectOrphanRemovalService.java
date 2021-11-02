@@ -36,7 +36,8 @@ public class ObjectOrphanRemovalService {
     this.expiration = orphanRemovalConfiguration.getExpiration();
   }
 
-  @Scheduled(cron = "${orphan-removal.cron.expression}")
+  // Default cron expression '-' as default value will disable execution
+  @Scheduled(cron = "${orphan-removal.cron.expression:-}")
   @Transactional
   public void removeObjectOrphans() {
     List<ObjectUpload> orphans = findOrphans();
