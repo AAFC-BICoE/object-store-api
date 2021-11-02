@@ -27,7 +27,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @ContextConfiguration(initializers = MinioTestContainerInitializer.class)
-@SpringBootTest(classes = ObjectStoreApiLauncher.class, properties = "orphan-removal.expiration.duration=12d")
+@SpringBootTest(classes = ObjectStoreApiLauncher.class, properties = {
+  "orphan-removal.expiration.object_max_age=12d",
+  "orphan-removal.cron.expression=*/1 * * * * *"
+})
 class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
 
   public static final String BUCKET = "bucket";
@@ -174,6 +177,22 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
     Assertions.assertNull(
       objectUploadService.findOne(derivativeUpload.getFileIdentifier(), ObjectUpload.class),
       "There should be no upload record");
+  }
+
+  @SneakyThrows
+  @Test
+  void removeOrphans_ScheduledAction() {
+    persistOrphanRecord();
+    ObjectUpload upload = findUploads().get(0);
+    String fileName = storeFileForUpload(upload);
+    Assertions.assertFalse(findUploads().isEmpty());
+
+    Thread.sleep(2000);
+
+    Assertions.assertTrue(
+      fileService.getFile(fileName, BUCKET, false).isEmpty(),
+      "There should be no returned files");
+    Assertions.assertTrue(findUploads().isEmpty(), "There should be no upload record");
   }
 
   private List<ObjectUpload> findUploads() {
