@@ -1,0 +1,10 @@
+logger:
+  level: "Info"
+  path: "/tmp/log-test"
+  file: "converter.log"
+
+app:
+  release: "0.01"
+  name: "converter"
+  # Bio cluster or PC
+  env: "cluster"
