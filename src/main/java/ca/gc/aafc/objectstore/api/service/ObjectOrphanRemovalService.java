@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Subquery;
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -36,6 +37,7 @@ public class ObjectOrphanRemovalService {
   }
 
   @Scheduled(cron = "${orphan-removal.cron.expression}")
+  @Transactional
   public void removeObjectOrphans() {
     List<ObjectUpload> orphans = findOrphans();
     orphans.forEach(objectUpload -> {
