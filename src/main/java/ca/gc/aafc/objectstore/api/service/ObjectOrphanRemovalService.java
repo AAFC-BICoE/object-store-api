@@ -7,6 +7,7 @@ import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.minio.MinioFileService;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.Predicate;
@@ -34,6 +35,7 @@ public class ObjectOrphanRemovalService {
     this.expiration = orphanRemovalConfiguration.getExpiration();
   }
 
+  @Scheduled(cron = "${orphan-removal.cron.expression}")
   public void removeObjectOrphans() {
     List<ObjectUpload> orphans = findOrphans();
     orphans.forEach(objectUpload -> {
