@@ -17,7 +17,7 @@ services:
     command: server /data
 
   object-store-api:
-    image: aafcbicoe/object-store-api:0.29
+    image: aafcbicoe/object-store-api:0.30
     # build: ${BASE_PATH_TO_OBJECT_STORE:-.}
     ports:
       - "8081:8080"
