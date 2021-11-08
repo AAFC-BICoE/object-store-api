@@ -8,6 +8,8 @@ import lombok.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.SmartValidator;
 
+import java.time.format.DateTimeFormatter;
+
 @Service
 public class ObjectUploadService extends DefaultDinaService<ObjectUpload> {
 
@@ -26,7 +28,7 @@ public class ObjectUploadService extends DefaultDinaService<ObjectUpload> {
   protected void preCreate(ObjectUpload entity) {
     if (entity.getExif() != null && !entity.getExif().isEmpty()) {
       ExifParser.parseDateTaken(entity.getExif())
-        .ifPresent(dtd -> entity.setDateTimeDigitized(dtd.toString()));
+        .ifPresent(dtd -> entity.setDateTimeDigitized(DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(dtd)));
     }
 
     entity.setDcType(defaultValueSetterService.dcTypeFromDcFormat(entity.getDetectedMediaType()));

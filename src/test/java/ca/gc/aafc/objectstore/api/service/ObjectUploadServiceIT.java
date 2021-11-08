@@ -20,12 +20,12 @@ public class ObjectUploadServiceIT extends BaseIntegrationTest {
   public void objectUploadService_OnCreate_ParseDateTimeDigitizedFromExif() {
 
     ObjectUpload testObjectUpload = ObjectUploadFactory.newObjectUpload()
-        .exif(Map.of(ExifParser.DATE_TAKEN_POSSIBLE_TAGS.get(0), "2020:11:13 10:03:17"))
+        .exif(Map.of(ExifParser.DATE_TAKEN_POSSIBLE_TAGS.get(0), "2020:11:13 10:03:00"))
         .build();
     ObjectUpload testObjectUploadAfterCreate = objectUploadService.create(testObjectUpload);
 
     ObjectUpload reloadedObjectUpload = objectUploadService.findOne(testObjectUploadAfterCreate.getFileIdentifier(), ObjectUpload.class);
-    assertEquals("2020-11-13T10:03:17", reloadedObjectUpload.getDateTimeDigitized());
+    assertEquals("2020-11-13T10:03:00", reloadedObjectUpload.getDateTimeDigitized());
   }
 
 }
