@@ -92,20 +92,18 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
     objectUploadService.create(newObjectUpload);
     return newObjectUpload;
   }
-  
+
   @Test
   public void findMeta_whenNoFieldsAreSelected_MetadataReturnedWithAllFields() {
     ObjectStoreMetadataDto objectStoreMetadataDto = getDtoUnderTest();
     assertNotNull(objectStoreMetadataDto);
     assertEquals(testObjectStoreMetadata.getUuid(), objectStoreMetadataDto.getUuid());
     assertEquals(testObjectStoreMetadata.getDcType(), objectStoreMetadataDto.getDcType());
-    assertEquals(
-      testObjectStoreMetadata.getAcDigitizationDate(),
-      objectStoreMetadataDto.getAcDigitizationDate());
-      assertEquals(
-        testObjectStoreMetadata.getManagedAttributeValues(),
+    assertEquals(testObjectStoreMetadata.getAcDigitizationDate(),
+        objectStoreMetadataDto.getAcDigitizationDate());
+    assertEquals(testObjectStoreMetadata.getManagedAttributeValues(),
         objectStoreMetadataDto.getManagedAttributeValues());
-      }
+  }
       
       @Test
       public void create_ValidResource_ResourcePersisted() {
@@ -189,15 +187,16 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
           //Can break Relationships
           assertRelationshipsRemoved();
         }
-        
-        private void assertRelationshipsRemoved() {
-          ObjectStoreMetadataDto updateMetadataDto = getDtoUnderTest();
-          assertNotNull(updateMetadataDto.getAcSubtype());
-          
+
+  @Test
+  private void assertRelationshipsRemoved() {
+    ObjectStoreMetadataDto updateMetadataDto = getDtoUnderTest();
+    assertNotNull(updateMetadataDto.getAcSubtype());
+
     updateMetadataDto.setAcSubtype(null);
-    
+
     objectStoreResourceRepository.save(updateMetadataDto);
-    
+
     ObjectStoreMetadata result = objectStoreMetaDataService.findOne(updateMetadataDto.getUuid());
     Assertions.assertNull(result.getAcSubtype());
   }

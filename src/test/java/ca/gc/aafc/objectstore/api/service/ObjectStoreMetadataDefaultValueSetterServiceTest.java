@@ -72,6 +72,14 @@ public class ObjectStoreMetadataDefaultValueSetterServiceTest {
   }
 
   @Test
+  public void assignDefaultValues_onCr2DcFormat_DcTypeIsImage() {
+    ObjectStoreMetadata osmd = new ObjectStoreMetadata();
+    osmd.setDcFormat("image/x-canon-cr2");
+    serviceUnderTest.assignDefaultValues(osmd);
+    assertEquals(DcType.IMAGE, osmd.getDcType());
+  }
+
+  @Test
   public void assignDefaultValues_onNoDcFormat_DcTypeIsUndetermined() {
     ObjectStoreMetadata osmd = new ObjectStoreMetadata();
     serviceUnderTest.assignDefaultValues(osmd);
