@@ -44,14 +44,11 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
   @Override
   protected void preCreate(ObjectStoreMetadata entity) {
     entity.setUuid(UUID.randomUUID());
-
+    handleFileRelatedData(entity);
     defaultValueSetterService.assignDefaultValues(entity);
-
     if (entity.getAcSubtype() != null) {
       setAcSubtype(entity, entity.getAcSubtype());
     }
-    handleFileRelatedData(entity);
-
   }
 
   @Override
