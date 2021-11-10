@@ -12,6 +12,7 @@ import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -139,6 +140,22 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
     // Test read-only getAcSubtypeId Formula field:
     assertEquals(ost.getId(), restoredOsm.getAcSubtypeId());
     assertEquals(ost.getId(), restoredOsm.getAcSubtype().getId());
+  }
+
+  @Test
+  void dcType_WhenCr2_dcTypeSetFromEvaluatedMediaType() {
+    ObjectUpload cr2 = ObjectUploadFactory.newObjectUpload()
+      .evaluatedMediaType("image/x-cannon-cr2").build();
+    objectUploadService.create(cr2);
+
+    objectStoreMetaUnderTest.setFileIdentifier(cr2.getFileIdentifier());
+    objectStoreMetaUnderTest.setDcFormat(null);
+    objectStoreMetaUnderTest.setDcType(null);
+    objectStoreMetaDataService.create(objectStoreMetaUnderTest);
+
+    ObjectStoreMetadata fetchedObjectStoreMeta = objectStoreMetaDataService.findOne(
+      objectStoreMetaUnderTest.getUuid(), ObjectStoreMetadata.class);
+    Assertions.assertEquals(DcType.IMAGE, fetchedObjectStoreMeta.getDcType());
   }
 
   /**
