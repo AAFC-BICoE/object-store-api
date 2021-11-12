@@ -3,6 +3,10 @@ logger:
   path: "/tmp/log-test"
   file: "converter.log"
 
+rabbitmq:
+  connection: "amqp://guest:guest@aafc-bicoe-rabbitmq-local:5672/"
+  queueName: "test-image-converter"
+
 app:
   release: "0.01"
   name: "converter"

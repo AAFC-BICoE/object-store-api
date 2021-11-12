@@ -18,8 +18,9 @@ import (
 
 // Config wrapper struct
 type Configuration struct {
-	Logger LoggerConfiguration // Logger config
-	App    AppConfiguration    // App config
+	Logger   LoggerConfiguration   // Logger config
+	App      AppConfiguration      // App config
+	RabbitMQ RabbitMQConfiguration // RabbitMQ config
 }
 
 // validation helpers

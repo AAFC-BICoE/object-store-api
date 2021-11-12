@@ -31,23 +31,40 @@ RUN go build -tags netgo -ldflags '-extldflags "-static"' -o main .
 
 # - - - LOCAL - - - #
 # Pushing Artifact to local
-FROM alpine
+FROM alpine:3.10
+RUN apk update
+
+ADD ./deployment-local/dcraw.c /opt/dcraw/src/
+
+RUN apk upgrade && \
+    apk update && \
+    apk add --no-cache musl-dev \
+            gcc \
+            libjpeg-turbo-dev \
+            lcms2-dev \
+            jasper-dev; \
+    mkdir -p /opt/dcraw/bin; \
+    gcc -o /opt/dcraw/bin/dcraw -O4 /opt/dcraw/src/dcraw.c -lm -ljasper -ljpeg -llcms2
+
+ENV PATH="/opt/dcraw/bin:${PATH}"
+RUN apk --update add imagemagick
+RUN apk update
+RUN apk upgrade
+RUN apk add bash
 # make sure we are up to date
 RUN apk update && apk upgrade
-RUN adduser -S -D -H -h /app appuser
-USER appuser
+RUN mkdir /app
 COPY --from=builder /go/src/converter/main /app/
 COPY --from=builder /go/src/converter/converter_config.yml /app/
 # For now copy the cover report to release container
 COPY --from=builder /tmp/cover.html /tmp/
+
+ADD ./deployment-local/magic.sh /app/
+# make it executable
+RUN chmod 755 /app/magic.sh
+
 WORKDIR /app
-# folder for media files
-RUN mkdir /tmp/data-test
-# folder for test SQLite DB
-RUN mkdir /tmp/db-test
 # folder for test logs
 RUN mkdir /tmp/log-test
-# timzones
-ENV ZONEINFO /tmp/zoneinfo.zip
 
 CMD ["./main", "/app/converter_config.yml"]

@@ -1,0 +1,14 @@
+logger:
+  level: "Info"
+  path: "/tmp/log-test"
+  file: "converter.log"
+
+rabbitmq:
+  connection: "amqp://guest:guest@localhost:5672/"
+  queueName: "test-image-converter"
+
+app:
+  release: "0.01"
+  name: "converter"
+  # Bio cluster or PC
+  env: "cluster"

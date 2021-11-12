@@ -8,5 +8,5 @@ docker_repo_target="aafc-bicoe/object-store-converter-local"
 # building docker image
 docker build -t $docker_repo_target -f deployment-local/Dockerfile .
 # bring up/update containers
-docker-compose -f deployment-local/docker-compose.yml up
+docker-compose -f deployment-local/docker-compose.yml up -d
 

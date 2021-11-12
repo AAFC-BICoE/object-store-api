@@ -3,7 +3,7 @@ package main
 
 import (
 	"converter/config"
-	"converter/orchestrator"
+	"converter/rabbitmqclient"
 	"log"
 	"os"
 )
@@ -15,8 +15,7 @@ func main() {
 	filename := getFileName()
 	// Load yml config file
 	config.Load(filename)
-	// Running orchestrator
-	orchestrator.Run()
+	rabbitmqclient.InitRabbitmqClient()
 }
 
 // very simple function to process arg

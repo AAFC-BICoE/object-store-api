@@ -4,6 +4,8 @@ go 1.17
 
 require (
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
+	github.com/liamylian/jsontime v1.0.1
+	github.com/rabbitmq/amqp091-go v1.1.0
 	github.com/rifflock/lfshook v0.0.0-20180920164130-b9218ef580f5
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/viper v1.9.0
@@ -15,9 +17,12 @@ require (
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/jonboulle/clockwork v0.2.2 // indirect
+	github.com/json-iterator/go v1.1.11 // indirect
 	github.com/lestrrat-go/strftime v1.0.5 // indirect
 	github.com/magiconair/properties v1.8.5 // indirect
 	github.com/mitchellh/mapstructure v1.4.2 // indirect
+	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
+	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/pelletier/go-toml v1.9.4 // indirect
 	github.com/pkg/errors v0.8.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect

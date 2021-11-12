@@ -1,7 +1,7 @@
-FROM alpine:3.8
+FROM alpine:3.10
 RUN apk update
 
-ADD dcraw.c /opt/dcraw/src/
+ADD ./deployment-local/dcraw.c /opt/dcraw/src/
 
 RUN apk upgrade && \
     apk update && \
@@ -20,4 +20,5 @@ RUN apk upgrade
 RUN apk add bash
 
 #RUN apk add --no-cache imagemagick bash pngcrush optipng=0.7.7-r0
-CMD ["/bin/bash"]
+#CMD ["/bin/bash"]
+ENTRYPOINT ["tail", "-f", "/dev/null"]
