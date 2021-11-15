@@ -5,6 +5,7 @@ import ca.gc.aafc.dina.dto.RelatedEntity;
 import ca.gc.aafc.dina.mapper.CustomFieldAdapter;
 import ca.gc.aafc.dina.mapper.DinaFieldAdapter;
 import ca.gc.aafc.dina.mapper.IgnoreDinaMapping;
+import ca.gc.aafc.dina.repository.meta.AttributeMetaInfoProvider;
 import ca.gc.aafc.dina.repository.meta.JsonApiExternalRelation;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
@@ -42,7 +43,7 @@ import java.util.function.Supplier;
 @JsonApiResource(type = ObjectStoreMetadataDto.TYPENAME)
 @TypeName(ObjectStoreMetadataDto.TYPENAME)
 @CustomFieldAdapter(adapters = ObjectStoreMetadataDto.AcSubtypeAdapter.class)
-public class ObjectStoreMetadataDto {
+public class ObjectStoreMetadataDto extends AttributeMetaInfoProvider {
 
   public static final String TYPENAME = "metadata";
 
