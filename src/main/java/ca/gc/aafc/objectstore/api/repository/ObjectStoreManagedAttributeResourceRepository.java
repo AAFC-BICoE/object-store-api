@@ -7,12 +7,10 @@ import ca.gc.aafc.dina.service.DinaService;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreManagedAttributeAuthorizationService;
-import io.crnk.core.exception.MethodNotAllowedException;
 import lombok.NonNull;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.stereotype.Repository;
 
-import java.io.Serializable;
 import java.util.Optional;
 
 @Repository
@@ -42,11 +40,6 @@ public class ObjectStoreManagedAttributeResourceRepository
   public <S extends ObjectStoreManagedAttributeDto> S create(S resource) {
     authenticatedUser.ifPresent(user -> resource.setCreatedBy(user.getUsername()));
     return super.create(resource);
-  }
-
-  @Override
-  public void delete(Serializable id) {
-    throw new MethodNotAllowedException("DELETE");
   }
 
 }
