@@ -88,7 +88,7 @@ public class ObjectStoreManagedAttributeRestIT extends BaseRestAssuredTest {
       equalTo(originalName));
 
     // cleanup
-    sendDelete(RESOURCE_UNDER_TEST, id, HttpStatus.METHOD_NOT_ALLOWED.value());
+    sendDelete(RESOURCE_UNDER_TEST, id, HttpStatus.NO_CONTENT.value());
   }
 
 }
