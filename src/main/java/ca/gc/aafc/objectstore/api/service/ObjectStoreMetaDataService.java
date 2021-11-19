@@ -80,7 +80,7 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
 
   @Override
   public void validateBusinessRules(ObjectStoreMetadata entity) {
-    validateManagedAttribute(entity);
+    objectStoreManagedAttributeValueValidator.validate(entity, entity.getManagedAttributeValues());
   }
 
   /**
@@ -166,10 +166,6 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
     objectMetadata.setAcHashValue(objectUpload.getSha1Hex());
     objectMetadata.setAcHashFunction(FileController.DIGEST_ALGORITHM);
 
-  }
-
-  private void validateManagedAttribute(ObjectStoreMetadata entity) {
-    objectStoreManagedAttributeValueValidator.validate(entity, entity.getManagedAttributeValues());
   }
 
   @Override
