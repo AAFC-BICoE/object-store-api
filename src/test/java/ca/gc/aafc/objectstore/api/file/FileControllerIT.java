@@ -158,7 +158,7 @@ public class FileControllerIT extends BaseIntegrationTest {
     ObjectUploadDto sameUploadResponse = fileController.handleFileUpload(sameMockFile, bucketUnderTest);
 
     String expectedKey = "duplicate_found";
-    String expectedValue = "An object upload withe same sha1Hex field already exists";
+    String expectedValue = "A file with the same content already exists";
 
     assertNotNull(sameUploadResponse);
     assertTrue(sameUploadResponse.getMeta().getWarnings().get(expectedKey).equals(expectedValue));
