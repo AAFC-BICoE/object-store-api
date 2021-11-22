@@ -7,6 +7,7 @@ import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.file.FileController;
 import ca.gc.aafc.objectstore.api.file.ThumbnailGenerator;
+import ca.gc.aafc.objectstore.api.validation.ObjectStoreManagedAttributeValueValidator;
 import io.crnk.core.exception.BadRequestException;
 import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
@@ -23,22 +24,23 @@ import java.util.UUID;
 public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMetadata>
   implements ObjectStoreMetadataReadService {
 
-  private final ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService;
-
   private final BaseDAO baseDAO;
-
+  private final ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService;
   private final DerivativeService derivativeService;
+  private final ObjectStoreManagedAttributeValueValidator objectStoreManagedAttributeValueValidator;
 
   public ObjectStoreMetaDataService(
     @NonNull BaseDAO baseDAO,
     @NonNull ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService,
     @NonNull DerivativeService derivativeService,
-    @NonNull SmartValidator smartValidator
+    @NonNull SmartValidator smartValidator,
+    @NonNull ObjectStoreManagedAttributeValueValidator objectStoreManagedAttributeValueValidator
   ) {
     super(baseDAO, smartValidator);
     this.baseDAO = baseDAO;
     this.defaultValueSetterService = defaultValueSetterService;
     this.derivativeService = derivativeService;
+    this.objectStoreManagedAttributeValueValidator = objectStoreManagedAttributeValueValidator;
   }
 
   @Override
@@ -74,6 +76,11 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
     }
 
     handleFileRelatedData(entity);
+  }
+
+  @Override
+  public void validateBusinessRules(ObjectStoreMetadata entity) {
+    objectStoreManagedAttributeValueValidator.validate(entity, entity.getManagedAttributeValues());
   }
 
   /**
