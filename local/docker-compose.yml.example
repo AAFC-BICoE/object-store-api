@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
   object-store-db:
-    image: "postgres:10"
+    image: "postgres:12"
     env_file:
       - ${BASE_PATH_TO_OBJECT_STORE:-.}/pg.env
     volumes:
@@ -17,7 +17,7 @@ services:
     command: server /data
 
   object-store-api:
-    image: aafcbicoe/object-store-api:0.30
+    image: aafcbicoe/object-store-api:0.32
     # build: ${BASE_PATH_TO_OBJECT_STORE:-.}
     ports:
       - "8081:8080"
