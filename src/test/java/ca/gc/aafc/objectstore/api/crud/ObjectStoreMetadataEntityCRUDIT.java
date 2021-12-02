@@ -1,5 +1,6 @@
 package ca.gc.aafc.objectstore.api.crud;
 
+import ca.gc.aafc.dina.entity.ManagedAttribute.ManagedAttributeType;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
@@ -15,13 +16,21 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.MediaType;
 
 import javax.persistence.criteria.Predicate;
+import javax.validation.ValidationException;
+
+import com.google.common.collect.ImmutableMap;
+
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -158,6 +167,88 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
     Assertions.assertEquals(DcType.IMAGE, fetchedObjectStoreMeta.getDcType());
   }
 
+  @ParameterizedTest
+  @ValueSource(strings = {"1.2", "", "  ", "\t", "\n", "a"})
+  void testCreate_WhenInvalidIntegerType_ExceptionThrown(String value) {
+    ObjectStoreManagedAttribute managedAttribute = ObjectStoreManagedAttributeFactory.newManagedAttribute()
+      .acceptedValues(new String[] {})
+      .description(ImmutableMap.of("en", "attrEn", "fr", "attrFr"))
+      .createdBy("createdBy")
+      .managedAttributeType(ManagedAttributeType.INTEGER)
+      .build();
+
+    managedAttributeService.create(managedAttribute);
+    
+    ObjectStoreMetadata objectStoreMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata()
+    .managedAttributeValues(new HashMap<> (Map.of(managedAttribute.getKey(), value)))
+    .build();
+    
+    ObjectUpload upload = ObjectUploadFactory.newObjectUpload().fileIdentifier(objectStoreMetadata.getFileIdentifier()).build();
+
+    objectUploadService.create(upload);
+    Assertions.assertThrows(ValidationException.class, 
+      () -> objectStoreMetaDataService.create(objectStoreMetadata));
+  
+  }
+
+  @Test
+  void testCreate_assignedValueNotContainedInAcceptedValues_NoExceptionThrown() {
+    ObjectStoreManagedAttribute managedAttribute = ObjectStoreManagedAttributeFactory.newManagedAttribute()
+      .acceptedValues(new String[] {"val1", "val2"})
+      .description(ImmutableMap.of("en", "attrEn", "fr", "attrFr"))
+      .createdBy("createdBy")
+      .build();
+
+    managedAttributeService.create(managedAttribute);
+    
+    ObjectStoreMetadata objectStoreMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata()
+    .managedAttributeValues(new HashMap<> (Map.of(managedAttribute.getKey(), "val1")))
+    .build();
+    
+    ObjectUpload upload = ObjectUploadFactory.newObjectUpload().fileIdentifier(objectStoreMetadata.getFileIdentifier()).build();
+
+    objectUploadService.create(upload);
+    Assertions.assertDoesNotThrow(() -> objectStoreMetaDataService.create(objectStoreMetadata));
+  }
+  
+
+  @Test
+  void testCreate_assignedValueNotContainedInAcceptedValues_ExceptionThrown() {
+    ObjectStoreManagedAttribute managedAttribute = ObjectStoreManagedAttributeFactory.newManagedAttribute()
+      .acceptedValues(new String[] {"val1", "val2"})
+      .description(ImmutableMap.of("en", "attrEn", "fr", "attrFr"))
+      .createdBy("createdBy")
+      .build();
+
+    managedAttributeService.create(managedAttribute);
+    
+    ObjectStoreMetadata objectStoreMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata()
+    .managedAttributeValues(new HashMap<> (Map.of(managedAttribute.getKey(), "val3")))
+    .build();
+    
+    ObjectUpload upload = ObjectUploadFactory.newObjectUpload().fileIdentifier(objectStoreMetadata.getFileIdentifier()).build();
+
+    objectUploadService.create(upload);
+    Assertions.assertThrows(ValidationException.class, 
+      () -> objectStoreMetaDataService.create(objectStoreMetadata));
+  
+  }
+
+  @Test
+  void testCreate_assignedKeyDoesNotExist_ExceptionThrown() {
+    
+    ObjectStoreMetadata objectStoreMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata()
+    .managedAttributeValues(new HashMap<> (Map.of("key_x", "val3")))
+    .build();
+    
+    ObjectUpload upload = ObjectUploadFactory.newObjectUpload().fileIdentifier(objectStoreMetadata.getFileIdentifier()).build();
+
+    objectUploadService.create(upload);
+    Assertions.assertThrows(ValidationException.class, 
+      () -> objectStoreMetaDataService.create(objectStoreMetadata));
+
+  }
+  
   /**
    * Helper method to return a list of all metadata from the database. Note this will flush Hibernate changes.
    *
