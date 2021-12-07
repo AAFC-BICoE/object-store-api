@@ -32,7 +32,7 @@ public class ObjectStoreManagedAttributeValidator implements Validator {
       ma.getMultilingualDescription().getDescriptions().stream().anyMatch(p -> StringUtils.isBlank(p.getDesc()))) {
       String errorMessage = messageSource.getMessage("description.isEmpty", null,
         LocaleContextHolder.getLocale());
-      errors.rejectValue("description", "description.isEmpty", null, errorMessage);
+      errors.rejectValue("multilingualDescription", "description.isEmpty", null, errorMessage);
     }
   }
 }

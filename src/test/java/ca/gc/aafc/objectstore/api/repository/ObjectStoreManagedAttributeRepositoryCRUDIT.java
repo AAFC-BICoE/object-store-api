@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.common.collect.ImmutableList;
 
 import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
@@ -36,7 +37,7 @@ public class ObjectStoreManagedAttributeRepositoryCRUDIT extends BaseIntegration
     testManagedAttribute = ObjectStoreManagedAttributeFactory.newManagedAttribute()
         .acceptedValues(new String[] { "dosal" })
         .multilingualDescription(MultilingualDescription.builder()
-          .descriptions(List.of(
+          .descriptions(ImmutableList.of(
             MultilingualDescription.MultilingualPair.builder()
               .desc("attrEn")
               .lang("en")
@@ -80,7 +81,7 @@ public class ObjectStoreManagedAttributeRepositoryCRUDIT extends BaseIntegration
     ma.setManagedAttributeType(ManagedAttributeType.STRING);
     ma.setAcceptedValues(new String[] { "dosal" });
     ma.setMultilingualDescription(MultilingualDescription.builder()
-      .descriptions(List.of(
+      .descriptions(ImmutableList.of(
         MultilingualDescription.MultilingualPair.builder()
           .desc("attrEn")
           .lang("en")

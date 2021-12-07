@@ -4,6 +4,8 @@ import java.util.List;
 
 import javax.transaction.Transactional;
 
+import com.google.common.collect.ImmutableList;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
@@ -51,15 +53,15 @@ public class ObjectStoreManagedAttributeRestIT extends BaseRestAssuredTest {
     managedAttribute.setCreatedBy(DINA_USER_NAME);
 
     managedAttribute.setMultilingualDescription(MultilingualDescription.builder()
-    .descriptions(List.of(
-      MultilingualDescription.MultilingualPair.builder()
-        .desc("en_desc")
-        .lang("en")
-        .build(), 
-      MultilingualDescription.MultilingualPair.builder()
-        .desc("fr_desc")
-        .lang("fr")
-        .build())
+      .descriptions(ImmutableList.of(
+        MultilingualDescription.MultilingualPair.builder()
+          .desc("en_desc")
+          .lang("en")
+          .build(), 
+        MultilingualDescription.MultilingualPair.builder()
+          .desc("fr_desc")
+          .lang("fr")
+          .build())
       )
     .build());
     

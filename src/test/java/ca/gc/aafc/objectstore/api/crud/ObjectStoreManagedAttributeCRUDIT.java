@@ -13,6 +13,8 @@ import java.util.UUID;
 
 import javax.validation.ValidationException;
 
+import com.google.common.collect.ImmutableList;
+
 import org.junit.jupiter.api.Test;
 
 import ca.gc.aafc.dina.i18n.MultilingualDescription;
@@ -28,7 +30,7 @@ public class ObjectStoreManagedAttributeCRUDIT extends BaseEntityCRUDIT {
   private ObjectStoreManagedAttribute managedAttributeUnderTest = ObjectStoreManagedAttributeFactory.newManagedAttribute()
       .acceptedValues(new String[] { "a", "b" })
       .multilingualDescription(MultilingualDescription.builder()
-          .descriptions(List.of(
+          .descriptions(ImmutableList.of(
             MultilingualDescription.MultilingualPair.builder()
               .desc("attrEn")
               .lang("en")
@@ -55,7 +57,7 @@ public class ObjectStoreManagedAttributeCRUDIT extends BaseEntityCRUDIT {
     ObjectStoreManagedAttribute blankDescription = ObjectStoreManagedAttributeFactory.newManagedAttribute()
       .acceptedValues(new String[] { "a", "b" })
       .multilingualDescription(MultilingualDescription.builder()
-          .descriptions(List.of(MultilingualDescription.MultilingualPair.builder()
+          .descriptions(ImmutableList.of(MultilingualDescription.MultilingualPair.builder()
             .desc("")
             .lang("en")
             .build()))
@@ -89,7 +91,7 @@ public class ObjectStoreManagedAttributeCRUDIT extends BaseEntityCRUDIT {
 
     assertArrayEquals(new String[] { "a", "b" }, managedAttributeUnderTest.getAcceptedValues());
 
-    assertEquals("attrFr", managedAttributeUnderTest.getMultilingualDescription().getDescriptions().stream().filter(p -> p.getDesc().equals("fr")).findAny().get());
+    assertEquals("attrFr", managedAttributeUnderTest.getMultilingualDescription().getDescriptions().stream().filter(p -> p.getLang().equals("fr")).findAny().get().getDesc());
     assertEquals(managedAttributeUnderTest.getCreatedBy(), fetchedObjectStoreMeta.getCreatedBy());
     assertNotNull(fetchedObjectStoreMeta.getCreatedOn());
   }
@@ -107,7 +109,7 @@ public class ObjectStoreManagedAttributeCRUDIT extends BaseEntityCRUDIT {
     ObjectStoreManagedAttribute managedAttribute = ObjectStoreManagedAttributeFactory.newManagedAttribute()
       .acceptedValues(new String[] { "key_a", "value_a" })
       .multilingualDescription(MultilingualDescription.builder()
-          .descriptions(List.of(
+          .descriptions(ImmutableList.of(
             MultilingualDescription.MultilingualPair.builder()
               .desc("attrEn")
               .lang("en")

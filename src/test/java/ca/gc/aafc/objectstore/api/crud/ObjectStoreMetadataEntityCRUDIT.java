@@ -24,6 +24,8 @@ import org.springframework.http.MediaType;
 import javax.persistence.criteria.Predicate;
 import javax.validation.ValidationException;
 
+import com.google.common.collect.ImmutableList;
+
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -172,7 +174,7 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
     ObjectStoreManagedAttribute managedAttribute = ObjectStoreManagedAttributeFactory.newManagedAttribute()
       .acceptedValues(new String[] {})
       .multilingualDescription(MultilingualDescription.builder()
-          .descriptions(List.of(
+          .descriptions(ImmutableList.of(
             MultilingualDescription.MultilingualPair.builder()
               .desc("attrEn")
               .lang("en")
@@ -206,7 +208,7 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
     ObjectStoreManagedAttribute managedAttribute = ObjectStoreManagedAttributeFactory.newManagedAttribute()
       .acceptedValues(new String[] {"val1", "val2"})
       .multilingualDescription(MultilingualDescription.builder()
-          .descriptions(List.of(
+          .descriptions(ImmutableList.of(
             MultilingualDescription.MultilingualPair.builder()
               .desc("attrEn")
               .lang("en")

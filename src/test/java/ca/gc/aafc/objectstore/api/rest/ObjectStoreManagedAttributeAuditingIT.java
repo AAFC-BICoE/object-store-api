@@ -11,6 +11,8 @@ import ca.gc.aafc.objectstore.api.repository.ObjectStoreResourceRepository;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableList;
+
 import io.crnk.core.queryspec.QuerySpec;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
@@ -51,7 +53,7 @@ public class ObjectStoreManagedAttributeAuditingIT extends BaseIntegrationTest {
     managed.setName("name");
     managed.setUuid(UUID.randomUUID());
     managed.setMultilingualDescription(MultilingualDescription.builder()
-      .descriptions(List.of(
+      .descriptions(ImmutableList.of(
         MultilingualDescription.MultilingualPair.builder()
           .desc("en")
           .lang("en")

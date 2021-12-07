@@ -51,6 +51,7 @@ public class ObjectStoreManagedAttribute implements ca.gc.aafc.dina.entity.Manag
   private String[] acceptedValues;
   private OffsetDateTime createdOn;
   private String createdBy;
+  private MultilingualDescription multilingualDescription;
   
   @Column(updatable = false)
   private String name;
@@ -62,11 +63,16 @@ public class ObjectStoreManagedAttribute implements ca.gc.aafc.dina.entity.Manag
   @Setter
   private String key;
 
+  
   @Type(type = "jsonb")
   @Column(name = "multilingual_description")
-  @Getter
-  @Setter
-  private MultilingualDescription multilingualDescription;
+  public MultilingualDescription getMultilingualDescription() {
+    return multilingualDescription;
+  }
+
+  public void setMultilingualDescription(MultilingualDescription multilingualDescription) {
+    this.multilingualDescription = multilingualDescription;
+  }
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.BiFunction;
 
+import com.google.common.collect.ImmutableList;
+
 import org.testcontainers.shaded.org.apache.commons.lang.RandomStringUtils;
 
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
@@ -29,7 +31,7 @@ public class ObjectStoreManagedAttributeFactory implements TestableEntityFactory
         .uuid(UUID.randomUUID())
         .name(TestableEntityFactory.generateRandomNameLettersOnly(12))
         .multilingualDescription(MultilingualDescription.builder()
-          .descriptions(List.of(MultilingualDescription.MultilingualPair.builder()
+          .descriptions(ImmutableList.of(MultilingualDescription.MultilingualPair.builder()
             .desc(RandomStringUtils.randomAlphabetic(4))
             .lang("en")
             .build()))

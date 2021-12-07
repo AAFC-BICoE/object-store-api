@@ -24,6 +24,9 @@ import org.springframework.http.MediaType;
 import javax.inject.Inject;
 import javax.persistence.criteria.Predicate;
 import javax.validation.ValidationException;
+
+import com.google.common.collect.ImmutableList;
+
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -52,7 +55,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
     testManagedAttribute = ObjectStoreManagedAttributeFactory.newManagedAttribute()
     .acceptedValues(new String[]{"dosal"})
     .multilingualDescription(MultilingualDescription.builder()
-      .descriptions(List.of(
+      .descriptions(ImmutableList.of(
         MultilingualDescription.MultilingualPair.builder()
           .desc("attrEn")
           .lang("en")
