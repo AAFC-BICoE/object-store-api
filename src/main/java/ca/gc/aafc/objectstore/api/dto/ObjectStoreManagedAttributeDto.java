@@ -10,6 +10,7 @@ import org.javers.core.metamodel.annotation.PropertyName;
 import ca.gc.aafc.dina.dto.RelatedEntity;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.dina.entity.ManagedAttribute.ManagedAttributeType;
+import ca.gc.aafc.dina.i18n.MultilingualDescription;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.crnk.core.resource.annotations.JsonApiField;
 import io.crnk.core.resource.annotations.JsonApiId;
@@ -37,6 +38,6 @@ public class ObjectStoreManagedAttributeDto {
   private String[] acceptedValues;
   private OffsetDateTime createdOn;
   private String createdBy;
-  private Map<String, String> description;
+  private MultilingualDescription multilingualDescription;
 
 }

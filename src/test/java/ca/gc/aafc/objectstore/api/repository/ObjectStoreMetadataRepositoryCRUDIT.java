@@ -1,5 +1,6 @@
 package ca.gc.aafc.objectstore.api.repository;
 
+import ca.gc.aafc.dina.i18n.MultilingualDescription;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectSubtypeDto;
@@ -12,7 +13,6 @@ import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreManagedAttrib
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
-import com.google.common.collect.ImmutableMap;
 import io.crnk.core.queryspec.QuerySpec;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -51,7 +51,18 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
   private void createTestManagedAttribute() {
     testManagedAttribute = ObjectStoreManagedAttributeFactory.newManagedAttribute()
     .acceptedValues(new String[]{"dosal"})
-    .description(ImmutableMap.of("en", "attrEn", "fr", "attrFr"))
+    .multilingualDescription(MultilingualDescription.builder()
+      .descriptions(List.of(
+        MultilingualDescription.MultilingualPair.builder()
+          .desc("attrEn")
+          .lang("en")
+          .build(), 
+        MultilingualDescription.MultilingualPair.builder()
+          .desc("attrFr")
+          .lang("fr")
+          .build())
+        )
+      .build())
     .build();
     managedAttributeService.create(testManagedAttribute);
   }

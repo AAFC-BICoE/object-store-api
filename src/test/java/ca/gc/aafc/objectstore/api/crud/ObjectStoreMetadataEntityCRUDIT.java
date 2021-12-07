@@ -1,6 +1,7 @@
 package ca.gc.aafc.objectstore.api.crud;
 
 import ca.gc.aafc.dina.entity.ManagedAttribute.ManagedAttributeType;
+import ca.gc.aafc.dina.i18n.MultilingualDescription;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
@@ -22,8 +23,6 @@ import org.springframework.http.MediaType;
 
 import javax.persistence.criteria.Predicate;
 import javax.validation.ValidationException;
-
-import com.google.common.collect.ImmutableMap;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
@@ -172,7 +171,18 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
   void testCreate_WhenInvalidIntegerType_ExceptionThrown(String value) {
     ObjectStoreManagedAttribute managedAttribute = ObjectStoreManagedAttributeFactory.newManagedAttribute()
       .acceptedValues(new String[] {})
-      .description(ImmutableMap.of("en", "attrEn", "fr", "attrFr"))
+      .multilingualDescription(MultilingualDescription.builder()
+          .descriptions(List.of(
+            MultilingualDescription.MultilingualPair.builder()
+              .desc("attrEn")
+              .lang("en")
+              .build(), 
+            MultilingualDescription.MultilingualPair.builder()
+              .desc("attrFr")
+              .lang("fr")
+              .build())
+            )
+          .build())
       .createdBy("createdBy")
       .managedAttributeType(ManagedAttributeType.INTEGER)
       .build();
@@ -195,7 +205,18 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
   void testCreate_assignedValueNotContainedInAcceptedValues_NoExceptionThrown() {
     ObjectStoreManagedAttribute managedAttribute = ObjectStoreManagedAttributeFactory.newManagedAttribute()
       .acceptedValues(new String[] {"val1", "val2"})
-      .description(ImmutableMap.of("en", "attrEn", "fr", "attrFr"))
+      .multilingualDescription(MultilingualDescription.builder()
+          .descriptions(List.of(
+            MultilingualDescription.MultilingualPair.builder()
+              .desc("attrEn")
+              .lang("en")
+              .build(), 
+            MultilingualDescription.MultilingualPair.builder()
+              .desc("attrFr")
+              .lang("fr")
+              .build())
+            )
+          .build())
       .createdBy("createdBy")
       .build();
 
@@ -216,7 +237,18 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
   void testCreate_assignedValueNotContainedInAcceptedValues_ExceptionThrown() {
     ObjectStoreManagedAttribute managedAttribute = ObjectStoreManagedAttributeFactory.newManagedAttribute()
       .acceptedValues(new String[] {"val1", "val2"})
-      .description(ImmutableMap.of("en", "attrEn", "fr", "attrFr"))
+      .multilingualDescription(MultilingualDescription.builder()
+          .descriptions(List.of(
+            MultilingualDescription.MultilingualPair.builder()
+              .desc("attrEn")
+              .lang("en")
+              .build(), 
+            MultilingualDescription.MultilingualPair.builder()
+              .desc("attrFr")
+              .lang("fr")
+              .build())
+            )
+          .build())
       .createdBy("createdBy")
       .build();
 

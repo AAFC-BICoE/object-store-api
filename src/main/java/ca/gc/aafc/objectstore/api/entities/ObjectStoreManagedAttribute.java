@@ -1,7 +1,6 @@
 package ca.gc.aafc.objectstore.api.entities;
 
 import java.time.OffsetDateTime;
-import java.util.Map;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -12,7 +11,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -30,6 +28,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 
+import ca.gc.aafc.dina.i18n.MultilingualDescription;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -52,7 +51,6 @@ public class ObjectStoreManagedAttribute implements ca.gc.aafc.dina.entity.Manag
   private String[] acceptedValues;
   private OffsetDateTime createdOn;
   private String createdBy;
-  private Map<String, String> description;
   
   @Column(updatable = false)
   private String name;
@@ -65,15 +63,10 @@ public class ObjectStoreManagedAttribute implements ca.gc.aafc.dina.entity.Manag
   private String key;
 
   @Type(type = "jsonb")
-  @Column(name = "description", columnDefinition = "jsonb")
-  @NotEmpty
-  public Map<String, String> getDescription() {
-    return description;
-  }
-
-  public void setDescription(Map<String, String> description) {
-    this.description = description;
-  }
+  @Column(name = "multilingual_description")
+  @Getter
+  @Setter
+  private MultilingualDescription multilingualDescription;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

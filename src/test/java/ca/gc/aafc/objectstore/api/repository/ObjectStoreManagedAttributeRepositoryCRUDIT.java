@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.util.List;
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -13,12 +14,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.collect.ImmutableMap;
 
 import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.dina.entity.ManagedAttribute.ManagedAttributeType;
+import ca.gc.aafc.dina.i18n.MultilingualDescription;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreManagedAttributeFactory;
 import io.crnk.core.queryspec.QuerySpec;
 
@@ -34,7 +35,18 @@ public class ObjectStoreManagedAttributeRepositoryCRUDIT extends BaseIntegration
   private ObjectStoreManagedAttribute createTestManagedAttribute() throws JsonProcessingException {
     testManagedAttribute = ObjectStoreManagedAttributeFactory.newManagedAttribute()
         .acceptedValues(new String[] { "dosal" })
-        .description(ImmutableMap.of("en", "attrEn", "fr", "attrFr"))
+        .multilingualDescription(MultilingualDescription.builder()
+          .descriptions(List.of(
+            MultilingualDescription.MultilingualPair.builder()
+              .desc("attrEn")
+              .lang("en")
+              .build(), 
+            MultilingualDescription.MultilingualPair.builder()
+              .desc("attrFr")
+              .lang("fr")
+              .build())
+            )
+          .build())
         .build();
 
     return managedAttributeService.create(testManagedAttribute);
@@ -56,8 +68,8 @@ public class ObjectStoreManagedAttributeRepositoryCRUDIT extends BaseIntegration
     assertEquals(testManagedAttribute.getManagedAttributeType(),
         managedAttributeDto.getManagedAttributeType());
     assertEquals(testManagedAttribute.getName(), managedAttributeDto.getName());
-    assertEquals(testManagedAttribute.getDescription().get("en"),
-        managedAttributeDto.getDescription().get("en"));
+    assertEquals(testManagedAttribute.getMultilingualDescription().getDescriptions().get(0),
+        managedAttributeDto.getMultilingualDescription().getDescriptions().get(0));
   }
 
   @Test
@@ -67,7 +79,18 @@ public class ObjectStoreManagedAttributeRepositoryCRUDIT extends BaseIntegration
     ma.setName("name");
     ma.setManagedAttributeType(ManagedAttributeType.STRING);
     ma.setAcceptedValues(new String[] { "dosal" });
-    ma.setDescription(ImmutableMap.of("en", "attrEn", "fr", "attrFr"));
+    ma.setMultilingualDescription(MultilingualDescription.builder()
+      .descriptions(List.of(
+        MultilingualDescription.MultilingualPair.builder()
+          .desc("attrEn")
+          .lang("en")
+          .build(), 
+        MultilingualDescription.MultilingualPair.builder()
+          .desc("attrFr")
+          .lang("fr")
+          .build())
+        )
+    .build());
 
     ObjectStoreManagedAttributeDto result = managedResourceRepository.findOne(
       managedResourceRepository.create(ma).getUuid(),

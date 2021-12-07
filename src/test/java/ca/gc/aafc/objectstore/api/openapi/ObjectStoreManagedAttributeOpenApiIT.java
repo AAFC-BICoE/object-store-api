@@ -3,8 +3,7 @@ package ca.gc.aafc.objectstore.api.openapi;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 import javax.transaction.Transactional;
 
@@ -15,6 +14,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
 import ca.gc.aafc.dina.entity.ManagedAttribute.ManagedAttributeType;
+import ca.gc.aafc.dina.i18n.MultilingualDescription;
 import ca.gc.aafc.dina.testsupport.BaseRestAssuredTest;
 import ca.gc.aafc.dina.testsupport.PostgresTestContainerInitializer;
 import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
@@ -79,10 +79,19 @@ public class ObjectStoreManagedAttributeOpenApiIT extends BaseRestAssuredTest {
     managedAttribute.setName(TestableEntityFactory.generateRandomNameLettersOnly(12));
     managedAttribute.setManagedAttributeType(ManagedAttributeType.STRING);
     managedAttribute.setCreatedBy(DINA_USER_NAME);
-    Map<String, String> desc = new HashMap<String, String>();
-    desc.put("fr", "fr_desc");
-    desc.put("en", "en_desc");
-    managedAttribute.setDescription(desc);
+
+    managedAttribute.setMultilingualDescription(MultilingualDescription.builder()
+    .descriptions(List.of(
+      MultilingualDescription.MultilingualPair.builder()
+        .desc("en_desc")
+        .lang("en")
+        .build(), 
+      MultilingualDescription.MultilingualPair.builder()
+        .desc("fr_desc")
+        .lang("fr")
+        .build())
+      )
+    .build());
 
     return managedAttribute;
   }
