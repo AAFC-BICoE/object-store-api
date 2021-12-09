@@ -7,6 +7,7 @@ import io.crnk.core.repository.ReadOnlyResourceRepositoryBase;
 import io.crnk.core.resource.list.ResourceList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import ca.gc.aafc.dina.exception.UnknownAttributeException;
 
 @Component
 public class SupportedLicenseRepository
@@ -21,6 +22,10 @@ public class SupportedLicenseRepository
 
   @Override
   public ResourceList<LicenseDto> findAll(QuerySpec query) {
-    return query.apply(licenses.getLicenses().values());
+    try {
+      return query.apply(licenses.getLicenses().values());
+    } catch (IllegalArgumentException iaEx) {
+      throw new UnknownAttributeException(iaEx);
+    }
   }
 }
