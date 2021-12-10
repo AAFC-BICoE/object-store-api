@@ -7,7 +7,7 @@ import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.objectstore.api.repository.ObjectStoreManagedAttributeResourceRepository;
-
+import ca.gc.aafc.objectstore.api.testsupport.factories.MultilingualDescriptionFactory;
 import io.crnk.core.queryspec.QuerySpec;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Assertions;
@@ -35,14 +35,7 @@ public class ObjectStoreManagedAttributePermissionServiceIT extends BaseIntegrat
   public void persistManagedAttribute() {
     managedAttribute = ObjectStoreManagedAttribute.builder()
       .name(RandomStringUtils.randomAlphabetic(4))
-      .multilingualDescription(MultilingualDescription.builder()
-          .descriptions(ImmutableList.of(
-            MultilingualDescription.MultilingualPair.builder()
-              .desc("test")
-              .lang("en")
-              .build())
-            )
-          .build())
+      .multilingualDescription(MultilingualDescriptionFactory.newMultilingualDescription().build())
       .managedAttributeType(ObjectStoreManagedAttribute.ManagedAttributeType.STRING)
       .createdBy("test-method")
       .build();

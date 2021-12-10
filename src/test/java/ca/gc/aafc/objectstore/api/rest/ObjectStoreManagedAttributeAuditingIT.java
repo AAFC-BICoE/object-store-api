@@ -8,6 +8,7 @@ import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.repository.ObjectStoreManagedAttributeResourceRepository;
 import ca.gc.aafc.objectstore.api.repository.ObjectStoreResourceRepository;
+import ca.gc.aafc.objectstore.api.testsupport.factories.MultilingualDescriptionFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -52,14 +53,7 @@ public class ObjectStoreManagedAttributeAuditingIT extends BaseIntegrationTest {
     ObjectStoreManagedAttributeDto managed = new ObjectStoreManagedAttributeDto();
     managed.setName("name");
     managed.setUuid(UUID.randomUUID());
-    managed.setMultilingualDescription(MultilingualDescription.builder()
-      .descriptions(ImmutableList.of(
-        MultilingualDescription.MultilingualPair.builder()
-          .desc("en")
-          .lang("en")
-          .build())
-        )
-    .build());
+    managed.setMultilingualDescription(MultilingualDescriptionFactory.newMultilingualDescription().build());
     managed.setManagedAttributeType(ObjectStoreManagedAttribute.ManagedAttributeType.STRING);
 
     managedAttribute = managedRepo.create(managed);

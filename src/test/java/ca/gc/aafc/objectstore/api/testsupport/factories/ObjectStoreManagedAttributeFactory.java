@@ -30,12 +30,7 @@ public class ObjectStoreManagedAttributeFactory implements TestableEntityFactory
     return ObjectStoreManagedAttribute.builder()
         .uuid(UUID.randomUUID())
         .name(TestableEntityFactory.generateRandomNameLettersOnly(12))
-        .multilingualDescription(MultilingualDescription.builder()
-          .descriptions(ImmutableList.of(MultilingualDescription.MultilingualPair.builder()
-            .desc(RandomStringUtils.randomAlphabetic(4))
-            .lang("en")
-            .build()))
-          .build())
+        .multilingualDescription(MultilingualDescriptionFactory.newMultilingualDescription().build())
         .createdBy("createdBy")
         .managedAttributeType(ManagedAttributeType.STRING);
    }

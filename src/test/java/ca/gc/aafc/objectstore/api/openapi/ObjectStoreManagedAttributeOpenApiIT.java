@@ -25,6 +25,7 @@ import ca.gc.aafc.dina.testsupport.specs.OpenAPI3Assertions;
 import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.ObjectStoreApiLauncher;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
+import ca.gc.aafc.objectstore.api.testsupport.factories.MultilingualDescriptionFactory;
 import lombok.SneakyThrows;
 
 @SpringBootTest(
@@ -82,18 +83,7 @@ public class ObjectStoreManagedAttributeOpenApiIT extends BaseRestAssuredTest {
     managedAttribute.setManagedAttributeType(ManagedAttributeType.STRING);
     managedAttribute.setCreatedBy(DINA_USER_NAME);
 
-    managedAttribute.setMultilingualDescription(MultilingualDescription.builder()
-      .descriptions(ImmutableList.of(
-        MultilingualDescription.MultilingualPair.builder()
-          .desc("en_desc")
-          .lang("en")
-          .build(), 
-        MultilingualDescription.MultilingualPair.builder()
-          .desc("fr_desc")
-          .lang("fr")
-          .build())
-      )
-    .build());
+    managedAttribute.setMultilingualDescription(MultilingualDescriptionFactory.newMultilingualDescription().build());
 
     return managedAttribute;
   }

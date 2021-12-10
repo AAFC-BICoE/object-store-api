@@ -21,6 +21,7 @@ import ca.gc.aafc.dina.i18n.MultilingualDescription;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
+import ca.gc.aafc.objectstore.api.testsupport.factories.MultilingualDescriptionFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
@@ -29,18 +30,7 @@ public class ObjectStoreManagedAttributeCRUDIT extends BaseEntityCRUDIT {
      
   private ObjectStoreManagedAttribute managedAttributeUnderTest = ObjectStoreManagedAttributeFactory.newManagedAttribute()
       .acceptedValues(new String[] { "a", "b" })
-      .multilingualDescription(MultilingualDescription.builder()
-          .descriptions(ImmutableList.of(
-            MultilingualDescription.MultilingualPair.builder()
-              .desc("attrEn")
-              .lang("en")
-              .build(), 
-            MultilingualDescription.MultilingualPair.builder()
-              .desc("attrFr")
-              .lang("fr")
-              .build())
-            )
-          .build())
+      .multilingualDescription(MultilingualDescriptionFactory.newMultilingualDescription().build())
       .createdBy("createdBy")
       .build();
       
@@ -108,18 +98,7 @@ public class ObjectStoreManagedAttributeCRUDIT extends BaseEntityCRUDIT {
   public void testRemove_WhenKeyInUseByMetadata_DeniesDelete() {
     ObjectStoreManagedAttribute managedAttribute = ObjectStoreManagedAttributeFactory.newManagedAttribute()
       .acceptedValues(new String[] { "key_a", "value_a" })
-      .multilingualDescription(MultilingualDescription.builder()
-          .descriptions(ImmutableList.of(
-            MultilingualDescription.MultilingualPair.builder()
-              .desc("attrEn")
-              .lang("en")
-              .build(), 
-            MultilingualDescription.MultilingualPair.builder()
-              .desc("attrFr")
-              .lang("fr")
-              .build())
-            )
-          .build())
+      .multilingualDescription(MultilingualDescriptionFactory.newMultilingualDescription().build())
       .createdBy("createdBy")
       .build();
 
