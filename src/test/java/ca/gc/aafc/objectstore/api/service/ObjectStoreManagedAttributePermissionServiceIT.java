@@ -1,15 +1,13 @@
 package ca.gc.aafc.objectstore.api.service;
 
 
+import ca.gc.aafc.dina.i18n.MultilingualDescription;
 import ca.gc.aafc.dina.testsupport.security.WithMockKeycloakUser;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.objectstore.api.repository.ObjectStoreManagedAttributeResourceRepository;
-
-import com.google.common.collect.ImmutableMap;
-
-import io.crnk.core.exception.MethodNotAllowedException;
+import ca.gc.aafc.objectstore.api.testsupport.factories.MultilingualDescriptionFactory;
 import io.crnk.core.queryspec.QuerySpec;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Assertions;
@@ -17,6 +15,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.access.AccessDeniedException;
+
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -33,7 +33,7 @@ public class ObjectStoreManagedAttributePermissionServiceIT extends BaseIntegrat
   public void persistManagedAttribute() {
     managedAttribute = ObjectStoreManagedAttribute.builder()
       .name(RandomStringUtils.randomAlphabetic(4))
-      .description(ImmutableMap.of("en", "Test"))
+      .multilingualDescription(MultilingualDescriptionFactory.newMultilingualDescription().build())
       .managedAttributeType(ObjectStoreManagedAttribute.ManagedAttributeType.STRING)
       .createdBy("test-method")
       .build();
@@ -92,7 +92,7 @@ public class ObjectStoreManagedAttributePermissionServiceIT extends BaseIntegrat
   private static ObjectStoreManagedAttributeDto createDto() {
     ObjectStoreManagedAttributeDto dto = new ObjectStoreManagedAttributeDto();
     dto.setName(RandomStringUtils.randomAlphabetic(4));
-    dto.setDescription(ImmutableMap.of("en", "Test"));
+    dto.setMultilingualDescription(MultilingualDescriptionFactory.newMultilingualDescription().build());
     dto.setManagedAttributeType(ObjectStoreManagedAttribute.ManagedAttributeType.STRING);
     return dto;
   }
