@@ -1,6 +1,6 @@
 package ca.gc.aafc.objectstore.api.testsupport.factories;
 
-import com.google.common.collect.ImmutableList;
+import java.util.List;
 
 import ca.gc.aafc.dina.i18n.MultilingualDescription;
 import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
@@ -19,8 +19,9 @@ public class MultilingualDescriptionFactory implements TestableEntityFactory<Mul
    * @return Pre-configured builder with all mandatory fields set
    */
   public static MultilingualDescription.MultilingualDescriptionBuilder newMultilingualDescription() {
+   (list)
     return MultilingualDescription.builder()
-            .descriptions(ImmutableList.of(
+            .descriptions(List.of(
               MultilingualDescription.MultilingualPair.builder()
                 .desc("attrEn")
                 .lang("en")
