@@ -2,6 +2,7 @@ package ca.gc.aafc.objectstore.api.repository;
 
 import ca.gc.aafc.objectstore.api.SupportedLicensesConfiguration;
 import ca.gc.aafc.objectstore.api.dto.LicenseDto;
+import io.crnk.core.engine.internal.utils.PropertyException;
 import io.crnk.core.queryspec.QuerySpec;
 import io.crnk.core.repository.ReadOnlyResourceRepositoryBase;
 import io.crnk.core.resource.list.ResourceList;
@@ -24,8 +25,8 @@ public class SupportedLicenseRepository
   public ResourceList<LicenseDto> findAll(QuerySpec query) {
     try {
       return query.apply(licenses.getLicenses().values());
-    } catch (IllegalArgumentException iaEx) {
-      throw new UnknownAttributeException(iaEx);
+    } catch (PropertyException propertyException) {
+      throw new UnknownAttributeException(propertyException);
     }
   }
 }

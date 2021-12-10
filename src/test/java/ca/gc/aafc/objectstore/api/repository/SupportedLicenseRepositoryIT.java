@@ -1,10 +1,13 @@
 package ca.gc.aafc.objectstore.api.repository;
 
+import ca.gc.aafc.dina.exception.UnknownAttributeException;
+
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.dto.LicenseDto;
 import ca.gc.aafc.objectstore.api.repository.SupportedLicenseRepository;
 import io.crnk.core.queryspec.Direction;
 import io.crnk.core.queryspec.QuerySpec;
+import io.crnk.core.queryspec.SortSpec;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -37,7 +40,7 @@ public class SupportedLicenseRepositoryIT extends BaseIntegrationTest {
 
     Assertions.assertThrows(UnknownAttributeException.class, 
       () -> supportedLicenseRepository
-      .findAll(new QuerySpec(LicenseDto.class))); 
+      .findAll(querySpec)); 
    
   }
 
