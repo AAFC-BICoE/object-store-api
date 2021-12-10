@@ -20,8 +20,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import com.google.common.collect.ImmutableList;
-
 @SpringBootTest(properties = "keycloak.enabled=true")
 public class ObjectStoreManagedAttributePermissionServiceIT extends BaseIntegrationTest {
 
@@ -94,14 +92,7 @@ public class ObjectStoreManagedAttributePermissionServiceIT extends BaseIntegrat
   private static ObjectStoreManagedAttributeDto createDto() {
     ObjectStoreManagedAttributeDto dto = new ObjectStoreManagedAttributeDto();
     dto.setName(RandomStringUtils.randomAlphabetic(4));
-    dto.setMultilingualDescription(MultilingualDescription.builder()
-      .descriptions(ImmutableList.of(
-        MultilingualDescription.MultilingualPair.builder()
-          .desc("test")
-          .lang("en")
-          .build())
-        )
-    .build());
+    dto.setMultilingualDescription(MultilingualDescriptionFactory.newMultilingualDescription().build());
     dto.setManagedAttributeType(ObjectStoreManagedAttribute.ManagedAttributeType.STRING);
     return dto;
   }

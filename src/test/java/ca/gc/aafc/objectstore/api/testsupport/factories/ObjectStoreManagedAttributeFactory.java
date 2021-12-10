@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.BiFunction;
 
-import com.google.common.collect.ImmutableList;
-
 import org.testcontainers.shaded.org.apache.commons.lang.RandomStringUtils;
 
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;

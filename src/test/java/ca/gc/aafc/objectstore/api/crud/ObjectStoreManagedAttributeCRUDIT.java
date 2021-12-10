@@ -13,8 +13,6 @@ import java.util.UUID;
 
 import javax.validation.ValidationException;
 
-import com.google.common.collect.ImmutableList;
-
 import org.junit.jupiter.api.Test;
 
 import ca.gc.aafc.dina.i18n.MultilingualDescription;
@@ -47,7 +45,7 @@ public class ObjectStoreManagedAttributeCRUDIT extends BaseEntityCRUDIT {
     ObjectStoreManagedAttribute blankDescription = ObjectStoreManagedAttributeFactory.newManagedAttribute()
       .acceptedValues(new String[] { "a", "b" })
       .multilingualDescription(MultilingualDescription.builder()
-          .descriptions(ImmutableList.of(MultilingualDescription.MultilingualPair.builder()
+          .descriptions(List.of(MultilingualDescription.MultilingualPair.builder()
             .desc("")
             .lang("en")
             .build()))

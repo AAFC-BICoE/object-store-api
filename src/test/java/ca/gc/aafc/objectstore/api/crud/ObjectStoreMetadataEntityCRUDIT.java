@@ -25,8 +25,6 @@ import org.springframework.http.MediaType;
 import javax.persistence.criteria.Predicate;
 import javax.validation.ValidationException;
 
-import com.google.common.collect.ImmutableList;
-
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;

@@ -14,13 +14,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.collect.ImmutableList;
 
 import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.dina.entity.ManagedAttribute.ManagedAttributeType;
 import ca.gc.aafc.dina.i18n.MultilingualDescription;
+import ca.gc.aafc.objectstore.api.testsupport.factories.MultilingualDescriptionFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreManagedAttributeFactory;
 import io.crnk.core.queryspec.QuerySpec;
 
@@ -36,18 +36,7 @@ public class ObjectStoreManagedAttributeRepositoryCRUDIT extends BaseIntegration
   private ObjectStoreManagedAttribute createTestManagedAttribute() throws JsonProcessingException {
     testManagedAttribute = ObjectStoreManagedAttributeFactory.newManagedAttribute()
         .acceptedValues(new String[] { "dosal" })
-        .multilingualDescription(MultilingualDescription.builder()
-          .descriptions(ImmutableList.of(
-            MultilingualDescription.MultilingualPair.builder()
-              .desc("attrEn")
-              .lang("en")
-              .build(), 
-            MultilingualDescription.MultilingualPair.builder()
-              .desc("attrFr")
-              .lang("fr")
-              .build())
-            )
-          .build())
+        .multilingualDescription(MultilingualDescriptionFactory.newMultilingualDescription().build())
         .build();
 
     return managedAttributeService.create(testManagedAttribute);
@@ -80,18 +69,7 @@ public class ObjectStoreManagedAttributeRepositoryCRUDIT extends BaseIntegration
     ma.setName("name");
     ma.setManagedAttributeType(ManagedAttributeType.STRING);
     ma.setAcceptedValues(new String[] { "dosal" });
-    ma.setMultilingualDescription(MultilingualDescription.builder()
-      .descriptions(ImmutableList.of(
-        MultilingualDescription.MultilingualPair.builder()
-          .desc("attrEn")
-          .lang("en")
-          .build(), 
-        MultilingualDescription.MultilingualPair.builder()
-          .desc("attrFr")
-          .lang("fr")
-          .build())
-        )
-    .build());
+    ma.setMultilingualDescription(MultilingualDescriptionFactory.newMultilingualDescription().build());
 
     ObjectStoreManagedAttributeDto result = managedResourceRepository.findOne(
       managedResourceRepository.create(ma).getUuid(),

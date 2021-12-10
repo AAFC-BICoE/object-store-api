@@ -12,7 +12,6 @@ import ca.gc.aafc.objectstore.api.testsupport.factories.MultilingualDescriptionF
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableList;
 
 import io.crnk.core.queryspec.QuerySpec;
 import org.hamcrest.MatcherAssert;

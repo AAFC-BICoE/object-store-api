@@ -7,8 +7,6 @@ import java.util.List;
 
 import javax.transaction.Transactional;
 
-import com.google.common.collect.ImmutableList;
-
 import org.apache.http.client.utils.URIBuilder;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

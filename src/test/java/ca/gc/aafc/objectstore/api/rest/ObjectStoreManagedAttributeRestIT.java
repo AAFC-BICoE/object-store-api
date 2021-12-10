@@ -4,8 +4,6 @@ import java.util.List;
 
 import javax.transaction.Transactional;
 
-import com.google.common.collect.ImmutableList;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
@@ -19,6 +17,7 @@ import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.ObjectStoreApiLauncher;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
+import ca.gc.aafc.objectstore.api.testsupport.factories.MultilingualDescriptionFactory;
 import io.restassured.response.ValidatableResponse;
 import ca.gc.aafc.dina.entity.ManagedAttribute.ManagedAttributeType;
 import ca.gc.aafc.dina.i18n.MultilingualDescription;
@@ -52,18 +51,7 @@ public class ObjectStoreManagedAttributeRestIT extends BaseRestAssuredTest {
     managedAttribute.setManagedAttributeType(ManagedAttributeType.STRING);
     managedAttribute.setCreatedBy(DINA_USER_NAME);
 
-    managedAttribute.setMultilingualDescription(MultilingualDescription.builder()
-      .descriptions(ImmutableList.of(
-        MultilingualDescription.MultilingualPair.builder()
-          .desc("en_desc")
-          .lang("en")
-          .build(), 
-        MultilingualDescription.MultilingualPair.builder()
-          .desc("fr_desc")
-          .lang("fr")
-          .build())
-      )
-    .build());
+    managedAttribute.setMultilingualDescription(MultilingualDescriptionFactory.newMultilingualDescription().build());
     
     return managedAttribute;
   }

@@ -9,6 +9,7 @@ import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
+import ca.gc.aafc.objectstore.api.testsupport.factories.MultilingualDescriptionFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
@@ -24,8 +25,6 @@ import org.springframework.http.MediaType;
 import javax.inject.Inject;
 import javax.persistence.criteria.Predicate;
 import javax.validation.ValidationException;
-
-import com.google.common.collect.ImmutableList;
 
 import java.util.List;
 import java.util.Map;
@@ -54,18 +53,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
   private void createTestManagedAttribute() {
     testManagedAttribute = ObjectStoreManagedAttributeFactory.newManagedAttribute()
     .acceptedValues(new String[]{"dosal"})
-    .multilingualDescription(MultilingualDescription.builder()
-      .descriptions(ImmutableList.of(
-        MultilingualDescription.MultilingualPair.builder()
-          .desc("attrEn")
-          .lang("en")
-          .build(), 
-        MultilingualDescription.MultilingualPair.builder()
-          .desc("attrFr")
-          .lang("fr")
-          .build())
-        )
-      .build())
+    .multilingualDescription(MultilingualDescriptionFactory.newMultilingualDescription().build())
     .build();
     managedAttributeService.create(testManagedAttribute);
   }
