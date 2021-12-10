@@ -19,7 +19,6 @@ public class MultilingualDescriptionFactory implements TestableEntityFactory<Mul
    * @return Pre-configured builder with all mandatory fields set
    */
   public static MultilingualDescription.MultilingualDescriptionBuilder newMultilingualDescription() {
-   (list)
     return MultilingualDescription.builder()
             .descriptions(List.of(
               MultilingualDescription.MultilingualPair.builder()
