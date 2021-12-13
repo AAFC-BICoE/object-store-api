@@ -4,11 +4,12 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.BiFunction;
 
-import com.google.common.collect.ImmutableMap;
+import org.testcontainers.shaded.org.apache.commons.lang.RandomStringUtils;
 
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
 import ca.gc.aafc.dina.entity.ManagedAttribute.ManagedAttributeType;
+import ca.gc.aafc.dina.i18n.MultilingualDescription;
 
 public class ObjectStoreManagedAttributeFactory implements TestableEntityFactory<ObjectStoreManagedAttribute> {
 
@@ -27,7 +28,7 @@ public class ObjectStoreManagedAttributeFactory implements TestableEntityFactory
     return ObjectStoreManagedAttribute.builder()
         .uuid(UUID.randomUUID())
         .name(TestableEntityFactory.generateRandomNameLettersOnly(12))
-        .description(ImmutableMap.of("en", "test description"))
+        .multilingualDescription(MultilingualDescriptionFactory.newMultilingualDescription().build())
         .createdBy("createdBy")
         .managedAttributeType(ManagedAttributeType.STRING);
    }

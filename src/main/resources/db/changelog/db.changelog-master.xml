@@ -12,5 +12,7 @@
     <include file="db/changelog/migrations/7-re_implement_managed_attributes.xml"/>
     <include file="db/changelog/migrations/8-Add_group_to_ObjectSubtype.xml"/>
     <include file="db/changelog/migrations/9-Remove_group_from_ObjectSubType.xml"/>
+    <include file="db/changelog/migrations/10-Update_jsonb_path_exists_varchar_function.xml"/>
+    <include file="db/changelog/migrations/11-Align_managed_attribute_with_collection-api.xml"/>
 
 </databaseChangeLog>

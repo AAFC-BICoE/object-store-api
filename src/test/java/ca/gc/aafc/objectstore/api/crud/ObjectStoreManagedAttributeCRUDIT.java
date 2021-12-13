@@ -7,18 +7,19 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import javax.validation.ValidationException;
 
-import com.google.common.collect.ImmutableMap;
-
 import org.junit.jupiter.api.Test;
 
+import ca.gc.aafc.dina.i18n.MultilingualDescription;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
+import ca.gc.aafc.objectstore.api.testsupport.factories.MultilingualDescriptionFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
@@ -27,7 +28,7 @@ public class ObjectStoreManagedAttributeCRUDIT extends BaseEntityCRUDIT {
      
   private ObjectStoreManagedAttribute managedAttributeUnderTest = ObjectStoreManagedAttributeFactory.newManagedAttribute()
       .acceptedValues(new String[] { "a", "b" })
-      .description(ImmutableMap.of("en", "attrEn", "fr", "attrFr"))
+      .multilingualDescription(MultilingualDescriptionFactory.newMultilingualDescription().build())
       .createdBy("createdBy")
       .build();
       
@@ -43,7 +44,12 @@ public class ObjectStoreManagedAttributeCRUDIT extends BaseEntityCRUDIT {
   public void testSave_whenDescriptionIsBlank_throwValidationException() {
     ObjectStoreManagedAttribute blankDescription = ObjectStoreManagedAttributeFactory.newManagedAttribute()
       .acceptedValues(new String[] { "a", "b" })
-      .description(ImmutableMap.of("en", ""))
+      .multilingualDescription(MultilingualDescription.builder()
+          .descriptions(List.of(MultilingualDescription.MultilingualPair.builder()
+            .desc("")
+            .lang("en")
+            .build()))
+          .build())
       .build();
 
     assertThrows(
@@ -52,10 +58,12 @@ public class ObjectStoreManagedAttributeCRUDIT extends BaseEntityCRUDIT {
   }
 
   @Test
-  public void testSave_whenDescriptionIsNull_throwValidationException() {
+  public void testSave_whenDescriptionsIsNull_throwValidationException() {
     ObjectStoreManagedAttribute nullDescription = ObjectStoreManagedAttributeFactory.newManagedAttribute()
       .acceptedValues(new String[] { "a", "b" })
-      .description(null)
+      .multilingualDescription(MultilingualDescription.builder()
+          .descriptions(null)
+          .build())
       .build();
 
     assertThrows(
@@ -71,7 +79,7 @@ public class ObjectStoreManagedAttributeCRUDIT extends BaseEntityCRUDIT {
 
     assertArrayEquals(new String[] { "a", "b" }, managedAttributeUnderTest.getAcceptedValues());
 
-    assertEquals("attrFr", managedAttributeUnderTest.getDescription().get("fr"));
+    assertEquals("attrFr", managedAttributeUnderTest.getMultilingualDescription().getDescriptions().stream().filter(p -> p.getLang().equals("fr")).findAny().get().getDesc());
     assertEquals(managedAttributeUnderTest.getCreatedBy(), fetchedObjectStoreMeta.getCreatedBy());
     assertNotNull(fetchedObjectStoreMeta.getCreatedOn());
   }
@@ -88,7 +96,7 @@ public class ObjectStoreManagedAttributeCRUDIT extends BaseEntityCRUDIT {
   public void testRemove_WhenKeyInUseByMetadata_DeniesDelete() {
     ObjectStoreManagedAttribute managedAttribute = ObjectStoreManagedAttributeFactory.newManagedAttribute()
       .acceptedValues(new String[] { "key_a", "value_a" })
-      .description(ImmutableMap.of("en", "attrEn", "fr", "attrFr"))
+      .multilingualDescription(MultilingualDescriptionFactory.newMultilingualDescription().build())
       .createdBy("createdBy")
       .build();
 
