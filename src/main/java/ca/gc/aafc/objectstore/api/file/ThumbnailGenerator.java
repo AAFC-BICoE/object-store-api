@@ -34,7 +34,6 @@ public class ThumbnailGenerator {
   public static final int THUMBNAIL_WIDTH = 200;
   public static final int THUMBNAIL_HEIGHT = 200;
   public static final String THUMBNAIL_EXTENSION = ".jpg";
-  public static final String THUMBNAIL_AC_SUB_TYPE = "THUMBNAIL";
   public static final DcType THUMBNAIL_DC_TYPE = DcType.IMAGE;
   public static final String SYSTEM_GENERATED = "System Generated";
   public static final String PDF_MEDIA_TYPE = MediaType.APPLICATION_PDF_VALUE;
