@@ -1,9 +1,6 @@
 package ca.gc.aafc.objectstore.api.rest;
 
-import static io.restassured.RestAssured.given;
-
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 import javax.transaction.Transactional;
 
@@ -20,8 +17,10 @@ import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.ObjectStoreApiLauncher;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
+import ca.gc.aafc.objectstore.api.testsupport.factories.MultilingualDescriptionFactory;
 import io.restassured.response.ValidatableResponse;
 import ca.gc.aafc.dina.entity.ManagedAttribute.ManagedAttributeType;
+import ca.gc.aafc.dina.i18n.MultilingualDescription;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
@@ -51,10 +50,8 @@ public class ObjectStoreManagedAttributeRestIT extends BaseRestAssuredTest {
     managedAttribute.setName(TestableEntityFactory.generateRandomNameLettersOnly(12));
     managedAttribute.setManagedAttributeType(ManagedAttributeType.STRING);
     managedAttribute.setCreatedBy(DINA_USER_NAME);
-    Map<String, String> desc = new HashMap<String, String>();
-    desc.put("fr", "fr_desc");
-    desc.put("en", "en_desc");
-    managedAttribute.setDescription(desc);
+
+    managedAttribute.setMultilingualDescription(MultilingualDescriptionFactory.newMultilingualDescription().build());
     
     return managedAttribute;
   }

@@ -1,5 +1,6 @@
 package ca.gc.aafc.objectstore.api.rest;
 
+import ca.gc.aafc.dina.i18n.MultilingualDescription;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
@@ -7,10 +8,11 @@ import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.repository.ObjectStoreManagedAttributeResourceRepository;
 import ca.gc.aafc.objectstore.api.repository.ObjectStoreResourceRepository;
+import ca.gc.aafc.objectstore.api.testsupport.factories.MultilingualDescriptionFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
+
 import io.crnk.core.queryspec.QuerySpec;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
@@ -21,6 +23,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
+
+import java.util.List;
 import java.util.UUID;
 
 public class ObjectStoreManagedAttributeAuditingIT extends BaseIntegrationTest {
@@ -48,7 +52,7 @@ public class ObjectStoreManagedAttributeAuditingIT extends BaseIntegrationTest {
     ObjectStoreManagedAttributeDto managed = new ObjectStoreManagedAttributeDto();
     managed.setName("name");
     managed.setUuid(UUID.randomUUID());
-    managed.setDescription(ImmutableMap.of("en", "en"));
+    managed.setMultilingualDescription(MultilingualDescriptionFactory.newMultilingualDescription().build());
     managed.setManagedAttributeType(ObjectStoreManagedAttribute.ManagedAttributeType.STRING);
 
     managedAttribute = managedRepo.create(managed);
