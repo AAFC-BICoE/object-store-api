@@ -126,17 +126,6 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
     derivativeService.generateThumbnail(bucket, sourceFilename, derivedId, evaluatedMediaType, null, false);
   }
 
-  public ObjectSubtype getThumbNailSubtype() {
-    return this.findAll(ObjectSubtype.class,
-      (criteriaBuilder, objectRoot) -> new Predicate[]{
-        criteriaBuilder.equal(objectRoot.get("acSubtype"), ThumbnailGenerator.THUMBNAIL_AC_SUB_TYPE),
-        criteriaBuilder.equal(objectRoot.get("dcType"), ThumbnailGenerator.THUMBNAIL_DC_TYPE),
-      }, null, 0, 1)
-      .stream()
-      .findFirst()
-      .orElseThrow(() -> new IllegalArgumentException("A thumbnail subtype is not present"));
-  }
-
   /**
    * Method responsible for dealing with validation and setting of data related to files.
    *
