@@ -6,7 +6,6 @@ import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.file.FileController;
-import ca.gc.aafc.objectstore.api.file.ThumbnailGenerator;
 import ca.gc.aafc.objectstore.api.validation.ObjectStoreManagedAttributeValueValidator;
 import io.crnk.core.exception.BadRequestException;
 import lombok.NonNull;
@@ -124,17 +123,6 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
     UUID derivedId = resource.getUuid();
     String sourceFilename = resource.getFileIdentifier() + resource.getFileExtension();
     derivativeService.generateThumbnail(bucket, sourceFilename, derivedId, evaluatedMediaType, null, false);
-  }
-
-  public ObjectSubtype getThumbNailSubtype() {
-    return this.findAll(ObjectSubtype.class,
-      (criteriaBuilder, objectRoot) -> new Predicate[]{
-        criteriaBuilder.equal(objectRoot.get("acSubtype"), ThumbnailGenerator.THUMBNAIL_AC_SUB_TYPE),
-        criteriaBuilder.equal(objectRoot.get("dcType"), ThumbnailGenerator.THUMBNAIL_DC_TYPE),
-      }, null, 0, 1)
-      .stream()
-      .findFirst()
-      .orElseThrow(() -> new IllegalArgumentException("A thumbnail subtype is not present"));
   }
 
   /**
