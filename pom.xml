@@ -27,17 +27,17 @@
 		<pdfbox.version>2.0.24</pdfbox.version>
 		<imageio.version>3.6.4</imageio.version>
 
-		<spotbugs-maven-plugin.version>4.2.0</spotbugs-maven-plugin.version>
-		<spotbugs.version>4.2.2</spotbugs.version>
+		<spotbugs-maven-plugin.version>4.5.0.0</spotbugs-maven-plugin.version>
+		<spotbugs.version>4.5.2</spotbugs.version>
 		<jcip-annotations.version>1.0</jcip-annotations.version>
-		<dependency-check.version>6.1.6</dependency-check.version>
+		<dependency-check.version>6.5.1</dependency-check.version>
 		<jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
 		<maven-checkstyle-plugin.version>3.1.1</maven-checkstyle-plugin.version>
 		<checkstyle.version>8.44</checkstyle.version>
 		<asciidoctor-maven-plugin.version>2.1.0</asciidoctor-maven-plugin.version>
 		<asciidoctorj.diagram.version>2.0.2</asciidoctorj.diagram.version>
-		<dina-base-api.version>0.76</dina-base-api.version>
-		<log4j2.version>2.16.0</log4j2.version>
+		<dina-base-api.version>0.77</dina-base-api.version>
+		<log4j2.version>2.17.0</log4j2.version>
 
 		<!-- Override to avoid NoClassDefFoundError: org/apache/maven/doxia/siterenderer/DocumentContent -->
 		<maven-site-plugin.version>3.7.1</maven-site-plugin.version>
@@ -226,6 +226,9 @@
 				<groupId>com.github.spotbugs</groupId>
 				<artifactId>spotbugs-maven-plugin</artifactId>
 				<version>${spotbugs-maven-plugin.version}</version>
+				<configuration>
+					<excludeFilterFile>spotbugs-exclude.xml</excludeFilterFile>
+				</configuration>
 				<dependencies>
 					<!-- Force SpotBug version to match the annotation -->
 					<dependency>
