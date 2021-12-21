@@ -22,10 +22,10 @@ public class MinioTestContainerInitializer implements ApplicationContextInitiali
           throw new IllegalArgumentException("you must supply the embedded.minio.image property");
         }
         minioTestContainer = new MinioTestContainer(imageName);
+        minioTestContainer.start();
         TestPropertyValues.of(
           "minio.port:" + minioTestContainer.getMappedPort()
         ).applyTo(env);
-        minioTestContainer.start();
       }
     }
   }
