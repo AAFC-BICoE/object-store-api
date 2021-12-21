@@ -26,7 +26,7 @@ public class MinioTestContainer extends GenericContainer<MinioTestContainer> {
     this.setWaitStrategy(new HttpWaitStrategy()
       .forPort(PORT)
       .forPath(HEALTH_ENDPOINT)
-      .withStartupTimeout(Duration.ofMinutes(2)));
+      .withStartupTimeout(Duration.ofMinutes(1)));
   }
 
   public int getMappedPort() {
