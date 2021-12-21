@@ -23,10 +23,10 @@ public class MinioTestContainerInitializer implements ApplicationContextInitiali
         }
         minioTestContainer = new MinioTestContainer(imageName);
         minioTestContainer.start();
-        TestPropertyValues.of(
-          "minio.port:" + minioTestContainer.getMappedPort()
-        ).applyTo(env);
       }
+      TestPropertyValues.of(
+        "minio.port:" + minioTestContainer.getMappedPort()
+      ).applyTo(env);
     }
   }
 
