@@ -26,6 +26,8 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
+import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -109,7 +111,9 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
     String notPubliclyReleasableReason,
     ObjectSubtype acSubtype,
     Integer acSubtypeId,
-    Integer orientation
+    Integer orientation,
+    Boolean isExternal,
+    URI resourceExternalURI
   ) {
     super(
       uuid,
@@ -121,7 +125,9 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
       acHashValue,
       createdBy,
       createdOn,
-      dcFormat);
+      dcFormat,
+      isExternal,
+      resourceExternalURI);
     this.id = id;
     this.acCaption = acCaption;
     this.acDigitizationDate = acDigitizationDate;

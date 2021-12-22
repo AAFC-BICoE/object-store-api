@@ -18,6 +18,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+
+import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -52,7 +54,9 @@ public class Derivative extends AbstractObjectStoreMetadata {
     ObjectStoreMetadata acDerivedFrom,
     DerivativeType derivativeType,
     Derivative generatedFromDerivative,
-    String dcFormat
+    String dcFormat,
+    Boolean isExternal,
+    URI resourceExternalURI
   ) {
     super(
       uuid,
@@ -64,7 +68,9 @@ public class Derivative extends AbstractObjectStoreMetadata {
       acHashValue,
       createdBy,
       createdOn,
-      dcFormat);
+      dcFormat,
+      isExternal,
+      resourceExternalURI);
     this.id = id;
     this.acDerivedFrom = acDerivedFrom;
     this.derivativeType = derivativeType;
