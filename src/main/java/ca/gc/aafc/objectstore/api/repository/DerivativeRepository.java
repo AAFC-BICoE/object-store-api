@@ -50,34 +50,37 @@ public class DerivativeRepository extends DinaRepository<DerivativeDto, Derivati
 
   @Override
   public <S extends DerivativeDto> S create(S resource) {
-    UUID fileIdentifier = resource.getFileIdentifier();
-    // File id required on submission
-    if (fileIdentifier == null) {
-      throw new ValidationException("fileIdentifier should be provided");
-    }
+    if (!resource.getIsExternal()) {
 
-    ObjectUpload objectUpload = derivativeService.findOne(
-      fileIdentifier,
-      ObjectUpload.class);
-
-    // Object Upload must be present, signals a real file has been previously uploaded.
-    if (objectUpload == null) {
-      throw new ValidationException("Upload with fileIdentifier:" + fileIdentifier + " not found");
-    }
-
-    // Object Upload must be a derivative
-    if (!objectUpload.getIsDerivative()) {
-      throw new BadRequestException("Upload with fileIdentifier:" + fileIdentifier + " is not a derivative");
-    }
-
-    // Auto populated fields based on object upload for given File Id
-    resource.setFileExtension(objectUpload.getEvaluatedFileExtension());
-    resource.setAcHashValue(objectUpload.getSha1Hex());
-    resource.setAcHashFunction(FileController.DIGEST_ALGORITHM);
-    resource.setBucket(objectUpload.getBucket());
-    if (StringUtils.isBlank(resource.getDcFormat())) { // Auto populate if not submitted
-      resource.setDcFormat(objectUpload.getEvaluatedMediaType());
-    }
+      UUID fileIdentifier = resource.getFileIdentifier();
+      // File id required on submission
+      if (fileIdentifier == null) {
+        throw new ValidationException("fileIdentifier should be provided");
+      }
+      
+      ObjectUpload objectUpload = derivativeService.findOne(
+        fileIdentifier,
+        ObjectUpload.class);
+        
+        // Object Upload must be present, signals a real file has been previously uploaded.
+        if (objectUpload == null) {
+          throw new ValidationException("Upload with fileIdentifier:" + fileIdentifier + " not found");
+        }
+        
+        // Object Upload must be a derivative
+        if (!objectUpload.getIsDerivative()) {
+          throw new BadRequestException("Upload with fileIdentifier:" + fileIdentifier + " is not a derivative");
+        }
+        
+        // Auto populated fields based on object upload for given File Id
+        resource.setFileExtension(objectUpload.getEvaluatedFileExtension());
+        resource.setAcHashValue(objectUpload.getSha1Hex());
+        resource.setAcHashFunction(FileController.DIGEST_ALGORITHM);
+        resource.setBucket(objectUpload.getBucket());
+        if (StringUtils.isBlank(resource.getDcFormat())) { // Auto populate if not submitted
+          resource.setDcFormat(objectUpload.getEvaluatedMediaType());
+        }
+      }
     resource.setCreatedBy(authenticatedUser.getUsername());
 
     return super.create(resource);

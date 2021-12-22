@@ -18,6 +18,8 @@ import javax.persistence.MappedSuperclass;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
+import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -37,6 +39,8 @@ public abstract class AbstractObjectStoreMetadata implements DinaEntity {
   protected String createdBy;
   protected OffsetDateTime createdOn;
   private String dcFormat;
+  private Boolean isExternal;
+  private URI resourceExternalURI;
 
   @NaturalId
   @NotNull
@@ -59,7 +63,6 @@ public abstract class AbstractObjectStoreMetadata implements DinaEntity {
     this.bucket = bucket;
   }
 
-  @NotNull
   @Column(name = "file_identifier", unique = true)
   public UUID getFileIdentifier() {
     return fileIdentifier;
@@ -67,6 +70,25 @@ public abstract class AbstractObjectStoreMetadata implements DinaEntity {
 
   public void setFileIdentifier(UUID fileIdentifier) {
     this.fileIdentifier = fileIdentifier;
+  }
+
+  @Column(name = "is_external")
+  public Boolean getIsExternal() {
+    return isExternal;
+  }
+
+  public void setIsExternal(Boolean isExternal) {
+    this.isExternal = isExternal;
+  }
+
+  @Column(name = "resource_external_uri")
+  @Size(max = 255)
+  public URI getResourceExternalURI() {
+    return resourceExternalURI;
+  }
+
+  public void setResourceExternalURI(URI resourceExternalURI) {
+    this.resourceExternalURI = resourceExternalURI;
   }
 
   @NotNull
