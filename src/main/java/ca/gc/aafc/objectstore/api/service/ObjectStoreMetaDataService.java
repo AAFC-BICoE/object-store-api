@@ -7,6 +7,7 @@ import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.file.FileController;
 import ca.gc.aafc.objectstore.api.validation.ObjectStoreManagedAttributeValueValidator;
+import ca.gc.aafc.objectstore.api.validation.ObjectStoreMetadataValidator;
 import io.crnk.core.exception.BadRequestException;
 import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
@@ -27,19 +28,22 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
   private final ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService;
   private final DerivativeService derivativeService;
   private final ObjectStoreManagedAttributeValueValidator objectStoreManagedAttributeValueValidator;
+  private final ObjectStoreMetadataValidator objectStoreMetadataValidator;
 
   public ObjectStoreMetaDataService(
     @NonNull BaseDAO baseDAO,
     @NonNull ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService,
     @NonNull DerivativeService derivativeService,
     @NonNull SmartValidator smartValidator,
-    @NonNull ObjectStoreManagedAttributeValueValidator objectStoreManagedAttributeValueValidator
+    @NonNull ObjectStoreManagedAttributeValueValidator objectStoreManagedAttributeValueValidator,
+    @NonNull ObjectStoreMetadataValidator objectStoreMetadataValidator
   ) {
     super(baseDAO, smartValidator);
     this.baseDAO = baseDAO;
     this.defaultValueSetterService = defaultValueSetterService;
     this.derivativeService = derivativeService;
     this.objectStoreManagedAttributeValueValidator = objectStoreManagedAttributeValueValidator;
+    this.objectStoreMetadataValidator = objectStoreMetadataValidator;
   }
 
   @Override
@@ -79,6 +83,7 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
 
   @Override
   public void validateBusinessRules(ObjectStoreMetadata entity) {
+    applyBusinessRule(entity, objectStoreMetadataValidator);
     objectStoreManagedAttributeValueValidator.validate(entity, entity.getManagedAttributeValues());
   }
 
@@ -138,7 +143,7 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
 
       // we need to validate at least that bucket name and fileIdentifier are there
       if (StringUtils.isBlank(objectMetadata.getBucket())
-      || StringUtils.isBlank(Objects.toString(objectMetadata.getFileIdentifier(), ""))) {
+        || StringUtils.isBlank(Objects.toString(objectMetadata.getFileIdentifier(), ""))) {
         throw new ValidationException("fileIdentifier and bucket should be provided");
       }
       
@@ -147,17 +152,17 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
         ObjectUpload.class);
         
         // make sure that there is an ObjectUpload that is not a derivative
-        if (objectUpload == null || objectUpload.getIsDerivative()) {
-          throw new ValidationException("primary object with fileIdentifier not found: " + objectMetadata.getFileIdentifier());
-        }
-        
-        objectMetadata.setFileExtension(objectUpload.getEvaluatedFileExtension());
-        objectMetadata.setOriginalFilename(objectUpload.getOriginalFilename());
-        objectMetadata.setDcFormat(objectUpload.getEvaluatedMediaType());
-        objectMetadata.setAcHashValue(objectUpload.getSha1Hex());
-        objectMetadata.setAcHashFunction(FileController.DIGEST_ALGORITHM);
-        
+      if (objectUpload == null || objectUpload.getIsDerivative()) {
+        throw new ValidationException("primary object with fileIdentifier not found: " + objectMetadata.getFileIdentifier());
       }
+        
+      objectMetadata.setFileExtension(objectUpload.getEvaluatedFileExtension());
+      objectMetadata.setOriginalFilename(objectUpload.getOriginalFilename());
+      objectMetadata.setDcFormat(objectUpload.getEvaluatedMediaType());
+      objectMetadata.setAcHashValue(objectUpload.getSha1Hex());
+      objectMetadata.setAcHashFunction(FileController.DIGEST_ALGORITHM);
+        
+    }
   }
 
   @Override

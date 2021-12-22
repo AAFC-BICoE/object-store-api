@@ -17,8 +17,10 @@ public class DerivativeValidator implements Validator {
 
   public static final String VALID_THUMB_DC_FORMAT_KEY = "validation.constraint.violation.requiredThumbnailDcFormat";
   public static final String VALID_THUMB_SUPPORTED_KEY = "validation.constraint.violation.thumbnailDcFormatNotSupported";
+  public static final String VALID_FILE_ID_OR_RESOURCE_EXTERNAL = "validation.constraint.violation.fileIdOrResourceExternal";
 
   private static final String VALID_THUMBNAIL_MEDIA_TYPE = ThumbnailGenerator.THUMB_DC_FORMAT;
+
 
   private final MessageSource messageSource;
 
@@ -37,6 +39,14 @@ public class DerivativeValidator implements Validator {
     Derivative entity = (Derivative) o;
 
     validateDerivativeForThumbnail(errors, entity);
+    checkOnlyFileIdentifierOrResourceExternalURI(errors, entity);
+  }
+
+  private void checkOnlyFileIdentifierOrResourceExternalURI(@NonNull Errors errors, @NonNull Derivative entity) {
+    if (entity.getFileIdentifier() != null &&
+      entity.getResourceExternalURI() != null) {
+      loadErrorMessageForKey(errors, VALID_FILE_ID_OR_RESOURCE_EXTERNAL);
+    }
   }
 
   private void validateDerivativeForThumbnail(@NonNull Errors errors, @NonNull Derivative entity) {

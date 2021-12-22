@@ -62,25 +62,25 @@ public class DerivativeRepository extends DinaRepository<DerivativeDto, Derivati
         fileIdentifier,
         ObjectUpload.class);
         
-        // Object Upload must be present, signals a real file has been previously uploaded.
-        if (objectUpload == null) {
-          throw new ValidationException("Upload with fileIdentifier:" + fileIdentifier + " not found");
-        }
-        
-        // Object Upload must be a derivative
-        if (!objectUpload.getIsDerivative()) {
-          throw new BadRequestException("Upload with fileIdentifier:" + fileIdentifier + " is not a derivative");
-        }
-        
-        // Auto populated fields based on object upload for given File Id
-        resource.setFileExtension(objectUpload.getEvaluatedFileExtension());
-        resource.setAcHashValue(objectUpload.getSha1Hex());
-        resource.setAcHashFunction(FileController.DIGEST_ALGORITHM);
-        resource.setBucket(objectUpload.getBucket());
-        if (StringUtils.isBlank(resource.getDcFormat())) { // Auto populate if not submitted
-          resource.setDcFormat(objectUpload.getEvaluatedMediaType());
-        }
+      // Object Upload must be present, signals a real file has been previously uploaded.
+      if (objectUpload == null) {
+        throw new ValidationException("Upload with fileIdentifier:" + fileIdentifier + " not found");
       }
+      
+      // Object Upload must be a derivative
+      if (!objectUpload.getIsDerivative()) {
+        throw new BadRequestException("Upload with fileIdentifier:" + fileIdentifier + " is not a derivative");
+      }
+      
+      // Auto populated fields based on object upload for given File Id
+      resource.setFileExtension(objectUpload.getEvaluatedFileExtension());
+      resource.setAcHashValue(objectUpload.getSha1Hex());
+      resource.setAcHashFunction(FileController.DIGEST_ALGORITHM);
+      resource.setBucket(objectUpload.getBucket());
+      if (StringUtils.isBlank(resource.getDcFormat())) { // Auto populate if not submitted
+        resource.setDcFormat(objectUpload.getEvaluatedMediaType());
+      }
+    }
     resource.setCreatedBy(authenticatedUser.getUsername());
 
     return super.create(resource);
