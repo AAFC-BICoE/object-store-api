@@ -10,6 +10,7 @@ import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.NaturalIdCache;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
+import org.hibernate.validator.constraints.URL;
 
 import javax.persistence.Column;
 import javax.persistence.EnumType;
@@ -19,7 +20,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -40,7 +40,7 @@ public abstract class AbstractObjectStoreMetadata implements DinaEntity {
   protected OffsetDateTime createdOn;
   private String dcFormat;
   private Boolean isExternal;
-  private URI resourceExternalURI;
+  private String resourceExternalURI;
 
   @NaturalId
   @NotNull
@@ -82,11 +82,13 @@ public abstract class AbstractObjectStoreMetadata implements DinaEntity {
   }
 
   @Column(name = "resource_external_uri")
-  public URI getResourceExternalURI() {
+  @URL
+  @Size(max = 255)
+  public String getResourceExternalURI() {
     return resourceExternalURI;
   }
 
-  public void setResourceExternalURI(URI resourceExternalURI) {
+  public void setResourceExternalURI(String resourceExternalURI) {
     this.resourceExternalURI = resourceExternalURI;
   }
 

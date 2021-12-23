@@ -9,7 +9,6 @@ import io.crnk.core.resource.annotations.JsonApiRelation;
 import io.crnk.core.resource.annotations.JsonApiResource;
 import lombok.Data;
 
-import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -34,7 +33,7 @@ public class DerivativeDto {
   private OffsetDateTime createdOn;
   private Derivative.DerivativeType derivativeType;
   private Boolean isExternal;
-  private URI resourceExternalURI;
+  private String resourceExternalURI;
 
   @JsonApiRelation
   private DerivativeDto generatedFromDerivative;

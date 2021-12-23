@@ -19,7 +19,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -56,7 +55,7 @@ public class Derivative extends AbstractObjectStoreMetadata {
     Derivative generatedFromDerivative,
     String dcFormat,
     Boolean isExternal,
-    URI resourceExternalURI
+    String resourceExternalURI
   ) {
     super(
       uuid,

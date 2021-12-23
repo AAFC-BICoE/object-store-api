@@ -28,7 +28,6 @@ import org.javers.core.metamodel.annotation.PropertyName;
 import org.javers.core.metamodel.annotation.ShallowReference;
 import org.javers.core.metamodel.annotation.TypeName;
 
-import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -58,7 +57,7 @@ public class ObjectStoreMetadataDto extends AttributeMetaInfoProvider {
   private UUID fileIdentifier;
   private String fileExtension;
   private Boolean isExternal;
-  private URI resourceExternalURI;
+  private String resourceExternalURI;
 
   private String dcFormat;
 

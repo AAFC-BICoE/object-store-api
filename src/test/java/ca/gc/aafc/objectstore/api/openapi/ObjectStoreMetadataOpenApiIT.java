@@ -5,6 +5,7 @@ import ca.gc.aafc.dina.testsupport.DatabaseSupportService;
 import ca.gc.aafc.dina.testsupport.PostgresTestContainerInitializer;
 import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.dina.testsupport.specs.OpenAPI3Assertions;
+import ca.gc.aafc.dina.testsupport.specs.ValidationRestrictionOptions;
 import ca.gc.aafc.objectstore.api.ObjectStoreApiLauncher;
 import ca.gc.aafc.objectstore.api.dto.DerivativeDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
@@ -37,6 +38,7 @@ import java.net.URL;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 @SpringBootTest(
@@ -143,7 +145,8 @@ public class ObjectStoreMetadataOpenApiIT extends BaseRestAssuredTest {
           "acMetadataCreator", getRelationshipType("person", UUID.randomUUID().toString()),
           "derivatives", getRelationshipListType("derivative", derivativeUuid)),
       null))
-      .extract().asString());
+      .extract().asString(),
+    ValidationRestrictionOptions.builder().allowAdditionalFields(false).allowableMissingFields(Set.of("resourceExternalURI")).build());
   }
 
   private ObjectStoreMetadataDto buildObjectStoreMetadataDto() {
@@ -169,6 +172,7 @@ public class ObjectStoreMetadataOpenApiIT extends BaseRestAssuredTest {
     osMetadata.setAcCaption("acCaption");
     osMetadata.setAcSubtype(oSubtype.getAcSubtype());
     osMetadata.setAcTags(new String[]{"acTags"});
+    osMetadata.setIsExternal(false);
 
     osMetadata.setDerivatives(null);
     return osMetadata;

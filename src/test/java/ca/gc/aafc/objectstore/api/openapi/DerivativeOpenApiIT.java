@@ -6,6 +6,7 @@ import java.net.URL;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Inject;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -27,6 +28,7 @@ import ca.gc.aafc.dina.testsupport.DatabaseSupportService;
 import ca.gc.aafc.dina.testsupport.PostgresTestContainerInitializer;
 import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.dina.testsupport.specs.OpenAPI3Assertions;
+import ca.gc.aafc.dina.testsupport.specs.ValidationRestrictionOptions;
 import ca.gc.aafc.objectstore.api.ObjectStoreApiLauncher;
 import ca.gc.aafc.objectstore.api.dto.DerivativeDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
@@ -132,7 +134,8 @@ public class DerivativeOpenApiIT extends BaseRestAssuredTest {
           "acDerivedFrom", getRelationshipType("metadata", metadataUuid),
           "generatedFromDerivative", getRelationshipType("derivative", derivativeUuid)),
       null))
-      .extract().asString());
+      .extract().asString(),
+    ValidationRestrictionOptions.builder().allowAdditionalFields(false).allowableMissingFields(Set.of("resourceExternalURI")).build());
   }
 
   private Map<String, Object> getRelationshipType(String type, String uuid) {
@@ -153,6 +156,7 @@ public class DerivativeOpenApiIT extends BaseRestAssuredTest {
     dto.setAcHashValue("abc");
     dto.setDcFormat(MediaType.IMAGE_JPEG_VALUE);
     dto.setCreatedBy("user");
+    dto.setIsExternal(false);
     return dto;
   }
 

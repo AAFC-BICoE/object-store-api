@@ -27,7 +27,6 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -113,7 +112,7 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
     Integer acSubtypeId,
     Integer orientation,
     Boolean isExternal,
-    URI resourceExternalURI
+    String resourceExternalURI
   ) {
     super(
       uuid,
