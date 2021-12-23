@@ -13,6 +13,8 @@ import ca.gc.aafc.objectstore.api.service.DerivativeService;
 import io.crnk.core.exception.BadRequestException;
 import io.crnk.core.exception.MethodNotAllowedException;
 import lombok.NonNull;
+
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.stereotype.Repository;
@@ -50,7 +52,7 @@ public class DerivativeRepository extends DinaRepository<DerivativeDto, Derivati
 
   @Override
   public <S extends DerivativeDto> S create(S resource) {
-    if (!resource.getIsExternal()) {
+    if (!BooleanUtils.isTrue(resource.getIsExternal())) {
 
       UUID fileIdentifier = resource.getFileIdentifier();
       // File id required on submission
@@ -80,6 +82,8 @@ public class DerivativeRepository extends DinaRepository<DerivativeDto, Derivati
       if (StringUtils.isBlank(resource.getDcFormat())) { // Auto populate if not submitted
         resource.setDcFormat(objectUpload.getEvaluatedMediaType());
       }
+    } else {
+      resource.setAcHashValue(resource.getResourceExternalURI().toString());
     }
     resource.setCreatedBy(authenticatedUser.getUsername());
 

@@ -10,6 +10,8 @@ import ca.gc.aafc.objectstore.api.validation.ObjectStoreManagedAttributeValueVal
 import ca.gc.aafc.objectstore.api.validation.ObjectStoreMetadataValidator;
 import io.crnk.core.exception.BadRequestException;
 import lombok.NonNull;
+
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.SmartValidator;
@@ -139,7 +141,7 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
   private void handleFileRelatedData(ObjectStoreMetadata objectMetadata)
       throws ValidationException {
 
-    if (!objectMetadata.getIsExternal()) {
+    if (!BooleanUtils.isTrue(objectMetadata.getIsExternal())) {
 
       // we need to validate at least that bucket name and fileIdentifier are there
       if (StringUtils.isBlank(objectMetadata.getBucket())
@@ -162,6 +164,8 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
       objectMetadata.setAcHashValue(objectUpload.getSha1Hex());
       objectMetadata.setAcHashFunction(FileController.DIGEST_ALGORITHM);
         
+    } else {
+      objectMetadata.setAcHashValue(objectMetadata.getResourceExternalURI().toString());
     }
   }
 

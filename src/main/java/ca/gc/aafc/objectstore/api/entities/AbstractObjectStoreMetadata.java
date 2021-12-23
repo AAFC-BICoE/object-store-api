@@ -82,7 +82,6 @@ public abstract class AbstractObjectStoreMetadata implements DinaEntity {
   }
 
   @Column(name = "resource_external_uri")
-  @Size(max = 255)
   public URI getResourceExternalURI() {
     return resourceExternalURI;
   }
