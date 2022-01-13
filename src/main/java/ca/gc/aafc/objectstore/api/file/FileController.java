@@ -13,7 +13,7 @@ import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.exif.ExifParser;
 import ca.gc.aafc.objectstore.api.minio.MinioFileService;
 import ca.gc.aafc.objectstore.api.service.DerivativeService;
-import ca.gc.aafc.objectstore.api.service.ObjectStoreMetadataReadService;
+import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
 import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
 import io.crnk.core.exception.UnauthorizedException;
 import io.minio.errors.ErrorResponseException;
@@ -84,7 +84,7 @@ public class FileController {
   private final ObjectUploadService objectUploadService;
   private final DerivativeService derivativeService;
   private final MinioFileService minioService;
-  private final ObjectStoreMetadataReadService objectStoreMetadataReadService;
+  private final ObjectStoreMetaDataService objectStoreMetaDataService;
   private final MediaTypeDetectionStrategy mediaTypeDetectionStrategy;
   private final MessageSource messageSource;
 
@@ -96,14 +96,14 @@ public class FileController {
     MinioFileService minioService,
     ObjectUploadService objectUploadService,
     DerivativeService derivativeService,
-    ObjectStoreMetadataReadService objectStoreMetadataReadService,
+    ObjectStoreMetaDataService objectStoreMetaDataService,
     MediaTypeDetectionStrategy mediaTypeDetectionStrategy,
     DinaAuthenticatedUser authenticatedUser,
     MessageSource messageSource
   ) {
     this.minioService = minioService;
     this.objectUploadService = objectUploadService;
-    this.objectStoreMetadataReadService = objectStoreMetadataReadService;
+    this.objectStoreMetaDataService = objectStoreMetaDataService;
     this.mediaTypeDetectionStrategy = mediaTypeDetectionStrategy;
     this.authenticatedUser = authenticatedUser;
     this.messageSource = messageSource;
@@ -202,7 +202,7 @@ public class FileController {
     @PathVariable String bucket,
     @PathVariable UUID fileId
   ) throws IOException {
-    ObjectStoreMetadata metadata = objectStoreMetadataReadService
+    ObjectStoreMetadata metadata = objectStoreMetaDataService
       .loadObjectStoreMetadataByFileId(fileId)
       .orElseThrow(() -> buildNotFoundException(bucket, Objects.toString(fileId)));
 
@@ -228,7 +228,7 @@ public class FileController {
     @PathVariable String bucket,
     @PathVariable UUID fileId
   ) throws IOException {
-    ObjectStoreMetadata objectStoreMetadata = objectStoreMetadataReadService
+    ObjectStoreMetadata objectStoreMetadata = objectStoreMetaDataService
       .loadObjectStoreMetadataByFileId(fileId)
       .orElseThrow(() -> buildNotFoundException(bucket, Objects.toString(fileId)));
 
