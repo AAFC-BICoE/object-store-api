@@ -160,10 +160,6 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
 
   }
 
-  public Optional<ObjectStoreMetadata> loadObjectStoreMetadata(UUID id) {
-    return Optional.ofNullable(this.findOne(id));
-  }
-
   public Optional<ObjectStoreMetadata> loadObjectStoreMetadataByFileId(UUID fileId) {
     return this.findAll(
       ObjectStoreMetadata.class,
