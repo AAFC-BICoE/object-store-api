@@ -10,8 +10,7 @@
         <notes><![CDATA[
             False Positive: Caused from a dependency required by keycloak. More info: https://github.com/jeremylong/DependencyCheck/issues/3987
         ]]></notes>
-        <filePath regex="true">.*\/apache-mime4j.*\.jar</filePath>
-        <cpe>cpe:/a:apache:james:0.6</cpe>
+        <cve>CVE-2021-40525</cve>
     </suppress>
     <suppress>
         <notes>CVE about the Minio server, not java client</notes>
