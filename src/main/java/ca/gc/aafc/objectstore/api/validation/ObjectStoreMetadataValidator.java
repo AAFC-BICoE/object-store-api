@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 public class ObjectStoreMetadataValidator implements Validator {
 
   public static final String VALID_FILE_ID_OR_RESOURCE_EXTERNAL = "validation.constraint.violation.fileIdOrResourceExternal";
+  public static final String NO_FILE_ID_OR_RESOURCE_EXTERNAL = "validation.constraint.violation.noFileIdOrResourceExternal";
 
   private final MessageSource messageSource;
 
@@ -35,9 +36,14 @@ public class ObjectStoreMetadataValidator implements Validator {
   }
 
   private void checkOnlyFileIdentifierOrResourceExternalURI(@NonNull Errors errors, @NonNull ObjectStoreMetadata entity) {
-    if (entity.getFileIdentifier() != null &&
-      entity.getResourceExternalURI() != null) {
+    // Report an error if both are set.
+    if (entity.getFileIdentifier() != null && entity.getResourceExternalURI() != null) {
       loadErrorMessageForKey(errors, VALID_FILE_ID_OR_RESOURCE_EXTERNAL);
+    }
+
+    // Report an error if none of them are setup.
+    if (entity.getFileIdentifier() == null && entity.getResourceExternalURI() == null) {
+      loadErrorMessageForKey(errors, NO_FILE_ID_OR_RESOURCE_EXTERNAL);
     }
   }
 
