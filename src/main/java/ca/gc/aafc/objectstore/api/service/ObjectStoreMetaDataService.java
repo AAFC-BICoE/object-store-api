@@ -1,29 +1,31 @@
 package ca.gc.aafc.objectstore.api.service;
 
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import javax.persistence.criteria.Predicate;
+import javax.validation.ValidationException;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.validation.SmartValidator;
+
 import ca.gc.aafc.dina.jpa.BaseDAO;
-import ca.gc.aafc.dina.service.DefaultDinaService;
+import ca.gc.aafc.dina.service.MessageProducingService;
+import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.file.FileController;
 import ca.gc.aafc.objectstore.api.validation.ObjectStoreManagedAttributeValueValidator;
 import ca.gc.aafc.objectstore.api.validation.ObjectStoreMetadataValidator;
+
 import io.crnk.core.exception.BadRequestException;
 import lombok.NonNull;
 
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
-import org.springframework.validation.SmartValidator;
-
-import javax.persistence.criteria.Predicate;
-import javax.validation.ValidationException;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
-
 @Service
-public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMetadata>
-  implements ObjectStoreMetadataReadService {
+public class ObjectStoreMetaDataService extends MessageProducingService<ObjectStoreMetadata> {
 
   private final BaseDAO baseDAO;
   private final ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService;
@@ -37,9 +39,10 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
     @NonNull DerivativeService derivativeService,
     @NonNull SmartValidator smartValidator,
     @NonNull ObjectStoreManagedAttributeValueValidator objectStoreManagedAttributeValueValidator,
-    @NonNull ObjectStoreMetadataValidator objectStoreMetadataValidator
+    @NonNull ObjectStoreMetadataValidator objectStoreMetadataValidator,
+    ApplicationEventPublisher eventPublisher
   ) {
-    super(baseDAO, smartValidator);
+    super(baseDAO, smartValidator, ObjectStoreMetadataDto.TYPENAME, eventPublisher);
     this.baseDAO = baseDAO;
     this.defaultValueSetterService = defaultValueSetterService;
     this.derivativeService = derivativeService;
@@ -168,12 +171,6 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
     }
   }
 
-  @Override
-  public Optional<ObjectStoreMetadata> loadObjectStoreMetadata(UUID id) {
-    return Optional.ofNullable(this.findOne(id));
-  }
-
-  @Override
   public Optional<ObjectStoreMetadata> loadObjectStoreMetadataByFileId(UUID fileId) {
     return this.findAll(
       ObjectStoreMetadata.class,
