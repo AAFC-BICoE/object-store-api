@@ -6,13 +6,7 @@
 
     <changeSet id="12-Add_support_for_type_Link" context="schema-change" author="steven luu">
       <dropNotNullConstraint tableName="metadata" columnName="file_identifier"/>
-      <dropNotNullConstraint tableName="derivative" columnName="file_identifier"/>
       <addColumn tableName="metadata">
-        <column name="is_external" type="boolean"/>
-        <column name="resource_external_uri" type="VARCHAR(255)"/>
-      </addColumn>
-      <addColumn tableName="derivative">
-        <column name="is_external" type="boolean"/>
         <column name="resource_external_uri" type="VARCHAR(255)"/>
       </addColumn>
     </changeSet>

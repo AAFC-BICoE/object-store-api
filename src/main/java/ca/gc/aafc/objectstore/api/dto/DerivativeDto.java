@@ -32,8 +32,6 @@ public class DerivativeDto {
   private String createdBy;
   private OffsetDateTime createdOn;
   private Derivative.DerivativeType derivativeType;
-  private Boolean isExternal;
-  private String resourceExternalURI;
 
   @JsonApiRelation
   private DerivativeDto generatedFromDerivative;

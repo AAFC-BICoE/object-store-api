@@ -11,7 +11,6 @@ import ca.gc.aafc.objectstore.api.validation.ObjectStoreMetadataValidator;
 import io.crnk.core.exception.BadRequestException;
 import lombok.NonNull;
 
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.SmartValidator;
@@ -141,7 +140,7 @@ public class ObjectStoreMetaDataService extends DefaultDinaService<ObjectStoreMe
   private void handleFileRelatedData(ObjectStoreMetadata objectMetadata)
       throws ValidationException {
 
-    if (!BooleanUtils.isTrue(objectMetadata.getIsExternal())) {
+    if (!objectMetadata.isExternal()) {
 
       // we need to validate at least that bucket name and fileIdentifier are there
       if (StringUtils.isBlank(objectMetadata.getBucket())

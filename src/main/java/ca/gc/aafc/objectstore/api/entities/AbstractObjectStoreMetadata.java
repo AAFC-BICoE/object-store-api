@@ -10,7 +10,6 @@ import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.NaturalIdCache;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
-import org.hibernate.validator.constraints.URL;
 
 import javax.persistence.Column;
 import javax.persistence.EnumType;
@@ -39,8 +38,6 @@ public abstract class AbstractObjectStoreMetadata implements DinaEntity {
   protected String createdBy;
   protected OffsetDateTime createdOn;
   private String dcFormat;
-  private Boolean isExternal;
-  private String resourceExternalURI;
 
   @NaturalId
   @NotNull
@@ -70,26 +67,6 @@ public abstract class AbstractObjectStoreMetadata implements DinaEntity {
 
   public void setFileIdentifier(UUID fileIdentifier) {
     this.fileIdentifier = fileIdentifier;
-  }
-
-  @Column(name = "is_external")
-  public Boolean getIsExternal() {
-    return isExternal;
-  }
-
-  public void setIsExternal(Boolean isExternal) {
-    this.isExternal = isExternal;
-  }
-
-  @Column(name = "resource_external_uri")
-  @URL
-  @Size(max = 255)
-  public String getResourceExternalURI() {
-    return resourceExternalURI;
-  }
-
-  public void setResourceExternalURI(String resourceExternalURI) {
-    this.resourceExternalURI = resourceExternalURI;
   }
 
   @NotNull

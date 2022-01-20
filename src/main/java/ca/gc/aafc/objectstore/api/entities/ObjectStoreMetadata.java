@@ -7,9 +7,11 @@ import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.validator.constraints.URL;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -75,6 +77,8 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
 
   private Integer orientation;
 
+  private String resourceExternalURI;
+
   /**
    * Read-only field to get the ac_sub_type_id to allow filtering by null values.
    */
@@ -110,9 +114,7 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
     String notPubliclyReleasableReason,
     ObjectSubtype acSubtype,
     Integer acSubtypeId,
-    Integer orientation,
-    Boolean isExternal,
-    String resourceExternalURI
+    Integer orientation
   ) {
     super(
       uuid,
@@ -124,9 +126,7 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
       acHashValue,
       createdBy,
       createdOn,
-      dcFormat,
-      isExternal,
-      resourceExternalURI);
+      dcFormat);
     this.id = id;
     this.acCaption = acCaption;
     this.acDigitizationDate = acDigitizationDate;
@@ -383,5 +383,21 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
 
   public void setManagedAttributeValues(Map<String, String> managedAttributeValues) {
     this.managedAttributeValues = managedAttributeValues;
+  }
+
+  @Transient
+  public boolean isExternal() {
+    return StringUtils.isNotBlank(resourceExternalURI);
+  }
+
+  @Column(name = "resource_external_uri")
+  @URL
+  @Size(max = 255)
+  public String getResourceExternalURI() {
+    return resourceExternalURI;
+  }
+
+  public void setResourceExternalURI(String resourceExternalURI) {
+    this.resourceExternalURI = resourceExternalURI;
   }
 }

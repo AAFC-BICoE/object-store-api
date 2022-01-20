@@ -56,7 +56,6 @@ public class ObjectStoreMetadataDto extends AttributeMetaInfoProvider {
   private String bucket;
   private UUID fileIdentifier;
   private String fileExtension;
-  private Boolean isExternal;
   private String resourceExternalURI;
 
   private String dcFormat;
