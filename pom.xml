@@ -68,7 +68,7 @@
 			<version>${dina-base-api.version}</version>
 		</dependency>
 	
-	   <!--  Database -->
+		 <!--  Database -->
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
@@ -109,12 +109,12 @@
 		</dependency>
 		
 		<dependency>
-		    <groupId>io.minio</groupId>
-		    <artifactId>minio</artifactId>
-		    <version>${minio.version}</version>
+				<groupId>io.minio</groupId>
+				<artifactId>minio</artifactId>
+				<version>${minio.version}</version>
 		</dependency>
 
-    <!-- Required for thumbnail generation: -->
+		<!-- Required for thumbnail generation: -->
 		<dependency>
 			<groupId>net.coobird</groupId>
 			<artifactId>thumbnailator</artifactId>
@@ -150,17 +150,17 @@
 		</dependency>
 	</dependencies>
 
-  <dependencyManagement>
-    <dependencies>
-      <!-- Minio cannot used version 3.14.9 for okhttp. 4.8.1 is required. -->
-      <!-- See: https://github.com/minio/minio-java/issues/1282 -->
-      <dependency>
-        <groupId>com.squareup.okhttp3</groupId>
-        <artifactId>okhttp</artifactId>
-        <version>4.8.1</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
+	<dependencyManagement>
+		<dependencies>
+			<!-- Minio cannot used version 3.14.9 for okhttp. 4.8.1 is required. -->
+			<!-- See: https://github.com/minio/minio-java/issues/1282 -->
+			<dependency>
+				<groupId>com.squareup.okhttp3</groupId>
+				<artifactId>okhttp</artifactId>
+				<version>4.8.1</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<build>
 		<plugins>
@@ -188,7 +188,7 @@
 				<artifactId>maven-failsafe-plugin</artifactId>
 			</plugin>
 			<!-- Part of Maven - specified version explicitly for compatibility
-     with the maven-project-info-reports-plugin 3.0.0-->
+		 with the maven-project-info-reports-plugin 3.0.0-->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-site-plugin</artifactId>
@@ -200,10 +200,10 @@
 				<version>${maven-checkstyle-plugin.version}</version>
 				<dependencies>
 					<dependency>
-            <groupId>io.github.aafc-bicoe</groupId>
-            <artifactId>dina-base-api</artifactId>
-            <version>${dina-base-api.version}</version>
-          </dependency>
+						<groupId>io.github.aafc-bicoe</groupId>
+						<artifactId>dina-base-api</artifactId>
+						<version>${dina-base-api.version}</version>
+					</dependency>
 					<dependency>
 						<groupId>com.puppycrawl.tools</groupId>
 						<artifactId>checkstyle</artifactId>
@@ -217,29 +217,29 @@
 				</configuration>
 			</plugin>
 			<plugin>
-      <groupId>org.apache.maven.plugins</groupId>
-      <artifactId>maven-dependency-plugin</artifactId>
-      <executions>
-          <execution>
-              <id>unpack</id>
-              <phase>generate-sources</phase>
-              <goals>
-                  <goal>unpack</goal>
-              </goals>
-              <configuration>
-                  <artifactItems>
-                      <artifactItem>
-                          <groupId>io.github.aafc-bicoe</groupId>
-                          <artifactId>dina-base-api</artifactId>
-                          <version>${dina-base-api.version}</version>
-                          <outputDirectory>${basedir}/src/main/resources/db/changelog/xsd</outputDirectory>
-                          <includes>dbchangelog-4.4.xsd</includes>
-                      </artifactItem>
-                  </artifactItems>
-              </configuration>
-          </execution>
-      </executions>
-      </plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-dependency-plugin</artifactId>
+			<executions>
+					<execution>
+							<id>unpack</id>
+							<phase>generate-sources</phase>
+							<goals>
+									<goal>unpack</goal>
+							</goals>
+							<configuration>
+									<artifactItems>
+											<artifactItem>
+													<groupId>io.github.aafc-bicoe</groupId>
+													<artifactId>dina-base-api</artifactId>
+													<version>${dina-base-api.version}</version>
+													<outputDirectory>${basedir}/src/main/resources/db/changelog/xsd</outputDirectory>
+													<includes>dbchangelog-4.4.xsd</includes>
+											</artifactItem>
+									</artifactItems>
+							</configuration>
+					</execution>
+			</executions>
+			</plugin>
 			<plugin>
 				<groupId>com.github.spotbugs</groupId>
 				<artifactId>spotbugs-maven-plugin</artifactId>
