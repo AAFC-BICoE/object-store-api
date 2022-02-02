@@ -35,7 +35,7 @@
     <spotbugs-maven-plugin.version>4.5.0.0</spotbugs-maven-plugin.version>
     <spotbugs.version>4.5.2</spotbugs.version>
     <jcip-annotations.version>1.0</jcip-annotations.version>
-    <dependency-check.version>6.5.1</dependency-check.version>
+    <dependency-check.version>6.5.3</dependency-check.version>
     <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
     <maven-checkstyle-plugin.version>3.1.1</maven-checkstyle-plugin.version>
     <checkstyle.version>8.44</checkstyle.version>
