@@ -41,7 +41,7 @@
     <checkstyle.version>8.44</checkstyle.version>
     <asciidoctor-maven-plugin.version>2.1.0</asciidoctor-maven-plugin.version>
     <asciidoctorj.diagram.version>2.0.2</asciidoctorj.diagram.version>
-    <dina-base-api.version>0.79</dina-base-api.version>
+    <dina-base-api.version>0.80</dina-base-api.version>
     <log4j2.version>2.17.1</log4j2.version>
 
     <!-- Override to avoid NoClassDefFoundError: org/apache/maven/doxia/siterenderer/DocumentContent -->

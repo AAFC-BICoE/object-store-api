@@ -22,6 +22,10 @@ public class ObjectStoreManagedAttributeAuthorizationService extends PermissionA
   }
 
   @Override
+  public void authorizeRead(Object entity) {
+  }
+
+  @Override
   public String getName() {
     return "ObjectStoreManagedAttributeAuthorizationService";
   }
