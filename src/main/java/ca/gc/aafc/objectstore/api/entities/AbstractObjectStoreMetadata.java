@@ -68,7 +68,6 @@ public abstract class AbstractObjectStoreMetadata implements DinaEntity {
     this.fileIdentifier = fileIdentifier;
   }
 
-  @NotNull
   @Column(name = "file_extension")
   @Size(max = 10)
   public String getFileExtension() {

@@ -77,7 +77,7 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
 
   private Integer orientation;
 
-  private String resourceExternalURI;
+  private String resourceExternalURL;
 
   /**
    * Read-only field to get the ac_sub_type_id to allow filtering by null values.
@@ -387,17 +387,17 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
 
   @Transient
   public boolean isExternal() {
-    return StringUtils.isNotBlank(resourceExternalURI);
+    return StringUtils.isNotBlank(resourceExternalURL);
   }
 
-  @Column(name = "resource_external_uri")
+  @Column(name = "resource_external_url")
   @URL
   @Size(max = 255)
-  public String getResourceExternalURI() {
-    return resourceExternalURI;
+  public String getResourceExternalURL() {
+    return resourceExternalURL;
   }
 
-  public void setResourceExternalURI(String resourceExternalURI) {
-    this.resourceExternalURI = resourceExternalURI;
+  public void setResourceExternalURL(String resourceExternalURL) {
+    this.resourceExternalURL = resourceExternalURL;
   }
 }

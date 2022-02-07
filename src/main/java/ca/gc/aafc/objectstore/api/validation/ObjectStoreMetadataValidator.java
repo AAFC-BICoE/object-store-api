@@ -1,5 +1,6 @@
 package ca.gc.aafc.objectstore.api.validation;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
@@ -37,12 +38,12 @@ public class ObjectStoreMetadataValidator implements Validator {
 
   private void checkOnlyFileIdentifierOrResourceExternalURI(@NonNull Errors errors, @NonNull ObjectStoreMetadata entity) {
     // Report an error if both are set.
-    if (entity.getFileIdentifier() != null && entity.getResourceExternalURI() != null) {
+    if (entity.getFileIdentifier() != null && StringUtils.isNotBlank(entity.getResourceExternalURL())) {
       loadErrorMessageForKey(errors, VALID_FILE_ID_OR_RESOURCE_EXTERNAL);
     }
 
     // Report an error if none of them are setup.
-    if (entity.getFileIdentifier() == null && entity.getResourceExternalURI() == null) {
+    if (entity.getFileIdentifier() == null && StringUtils.isBlank(entity.getResourceExternalURL())) {
       loadErrorMessageForKey(errors, NO_FILE_ID_OR_RESOURCE_EXTERNAL);
     }
   }

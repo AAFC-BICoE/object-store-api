@@ -6,8 +6,9 @@
 
     <changeSet id="12-Add_support_for_type_Link" context="schema-change" author="steven luu">
       <dropNotNullConstraint tableName="metadata" columnName="file_identifier"/>
+      <dropNotNullConstraint tableName="metadata" columnName="file_extension"/>
       <addColumn tableName="metadata">
-        <column name="resource_external_uri" type="VARCHAR(255)"/>
+        <column name="resource_external_url" type="VARCHAR(255)"/>
       </addColumn>
     </changeSet>
 

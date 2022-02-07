@@ -43,7 +43,7 @@ public class ObjectStoreMetadataValidatorTest extends BaseIntegrationTest {
   void validate_externalResourceIdentifierSet_NoErrorReturned() {
     // Create an object with both file identifier and external resource.
     ObjectStoreMetadata objectStoreMetadata = createMetadata();
-    objectStoreMetadata.setResourceExternalURI("https://www." + RandomStringUtils.randomAlphabetic(10) + ".com");
+    objectStoreMetadata.setResourceExternalURL("https://www." + RandomStringUtils.randomAlphabetic(10) + ".com");
 
     Errors errors = new BeanPropertyBindingResult(objectStoreMetadata, objectStoreMetadata.getUuid().toString());
     validator.validate(objectStoreMetadata, errors);
@@ -57,7 +57,7 @@ public class ObjectStoreMetadataValidatorTest extends BaseIntegrationTest {
     // Create an object with both file identifier and external resource.
     ObjectStoreMetadata objectStoreMetadata = createMetadata();
     objectStoreMetadata.setFileIdentifier(UUID.randomUUID());
-    objectStoreMetadata.setResourceExternalURI("https://www." + RandomStringUtils.randomAlphabetic(10) + ".com");
+    objectStoreMetadata.setResourceExternalURL("https://www." + RandomStringUtils.randomAlphabetic(10) + ".com");
 
     Errors errors = new BeanPropertyBindingResult(objectStoreMetadata, objectStoreMetadata.getUuid().toString());
     validator.validate(objectStoreMetadata, errors);

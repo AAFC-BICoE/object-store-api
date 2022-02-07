@@ -166,8 +166,6 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
       objectMetadata.setAcHashValue(objectUpload.getSha1Hex());
       objectMetadata.setAcHashFunction(FileController.DIGEST_ALGORITHM);
         
-    } else {
-      objectMetadata.setAcHashValue(objectMetadata.getResourceExternalURI().toString());
     }
   }
 
