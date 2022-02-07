@@ -143,30 +143,30 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
   private void handleFileRelatedData(ObjectStoreMetadata objectMetadata)
       throws ValidationException {
 
-    if (!objectMetadata.isExternal()) {
-
-      // we need to validate at least that bucket name and fileIdentifier are there
-      if (StringUtils.isBlank(objectMetadata.getBucket())
-        || StringUtils.isBlank(Objects.toString(objectMetadata.getFileIdentifier(), ""))) {
-        throw new ValidationException("fileIdentifier and bucket should be provided");
-      }
-      
-      ObjectUpload objectUpload = this.findOne(
-        objectMetadata.getFileIdentifier(),
-        ObjectUpload.class);
-        
-        // make sure that there is an ObjectUpload that is not a derivative
-      if (objectUpload == null || objectUpload.getIsDerivative()) {
-        throw new ValidationException("primary object with fileIdentifier not found: " + objectMetadata.getFileIdentifier());
-      }
-        
-      objectMetadata.setFileExtension(objectUpload.getEvaluatedFileExtension());
-      objectMetadata.setOriginalFilename(objectUpload.getOriginalFilename());
-      objectMetadata.setDcFormat(objectUpload.getEvaluatedMediaType());
-      objectMetadata.setAcHashValue(objectUpload.getSha1Hex());
-      objectMetadata.setAcHashFunction(FileController.DIGEST_ALGORITHM);
-        
+    // not required for externally hosted resource
+    if (objectMetadata.isExternal()) {
+      return;
     }
+    // we need to validate at least that bucket name and fileIdentifier are there
+    if (StringUtils.isBlank(objectMetadata.getBucket())
+      || StringUtils.isBlank(Objects.toString(objectMetadata.getFileIdentifier(), ""))) {
+      throw new ValidationException("fileIdentifier and bucket should be provided");
+    }
+
+    ObjectUpload objectUpload = this.findOne(
+      objectMetadata.getFileIdentifier(),
+      ObjectUpload.class);
+
+      // make sure that there is an ObjectUpload that is not a derivative
+    if (objectUpload == null || objectUpload.getIsDerivative()) {
+      throw new ValidationException("primary object with fileIdentifier not found: " + objectMetadata.getFileIdentifier());
+    }
+
+    objectMetadata.setFileExtension(objectUpload.getEvaluatedFileExtension());
+    objectMetadata.setOriginalFilename(objectUpload.getOriginalFilename());
+    objectMetadata.setDcFormat(objectUpload.getEvaluatedMediaType());
+    objectMetadata.setAcHashValue(objectUpload.getSha1Hex());
+    objectMetadata.setAcHashFunction(FileController.DIGEST_ALGORITHM);
   }
 
   public Optional<ObjectStoreMetadata> loadObjectStoreMetadataByFileId(UUID fileId) {
