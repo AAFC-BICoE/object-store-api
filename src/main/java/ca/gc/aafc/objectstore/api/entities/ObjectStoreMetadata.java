@@ -114,7 +114,8 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
     String notPubliclyReleasableReason,
     ObjectSubtype acSubtype,
     Integer acSubtypeId,
-    Integer orientation
+    Integer orientation,
+    String resourceExternalURL
   ) {
     super(
       uuid,
@@ -146,6 +147,7 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
     this.acSubtype = acSubtype;
     this.acSubtypeId = acSubtypeId;
     this.orientation = orientation;
+    this.resourceExternalURL = resourceExternalURL;
   }
 
   @Id

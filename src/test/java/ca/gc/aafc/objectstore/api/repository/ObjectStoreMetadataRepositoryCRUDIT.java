@@ -132,6 +132,23 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
     assertEquals(testManagedAttribute.getAcceptedValues()[0],
     result.getManagedAttributeValues().get(testManagedAttribute.getKey()));
   }
+
+  @Test
+  public void create_OnValidExternalResource_persisted() {
+    ObjectStoreMetadata testObjectStoreMetadata = ObjectStoreMetadataFactory
+        .newObjectStoreMetadata()
+        .fileExtension(null)
+        .acHashValue(null)
+        .fileIdentifier(null)
+        .resourceExternalURL("https://www.perdu.com")
+        .build();
+    objectStoreMetaDataService.createAndFlush(testObjectStoreMetadata);
+
+    ObjectStoreMetadata result = objectStoreMetaDataService.findOne(testObjectStoreMetadata.getUuid());
+
+    assertNull(result.getFileExtension());
+    assertNull(result.getFileIdentifier());
+  }
       
   @Test
   public void create_onMetadataOnDerivative_ExceptionThrown() {
