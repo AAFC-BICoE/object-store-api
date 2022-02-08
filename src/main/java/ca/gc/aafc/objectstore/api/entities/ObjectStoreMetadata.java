@@ -7,9 +7,11 @@ import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.validator.constraints.URL;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -26,6 +28,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -74,6 +77,8 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
 
   private Integer orientation;
 
+  private String resourceExternalURL;
+
   /**
    * Read-only field to get the ac_sub_type_id to allow filtering by null values.
    */
@@ -109,7 +114,8 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
     String notPubliclyReleasableReason,
     ObjectSubtype acSubtype,
     Integer acSubtypeId,
-    Integer orientation
+    Integer orientation,
+    String resourceExternalURL
   ) {
     super(
       uuid,
@@ -141,6 +147,7 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
     this.acSubtype = acSubtype;
     this.acSubtypeId = acSubtypeId;
     this.orientation = orientation;
+    this.resourceExternalURL = resourceExternalURL;
   }
 
   @Id
@@ -378,5 +385,21 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
 
   public void setManagedAttributeValues(Map<String, String> managedAttributeValues) {
     this.managedAttributeValues = managedAttributeValues;
+  }
+
+  @Transient
+  public boolean isExternal() {
+    return StringUtils.isNotBlank(resourceExternalURL);
+  }
+
+  @Column(name = "resource_external_url")
+  @URL
+  @Size(max = 255)
+  public String getResourceExternalURL() {
+    return resourceExternalURL;
+  }
+
+  public void setResourceExternalURL(String resourceExternalURL) {
+    this.resourceExternalURL = resourceExternalURL;
   }
 }

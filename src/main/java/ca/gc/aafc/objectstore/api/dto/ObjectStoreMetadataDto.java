@@ -12,7 +12,6 @@ import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.crnk.core.resource.annotations.JsonApiField;
 import io.crnk.core.resource.annotations.JsonApiId;
 import io.crnk.core.resource.annotations.JsonApiRelation;
@@ -37,7 +36,6 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-@SuppressFBWarnings({"EI_EXPOSE_REP", "EI_EXPOSE_REP2"})
 @RelatedEntity(ObjectStoreMetadata.class)
 @Data
 @JsonApiResource(type = ObjectStoreMetadataDto.TYPENAME)
@@ -56,6 +54,7 @@ public class ObjectStoreMetadataDto extends AttributeMetaInfoProvider {
   private String bucket;
   private UUID fileIdentifier;
   private String fileExtension;
+  private String resourceExternalURL;
 
   private String dcFormat;
 

@@ -19,6 +19,7 @@ import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.file.FileController;
 import ca.gc.aafc.objectstore.api.validation.ObjectStoreManagedAttributeValueValidator;
+import ca.gc.aafc.objectstore.api.validation.ObjectStoreMetadataValidator;
 
 import io.crnk.core.exception.BadRequestException;
 import lombok.NonNull;
@@ -30,6 +31,7 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
   private final ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService;
   private final DerivativeService derivativeService;
   private final ObjectStoreManagedAttributeValueValidator objectStoreManagedAttributeValueValidator;
+  private final ObjectStoreMetadataValidator objectStoreMetadataValidator;
 
   public ObjectStoreMetaDataService(
     @NonNull BaseDAO baseDAO,
@@ -37,6 +39,7 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
     @NonNull DerivativeService derivativeService,
     @NonNull SmartValidator smartValidator,
     @NonNull ObjectStoreManagedAttributeValueValidator objectStoreManagedAttributeValueValidator,
+    @NonNull ObjectStoreMetadataValidator objectStoreMetadataValidator,
     ApplicationEventPublisher eventPublisher
   ) {
     super(baseDAO, smartValidator, ObjectStoreMetadataDto.TYPENAME, eventPublisher);
@@ -44,6 +47,7 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
     this.defaultValueSetterService = defaultValueSetterService;
     this.derivativeService = derivativeService;
     this.objectStoreManagedAttributeValueValidator = objectStoreManagedAttributeValueValidator;
+    this.objectStoreMetadataValidator = objectStoreMetadataValidator;
   }
 
   @Override
@@ -83,6 +87,7 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
 
   @Override
   public void validateBusinessRules(ObjectStoreMetadata entity) {
+    applyBusinessRule(entity, objectStoreMetadataValidator);
     objectStoreManagedAttributeValueValidator.validate(entity, entity.getManagedAttributeValues());
   }
 
@@ -137,6 +142,11 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
    */
   private void handleFileRelatedData(ObjectStoreMetadata objectMetadata)
       throws ValidationException {
+
+    // not required for externally hosted resource
+    if (objectMetadata.isExternal()) {
+      return;
+    }
     // we need to validate at least that bucket name and fileIdentifier are there
     if (StringUtils.isBlank(objectMetadata.getBucket())
       || StringUtils.isBlank(Objects.toString(objectMetadata.getFileIdentifier(), ""))) {
@@ -147,7 +157,7 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
       objectMetadata.getFileIdentifier(),
       ObjectUpload.class);
 
-    // make sure that there is an ObjectUpload that is not a derivative
+      // make sure that there is an ObjectUpload that is not a derivative
     if (objectUpload == null || objectUpload.getIsDerivative()) {
       throw new ValidationException("primary object with fileIdentifier not found: " + objectMetadata.getFileIdentifier());
     }
@@ -157,7 +167,6 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
     objectMetadata.setDcFormat(objectUpload.getEvaluatedMediaType());
     objectMetadata.setAcHashValue(objectUpload.getSha1Hex());
     objectMetadata.setAcHashFunction(FileController.DIGEST_ALGORITHM);
-
   }
 
   public Optional<ObjectStoreMetadata> loadObjectStoreMetadataByFileId(UUID fileId) {
