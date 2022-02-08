@@ -38,15 +38,14 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
 
   private ObjectStoreManagedAttribute testManagedAttribute;
 
-  private ObjectStoreMetadata testObjectStoreMetadata;
-
   private ObjectSubtypeDto acSubtype;
 
   private ObjectUpload objectUpload;
   
-  private void createTestObjectStoreMetadata() {
-    testObjectStoreMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata().fileIdentifier(objectUpload.getFileIdentifier()).build();
+  private ObjectStoreMetadata createTestObjectStoreMetadata() {
+    ObjectStoreMetadata testObjectStoreMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata().fileIdentifier(objectUpload.getFileIdentifier()).build();
     objectStoreMetaDataService.create(testObjectStoreMetadata);
+    return testObjectStoreMetadata;
   }
   
   private void createTestManagedAttribute() {
@@ -60,7 +59,6 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
   @BeforeEach
   public void setup() {
     objectUpload = createObjectUpload();
-    createTestObjectStoreMetadata();
     createAcSubtype();
     createTestManagedAttribute();
   }
@@ -96,109 +94,111 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
   
   @Test
   public void findMeta_whenNoFieldsAreSelected_MetadataReturnedWithAllFields() {
-    ObjectStoreMetadataDto objectStoreMetadataDto = getDtoUnderTest();
+    ObjectStoreMetadata testMetadata = createTestObjectStoreMetadata();
+    ObjectStoreMetadataDto objectStoreMetadataDto = fetchMetaById(testMetadata.getUuid());
     assertNotNull(objectStoreMetadataDto);
-    assertEquals(testObjectStoreMetadata.getUuid(), objectStoreMetadataDto.getUuid());
-    assertEquals(testObjectStoreMetadata.getDcType(), objectStoreMetadataDto.getDcType());
+    assertEquals(testMetadata.getUuid(), objectStoreMetadataDto.getUuid());
+    assertEquals(testMetadata.getDcType(), objectStoreMetadataDto.getDcType());
     assertEquals(
-      testObjectStoreMetadata.getAcDigitizationDate(),
+        testMetadata.getAcDigitizationDate(),
       objectStoreMetadataDto.getAcDigitizationDate());
       assertEquals(
-        testObjectStoreMetadata.getManagedAttributeValues(),
+          testMetadata.getManagedAttributeValues(),
         objectStoreMetadataDto.getManagedAttributeValues());
-      }
-      
-      @Test
-      public void create_ValidResource_ResourcePersisted() {
-        ObjectUpload objectUploadTest = ObjectUploadFactory.newObjectUpload().build();
-        objectUploadService.create(objectUploadTest);
-        
-        ObjectStoreMetadataDto dto = new ObjectStoreMetadataDto();
-        dto.setBucket(objectUploadTest.getBucket());
-        dto.setFileIdentifier(objectUploadTest.getFileIdentifier());
-        dto.setAcSubtype(acSubtype.getAcSubtype());
-        dto.setDcType(acSubtype.getDcType());
-        dto.setXmpRightsUsageTerms(ObjectUploadFactory.TEST_USAGE_TERMS);
-        dto.setCreatedBy(RandomStringUtils.random(4));
-        dto.setManagedAttributeValues(Map.of(testManagedAttribute.getKey(), testManagedAttribute.getAcceptedValues()[0]));
-        
-        UUID dtoUuid = objectStoreResourceRepository.create(dto).getUuid();
+  }
 
-        ObjectStoreMetadata result = objectStoreMetaDataService.findOne(dtoUuid);
-        assertEquals(dtoUuid, result.getUuid());
-        assertEquals(objectUploadTest.getBucket(), result.getBucket());
-        assertEquals(objectUploadTest.getFileIdentifier(), result.getFileIdentifier());
-        assertEquals(acSubtype.getUuid(), result.getAcSubtype().getUuid());
-        assertEquals(ObjectUploadFactory.TEST_USAGE_TERMS, result.getXmpRightsUsageTerms());
-        assertEquals(testManagedAttribute.getAcceptedValues()[0],
-        result.getManagedAttributeValues().get(testManagedAttribute.getKey()));
-      }
+  @Test
+  public void create_ValidResource_ResourcePersisted() {
+    ObjectUpload objectUploadTest = ObjectUploadFactory.newObjectUpload().build();
+    objectUploadService.create(objectUploadTest);
+
+    ObjectStoreMetadataDto dto = new ObjectStoreMetadataDto();
+    dto.setBucket(objectUploadTest.getBucket());
+    dto.setFileIdentifier(objectUploadTest.getFileIdentifier());
+    dto.setAcSubtype(acSubtype.getAcSubtype());
+    dto.setDcType(acSubtype.getDcType());
+    dto.setXmpRightsUsageTerms(ObjectUploadFactory.TEST_USAGE_TERMS);
+    dto.setCreatedBy(RandomStringUtils.random(4));
+    dto.setManagedAttributeValues(Map.of(testManagedAttribute.getKey(), testManagedAttribute.getAcceptedValues()[0]));
+
+    UUID dtoUuid = objectStoreResourceRepository.create(dto).getUuid();
+
+    ObjectStoreMetadata result = objectStoreMetaDataService.findOne(dtoUuid);
+    assertEquals(dtoUuid, result.getUuid());
+    assertEquals(objectUploadTest.getBucket(), result.getBucket());
+    assertEquals(objectUploadTest.getFileIdentifier(), result.getFileIdentifier());
+    assertEquals(acSubtype.getUuid(), result.getAcSubtype().getUuid());
+    assertEquals(ObjectUploadFactory.TEST_USAGE_TERMS, result.getXmpRightsUsageTerms());
+    assertEquals(testManagedAttribute.getAcceptedValues()[0],
+    result.getManagedAttributeValues().get(testManagedAttribute.getKey()));
+  }
       
-      @Test
-      public void create_onMetadataOnDerivative_ExceptionThrown() {
-        UUID uuid = UUID.randomUUID();
-        ObjectUpload derivativeObjectUpload = ObjectUploadFactory.buildTestObjectUpload();
-        derivativeObjectUpload.setFileIdentifier(uuid);
-        derivativeObjectUpload.setIsDerivative(true);
-        objectUploadService.create(derivativeObjectUpload);
-        
-        ObjectStoreMetadataDto resource = newMetaDto();
-        resource.setFileIdentifier(uuid);
-        
-        assertThrows(ValidationException.class, () -> objectStoreResourceRepository.create(resource));
-        objectUploadService.delete(derivativeObjectUpload);
-      }
+  @Test
+  public void create_onMetadataOnDerivative_ExceptionThrown() {
+    UUID uuid = UUID.randomUUID();
+    ObjectUpload derivativeObjectUpload = ObjectUploadFactory.buildTestObjectUpload();
+    derivativeObjectUpload.setFileIdentifier(uuid);
+    derivativeObjectUpload.setIsDerivative(true);
+    objectUploadService.create(derivativeObjectUpload);
+
+    ObjectStoreMetadataDto resource = newMetaDto();
+    resource.setFileIdentifier(uuid);
+
+    assertThrows(ValidationException.class, () -> objectStoreResourceRepository.create(resource));
+    objectUploadService.delete(derivativeObjectUpload);
+  }
       
-      @Test
-      public void create_ValidResource_ThumbNailMetaDerivesFromParent() {
-        // Resource needs an detected media type that supports thumbnails
-        ObjectUpload objectUpload = ObjectUploadFactory.newObjectUpload().build();
-        objectUpload.setDetectedMediaType(MediaType.IMAGE_JPEG_VALUE);
-        objectUploadService.create(objectUpload);
-        ObjectStoreMetadataDto resource = newMetaDto();
-        resource.setFileIdentifier(objectUpload.getFileIdentifier());
-        
-        UUID parentUuid = objectStoreResourceRepository.create(resource).getUuid();
-        Derivative child = derivativeService.findAll(Derivative.class,
-        (criteriaBuilder, root) -> new Predicate[]{criteriaBuilder.equal(
-          root.get("acDerivedFrom"),
-          objectStoreMetaDataService.findOne(parentUuid))},
-          null, 0, 1).stream().findFirst().orElse(null);
-          //Assert values
-          assertNotNull(child);
-          assertNotNull(child.getAcDerivedFrom());
-          assertEquals(parentUuid, child.getAcDerivedFrom().getUuid());
-          assertEquals(Derivative.DerivativeType.THUMBNAIL_IMAGE, child.getDerivativeType());
-        }
-        
-        @Test
-        public void save_ValidResource_ResourceUpdated() {
-          ObjectStoreMetadataDto updateMetadataDto = getDtoUnderTest();
-          updateMetadataDto.setBucket(ObjectUploadFactory.TEST_BUCKET);
-          updateMetadataDto.setFileIdentifier(ObjectUploadFactory.TEST_FILE_IDENTIFIER);
-          updateMetadataDto.setAcSubtype(acSubtype.getAcSubtype());
-          updateMetadataDto.setXmpRightsUsageTerms(ObjectUploadFactory.TEST_USAGE_TERMS);
-          
-          objectStoreResourceRepository.save(updateMetadataDto);
-          
-          ObjectStoreMetadata result = objectStoreMetaDataService.findOne(updateMetadataDto.getUuid());
-          assertEquals(ObjectUploadFactory.TEST_BUCKET, result.getBucket());
-          assertEquals(ObjectUploadFactory.TEST_FILE_IDENTIFIER, result.getFileIdentifier());
-          assertEquals(acSubtype.getUuid(), result.getAcSubtype().getUuid());
-          assertEquals(ObjectUploadFactory.TEST_USAGE_TERMS, result.getXmpRightsUsageTerms());
-          
-          //Can break Relationships
-          assertRelationshipsRemoved();
-        }
-        
-        private void assertRelationshipsRemoved() {
-          ObjectStoreMetadataDto updateMetadataDto = getDtoUnderTest();
-          assertNotNull(updateMetadataDto.getAcSubtype());
-          
-    updateMetadataDto.setAcSubtype(null);
-    
+  @Test
+  public void create_ValidResource_ThumbNailMetaDerivesFromParent() {
+    // Resource needs an detected media type that supports thumbnails
+    ObjectUpload objectUpload = ObjectUploadFactory.newObjectUpload().build();
+    objectUpload.setDetectedMediaType(MediaType.IMAGE_JPEG_VALUE);
+    objectUploadService.create(objectUpload);
+    ObjectStoreMetadataDto resource = newMetaDto();
+    resource.setFileIdentifier(objectUpload.getFileIdentifier());
+
+    UUID parentUuid = objectStoreResourceRepository.create(resource).getUuid();
+    Derivative child = derivativeService.findAll(Derivative.class,
+    (criteriaBuilder, root) -> new Predicate[]{criteriaBuilder.equal(
+      root.get("acDerivedFrom"),
+      objectStoreMetaDataService.findOne(parentUuid))},
+      null, 0, 1).stream().findFirst().orElse(null);
+      //Assert values
+      assertNotNull(child);
+      assertNotNull(child.getAcDerivedFrom());
+      assertEquals(parentUuid, child.getAcDerivedFrom().getUuid());
+      assertEquals(Derivative.DerivativeType.THUMBNAIL_IMAGE, child.getDerivativeType());
+    }
+
+  @Test
+  public void save_ValidResource_ResourceUpdated() {
+    ObjectStoreMetadata testMetadata = createTestObjectStoreMetadata();
+    ObjectStoreMetadataDto updateMetadataDto = fetchMetaById(testMetadata.getUuid());
+    updateMetadataDto.setBucket(ObjectUploadFactory.TEST_BUCKET);
+    updateMetadataDto.setFileIdentifier(ObjectUploadFactory.TEST_FILE_IDENTIFIER);
+    updateMetadataDto.setAcSubtype(acSubtype.getAcSubtype());
+    updateMetadataDto.setXmpRightsUsageTerms(ObjectUploadFactory.TEST_USAGE_TERMS);
+
     objectStoreResourceRepository.save(updateMetadataDto);
-    
+
+    ObjectStoreMetadata result = objectStoreMetaDataService.findOne(updateMetadataDto.getUuid());
+    assertEquals(ObjectUploadFactory.TEST_BUCKET, result.getBucket());
+    assertEquals(ObjectUploadFactory.TEST_FILE_IDENTIFIER, result.getFileIdentifier());
+    assertEquals(acSubtype.getUuid(), result.getAcSubtype().getUuid());
+    assertEquals(ObjectUploadFactory.TEST_USAGE_TERMS, result.getXmpRightsUsageTerms());
+
+    //Can break Relationships
+    assertRelationshipsRemoved(testMetadata.getUuid());
+  }
+
+  private void assertRelationshipsRemoved(UUID metadataUUID) {
+    ObjectStoreMetadataDto updateMetadataDto = fetchMetaById(metadataUUID);
+    assertNotNull(updateMetadataDto.getAcSubtype());
+
+    updateMetadataDto.setAcSubtype(null);
+
+    objectStoreResourceRepository.save(updateMetadataDto);
+
     ObjectStoreMetadata result = objectStoreMetaDataService.findOne(updateMetadataDto.getUuid());
     Assertions.assertNull(result.getAcSubtype());
   }
@@ -215,10 +215,6 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
   
   private ObjectStoreMetadataDto fetchMetaById(UUID uuid) {
     return objectStoreResourceRepository.findOne(uuid, newQuery());
-  }
-  
-  private ObjectStoreMetadataDto getDtoUnderTest() {
-    return fetchMetaById(testObjectStoreMetadata.getUuid());
   }
   
   private static QuerySpec newQuery() {
