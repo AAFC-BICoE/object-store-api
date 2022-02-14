@@ -27,9 +27,9 @@
     <okhttp.version>4.8.1</okhttp.version>
     <minio.version>8.3.5</minio.version>
     
-    <tika.version>2.1.0</tika.version>
+    <tika.version>2.3.0</tika.version>
     <thumbnailator.version>0.4.14</thumbnailator.version>
-    <pdfbox.version>2.0.24</pdfbox.version>
+    <pdfbox.version>2.0.25</pdfbox.version>
     <imageio.version>3.6.4</imageio.version>
 
     <spotbugs-maven-plugin.version>4.5.0.0</spotbugs-maven-plugin.version>
