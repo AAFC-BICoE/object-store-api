@@ -1,23 +1,20 @@
 package ca.gc.aafc.objectstore.api.repository;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import ca.gc.aafc.objectstore.api.service.ObjectStoreManagedAttributeService;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.stereotype.Repository;
 
 import ca.gc.aafc.dina.mapper.DinaMapper;
 import ca.gc.aafc.dina.repository.DinaRepository;
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
-import ca.gc.aafc.dina.service.DinaService;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreManagedAttributeAuthorizationService;
 import io.crnk.core.exception.ResourceNotFoundException;
-import io.crnk.core.queryspec.FilterOperator;
-import io.crnk.core.queryspec.FilterSpec;
 import io.crnk.core.queryspec.QuerySpec;
 import lombok.NonNull;
 
@@ -25,10 +22,11 @@ import lombok.NonNull;
 public class ObjectStoreManagedAttributeResourceRepository
   extends DinaRepository<ObjectStoreManagedAttributeDto, ObjectStoreManagedAttribute> {
 
+  private final ObjectStoreManagedAttributeService dinaService;
   private final Optional<DinaAuthenticatedUser> authenticatedUser;
 
   public ObjectStoreManagedAttributeResourceRepository(
-    @NonNull DinaService<ObjectStoreManagedAttribute> dinaService,
+    @NonNull ObjectStoreManagedAttributeService dinaService,
     @NonNull ObjectStoreManagedAttributeAuthorizationService authorizationService,
     Optional<DinaAuthenticatedUser> authenticatedUser,
     @NonNull BuildProperties props
@@ -41,6 +39,7 @@ public class ObjectStoreManagedAttributeResourceRepository
       ObjectStoreManagedAttributeDto.class,
       ObjectStoreManagedAttribute.class, null, null,
       props);
+    this.dinaService = dinaService;
     this.authenticatedUser = authenticatedUser;
   }
 
@@ -66,15 +65,10 @@ public class ObjectStoreManagedAttributeResourceRepository
 
     // Otherwise try a lookup by the managed attribute key.
     // e.g. GET /api/v1/managed-attribute/test-managed-attribute
-    String attributeKey = id.toString();
+    ObjectStoreManagedAttribute managedAttribute = dinaService.findOneByKey(id.toString());
 
-    QuerySpec keyQuerySpec = new QuerySpec(ObjectStoreManagedAttributeDto.class);
-    keyQuerySpec.addFilter(
-      new FilterSpec(List.of("rsql"), FilterOperator.EQ, "key==" + attributeKey));
-    
-    var results = super.findAll(keyQuerySpec);
-    if (results.size() == 1) {
-      return results.get(0);
+    if (managedAttribute != null) {
+      return getMappingLayer().toDtoSimpleMapping(managedAttribute);
     } else {
       throw new ResourceNotFoundException("Managed Attribute not found: " + id);
     }
