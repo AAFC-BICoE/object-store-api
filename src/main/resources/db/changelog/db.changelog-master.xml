@@ -15,5 +15,6 @@
     <include file="db/changelog/migrations/10-Update_jsonb_path_exists_varchar_function.xml"/>
     <include file="db/changelog/migrations/11-Align_managed_attribute_with_collection-api.xml"/>
     <include file="db/changelog/migrations/12-Add_support_for_type_Link.xml"/>
+    <include file="db/changelog/migrations/13-Update_managed_attribute_type_postgres_enum.xml"/>
 
 </databaseChangeLog>

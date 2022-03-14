@@ -1,6 +1,8 @@
 package ca.gc.aafc.objectstore.api.repository;
 
+import ca.gc.aafc.dina.entity.ManagedAttribute;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
+import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectSubtypeDto;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
@@ -8,11 +10,11 @@ import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
-import ca.gc.aafc.objectstore.api.testsupport.factories.MultilingualDescriptionFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
+import ca.gc.aafc.objectstore.api.testsupport.fixtures.ObjectStoreManagedAttributeFixture;
 import io.crnk.core.queryspec.QuerySpec;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -36,7 +38,8 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
   @Inject
   private ObjectStoreResourceRepository objectStoreResourceRepository;
 
-  private ObjectStoreManagedAttribute testManagedAttribute;
+  @Inject
+  private ObjectStoreManagedAttributeResourceRepository managedResourceRepository;
 
   private ObjectSubtypeDto acSubtype;
 
@@ -48,19 +51,17 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
     return testObjectStoreMetadata;
   }
   
-  private void createTestManagedAttribute() {
-    testManagedAttribute = ObjectStoreManagedAttributeFactory.newManagedAttribute()
-    .acceptedValues(new String[]{"dosal"})
-    .multilingualDescription(MultilingualDescriptionFactory.newMultilingualDescription().build())
+  private ObjectStoreManagedAttribute createTestManagedAttribute() {
+    ObjectStoreManagedAttribute testManagedAttribute = ObjectStoreManagedAttributeFactory.newManagedAttribute()
+    .acceptedValues(new String[]{"dorsal"})
     .build();
-    managedAttributeService.create(testManagedAttribute);
+    return managedAttributeService.create(testManagedAttribute);
   }
 
   @BeforeEach
   public void setup() {
     objectUpload = createObjectUpload();
     createAcSubtype();
-    createTestManagedAttribute();
   }
   
   /**
@@ -109,6 +110,9 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
 
   @Test
   public void create_ValidResource_ResourcePersisted() {
+
+    ObjectStoreManagedAttribute testManagedAttribute = createTestManagedAttribute();
+
     ObjectUpload objectUploadTest = ObjectUploadFactory.newObjectUpload().build();
     objectUploadService.create(objectUploadTest);
 
@@ -218,6 +222,31 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
 
     ObjectStoreMetadata result = objectStoreMetaDataService.findOne(updateMetadataDto.getUuid());
     Assertions.assertNull(result.getAcSubtype());
+  }
+
+  @Test
+  public void create_onManagedAttributeValue_validationOccur() {
+
+    ObjectStoreManagedAttributeDto newAttribute = ObjectStoreManagedAttributeFixture.newObjectStoreManagedAttribute();
+    newAttribute.setManagedAttributeType(ManagedAttribute.ManagedAttributeType.DATE);
+    newAttribute.setAcceptedValues(null);
+    newAttribute = managedResourceRepository.create(newAttribute);
+
+    ObjectStoreMetadata testMetadata = createTestObjectStoreMetadata();
+    ObjectStoreMetadataDto testMetadataDto = fetchMetaById(testMetadata.getUuid());
+
+    // Put an invalid value for Date
+    testMetadataDto.setManagedAttributeValues(Map.of(newAttribute.getKey(), "zxy"));
+    assertThrows(ValidationException.class, () -> objectStoreResourceRepository.save(testMetadataDto));
+
+    // Fix the value
+    testMetadataDto.setManagedAttributeValues(Map.of(newAttribute.getKey(), "2022-02-02"));
+    objectStoreResourceRepository.save(testMetadataDto);
+
+    //cleanup
+    objectStoreResourceRepository.delete(testMetadata.getUuid());
+
+    // can't delete managed attribute for now since the check for key in use is using a fresh transaction
   }
   
   private ObjectStoreMetadataDto newMetaDto() {
