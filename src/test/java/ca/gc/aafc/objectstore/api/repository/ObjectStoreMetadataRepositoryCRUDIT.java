@@ -104,8 +104,8 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
         testMetadata.getAcDigitizationDate(),
       objectStoreMetadataDto.getAcDigitizationDate());
       assertEquals(
-          testMetadata.getManagedAttributeValues(),
-        objectStoreMetadataDto.getManagedAttributeValues());
+          testMetadata.getManagedAttributes(),
+        objectStoreMetadataDto.getManagedAttributes());
   }
 
   @Test
@@ -123,7 +123,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
     dto.setDcType(acSubtype.getDcType());
     dto.setXmpRightsUsageTerms(ObjectUploadFactory.TEST_USAGE_TERMS);
     dto.setCreatedBy(RandomStringUtils.random(4));
-    dto.setManagedAttributeValues(Map.of(testManagedAttribute.getKey(), testManagedAttribute.getAcceptedValues()[0]));
+    dto.setManagedAttributes(Map.of(testManagedAttribute.getKey(), testManagedAttribute.getAcceptedValues()[0]));
 
     UUID dtoUuid = objectStoreResourceRepository.create(dto).getUuid();
 
@@ -134,7 +134,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
     assertEquals(acSubtype.getUuid(), result.getAcSubtype().getUuid());
     assertEquals(ObjectUploadFactory.TEST_USAGE_TERMS, result.getXmpRightsUsageTerms());
     assertEquals(testManagedAttribute.getAcceptedValues()[0],
-    result.getManagedAttributeValues().get(testManagedAttribute.getKey()));
+    result.getManagedAttributes().get(testManagedAttribute.getKey()));
   }
 
   @Test
@@ -236,11 +236,11 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
     ObjectStoreMetadataDto testMetadataDto = fetchMetaById(testMetadata.getUuid());
 
     // Put an invalid value for Date
-    testMetadataDto.setManagedAttributeValues(Map.of(newAttribute.getKey(), "zxy"));
+    testMetadataDto.setManagedAttributes(Map.of(newAttribute.getKey(), "zxy"));
     assertThrows(ValidationException.class, () -> objectStoreResourceRepository.save(testMetadataDto));
 
     // Fix the value
-    testMetadataDto.setManagedAttributeValues(Map.of(newAttribute.getKey(), "2022-02-02"));
+    testMetadataDto.setManagedAttributes(Map.of(newAttribute.getKey(), "2022-02-02"));
     objectStoreResourceRepository.save(testMetadataDto);
 
     //cleanup

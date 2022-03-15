@@ -1,7 +1,6 @@
 package ca.gc.aafc.objectstore.api.crud;
 
 import ca.gc.aafc.dina.entity.ManagedAttribute.ManagedAttributeType;
-import ca.gc.aafc.dina.i18n.MultilingualDescription;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
@@ -75,7 +74,7 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
     assertEquals(objectStoreMetaUnderTest.getDcCreator(), fetchedObjectStoreMeta.getDcCreator());
     assertEquals(objectStoreMetaUnderTest.getCreatedBy(), fetchedObjectStoreMeta.getCreatedBy());
     assertEquals(objectStoreMetaUnderTest.getId(), fetchedObjectStoreMeta.getId());
-    assertEquals(objectStoreMetaUnderTest.getManagedAttributeValues(),fetchedObjectStoreMeta.getManagedAttributeValues());
+    assertEquals(objectStoreMetaUnderTest.getManagedAttributes(),fetchedObjectStoreMeta.getManagedAttributes());
     assertEquals(
       objectStoreMetaUnderTest.getAcMetadataCreator(),
       fetchedObjectStoreMeta.getAcMetadataCreator());

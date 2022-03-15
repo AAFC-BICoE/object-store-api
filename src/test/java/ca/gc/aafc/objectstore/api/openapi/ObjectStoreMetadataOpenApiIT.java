@@ -3,6 +3,7 @@ package ca.gc.aafc.objectstore.api.openapi;
 import ca.gc.aafc.dina.testsupport.BaseRestAssuredTest;
 import ca.gc.aafc.dina.testsupport.DatabaseSupportService;
 import ca.gc.aafc.dina.testsupport.PostgresTestContainerInitializer;
+import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPIRelationship;
 import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.dina.testsupport.specs.OpenAPI3Assertions;
 import ca.gc.aafc.objectstore.api.ObjectStoreApiLauncher;
@@ -17,7 +18,6 @@ import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import lombok.SneakyThrows;
-import org.apache.http.client.utils.URIBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,9 +31,6 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
@@ -51,34 +48,19 @@ public class ObjectStoreMetadataOpenApiIT extends BaseRestAssuredTest {
   @Inject
   protected DatabaseSupportService service;
 
-  private static final String SPEC_HOST = "raw.githubusercontent.com";
-  private static final String ROOT_SPEC_PATH = "DINA-Web/object-store-specs/master/schema/object-store-api.yml";
-  
   private static final String SCHEMA_NAME = "Metadata";
   private static final String RESOURCE_UNDER_TEST = "metadata";
-
-  private static final URIBuilder URI_BUILDER = new URIBuilder();
 
   private ObjectSubtype oSubtype;
   private ObjectUpload oUpload;
   private ObjectUpload oUpload_derivative;
   private ObjectUpload oUpload_acDerivedFrom;
   private String derivativeUuid;
-  
-  static {
-    URI_BUILDER.setScheme("https");
-    URI_BUILDER.setHost(SPEC_HOST);
-    URI_BUILDER.setPath(ROOT_SPEC_PATH);
-  }
 
   protected ObjectStoreMetadataOpenApiIT() {
     super("/api/v1/");
   }
 
-  public static URL getOpenAPISpecsURL() throws URISyntaxException, MalformedURLException {
-    return URI_BUILDER.build().toURL();
-  }
-  
   @BeforeEach
   public void setup() {
 
@@ -110,9 +92,10 @@ public class ObjectStoreMetadataOpenApiIT extends BaseRestAssuredTest {
 
     DerivativeDto derivative = buildDerivativeDto();
     derivative.setFileIdentifier(oUpload_derivative.getFileIdentifier());
-    derivativeUuid = sendPost("derivative", JsonAPITestHelper.toJsonAPIMap("derivative", JsonAPITestHelper.toAttributeMap(derivative), 
-    Map.of(
-      "acDerivedFrom", getRelationshipType("metadata", metadataUuid)), null)).extract().body().jsonPath().get("data.id");
+    derivativeUuid = sendPost("derivative", JsonAPITestHelper.toJsonAPIMap(
+        "derivative", JsonAPITestHelper.toAttributeMap(derivative),
+        JsonAPITestHelper.toRelationshipMap(JsonAPIRelationship.of("acDerivedFrom", "metadata", metadataUuid)),
+        null)).extract().body().jsonPath().get("data.id");
 
   }
 
@@ -134,13 +117,13 @@ public class ObjectStoreMetadataOpenApiIT extends BaseRestAssuredTest {
   @SneakyThrows
   void metadata_SpecValid() {
     ObjectStoreMetadataDto objectStoreMetadataDto = buildObjectStoreMetadataDto();
-    OpenAPI3Assertions.assertRemoteSchema(getOpenAPISpecsURL(), SCHEMA_NAME,
+    OpenAPI3Assertions.assertRemoteSchema(OpenAPIConstants.OBJECT_STORE_API_SPECS_URL, SCHEMA_NAME,
     sendPost(RESOURCE_UNDER_TEST, JsonAPITestHelper.toJsonAPIMap(
       RESOURCE_UNDER_TEST, 
       JsonAPITestHelper.toAttributeMap(objectStoreMetadataDto),
       Map.of(
-          "dcCreator", getRelationshipType("person", UUID.randomUUID().toString()),
-          "acMetadataCreator", getRelationshipType("person", UUID.randomUUID().toString()),
+          "dcCreator", JsonAPITestHelper.generateExternalRelation("person"),
+          "acMetadataCreator", JsonAPITestHelper.generateExternalRelation("person"),
           "derivatives", getRelationshipListType("derivative", derivativeUuid)),
       null))
       .extract().asString());
@@ -193,12 +176,6 @@ public class ObjectStoreMetadataOpenApiIT extends BaseRestAssuredTest {
     return Map.of("data", List.of(Map.of(
       "id", uuid,
       "type", type)));
-  }
-
-  private Map<String, Object> getRelationshipType(String type, String uuid) {
-    return Map.of("data", Map.of(
-      "id", uuid,
-      "type", type));
   }
 
   private <T> void deleteEntityByUUID(String uuidPropertyName, UUID uuid, Class<T> entityClass) {

@@ -88,7 +88,7 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
   @Override
   public void validateBusinessRules(ObjectStoreMetadata entity) {
     applyBusinessRule(entity, objectStoreMetadataValidator);
-    objectStoreManagedAttributeValueValidator.validate(entity, entity.getManagedAttributeValues());
+    objectStoreManagedAttributeValueValidator.validate(entity, entity.getManagedAttributes());
   }
 
   /**

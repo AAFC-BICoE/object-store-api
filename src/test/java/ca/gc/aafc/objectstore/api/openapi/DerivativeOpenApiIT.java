@@ -50,13 +50,8 @@ public class DerivativeOpenApiIT extends BaseRestAssuredTest {
   @Inject
   private DatabaseSupportService service;
 
-  private static final String SPEC_HOST = "raw.githubusercontent.com";
-  private static final String ROOT_SPEC_PATH = "DINA-Web/object-store-specs/master/schema/object-store-api.yml";
-
   private static final String SCHEMA_NAME = "Derivative";
   private static final String RESOURCE_UNDER_TEST = "derivative";
-
-  private static final URIBuilder URI_BUILDER = createSchemaUriBuilder(SPEC_HOST, ROOT_SPEC_PATH);
 
   private ObjectUpload objectUpload;
   private ObjectUpload objectUpload_meta;
@@ -66,10 +61,6 @@ public class DerivativeOpenApiIT extends BaseRestAssuredTest {
   
   protected DerivativeOpenApiIT() {
     super("/api/v1/");
-  }
-
-  public static URL getOpenAPISpecsURL() throws URISyntaxException, MalformedURLException {
-    return URI_BUILDER.build().toURL();
   }
 
   @BeforeEach
@@ -124,7 +115,7 @@ public class DerivativeOpenApiIT extends BaseRestAssuredTest {
   @SneakyThrows
   void derivative_SpecValid() {
     DerivativeDto derivativeDto = buildDerivativeDto(objectUpload.getFileIdentifier());
-    OpenAPI3Assertions.assertRemoteSchema(getOpenAPISpecsURL(), SCHEMA_NAME,
+    OpenAPI3Assertions.assertRemoteSchema(OpenAPIConstants.OBJECT_STORE_API_SPECS_URL, SCHEMA_NAME,
     sendPost(RESOURCE_UNDER_TEST, JsonAPITestHelper.toJsonAPIMap(
       RESOURCE_UNDER_TEST, 
       JsonAPITestHelper.toAttributeMap(derivativeDto),
