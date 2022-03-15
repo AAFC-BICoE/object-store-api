@@ -63,7 +63,7 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
 
   private String[] acTags;
 
-  private Map<String, String> managedAttributeValues;
+  private Map<String, String> managedAttributes;
 
   private UUID acMetadataCreator;
   private UUID dcCreator;
@@ -138,7 +138,7 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
     this.xmpRightsUsageTerms = xmpRightsUsageTerms;
     this.originalFilename = originalFilename;
     this.acTags = acTags;
-    this.managedAttributeValues = MapUtils.isNotEmpty(managedAttributeValues) ? managedAttributeValues : new HashMap<>();
+    this.managedAttributes = MapUtils.isNotEmpty(managedAttributeValues) ? managedAttributeValues : new HashMap<>();
     this.acMetadataCreator = acMetadataCreator;
     this.dcCreator = dcCreator;
     this.derivatives = CollectionUtils.isNotEmpty(derivatives) ? derivatives : new ArrayList<>();
@@ -379,12 +379,13 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
 
   @Type(type = "jsonb")
   @NotNull
-  public Map<String, String> getManagedAttributeValues() {
-    return managedAttributeValues;
+  @Column(name = "managed_attribute_values")
+  public Map<String, String> getManagedAttributes() {
+    return managedAttributes;
   }
 
-  public void setManagedAttributeValues(Map<String, String> managedAttributeValues) {
-    this.managedAttributeValues = managedAttributeValues;
+  public void setManagedAttributes(Map<String, String> managedAttributes) {
+    this.managedAttributes = managedAttributes;
   }
 
   @Transient

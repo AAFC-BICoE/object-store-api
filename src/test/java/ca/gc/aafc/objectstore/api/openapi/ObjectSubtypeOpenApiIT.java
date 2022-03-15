@@ -1,12 +1,7 @@
 package ca.gc.aafc.objectstore.api.openapi;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
-
 import javax.transaction.Transactional;
 
-import org.apache.http.client.utils.URIBuilder;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
@@ -32,35 +27,19 @@ import lombok.SneakyThrows;
 @ContextConfiguration(initializers = {PostgresTestContainerInitializer.class})
 public class ObjectSubtypeOpenApiIT extends BaseRestAssuredTest {
 
-  private static final String SPEC_HOST = "raw.githubusercontent.com";
-  private static final String ROOT_SPEC_PATH = "DINA-Web/object-store-specs/master/schema/object-store-api.yml";
-  
   private static final String SCHEMA_NAME = "ObjectSubtype";
   private static final String RESOURCE_UNDER_TEST = "object-subtype";
   private static final String DINA_USER_NAME = DinaAuthenticatedUserConfig.USER_NAME;
-
-  private static final URIBuilder URI_BUILDER = new URIBuilder();
-
-  static {
-    URI_BUILDER.setScheme("https");
-    URI_BUILDER.setHost(SPEC_HOST);
-    URI_BUILDER.setPath(ROOT_SPEC_PATH);
-  }
 
   protected ObjectSubtypeOpenApiIT() {
     super("/api/v1/");
   }
 
-  public static URL getOpenAPISpecsURL() throws URISyntaxException, MalformedURLException {
-    return URI_BUILDER.build().toURL();
-  }
-
-
   @Test
   @SneakyThrows
   void  objectSubtype_SpecValid() {
     ObjectSubtypeDto objectSubtypeDto = buildObjectSubtypeDto();
-    OpenAPI3Assertions.assertRemoteSchema(getOpenAPISpecsURL(), SCHEMA_NAME,
+    OpenAPI3Assertions.assertRemoteSchema(OpenAPIConstants.OBJECT_STORE_API_SPECS_URL, SCHEMA_NAME,
     sendPost(RESOURCE_UNDER_TEST, JsonAPITestHelper.toJsonAPIMap(
       RESOURCE_UNDER_TEST, 
       JsonAPITestHelper.toAttributeMap(objectSubtypeDto),
