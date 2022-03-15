@@ -24,7 +24,6 @@ import java.util.Optional;
 public class ObjectStoreResourceRepository
   extends DinaRepository<ObjectStoreMetadataDto, ObjectStoreMetadata> {
 
-  private final ObjectStoreMetaDataService dinaService;
   private final DinaAuthenticatedUser authenticatedUser;
 
   public ObjectStoreResourceRepository(
@@ -45,7 +44,6 @@ public class ObjectStoreResourceRepository
       null,
       externalResourceProvider,
       props);
-    this.dinaService = dinaService;
     this.authenticatedUser = authenticatedUser;
   }
 

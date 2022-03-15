@@ -13,7 +13,6 @@ import java.util.UUID;
 @Service
 public class ObjectStoreManagedAttributeService extends ca.gc.aafc.dina.service.ManagedAttributeService<ObjectStoreManagedAttribute> {
 
-
   public static final String METADATA_TABLE_NAME = "metadata";
   public static final String MANAGED_ATTRIBUTES_COL_NAME = "managed_attribute_values";
 

@@ -9,6 +9,7 @@ import java.util.UUID;
 import javax.inject.Inject;
 
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
+import ca.gc.aafc.objectstore.api.testsupport.fixtures.ObjectStoreManagedAttributeFixture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -62,12 +63,11 @@ public class ObjectStoreManagedAttributeRepositoryCRUDIT extends BaseIntegration
 
   @Test
   public void create_WithAuthenticatedUser_SetsCreatedBy() {
-    ObjectStoreManagedAttributeDto ma = new ObjectStoreManagedAttributeDto();
-    ma.setUuid(UUID.randomUUID());
+    ObjectStoreManagedAttributeDto ma = ObjectStoreManagedAttributeFixture
+        .newObjectStoreManagedAttribute();
     ma.setName("name");
     ma.setManagedAttributeType(ManagedAttributeType.STRING);
     ma.setAcceptedValues(new String[] { "dosal" });
-    ma.setMultilingualDescription(MultilingualDescriptionFactory.newMultilingualDescription().build());
 
     ObjectStoreManagedAttributeDto result = managedResourceRepository.findOne(
       managedResourceRepository.create(ma).getUuid(),
@@ -77,13 +77,10 @@ public class ObjectStoreManagedAttributeRepositoryCRUDIT extends BaseIntegration
 
   @Test
   void findOneByKey_whenKeyProvided_managedAttributeFetched() {
-    ObjectStoreManagedAttributeDto newAttribute = new ObjectStoreManagedAttributeDto();
+    ObjectStoreManagedAttributeDto newAttribute = ObjectStoreManagedAttributeFixture
+        .newObjectStoreManagedAttribute();
     newAttribute.setName("Object Store Attribute 1");
     newAttribute.setManagedAttributeType(ManagedAttributeType.INTEGER);
-    newAttribute.setCreatedBy("poffm");
-    newAttribute.setMultilingualDescription(
-      MultilingualDescriptionFactory.newMultilingualDescription().build()
-      );
 
     UUID newAttributeUuid = managedResourceRepository.create(newAttribute).getUuid();
 
