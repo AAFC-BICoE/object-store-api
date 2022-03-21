@@ -28,9 +28,9 @@
     <minio.version>8.3.5</minio.version>
     
     <tika.version>2.3.0</tika.version>
-    <thumbnailator.version>0.4.14</thumbnailator.version>
+    <thumbnailator.version>0.4.17</thumbnailator.version>
     <pdfbox.version>2.0.25</pdfbox.version>
-    <imageio.version>3.6.4</imageio.version>
+    <imageio.version>3.8.2</imageio.version>
 
     <spotbugs-maven-plugin.version>4.5.3.0</spotbugs-maven-plugin.version>
     <spotbugs.version>4.5.3</spotbugs.version>
