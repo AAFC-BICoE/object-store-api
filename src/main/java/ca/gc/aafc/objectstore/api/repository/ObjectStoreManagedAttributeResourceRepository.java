@@ -13,7 +13,7 @@ import ca.gc.aafc.dina.repository.DinaRepository;
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
-import ca.gc.aafc.objectstore.api.service.ObjectStoreManagedAttributeAuthorizationService;
+import ca.gc.aafc.objectstore.api.security.ObjectStoreManagedAttributeAuthorizationService;
 import io.crnk.core.exception.ResourceNotFoundException;
 import io.crnk.core.queryspec.QuerySpec;
 import lombok.NonNull;

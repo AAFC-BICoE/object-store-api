@@ -1,7 +1,5 @@
 package ca.gc.aafc.objectstore.api.service;
 
-
-import ca.gc.aafc.dina.i18n.MultilingualDescription;
 import ca.gc.aafc.dina.testsupport.security.WithMockKeycloakUser;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
@@ -15,8 +13,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.access.AccessDeniedException;
-
-import java.util.List;
 
 import javax.inject.Inject;
 
@@ -51,6 +47,12 @@ public class ObjectStoreManagedAttributePermissionServiceIT extends BaseIntegrat
   @WithMockKeycloakUser(groupRole = {"group 1:COLLECTION_MANAGER"})
   @Test
   void create_authorizedUser_DoesNotThrowAccessDenied() {
+    Assertions.assertDoesNotThrow(() -> repoUnderTest.create(createDto()));
+  }
+
+  @WithMockKeycloakUser(groupRole = {"group 1:DINA_ADMIN"})
+  @Test
+  void create_Admin_DoesNotThrowAccessDenied() {
     Assertions.assertDoesNotThrow(() -> repoUnderTest.create(createDto()));
   }
 
