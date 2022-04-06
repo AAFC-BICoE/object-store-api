@@ -2,6 +2,7 @@ package ca.gc.aafc.objectstore.api.validation;
 
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
@@ -26,7 +27,8 @@ public class ObjectStoreManagedAttributeValidator implements Validator {
   public void validate(Object target, Errors errors) {
     ObjectStoreManagedAttribute ma = (ObjectStoreManagedAttribute) target;
 
-    if (ma.getMultilingualDescription().hasBlankDescription()) {
+    if (CollectionUtils.isEmpty(ma.getMultilingualDescription().getDescriptions()) ||
+        ma.getMultilingualDescription().hasBlankDescription()) {
       String errorMessage = messageSource.getMessage("description.isEmpty", null,
         LocaleContextHolder.getLocale());
       errors.rejectValue("multilingualDescription", "description.isEmpty", null, errorMessage);
