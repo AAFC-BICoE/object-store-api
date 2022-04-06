@@ -63,7 +63,7 @@ public class ObjectStoreManagedAttribute implements ca.gc.aafc.dina.entity.Manag
   @Setter
   private String key;
 
-  
+  @NotNull
   @Type(type = "jsonb")
   @Column(name = "multilingual_description")
   public MultilingualDescription getMultilingualDescription() {
