@@ -9,27 +9,24 @@ import ca.gc.aafc.dina.security.DinaAuthorizationService;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
-import io.crnk.core.queryspec.QuerySpec;
 import lombok.NonNull;
-import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
 import java.util.Optional;
 
-@Log4j2
 @Repository
 @Transactional
 public class ObjectStoreResourceRepository
   extends DinaRepository<ObjectStoreMetadataDto, ObjectStoreMetadata> {
 
-  private final DinaAuthenticatedUser authenticatedUser;
+  private Optional<DinaAuthenticatedUser> authenticatedUser;
 
   public ObjectStoreResourceRepository(
     @NonNull ObjectStoreMetaDataService dinaService,
     @NonNull ExternalResourceProvider externalResourceProvider,
-    @NonNull DinaAuthenticatedUser authenticatedUser,
+    Optional<DinaAuthenticatedUser> authenticatedUser,
     @NonNull AuditService auditService,
     DinaAuthorizationService groupAuthorizationService,
     @NonNull BuildProperties props
@@ -47,28 +44,13 @@ public class ObjectStoreResourceRepository
     this.authenticatedUser = authenticatedUser;
   }
 
-  /**
-   * @param resource to save
-   * @return saved resource
-   */
-  @Override
-  @SuppressWarnings("unchecked")
-  public <S extends ObjectStoreMetadataDto> S save(S resource) {
-    S dto = super.save(resource);
-    return (S) this.findOne(dto.getUuid(), new QuerySpec(ObjectStoreMetadataDto.class));
-  }
-
   @SuppressWarnings("unchecked")
   @Override
   public ObjectStoreMetadataDto create(ObjectStoreMetadataDto resource) {
-
-    resource.setCreatedBy(authenticatedUser.getUsername());
-    ObjectStoreMetadataDto created = super.create(resource);
-
-    return this.findOne(
-      created.getUuid(),
-      new QuerySpec(ObjectStoreMetadataDto.class)
+    authenticatedUser.ifPresent(
+      user -> resource.setCreatedBy(user.getUsername())
     );
+    return super.create(resource);
   }
 
 }
