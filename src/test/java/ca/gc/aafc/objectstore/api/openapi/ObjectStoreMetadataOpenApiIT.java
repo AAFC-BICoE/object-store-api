@@ -58,6 +58,7 @@ public class ObjectStoreMetadataOpenApiIT extends BaseRestAssuredTest {
   private ObjectUpload oUpload_derivative;
   private ObjectUpload oUpload_acDerivedFrom;
   private String derivativeUuid;
+  private UUID managedAttributeUuid;
 
   protected ObjectStoreMetadataOpenApiIT() {
     super("/api/v1/");
@@ -81,12 +82,14 @@ public class ObjectStoreMetadataOpenApiIT extends BaseRestAssuredTest {
 
     // Add a managed attribute to use for the object store metadata testing.
     ObjectStoreManagedAttribute managedAttribute = ObjectStoreManagedAttributeFactory.newManagedAttribute()
+        .uuid(UUID.randomUUID())
         .name(MANAGED_ATTRIBUTE_KEY)
         .key(MANAGED_ATTRIBUTE_KEY)
         .acceptedValues(new String[] { MANAGED_ATTRIBUTE_VALUE })
         .createdBy("admin")
         .createdOn(OffsetDateTime.now())
         .build();
+    managedAttributeUuid = managedAttribute.getUuid();
 
     // we need to run the setup in another transaction and commit it otherwise it
     // can't be visible
@@ -125,6 +128,7 @@ public class ObjectStoreMetadataOpenApiIT extends BaseRestAssuredTest {
     deleteEntityByUUID("fileIdentifier", oUpload_derivative.getFileIdentifier(), ObjectUpload.class);
     deleteEntityByUUID("fileIdentifier", ObjectUploadFactory.TEST_FILE_IDENTIFIER, ObjectUpload.class);
     deleteEntityByUUID("fileIdentifier", oUpload_acDerivedFrom.getFileIdentifier(), ObjectUpload.class);
+    deleteEntityByUUID("uuid", managedAttributeUuid, ObjectStoreManagedAttribute.class);
   }
 
   @Test
