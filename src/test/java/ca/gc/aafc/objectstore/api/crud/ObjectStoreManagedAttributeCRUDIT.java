@@ -25,7 +25,7 @@ import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFacto
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 
 public class ObjectStoreManagedAttributeCRUDIT extends BaseEntityCRUDIT {
-     
+
   private ObjectStoreManagedAttribute managedAttributeUnderTest = ObjectStoreManagedAttributeFactory.newManagedAttribute()
       .acceptedValues(new String[] { "a", "b" })
       .multilingualDescription(MultilingualDescriptionFactory.newMultilingualDescription().build())
