@@ -9,6 +9,7 @@ import ca.gc.aafc.dina.security.DinaAuthorizationService;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
+import io.crnk.core.queryspec.QuerySpec;
 import lombok.NonNull;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.stereotype.Repository;
@@ -42,6 +43,17 @@ public class ObjectStoreResourceRepository
       externalResourceProvider,
       props);
     this.authenticatedUser = authenticatedUser;
+  }
+
+  /**
+   * @param resource to save
+   * @return Returns the completed Dto, instead of the incomplete one normally returned.
+   */
+  @Override
+  @SuppressWarnings("unchecked")
+  public <S extends ObjectStoreMetadataDto> S save(S resource) {
+    S dto = super.save(resource);
+    return (S) this.findOne(dto.getUuid(), new QuerySpec(ObjectStoreMetadataDto.class));
   }
 
   @SuppressWarnings("unchecked")
