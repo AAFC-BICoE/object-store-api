@@ -3,6 +3,8 @@ package ca.gc.aafc.objectstore.api.config;
 import org.apache.tika.config.TikaConfig;
 import org.apache.tika.mime.MediaType;
 import org.apache.tika.mime.MediaTypeRegistry;
+import org.apache.tika.mime.MimeType;
+import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.parser.Parser;
 import org.apache.tika.parser.executable.ExecutableParser;
 import org.apache.tika.parser.pkg.CompressorParser;
@@ -16,10 +18,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toSet;
 
 /**
  * ObjectStore configuration for MediaType based on Tika.
+ *
  */
 @Configuration
 public class MediaTypeConfiguration {
@@ -63,6 +67,10 @@ public class MediaTypeConfiguration {
    */
   public boolean isSupported(MediaType mediaType) {
     return !UNSUPPORTED_MEDIA_TYPE.contains(mediaType);
+  }
+
+  public MimeType mimeTypeFromName(String mimeTypeName) throws MimeTypeException {
+    return TIKA_CONFIG.getMimeRepository().forName(mimeTypeName);
   }
 
 }

@@ -1,11 +1,11 @@
 package ca.gc.aafc.objectstore.api.file;
 
+import ca.gc.aafc.objectstore.api.config.MediaTypeConfiguration;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.tika.config.TikaConfig;
 import org.apache.tika.detect.DefaultDetector;
 import org.apache.tika.detect.Detector;
 import org.apache.tika.io.TikaInputStream;
@@ -33,9 +33,14 @@ import java.io.InputStream;
  */
 @Service
 public class MediaTypeDetectionStrategy {
-  
-  private static final TikaConfig TIKA_CONFIG = TikaConfig.getDefaultConfig();
+
   private static final Detector TIKA_DETECTOR = new DefaultDetector();
+
+  private final MediaTypeConfiguration mediaTypeConfiguration;
+
+  public MediaTypeDetectionStrategy(@NonNull MediaTypeConfiguration mediaTypeConfiguration) {
+    this.mediaTypeConfiguration = mediaTypeConfiguration;
+  }
   
   @Builder
   @Getter
@@ -96,7 +101,7 @@ public class MediaTypeDetectionStrategy {
     }
 
     MediaType detectedMediaType = TIKA_DETECTOR.detect(TikaInputStream.get(is), metadata);
-    MimeType detectedMimeType = TIKA_CONFIG.getMimeRepository().forName(detectedMediaType.toString());
+    MimeType detectedMimeType = mediaTypeConfiguration.mimeTypeFromName(detectedMediaType.toString());
 
     MediaTypeDetectionResult.MediaTypeDetectionResultBuilder mtdrBldr = MediaTypeDetectionResult
         .builder()
