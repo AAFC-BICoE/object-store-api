@@ -1,11 +1,8 @@
 package ca.gc.aafc.objectstore.api.openapi;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
-import java.util.Map;
 
 import javax.inject.Inject;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -13,7 +10,7 @@ import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
 
-import org.apache.http.client.utils.URIBuilder;
+import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPIRelationship;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -85,17 +82,18 @@ public class DerivativeOpenApiIT extends BaseRestAssuredTest {
 
     ObjectStoreMetadataDto osMetadata = buildObjectStoreMetadataDto();
 
-    metadataUuid = sendPost("metadata", JsonAPITestHelper.toJsonAPIMap("metadata", JsonAPITestHelper.toAttributeMap(osMetadata), null, null)).extract().body().jsonPath().get("data.id");
+    metadataUuid = JsonAPITestHelper.extractId(sendPost("metadata",
+            JsonAPITestHelper.toJsonAPIMap("metadata", JsonAPITestHelper.toAttributeMap(osMetadata), null, null)));
 
     DerivativeDto derivative = buildDerivativeDto(objectUpload_generatedFrom.getFileIdentifier());
 
-    derivativeUuid = sendPost(RESOURCE_UNDER_TEST, JsonAPITestHelper.toJsonAPIMap(
-      RESOURCE_UNDER_TEST, 
-      JsonAPITestHelper.toAttributeMap(derivative),
-      Map.of(
-          "acDerivedFrom", getRelationshipType("metadata", metadataUuid)),
-      null)).extract().body().jsonPath().get("data.id");
-
+    derivativeUuid = JsonAPITestHelper.extractId(sendPost(RESOURCE_UNDER_TEST, JsonAPITestHelper.toJsonAPIMap(
+            DerivativeDto.TYPENAME,
+                    JsonAPITestHelper.toAttributeMap(derivative),
+                    JsonAPITestHelper.toRelationshipMap(
+                                    JsonAPIRelationship.of("acDerivedFrom", "metadata", metadataUuid)
+                    ),
+      null)));
   }
 
   /**
@@ -116,20 +114,15 @@ public class DerivativeOpenApiIT extends BaseRestAssuredTest {
   void derivative_SpecValid() {
     DerivativeDto derivativeDto = buildDerivativeDto(objectUpload.getFileIdentifier());
     OpenAPI3Assertions.assertRemoteSchema(OpenAPIConstants.OBJECT_STORE_API_SPECS_URL, SCHEMA_NAME,
+
     sendPost(RESOURCE_UNDER_TEST, JsonAPITestHelper.toJsonAPIMap(
       RESOURCE_UNDER_TEST, 
       JsonAPITestHelper.toAttributeMap(derivativeDto),
-      Map.of(
-          "acDerivedFrom", getRelationshipType("metadata", metadataUuid),
-          "generatedFromDerivative", getRelationshipType("derivative", derivativeUuid)),
-      null))
-      .extract().asString());
-  }
-
-  private Map<String, Object> getRelationshipType(String type, String uuid) {
-    return Map.of("data", Map.of(
-      "id", uuid,
-      "type", type));
+            JsonAPITestHelper.toRelationshipMap(
+                    List.of(
+                            JsonAPIRelationship.of("acDerivedFrom", "metadata", metadataUuid),
+                            JsonAPIRelationship.of("generatedFromDerivative", "derivative", derivativeUuid))),
+      null)).extract().asString());
   }
 
   private DerivativeDto buildDerivativeDto(UUID fileIdentifier) {
