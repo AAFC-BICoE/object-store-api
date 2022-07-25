@@ -69,6 +69,17 @@ public class MediaTypeConfiguration {
     return !UNSUPPORTED_MEDIA_TYPE.contains(mediaType);
   }
 
+  /**
+   * Returns all the supported media type.
+   * @return
+   */
+  public Set<MediaType> getDistinctMediaType() {
+    return MediaTypeConfiguration.SUPPORTED_MEDIA_TYPE
+            .values().stream()
+            .flatMap(Collection::stream)
+            .collect(Collectors.toSet());
+  }
+
   public MimeType mimeTypeFromName(String mimeTypeName) throws MimeTypeException {
     return TIKA_CONFIG.getMimeRepository().forName(mimeTypeName);
   }
