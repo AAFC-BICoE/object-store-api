@@ -21,14 +21,8 @@ public class MultilingualDescriptionFactory implements TestableEntityFactory<Mul
   public static MultilingualDescription.MultilingualDescriptionBuilder newMultilingualDescription() {
     return MultilingualDescription.builder()
             .descriptions(List.of(
-              MultilingualDescription.MultilingualPair.builder()
-                .desc("attrEn")
-                .lang("en")
-                .build(), 
-              MultilingualDescription.MultilingualPair.builder()
-                .desc("attrFr")
-                .lang("fr")
-                .build()
+              MultilingualDescription.MultilingualPair.of("en", "attrEn"),
+              MultilingualDescription.MultilingualPair.of("fr", "attrFr")
             ));
    } 
   
