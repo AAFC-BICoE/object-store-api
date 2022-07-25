@@ -19,7 +19,7 @@ public class MediaTypeRepository extends ReadOnlyResourceRepositoryBase<MediaTyp
 
   protected MediaTypeRepository(MediaTypeConfiguration mediaTypeConfig) {
     super(MediaTypeDto.class);
-    mediaTypeSet = mediaTypeConfig.getDistinctMediaType().stream().map(MediaTypeDto::fromMediaType)
+    mediaTypeSet = mediaTypeConfig.getSupportedMediaType().stream().map(MediaTypeDto::fromMediaType)
             .collect(Collectors.toSet());
   }
 
@@ -32,4 +32,3 @@ public class MediaTypeRepository extends ReadOnlyResourceRepositoryBase<MediaTyp
     }
   }
 }
-

@@ -73,13 +73,19 @@ public class MediaTypeConfiguration {
    * Returns all the supported media type.
    * @return
    */
-  public Set<MediaType> getDistinctMediaType() {
+  public Set<MediaType> getSupportedMediaType() {
     return MediaTypeConfiguration.SUPPORTED_MEDIA_TYPE
             .values().stream()
             .flatMap(Collection::stream)
             .collect(Collectors.toSet());
   }
 
+  /**
+   * {@link MimeType} is useful to get the file extension(s) used by a MediaType.
+   * @param mimeTypeName
+   * @return
+   * @throws MimeTypeException
+   */
   public MimeType mimeTypeFromName(String mimeTypeName) throws MimeTypeException {
     return TIKA_CONFIG.getMimeRepository().forName(mimeTypeName);
   }
