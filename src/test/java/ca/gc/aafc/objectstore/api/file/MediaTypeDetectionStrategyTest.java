@@ -13,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 
 import javax.annotation.Nullable;
 
+import ca.gc.aafc.objectstore.api.config.MediaTypeConfiguration;
 import org.apache.tika.mime.MimeTypeException;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -21,7 +22,7 @@ import com.google.common.io.Resources;
 
 public class MediaTypeDetectionStrategyTest {
 
-  private static final MediaTypeDetectionStrategy MTDS = new MediaTypeDetectionStrategy();
+  private static final MediaTypeDetectionStrategy MTDS = new MediaTypeDetectionStrategy(new MediaTypeConfiguration());
  
   @Test
   public void detectMediaType_onNoMediaType_mediaTypeIsDetectedExtPreserved() throws FileNotFoundException, URISyntaxException {
