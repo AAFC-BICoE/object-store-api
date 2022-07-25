@@ -27,7 +27,7 @@
     <okhttp.version>4.8.1</okhttp.version>
     <minio.version>8.3.8</minio.version>
     
-    <tika.version>2.3.0</tika.version>
+    <tika.version>2.4.1</tika.version>
     <thumbnailator.version>0.4.17</thumbnailator.version>
     <pdfbox.version>2.0.25</pdfbox.version>
     <imageio.version>3.8.2</imageio.version>

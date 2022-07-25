@@ -1,5 +1,6 @@
 package ca.gc.aafc.objectstore.api.file;
 
+import ca.gc.aafc.objectstore.api.config.MediaTypeConfiguration;
 import com.google.common.io.Resources;
 import org.apache.tika.mime.MimeTypeException;
 import org.junit.jupiter.api.Test;
@@ -12,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class ThumbnailGeneratorTest {
 
-  private static final MediaTypeDetectionStrategy MTDS = new MediaTypeDetectionStrategy();
+  private static final MediaTypeDetectionStrategy MTDS = new MediaTypeDetectionStrategy(new MediaTypeConfiguration());
 
   @Test
   public void thumbnailSupported_whenCr2_isSupportedIsFalse() throws URISyntaxException, MimeTypeException, IOException {
