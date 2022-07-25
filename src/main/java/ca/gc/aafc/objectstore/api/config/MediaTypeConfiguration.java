@@ -84,7 +84,6 @@ public class MediaTypeConfiguration {
    * {@link MimeType} is useful to get the file extension(s) used by a MediaType.
    * @param mimeTypeName
    * @return
-   * @throws MimeTypeException
    */
   public MimeType mimeTypeFromName(String mimeTypeName) throws MimeTypeException {
     return TIKA_CONFIG.getMimeRepository().forName(mimeTypeName);
