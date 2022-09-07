@@ -9,22 +9,22 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
 /**
- * Configuration class with supported licenses loaded from SupportedLicenses.yml
+ * Configuration class with supported licenses loaded from SupportedLicences.yml
  *
  */
 @Configuration
-@PropertySource(value = "classpath:SupportedLicenses.yml",
+@PropertySource(value = "classpath:SupportedLicences.yml",
     factory = YamlPropertyLoaderFactory.class)
 @ConfigurationProperties
 public class SupportedLicensesConfiguration {
 
-  private final Map<String, LicenseDto> licenses;
+  private final Map<String, LicenseDto> licences;
 
-  public SupportedLicensesConfiguration(Map<String, LicenseDto> licenses) {
-    this.licenses = licenses;
+  public SupportedLicensesConfiguration(Map<String, LicenseDto> licences) {
+    this.licences = licences;
   }
 
-  public Map<String, LicenseDto> getLicenses() {
-    return licenses;
+  public Map<String, LicenseDto> getLicences() {
+    return licences;
   }
 }

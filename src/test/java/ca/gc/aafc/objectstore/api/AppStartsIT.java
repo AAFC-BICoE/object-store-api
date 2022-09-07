@@ -34,7 +34,7 @@ public class AppStartsIT extends BaseIntegrationTest {
       fileUploadConfiguration.getMultipart().keySet(),
       Matchers.contains("max-file-size", "max-request-size"));
     Assertions.assertNotNull(mediaTypeToDcTypeConfig.getToDcType().get(DcType.IMAGE).get(0));
-    Assertions.assertNotNull(supportedLicensesConfiguration.getLicenses()
+    Assertions.assertNotNull(supportedLicensesConfiguration.getLicences()
       .entrySet()
       .iterator()
       .next());

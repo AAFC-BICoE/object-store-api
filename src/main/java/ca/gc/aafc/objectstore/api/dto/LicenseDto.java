@@ -7,7 +7,7 @@ import lombok.Data;
 import java.util.Map;
 
 @Data
-@JsonApiResource(type = "license")
+@JsonApiResource(type = "licence")
 public class LicenseDto {
 
   @JsonApiId

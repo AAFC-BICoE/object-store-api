@@ -24,7 +24,7 @@ public class SupportedLicenseRepository
   @Override
   public ResourceList<LicenseDto> findAll(QuerySpec query) {
     try {
-      return query.apply(licenses.getLicenses().values());
+      return query.apply(licenses.getLicences().values());
     } catch (PropertyException propertyException) {
       throw new UnknownAttributeException(propertyException);
     }
