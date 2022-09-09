@@ -8,17 +8,17 @@ import org.springframework.stereotype.Service;
 public class ObjectStoreManagedAttributeAuthorizationService extends PermissionAuthorizationService {
 
   @Override
-  @PreAuthorize("hasMinimumDinaRole(@currentUser, 'COLLECTION_MANAGER')")
+  @PreAuthorize("hasMinimumDinaRole(@currentUser, 'SUPER_USER')")
   public void authorizeCreate(Object entity) {
   }
 
   @Override
-  @PreAuthorize("hasMinimumDinaRole(@currentUser, 'COLLECTION_MANAGER')")
+  @PreAuthorize("hasMinimumDinaRole(@currentUser, 'SUPER_USER')")
   public void authorizeUpdate(Object entity) {
   }
 
   @Override
-  @PreAuthorize("hasMinimumDinaRole(@currentUser, 'COLLECTION_MANAGER')")
+  @PreAuthorize("hasMinimumDinaRole(@currentUser, 'SUPER_USER')")
   public void authorizeDelete(Object entity) {
   }
 

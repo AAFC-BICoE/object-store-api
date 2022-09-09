@@ -19,8 +19,8 @@ public class DinaAuthenticatedUserConfig {
   public static final String TEST_BUCKET = "test";
   public static final Map<String, Set<DinaRole>> ROLES_PER_GROUPS =
     ImmutableMap.of(
-      TEST_BUCKET, Collections.singleton(DinaRole.STAFF),
-      "Group 2", Collections.singleton(DinaRole.STAFF)
+      TEST_BUCKET, Collections.singleton(DinaRole.USER),
+      "Group 2", Collections.singleton(DinaRole.USER)
     );
 
   @Bean

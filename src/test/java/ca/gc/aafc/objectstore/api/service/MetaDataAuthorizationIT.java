@@ -54,14 +54,14 @@ public class MetaDataAuthorizationIT extends BaseIntegrationTest {
   }
 
   @Test
-  @WithMockKeycloakUser(groupRole = {"CNC:STAFF"})
+  @WithMockKeycloakUser(groupRole = {"CNC:USER"})
   void create_Unauthorized_ThrowsAccessDenied() {
     ObjectStoreMetadataDto dto = newMetaDto("invalidGroup");
     Assertions.assertThrows(AccessDeniedException.class, () -> repo.create(dto));
   }
 
   @Test
-  @WithMockKeycloakUser(groupRole = {"CNC:STAFF"})
+  @WithMockKeycloakUser(groupRole = {"CNC:USER"})
   void create_Authorized_RecordCreated() {
     ObjectStoreMetadataDto dto = newMetaDto(GROUP_1);
     UUID uuid = repo.create(dto).getUuid();
@@ -69,7 +69,7 @@ public class MetaDataAuthorizationIT extends BaseIntegrationTest {
   }
 
   @Test
-  @WithMockKeycloakUser(groupRole = {"Invalid:STAFF"})
+  @WithMockKeycloakUser(groupRole = {"Invalid:USER"})
   public void save_UnAuthorizedGroup_ThrowsAccessDeniedException() {
     ObjectStoreMetadataDto toUpdate = repo.findOne(
       persisted.getUuid(), new QuerySpec(ObjectStoreMetadataDto.class));
@@ -78,7 +78,7 @@ public class MetaDataAuthorizationIT extends BaseIntegrationTest {
   }
 
   @Test
-  @WithMockKeycloakUser(groupRole = {"CNC:STAFF"})
+  @WithMockKeycloakUser(groupRole = {"CNC:USER"})
   public void save_AuthorizedGroup_UpdatesObject() {
     String expected = "new value";
     ObjectStoreMetadataDto toUpdate = repo.findOne(
@@ -89,7 +89,7 @@ public class MetaDataAuthorizationIT extends BaseIntegrationTest {
   }
 
   @Test
-  @WithMockKeycloakUser(groupRole = {"CNC:STAFF"})
+  @WithMockKeycloakUser(groupRole = {"CNC:USER"})
   public void delete_AuthorizedGroup_UpdatesObject() {
     ObjectStoreMetadataDto dto = repo.create(newMetaDto(GROUP_1));
     repo.delete(dto.getUuid());
@@ -99,7 +99,7 @@ public class MetaDataAuthorizationIT extends BaseIntegrationTest {
   }
 
   @Test
-  @WithMockKeycloakUser(groupRole = {"Invalid:STAFF"})
+  @WithMockKeycloakUser(groupRole = {"Invalid:USER"})
   public void delete_UnAuthorizedGroup_ThrowsAccessDeniedException() {
     ObjectStoreMetadata group1 = persistMeta("Group1");
     Assertions.assertThrows(AccessDeniedException.class, () -> repo.delete(group1.getUuid()));
