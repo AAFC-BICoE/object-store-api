@@ -4,12 +4,9 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.BiFunction;
 
-import org.testcontainers.shaded.org.apache.commons.lang.RandomStringUtils;
-
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
 import ca.gc.aafc.dina.entity.ManagedAttribute.ManagedAttributeType;
-import ca.gc.aafc.dina.i18n.MultilingualDescription;
 
 public class ObjectStoreManagedAttributeFactory implements TestableEntityFactory<ObjectStoreManagedAttribute> {
 
