@@ -7,6 +7,7 @@ import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.dina.service.DinaService;
 import ca.gc.aafc.objectstore.api.dto.ObjectSubtypeDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.NonNull;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.context.MessageSource;
@@ -29,7 +30,8 @@ public class ObjectSubtypeResourceRepository
     DinaAdminCUDAuthorizationService dinaAdminCUDAuthorizationService,
     MessageSource messageSource,
     Optional<DinaAuthenticatedUser> authenticatedUser,
-    @NonNull BuildProperties props
+    @NonNull BuildProperties props,
+    @NonNull ObjectMapper objMapper
   ) {
     super(
       dinaService,
@@ -40,7 +42,7 @@ public class ObjectSubtypeResourceRepository
       ObjectSubtype.class,
       null,
       null,
-      props);
+      props, objMapper);
     this.dinaService = dinaService;
     this.messageSource = messageSource;
     this.authenticatedUser = authenticatedUser;
