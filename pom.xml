@@ -5,7 +5,7 @@
 
   <groupId>ca.gc.aafc</groupId>
   <artifactId>object-store.api</artifactId>
-  <version>0.42-SNAPSHOT</version>
+  <version>0.42</version>
   <packaging>jar</packaging>
 
   <name>Object-Store API</name>
