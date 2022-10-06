@@ -10,6 +10,7 @@ import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.file.FileController;
 import ca.gc.aafc.objectstore.api.service.DerivativeService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.crnk.core.exception.BadRequestException;
 import io.crnk.core.exception.MethodNotAllowedException;
 import lombok.NonNull;
@@ -32,7 +33,8 @@ public class DerivativeRepository extends DinaRepository<DerivativeDto, Derivati
     ExternalResourceProvider externalResourceProvider,
     DinaAuthorizationService groupAuthorizationService,
     @NonNull BuildProperties buildProperties,
-    @NonNull DinaAuthenticatedUser authenticatedUser
+    @NonNull DinaAuthenticatedUser authenticatedUser,
+    @NonNull ObjectMapper objMapper
   ) {
     super(
       derivativeService,
@@ -43,7 +45,7 @@ public class DerivativeRepository extends DinaRepository<DerivativeDto, Derivati
       Derivative.class,
       null,
       externalResourceProvider,
-      buildProperties);
+      buildProperties, objMapper);
     this.derivativeService = derivativeService;
     this.authenticatedUser = authenticatedUser;
   }

@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import ca.gc.aafc.objectstore.api.service.ObjectStoreManagedAttributeService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.stereotype.Repository;
 
@@ -29,7 +30,8 @@ public class ObjectStoreManagedAttributeResourceRepository
     @NonNull ObjectStoreManagedAttributeService dinaService,
     @NonNull ObjectStoreManagedAttributeAuthorizationService authorizationService,
     Optional<DinaAuthenticatedUser> authenticatedUser,
-    @NonNull BuildProperties props
+    @NonNull BuildProperties props,
+    @NonNull ObjectMapper objMapper
   ) {
     super(
       dinaService,
@@ -38,7 +40,7 @@ public class ObjectStoreManagedAttributeResourceRepository
       new DinaMapper<>(ObjectStoreManagedAttributeDto.class),
       ObjectStoreManagedAttributeDto.class,
       ObjectStoreManagedAttribute.class, null, null,
-      props);
+      props, objMapper);
     this.dinaService = dinaService;
     this.authenticatedUser = authenticatedUser;
   }
