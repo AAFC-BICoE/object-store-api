@@ -50,14 +50,14 @@ public class DerivativeRepoAuthorizationIT extends BaseIntegrationTest {
   }
 
   @Test
-  @WithMockKeycloakUser(groupRole = {"CNC:STAFF"})
+  @WithMockKeycloakUser(groupRole = {"CNC:USER"})
   void create_WithValidGroup_DerivativeCreated() {
     Assertions.assertNotNull(derivativeRepository.findOne(derivativeRepository.create(newDerivative(
       uploadTest_1.getFileIdentifier())).getUuid(), new QuerySpec(DerivativeDto.class)));
   }
 
   @Test
-  @WithMockKeycloakUser(groupRole = {"INVALID_GROUP:STAFF"})
+  @WithMockKeycloakUser(groupRole = {"INVALID_GROUP:USER"})
   void create_WithInvalidGroup_ThrowsAccessDenied() {
     Assertions.assertThrows(AccessDeniedException.class, () ->
       derivativeRepository.create(newDerivative(uploadTest_1.getFileIdentifier())));

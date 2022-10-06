@@ -6,9 +6,9 @@ See DINA object-store [specification](https://github.com/DINA-Web/object-store-s
 
 ## Required
 
-* Java 11
-* Maven 3.6 (tested)
-* Docker 19+ (for running integration tests)
+* Java 17
+* Maven 3.8 (tested)
+* Docker 20+ (for running integration tests)
 
 ## Database
 This project requires a PostgreSQL database to run.
@@ -31,14 +31,14 @@ cp local/*.env .
 Start the app (default port is 8081):
 
 ```
-docker-compose up
+docker compose up
 ```
 
 Once the services have started you can access metadata at http://localhost:8081/api/v1/metadata
 
 Cleanup:
 ```
-docker-compose down
+docker compose down
 ```
 
 ## Testing

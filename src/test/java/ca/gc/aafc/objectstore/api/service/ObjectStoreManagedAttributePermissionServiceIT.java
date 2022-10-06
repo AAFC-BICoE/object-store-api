@@ -36,7 +36,7 @@ public class ObjectStoreManagedAttributePermissionServiceIT extends BaseIntegrat
     managedAttributeService.create(managedAttribute);
   }
 
-  @WithMockKeycloakUser(groupRole = {"group 1:STAFF"})
+  @WithMockKeycloakUser(groupRole = {"group 1:USER"})
   @Test
   void create_unauthorizedUser_ThrowsAccessDenied() {
     Assertions.assertThrows(
@@ -44,7 +44,7 @@ public class ObjectStoreManagedAttributePermissionServiceIT extends BaseIntegrat
       () -> repoUnderTest.create(new ObjectStoreManagedAttributeDto()));
   }
 
-  @WithMockKeycloakUser(groupRole = {"group 1:COLLECTION_MANAGER"})
+  @WithMockKeycloakUser(groupRole = {"group 1:SUPER_USER"})
   @Test
   void create_authorizedUser_DoesNotThrowAccessDenied() {
     Assertions.assertDoesNotThrow(() -> repoUnderTest.create(createDto()));
@@ -56,14 +56,14 @@ public class ObjectStoreManagedAttributePermissionServiceIT extends BaseIntegrat
     Assertions.assertDoesNotThrow(() -> repoUnderTest.create(createDto()));
   }
 
-  @WithMockKeycloakUser(groupRole = {"group 1:STAFF"})
+  @WithMockKeycloakUser(groupRole = {"group 1:USER"})
   @Test
   void delete_unauthorizedUser_ThrowsAccessDeniedException() {
     Assertions.assertNotNull(repoUnderTest.findOne(managedAttribute.getUuid(), new QuerySpec(ObjectStoreManagedAttributeDto.class)));
     Assertions.assertThrows(AccessDeniedException.class, () -> repoUnderTest.delete(managedAttribute.getUuid()));
   }
 
-  @WithMockKeycloakUser(groupRole = {"group 1:COLLECTION_MANAGER"})
+  @WithMockKeycloakUser(groupRole = {"group 1:SUPER_USER"})
   @Test
   void delete_authorizedUser_DoesNotThrowAccessDenied() {
     Assertions.assertNotNull(repoUnderTest.findOne(managedAttribute.getUuid(), new QuerySpec(ObjectStoreManagedAttributeDto.class)));
@@ -71,7 +71,7 @@ public class ObjectStoreManagedAttributePermissionServiceIT extends BaseIntegrat
       () -> repoUnderTest.delete(managedAttribute.getUuid()));
   }
 
-  @WithMockKeycloakUser(groupRole = {"group 1:STAFF"})
+  @WithMockKeycloakUser(groupRole = {"group 1:USER"})
   @Test
   void update_unauthorizedUser_ThrowAccessDenied() {
     var dto = repoUnderTest.findOne(managedAttribute.getUuid(), new QuerySpec(ObjectStoreManagedAttributeDto.class));
@@ -80,7 +80,7 @@ public class ObjectStoreManagedAttributePermissionServiceIT extends BaseIntegrat
     Assertions.assertThrows(AccessDeniedException.class, () -> repoUnderTest.save(dto));
   }
 
-  @WithMockKeycloakUser(groupRole = {"group 1:COLLECTION_MANAGER"})
+  @WithMockKeycloakUser(groupRole = {"group 1:SUPER_USER"})
   @Test
   void update_authorizedUser_DoesNotThrowAccessDenied() {
     ObjectStoreManagedAttributeDto dto = repoUnderTest.create(createDto());
