@@ -5,11 +5,13 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
-import io.crnk.core.exception.UnauthorizedException;
+import ca.gc.aafc.dina.testsupport.security.WithMockKeycloakUser;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -20,6 +22,7 @@ import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.minio.MinioTestContainerInitializer;
 
 @ContextConfiguration(initializers = MinioTestContainerInitializer.class)
+@SpringBootTest(properties = "keycloak.enabled = true")
 public class FileUploadIT extends BaseIntegrationTest {
 
   public static final String ILLEGAL_BUCKET_CHAR = "~";
@@ -31,6 +34,7 @@ public class FileUploadIT extends BaseIntegrationTest {
     .findFirst().get();
 
   @Test
+  @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
   public void fileUpload_onMultipartRequest_acceptFile() throws Exception {
 
     MockMultipartFile file = new MockMultipartFile("file", "testfile", MediaType.TEXT_PLAIN_VALUE,
@@ -42,6 +46,7 @@ public class FileUploadIT extends BaseIntegrationTest {
   }
 
   @Test
+  @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
   public void fileUpload_onInvalidBucket_returnUnauthorizedException() throws Exception {
 
     MockMultipartFile file = new MockMultipartFile("file", "testfile", MediaType.TEXT_PLAIN_VALUE,
@@ -55,7 +60,7 @@ public class FileUploadIT extends BaseIntegrationTest {
     }
     // NestedServletException is a generic exception so we want to do the assertion on the cause
     catch (NestedServletException nsEx) {
-      assertEquals(UnauthorizedException.class, nsEx.getCause().getClass());
+      assertEquals(AccessDeniedException.class, nsEx.getCause().getClass());
     }
      
   }

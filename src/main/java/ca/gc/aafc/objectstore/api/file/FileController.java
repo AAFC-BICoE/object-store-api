@@ -13,10 +13,10 @@ import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.exif.ExifParser;
 import ca.gc.aafc.objectstore.api.minio.MinioFileService;
+import ca.gc.aafc.objectstore.api.security.FileUploadAuthorizationService;
 import ca.gc.aafc.objectstore.api.service.DerivativeService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
 import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
-import io.crnk.core.exception.UnauthorizedException;
 import io.minio.errors.ErrorResponseException;
 import io.minio.errors.InsufficientDataException;
 import io.minio.errors.InternalException;
@@ -36,7 +36,6 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -70,6 +69,7 @@ public class FileController {
   private static final int MAX_NUMBER_OF_ATTEMPT_RANDOM_UUID = 5;
   private static final int READ_AHEAD_BUFFER_SIZE = 10 * 1024;
 
+  private final FileUploadAuthorizationService authorizationService;
   private final DinaMappingLayer<ObjectUploadDto, ObjectUpload> mappingLayer;
   private final ObjectUploadService objectUploadService;
   private final DerivativeService derivativeService;
@@ -84,6 +84,7 @@ public class FileController {
 
   @Inject
   public FileController(
+    FileUploadAuthorizationService authorizationService,
     MinioFileService minioService,
     ObjectUploadService objectUploadService,
     DerivativeService derivativeService,
@@ -93,6 +94,7 @@ public class FileController {
     MessageSource messageSource,
     MediaTypeConfiguration mediaTypeConfiguration
   ) {
+    this.authorizationService = authorizationService;
     this.minioService = minioService;
     this.objectUploadService = objectUploadService;
     this.objectStoreMetaDataService = objectStoreMetaDataService;
@@ -137,7 +139,6 @@ public class FileController {
         .detectMediaType(file.getInputStream(), file.getContentType(), file.getOriginalFilename());
     MediaType detectedMediaType = mtdr.getDetectedMediaType();
 
-    // TODO change for WorkbookConverter.isSupportedType when it will be ready
     if(!WorkbookConverter.isSupported(detectedMediaType.toString())) {
       throw new UnsupportedMediaTypeStatusException(messageSource.getMessage(
           "supportedMediaType.illegal", new String[]{detectedMediaType.toString()}, LocaleContextHolder.getLocale()));
@@ -152,8 +153,9 @@ public class FileController {
   ) throws IOException, MimeTypeException, NoSuchAlgorithmException, InvalidKeyException, ErrorResponseException,
       InsufficientDataException, InternalException, InvalidResponseException,
       XmlParserException, ServerException {
-    //Authenticate before anything else
-    handleAuthentication(bucket);
+
+    //Authorize before anything else
+    authorizationService.authorizeUpload(new FileUploadAuthorizationService.ObjectUploadAuth(bucket));
 
     // Safe get unique UUID
     UUID uuid = generateUUID();
@@ -387,16 +389,6 @@ public class FileController {
   }
 
   /**
-   * Ensures an authenticated user is present and authorized for a given bucket.
-   *
-   * @param bucket bucket to authorize.
-   */
-  private void handleAuthentication(String bucket) {
-    checkAuthenticatedUser();
-    authenticateBucket(bucket);
-  }
-
-  /**
    * Even if it's almost impossible, we need to make sure that the UUID is not already in use otherwise we
    * will overwrite the previous file.
    *
@@ -415,29 +407,6 @@ public class FileController {
       numberOfAttempt++;
     }
     throw new IllegalStateException("Can't assign unique UUID. Giving up.");
-  }
-
-  /**
-   * Checks that there is an authenticatedUser available or throw a {@link AccessDeniedException}.
-   */
-  private void checkAuthenticatedUser() {
-    if (authenticatedUser == null) {
-      throw new AccessDeniedException("no authenticatedUser found");
-    }
-  }
-
-  /**
-   * Authenticates the DinaAuthenticatedUser for a given bucket.
-   *
-   * @param bucket - bucket to validate.
-   * @throws UnauthorizedException If the DinaAuthenticatedUser does not have access to the given bucket
-   */
-  private void authenticateBucket(String bucket) {
-    if (!authenticatedUser.getGroups().contains(bucket)) {
-      throw new UnauthorizedException(
-        "You are not authorized for bucket: " + bucket
-          + ". Expected buckets: " + StringUtils.join(authenticatedUser.getGroups(), ", "));
-    }
   }
 
   private ObjectUploadDto mapObjectUpload(ObjectUpload objectUpload) {
