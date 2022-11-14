@@ -7,7 +7,6 @@ import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
-import ca.gc.aafc.objectstore.api.repository.DerivativeRepository;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import io.crnk.core.exception.BadRequestException;
@@ -27,6 +26,7 @@ public class DerivativeRepositoryCRUDIT extends BaseIntegrationTest {
 
   @Inject
   private DerivativeRepository derivativeRepository;
+
   private ObjectUpload uploadTest_1;
   private ObjectStoreMetadata acDerivedFrom;
 
