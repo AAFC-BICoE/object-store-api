@@ -1,15 +1,11 @@
 package ca.gc.aafc.objectstore.api.entities;
 
-import com.vladmihalcea.hibernate.type.array.StringArrayType;
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.validator.constraints.URL;
 
@@ -41,9 +37,6 @@ import java.util.UUID;
  */
 @Entity
 @Table(name = "metadata")
-@TypeDef(name = "string-array", typeClass = StringArrayType.class)
-@TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
-@SuppressFBWarnings({"EI_EXPOSE_REP", "EI_EXPOSE_REP2"})
 @RequiredArgsConstructor
 public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
 

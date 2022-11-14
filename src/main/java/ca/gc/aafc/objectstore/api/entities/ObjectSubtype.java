@@ -15,8 +15,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import com.vladmihalcea.hibernate.type.basic.PostgreSQLEnumType;
-
 import ca.gc.aafc.dina.entity.DinaEntity;
 
 import org.hibernate.annotations.ColumnTransformer;
@@ -25,17 +23,13 @@ import org.hibernate.annotations.GenerationTime;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.NaturalIdCache;
 import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 
 @Entity
 @Table(name = "object_subtype")
-@TypeDef(name = "pgsql_enum", typeClass = PostgreSQLEnumType.class)
-@SuppressFBWarnings({ "EI_EXPOSE_REP", "EI_EXPOSE_REP2" })
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @RequiredArgsConstructor

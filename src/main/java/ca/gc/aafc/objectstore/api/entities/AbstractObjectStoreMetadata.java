@@ -1,7 +1,6 @@
 package ca.gc.aafc.objectstore.api.entities;
 
 import ca.gc.aafc.dina.entity.DinaEntity;
-import com.vladmihalcea.hibernate.type.basic.PostgreSQLEnumType;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.annotations.Generated;
@@ -9,7 +8,6 @@ import org.hibernate.annotations.GenerationTime;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.NaturalIdCache;
 import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.Column;
 import javax.persistence.EnumType;
@@ -24,7 +22,6 @@ import java.util.UUID;
 @MappedSuperclass
 @AllArgsConstructor
 @RequiredArgsConstructor
-@TypeDef(name = "pgsql_enum", typeClass = PostgreSQLEnumType.class)
 @NaturalIdCache
 public abstract class AbstractObjectStoreMetadata implements DinaEntity {
   protected UUID uuid;
