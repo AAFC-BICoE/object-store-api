@@ -1,8 +1,6 @@
 package ca.gc.aafc.objectstore.api.entities;
 
 import ca.gc.aafc.dina.entity.DinaEntity;
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +10,6 @@ import org.hibernate.annotations.GenerationTime;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.NaturalIdCache;
 import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -32,8 +29,6 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "object_upload")
-@TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
-@SuppressFBWarnings({ "EI_EXPOSE_REP", "EI_EXPOSE_REP2" })
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @RequiredArgsConstructor
