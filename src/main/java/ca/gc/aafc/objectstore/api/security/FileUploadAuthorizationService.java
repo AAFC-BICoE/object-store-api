@@ -15,7 +15,17 @@ public class FileUploadAuthorizationService {
   }
 
   /**
-   * Wrapper class to allow usage of regular dina authorization service.
+   * Creates a {@link ObjectUploadAuth} from a bucket name.
+   * @param bucket
+   * @return
+   */
+  public static ObjectUploadAuth objectUploadAuthFromBucket(String bucket) {
+    return new ObjectUploadAuth(bucket);
+  }
+
+  /**
+   * Wrapper class (record) to allow usage of regular dina authorization service.
+   * in the context of FileUpload the bucket represents the group.
    */
   public record ObjectUploadAuth(String group) implements DinaEntity {
 
@@ -29,6 +39,10 @@ public class FileUploadAuthorizationService {
       return null;
     }
 
+    /**
+     * We need to return the group using getGroup to follow Java Bean convention.
+     * @return
+     */
     @Override
     public String getGroup() {
       return group;

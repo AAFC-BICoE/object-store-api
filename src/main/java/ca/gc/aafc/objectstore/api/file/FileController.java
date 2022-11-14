@@ -155,7 +155,7 @@ public class FileController {
       XmlParserException, ServerException {
 
     //Authorize before anything else
-    authorizationService.authorizeUpload(new FileUploadAuthorizationService.ObjectUploadAuth(bucket));
+    authorizationService.authorizeUpload(FileUploadAuthorizationService.objectUploadAuthFromBucket(bucket));
 
     // Safe get unique UUID
     UUID uuid = generateUUID();
