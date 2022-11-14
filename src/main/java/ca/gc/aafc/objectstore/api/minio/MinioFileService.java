@@ -3,7 +3,6 @@ package ca.gc.aafc.objectstore.api.minio;
 import ca.gc.aafc.objectstore.api.file.FileInformationService;
 import ca.gc.aafc.objectstore.api.file.FileObjectInfo;
 import ca.gc.aafc.objectstore.api.file.FolderStructureStrategy;
-import com.google.common.collect.Streams;
 import io.minio.BucketExistsArgs;
 import io.minio.GetObjectArgs;
 import io.minio.MakeBucketArgs;
@@ -31,6 +30,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 @Log4j2
@@ -59,8 +59,8 @@ public class MinioFileService implements FileInformationService {
    */
   public static String toMinioObjectName(Path path) {
     Objects.requireNonNull(path);
-    return Streams.stream(path.iterator()).map(p -> p.getFileName().toString())
-        .collect(Collectors.joining("/"));
+    return StreamSupport.stream(path.spliterator(), false).map(p -> p.getFileName().toString())
+            .collect(Collectors.joining("/"));
   }
 
   /**
