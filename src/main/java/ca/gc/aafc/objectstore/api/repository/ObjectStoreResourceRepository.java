@@ -9,6 +9,7 @@ import ca.gc.aafc.dina.security.DinaAuthorizationService;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.crnk.core.queryspec.QuerySpec;
 import lombok.NonNull;
 import org.springframework.boot.info.BuildProperties;
@@ -30,7 +31,8 @@ public class ObjectStoreResourceRepository
     Optional<DinaAuthenticatedUser> authenticatedUser,
     @NonNull AuditService auditService,
     DinaAuthorizationService groupAuthorizationService,
-    @NonNull BuildProperties props
+    @NonNull BuildProperties props,
+    @NonNull ObjectMapper objMapper
   ) {
     super(
       dinaService,
@@ -41,7 +43,7 @@ public class ObjectStoreResourceRepository
       ObjectStoreMetadata.class,
       null,
       externalResourceProvider,
-      props);
+      props, objMapper);
     this.authenticatedUser = authenticatedUser;
   }
 
