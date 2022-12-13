@@ -28,8 +28,6 @@ import org.javers.core.metamodel.annotation.ShallowReference;
 import org.javers.core.metamodel.annotation.TypeName;
 
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -90,7 +88,7 @@ public class ObjectStoreMetadataDto extends AttributeMetaInfoProvider {
 
   @JsonApiRelation
   @DiffIgnore
-  private List<DerivativeDto> derivatives = new ArrayList<>();
+  private List<DerivativeDto> derivatives = List.of();
 
   @JsonApiExternalRelation(type = "person")
   @JsonApiRelation
@@ -109,7 +107,7 @@ public class ObjectStoreMetadataDto extends AttributeMetaInfoProvider {
   private String group;
 
   @JsonApiField(patchStrategy = PatchStrategy.SET)
-  private Map<String, String> managedAttributes = new HashMap<>();
+  private Map<String, String> managedAttributes = Map.of();
 
   public String getGroup() {
     return bucket;

@@ -1,11 +1,9 @@
 package ca.gc.aafc.objectstore.api.entities;
 
-import com.vladmihalcea.hibernate.type.basic.PostgreSQLEnumType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -25,7 +23,6 @@ import java.util.UUID;
 @Table(name = "derivative")
 @NoArgsConstructor
 @AllArgsConstructor
-@TypeDef(name = "pgsql_enum", typeClass = PostgreSQLEnumType.class)
 public class Derivative extends AbstractObjectStoreMetadata {
 
   public enum DerivativeType {

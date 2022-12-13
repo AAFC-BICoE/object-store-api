@@ -1,5 +1,6 @@
 package ca.gc.aafc.objectstore.api.file;
 
+import ca.gc.aafc.dina.testsupport.security.WithMockKeycloakUser;
 import ca.gc.aafc.dina.workbook.WorkbookConverter;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
@@ -13,7 +14,6 @@ import ca.gc.aafc.objectstore.api.minio.MinioTestContainerInitializer;
 import ca.gc.aafc.objectstore.api.repository.ObjectStoreResourceRepository;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
-import io.crnk.core.exception.UnauthorizedException;
 import io.minio.errors.ErrorResponseException;
 import io.minio.errors.InsufficientDataException;
 import io.minio.errors.InternalException;
@@ -26,19 +26,20 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MimeTypeException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.UnsupportedMediaTypeStatusException;
 
 import javax.inject.Inject;
-import javax.transaction.Transactional;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -48,6 +49,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ContextConfiguration(initializers = MinioTestContainerInitializer.class)
+@SpringBootTest(properties = "keycloak.enabled = true")
 public class FileControllerIT extends BaseIntegrationTest {
 
   @Inject
@@ -76,8 +78,8 @@ public class FileControllerIT extends BaseIntegrationTest {
       });
   }
 
-  @Transactional
   @Test
+  @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
   public void fileUpload_OnValidUpload_testRoundTrip() throws Exception {
     MockMultipartFile mockFile = getFileUnderTest();
 
@@ -98,6 +100,7 @@ public class FileControllerIT extends BaseIntegrationTest {
   }
 
   @Test
+ // @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
   public void fileUploadConversion_OnValidSpreadsheet_contentReturned() throws Exception {
     MockMultipartFile mockFile = createMockMultipartFile("test_spreadsheet.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE);
     List<WorkbookConverter.WorkbookRow> content = fileController.handleFileConversion(mockFile);
@@ -105,6 +108,7 @@ public class FileControllerIT extends BaseIntegrationTest {
   }
 
   @Test
+  @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
   public void fileUpload_InvalidMediaTypeExecutable_throwsIllegalArgumentException() throws Exception {
     MockMultipartFile mockFile = createMockMultipartFile("testExecutable", "application/x-sharedlib");
 
@@ -117,6 +121,7 @@ public class FileControllerIT extends BaseIntegrationTest {
   }
 
   @Test
+  @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
   public void fileUpload_InvalidMediaTypeZIP_throwsIllegalArgumentException() throws Exception {
     MockMultipartFile mockFile = createMockMultipartFile("test.zip", "application/zip");
 
@@ -128,8 +133,8 @@ public class FileControllerIT extends BaseIntegrationTest {
     assertEquals(expectedMessage, actualMessage);
   }
 
-  @Transactional
   @Test
+  @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
   public void fileUpload_OnValidUpload_ObjectUploadEntryCreated() throws Exception {
     MockMultipartFile mockFile = getFileUnderTest();
     ObjectUploadDto uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
@@ -141,15 +146,16 @@ public class FileControllerIT extends BaseIntegrationTest {
   }
 
   @Test
+  @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
   public void upload_UnAuthorizedBucket_ThrowsUnauthorizedException() throws IOException {
     MockMultipartFile mockFile = getFileUnderTest();
 
-    assertThrows(
-      UnauthorizedException.class,
+    assertThrows(AccessDeniedException.class,
       () -> fileController.handleFileUpload(mockFile, "ivalid-bucket"));
   }
 
   @Test
+  @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
   public void fileUpload_SameSha1Hex_ObjectUploadEntryCreatedWithWarning() throws Exception {
     MockMultipartFile mockFile = getFileUnderTest();
     MockMultipartFile sameMockFile = getFileUnderTest();
@@ -161,15 +167,15 @@ public class FileControllerIT extends BaseIntegrationTest {
     String expectedValue = "A file with the same content already exists";
 
     assertNotNull(sameUploadResponse);
-    assertTrue(sameUploadResponse.getMeta().getWarnings().get(expectedKey).equals(expectedValue));
+    assertEquals(expectedValue, sameUploadResponse.getMeta().getWarnings().get(expectedKey));
   }
 
   /**
    * Test with a larger image that will exceed the read ahead buffer.
    * @throws Exception
    */
-  @Transactional
   @Test
+  @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
   public void fileUpload_OnValidLargerUpload_ObjectUploadEntryCreated() throws Exception {
     MockMultipartFile mockFile = createMockMultipartFile("cc0_test_image.jpg", MediaType.IMAGE_JPEG_VALUE);
     ObjectUploadDto uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
@@ -185,6 +191,7 @@ public class FileControllerIT extends BaseIntegrationTest {
   }
 
   @Test
+  @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
   public void downloadDerivative() throws IOException, InvalidKeyException, NoSuchAlgorithmException,
     XmlParserException, InvalidResponseException, ServerException, InternalException, MimeTypeException,
     InsufficientDataException, ErrorResponseException {
@@ -219,6 +226,7 @@ public class FileControllerIT extends BaseIntegrationTest {
   }
 
   @Test
+  @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
   public void derivativeUpload_OnValidUpload() throws Exception {
     MockMultipartFile mockFile = getFileUnderTest();
 
