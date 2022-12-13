@@ -2,12 +2,12 @@ package ca.gc.aafc.objectstore.api.openapi;
 
 import javax.transaction.Transactional;
 
+import ca.gc.aafc.dina.vocabulary.TypedVocabularyElement;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
-import ca.gc.aafc.dina.entity.ManagedAttribute.ManagedAttributeType;
 import ca.gc.aafc.dina.testsupport.BaseRestAssuredTest;
 import ca.gc.aafc.dina.testsupport.PostgresTestContainerInitializer;
 import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
@@ -56,7 +56,7 @@ public class ObjectStoreManagedAttributeOpenApiIT extends BaseRestAssuredTest {
     ObjectStoreManagedAttributeDto managedAttribute = new ObjectStoreManagedAttributeDto();
     managedAttribute.setAcceptedValues(acceptedValues);
     managedAttribute.setName(TestableEntityFactory.generateRandomNameLettersOnly(12));
-    managedAttribute.setManagedAttributeType(ManagedAttributeType.STRING);
+    managedAttribute.setManagedAttributeType(TypedVocabularyElement.VocabularyElementType.STRING);
     managedAttribute.setCreatedBy(DINA_USER_NAME);
 
     managedAttribute.setMultilingualDescription(MultilingualDescriptionFactory.newMultilingualDescription().build());

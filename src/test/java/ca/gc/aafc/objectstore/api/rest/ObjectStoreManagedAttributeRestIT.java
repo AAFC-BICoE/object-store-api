@@ -1,9 +1,8 @@
 package ca.gc.aafc.objectstore.api.rest;
 
-import java.util.List;
-
 import javax.transaction.Transactional;
 
+import ca.gc.aafc.dina.vocabulary.TypedVocabularyElement;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
@@ -19,8 +18,6 @@ import ca.gc.aafc.objectstore.api.ObjectStoreApiLauncher;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MultilingualDescriptionFactory;
 import io.restassured.response.ValidatableResponse;
-import ca.gc.aafc.dina.entity.ManagedAttribute.ManagedAttributeType;
-import ca.gc.aafc.dina.i18n.MultilingualDescription;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
@@ -48,7 +45,7 @@ public class ObjectStoreManagedAttributeRestIT extends BaseRestAssuredTest {
     ObjectStoreManagedAttributeDto managedAttribute = new ObjectStoreManagedAttributeDto();
     managedAttribute.setAcceptedValues(acceptedValues);
     managedAttribute.setName(TestableEntityFactory.generateRandomNameLettersOnly(12));
-    managedAttribute.setManagedAttributeType(ManagedAttributeType.STRING);
+    managedAttribute.setManagedAttributeType(TypedVocabularyElement.VocabularyElementType.STRING);
     managedAttribute.setCreatedBy(DINA_USER_NAME);
 
     managedAttribute.setMultilingualDescription(MultilingualDescriptionFactory.newMultilingualDescription().build());

@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.BiFunction;
 
+import ca.gc.aafc.dina.vocabulary.TypedVocabularyElement;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
-import ca.gc.aafc.dina.entity.ManagedAttribute.ManagedAttributeType;
 
 public class ObjectStoreManagedAttributeFactory implements TestableEntityFactory<ObjectStoreManagedAttribute> {
 
@@ -27,7 +27,7 @@ public class ObjectStoreManagedAttributeFactory implements TestableEntityFactory
         .name(TestableEntityFactory.generateRandomNameLettersOnly(12))
         .multilingualDescription(MultilingualDescriptionFactory.newMultilingualDescription().build())
         .createdBy("createdBy")
-        .managedAttributeType(ManagedAttributeType.STRING);
+        .managedAttributeType(TypedVocabularyElement.VocabularyElementType.STRING);
    }
 
   /**

@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 
+import ca.gc.aafc.dina.vocabulary.TypedVocabularyElement;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.testsupport.fixtures.ObjectStoreManagedAttributeFixture;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,7 +19,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
-import ca.gc.aafc.dina.entity.ManagedAttribute.ManagedAttributeType;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MultilingualDescriptionFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreManagedAttributeFactory;
 import io.crnk.core.queryspec.QuerySpec;
@@ -66,7 +66,7 @@ public class ObjectStoreManagedAttributeRepositoryCRUDIT extends BaseIntegration
     ObjectStoreManagedAttributeDto ma = ObjectStoreManagedAttributeFixture
         .newObjectStoreManagedAttribute();
     ma.setName("name");
-    ma.setManagedAttributeType(ManagedAttributeType.STRING);
+    ma.setManagedAttributeType(TypedVocabularyElement.VocabularyElementType.STRING);
     ma.setAcceptedValues(new String[] { "dosal" });
 
     ObjectStoreManagedAttributeDto result = managedResourceRepository.findOne(
@@ -80,7 +80,7 @@ public class ObjectStoreManagedAttributeRepositoryCRUDIT extends BaseIntegration
     ObjectStoreManagedAttributeDto newAttribute = ObjectStoreManagedAttributeFixture
         .newObjectStoreManagedAttribute();
     newAttribute.setName("Object Store Attribute 1");
-    newAttribute.setManagedAttributeType(ManagedAttributeType.INTEGER);
+    newAttribute.setManagedAttributeType(TypedVocabularyElement.VocabularyElementType.INTEGER);
 
     UUID newAttributeUuid = managedResourceRepository.create(newAttribute).getUuid();
 

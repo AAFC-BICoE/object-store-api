@@ -1,10 +1,9 @@
 package ca.gc.aafc.objectstore.api.rest;
 
-import ca.gc.aafc.dina.i18n.MultilingualDescription;
+import ca.gc.aafc.dina.vocabulary.TypedVocabularyElement;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
-import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.repository.ObjectStoreManagedAttributeResourceRepository;
 import ca.gc.aafc.objectstore.api.repository.ObjectStoreResourceRepository;
@@ -24,7 +23,6 @@ import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
 
-import java.util.List;
 import java.util.UUID;
 
 public class ObjectStoreManagedAttributeAuditingIT extends BaseIntegrationTest {
@@ -42,7 +40,6 @@ public class ObjectStoreManagedAttributeAuditingIT extends BaseIntegrationTest {
   private ObjectMapper objectMapper;
 
   private ObjectUpload objectUpload;
-  private ObjectStoreManagedAttributeDto managedAttribute;
 
   @BeforeEach
   void setUp() {
@@ -53,9 +50,7 @@ public class ObjectStoreManagedAttributeAuditingIT extends BaseIntegrationTest {
     managed.setName("name");
     managed.setUuid(UUID.randomUUID());
     managed.setMultilingualDescription(MultilingualDescriptionFactory.newMultilingualDescription().build());
-    managed.setManagedAttributeType(ObjectStoreManagedAttribute.ManagedAttributeType.STRING);
-
-    managedAttribute = managedRepo.create(managed);
+    managed.setManagedAttributeType(TypedVocabularyElement.VocabularyElementType.STRING);
   }
 
   @Test
