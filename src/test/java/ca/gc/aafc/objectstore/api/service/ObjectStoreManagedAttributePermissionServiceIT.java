@@ -5,9 +5,9 @@ import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.objectstore.api.repository.ObjectStoreManagedAttributeResourceRepository;
-import ca.gc.aafc.objectstore.api.testsupport.factories.MultilingualDescriptionFactory;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreManagedAttributeFactory;
+import ca.gc.aafc.objectstore.api.testsupport.fixtures.ObjectStoreManagedAttributeFixture;
 import io.crnk.core.queryspec.QuerySpec;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,10 +27,7 @@ public class ObjectStoreManagedAttributePermissionServiceIT extends BaseIntegrat
 
   @BeforeEach
   public void persistManagedAttribute() {
-    managedAttribute = ObjectStoreManagedAttribute.builder()
-      .name(RandomStringUtils.randomAlphabetic(4))
-      .multilingualDescription(MultilingualDescriptionFactory.newMultilingualDescription().build())
-      .managedAttributeType(ObjectStoreManagedAttribute.ManagedAttributeType.STRING)
+    managedAttribute = ObjectStoreManagedAttributeFactory.newManagedAttribute()
       .createdBy("test-method")
       .build();
     managedAttributeService.create(managedAttribute);
@@ -47,13 +44,13 @@ public class ObjectStoreManagedAttributePermissionServiceIT extends BaseIntegrat
   @WithMockKeycloakUser(groupRole = {"group 1:SUPER_USER"})
   @Test
   void create_authorizedUser_DoesNotThrowAccessDenied() {
-    Assertions.assertDoesNotThrow(() -> repoUnderTest.create(createDto()));
+    Assertions.assertDoesNotThrow(() -> repoUnderTest.create(ObjectStoreManagedAttributeFixture.newObjectStoreManagedAttribute()));
   }
 
   @WithMockKeycloakUser(groupRole = {"group 1:DINA_ADMIN"})
   @Test
   void create_Admin_DoesNotThrowAccessDenied() {
-    Assertions.assertDoesNotThrow(() -> repoUnderTest.create(createDto()));
+    Assertions.assertDoesNotThrow(() -> repoUnderTest.create(ObjectStoreManagedAttributeFixture.newObjectStoreManagedAttribute()));
   }
 
   @WithMockKeycloakUser(groupRole = {"group 1:USER"})
@@ -83,20 +80,12 @@ public class ObjectStoreManagedAttributePermissionServiceIT extends BaseIntegrat
   @WithMockKeycloakUser(groupRole = {"group 1:SUPER_USER"})
   @Test
   void update_authorizedUser_DoesNotThrowAccessDenied() {
-    ObjectStoreManagedAttributeDto dto = repoUnderTest.create(createDto());
+    ObjectStoreManagedAttributeDto dto = repoUnderTest.create(ObjectStoreManagedAttributeFixture.newObjectStoreManagedAttribute());
 
     ObjectStoreManagedAttributeDto persistedDto = repoUnderTest.findOne(
       dto.getUuid(),
       new QuerySpec(ObjectStoreManagedAttributeDto.class));
     Assertions.assertDoesNotThrow(() -> repoUnderTest.save(persistedDto));
-  }
-
-  private static ObjectStoreManagedAttributeDto createDto() {
-    ObjectStoreManagedAttributeDto dto = new ObjectStoreManagedAttributeDto();
-    dto.setName(RandomStringUtils.randomAlphabetic(4));
-    dto.setMultilingualDescription(MultilingualDescriptionFactory.newMultilingualDescription().build());
-    dto.setManagedAttributeType(ObjectStoreManagedAttribute.ManagedAttributeType.STRING);
-    return dto;
   }
 
 }

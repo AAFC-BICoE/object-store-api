@@ -1,6 +1,6 @@
 package ca.gc.aafc.objectstore.api.repository;
 
-import ca.gc.aafc.dina.entity.ManagedAttribute;
+import ca.gc.aafc.dina.vocabulary.TypedVocabularyElement;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
@@ -228,7 +228,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
   public void create_onManagedAttributeValue_validationOccur() {
 
     ObjectStoreManagedAttributeDto newAttribute = ObjectStoreManagedAttributeFixture.newObjectStoreManagedAttribute();
-    newAttribute.setManagedAttributeType(ManagedAttribute.ManagedAttributeType.DATE);
+    newAttribute.setManagedAttributeType(TypedVocabularyElement.VocabularyElementType.DATE);
     newAttribute.setAcceptedValues(null);
     newAttribute = managedResourceRepository.create(newAttribute);
 

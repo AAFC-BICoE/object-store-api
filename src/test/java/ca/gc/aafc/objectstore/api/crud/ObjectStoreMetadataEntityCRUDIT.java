@@ -1,6 +1,6 @@
 package ca.gc.aafc.objectstore.api.crud;
 
-import ca.gc.aafc.dina.entity.ManagedAttribute.ManagedAttributeType;
+import ca.gc.aafc.dina.vocabulary.TypedVocabularyElement;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
@@ -169,11 +169,10 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
   @ParameterizedTest
   @ValueSource(strings = {"1.2", "", "  ", "\t", "\n", "a"})
   void testCreate_WhenInvalidIntegerType_ExceptionThrown(String value) {
+
     ObjectStoreManagedAttribute managedAttribute = ObjectStoreManagedAttributeFactory.newManagedAttribute()
       .acceptedValues(new String[] {})
-      .multilingualDescription(MultilingualDescriptionFactory.newMultilingualDescription().build())
-      .createdBy("createdBy")
-      .managedAttributeType(ManagedAttributeType.INTEGER)
+      .managedAttributeType(TypedVocabularyElement.VocabularyElementType.INTEGER)
       .build();
 
     managedAttributeService.create(managedAttribute);
