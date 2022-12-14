@@ -1,22 +1,34 @@
 # object-store-api
 
-AAFC DINA object-store implementation.
+The object-store-api is an API providing an object metadata store backed by [MinIO](https://min.io/).
 
-See DINA object-store [specification](https://github.com/DINA-Web/object-store-specs).
+Features :
+ * Implements DINA object-store [specification](https://dina-web.github.io/object-store-specs/).
+ * Aligned with [Audubon Core](https://ac.tdwg.org/termlist/) standard
+ * objects type detection
+ * EXIF extraction for images
+ * Supports derivative and relationship to original object
+ * Duplicate detection
+ * Optional Message Queue producer for integration (e.g. search index)
+
+## Container Image
+The Docker Image is available on [DockerHub](https://hub.docker.com/r/aafcbicoe/object-store-api/tags).
 
 ## Required
 
+### To build and run tests
 * Java 17
 * Maven 3.8 (tested)
 * Docker 20+ (for running integration tests)
 
-## Database
-This project requires a PostgreSQL database to run.
+### To run
+* [Minio](https://min.io/)
+* [PostgreSQL](https://www.postgresql.org/) 12
+* [Keycloak](https://www.keycloak.org/)
 
-## Minio
-A [Minio](https://min.io/) service is also required to run the project (not required for testing).
+## Usage
 
-## To Run
+To run the object-store-api in the DINA ecosystem see [dina-local-deployment](https://github.com/AAFC-BICoE/dina-local-deployment).
 
 For testing purpose a [Docker Compose](https://docs.docker.com/compose/) example file is available in the `local` folder.
 Please note that the app will start without Keycloak and in `dev` mode.
@@ -40,6 +52,10 @@ Cleanup:
 ```
 docker compose down
 ```
+
+## Documentation
+
+See [documentation](https://github.com/AAFC-BICoE/object-store-api/tree/master/docs) folder.
 
 ## Testing
 Run tests using `mvn verify`. Docker is required, so the integration tests can launch an embedded Postgres test container.
