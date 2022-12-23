@@ -95,7 +95,7 @@ public class ObjectStoreResourceRepository
     Map<String, Object> convertedObj = (Map)this.objMapper.convertValue(resource, IT_OM_TYPE_REF);
     Set<String> attributesForClass = (Set)this.registry.getAttributesPerClass().get(resource.getClass());
     if (attributesForClass != null) {
-      convertedObj.keySet().removeIf((k) -> !attributesForClass.contains(k));
+      convertedObj.keySet().removeIf(k -> !attributesForClass.contains(k));
     }
 
     if (!JsonDocumentInspector.testPredicateOnValues(convertedObj, ObjectStoreResourceRepository::isSafeText)) {
