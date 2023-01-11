@@ -254,7 +254,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
   public void create_onManagedAttributeValue_validationOccur() {
 
     ObjectStoreManagedAttributeDto newAttribute = ObjectStoreManagedAttributeFixture.newObjectStoreManagedAttribute();
-    newAttribute.setManagedAttributeType(TypedVocabularyElement.VocabularyElementType.DATE);
+    newAttribute.setVocabularyElementType(TypedVocabularyElement.VocabularyElementType.DATE);
     newAttribute.setAcceptedValues(null);
     newAttribute = managedResourceRepository.create(newAttribute);
 

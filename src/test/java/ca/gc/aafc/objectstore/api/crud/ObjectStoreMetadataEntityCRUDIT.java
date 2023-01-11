@@ -172,7 +172,7 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
 
     ObjectStoreManagedAttribute managedAttribute = ObjectStoreManagedAttributeFactory.newManagedAttribute()
       .acceptedValues(new String[] {})
-      .managedAttributeType(TypedVocabularyElement.VocabularyElementType.INTEGER)
+      .vocabularyElementType(TypedVocabularyElement.VocabularyElementType.INTEGER)
       .build();
 
     managedAttributeService.create(managedAttribute);

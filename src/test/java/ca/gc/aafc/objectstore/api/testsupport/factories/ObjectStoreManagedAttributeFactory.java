@@ -27,7 +27,7 @@ public class ObjectStoreManagedAttributeFactory implements TestableEntityFactory
         .name(TestableEntityFactory.generateRandomNameLettersOnly(12))
         .multilingualDescription(MultilingualDescriptionFactory.newMultilingualDescription().build())
         .createdBy("createdBy")
-        .managedAttributeType(TypedVocabularyElement.VocabularyElementType.STRING);
+        .vocabularyElementType(TypedVocabularyElement.VocabularyElementType.STRING);
    }
 
   /**

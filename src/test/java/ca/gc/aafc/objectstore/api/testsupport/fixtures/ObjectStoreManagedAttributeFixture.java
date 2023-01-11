@@ -11,7 +11,7 @@ public class ObjectStoreManagedAttributeFixture {
     ObjectStoreManagedAttributeDto collectionManagedAttributeDto = new ObjectStoreManagedAttributeDto();
     collectionManagedAttributeDto.setName(RandomStringUtils.randomAlphabetic(5));
     collectionManagedAttributeDto.setAcceptedValues(new String[]{"value"});
-    collectionManagedAttributeDto.setManagedAttributeType(TypedVocabularyElement.VocabularyElementType.STRING);
+    collectionManagedAttributeDto.setVocabularyElementType(TypedVocabularyElement.VocabularyElementType.STRING);
     collectionManagedAttributeDto.setCreatedBy("created by");
     collectionManagedAttributeDto.setMultilingualDescription(
         MultilingualDescriptionFactory.newMultilingualDescription().build()
