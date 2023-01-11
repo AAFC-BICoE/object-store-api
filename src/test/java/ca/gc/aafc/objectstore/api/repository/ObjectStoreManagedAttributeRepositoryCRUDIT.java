@@ -54,8 +54,8 @@ public class ObjectStoreManagedAttributeRepositoryCRUDIT extends BaseIntegration
     assertEquals(testManagedAttribute.getUuid(), managedAttributeDto.getUuid());
     assertArrayEquals(testManagedAttribute.getAcceptedValues(),
         managedAttributeDto.getAcceptedValues());
-    assertEquals(testManagedAttribute.getManagedAttributeType(),
-        managedAttributeDto.getManagedAttributeType());
+    assertEquals(testManagedAttribute.getVocabularyElementType(),
+        managedAttributeDto.getVocabularyElementType());
     assertEquals(testManagedAttribute.getName(), managedAttributeDto.getName());
     assertEquals(testManagedAttribute.getMultilingualDescription().getDescriptions().get(0),
         managedAttributeDto.getMultilingualDescription().getDescriptions().get(0));
@@ -66,7 +66,7 @@ public class ObjectStoreManagedAttributeRepositoryCRUDIT extends BaseIntegration
     ObjectStoreManagedAttributeDto ma = ObjectStoreManagedAttributeFixture
         .newObjectStoreManagedAttribute();
     ma.setName("name");
-    ma.setManagedAttributeType(TypedVocabularyElement.VocabularyElementType.STRING);
+    ma.setVocabularyElementType(TypedVocabularyElement.VocabularyElementType.STRING);
     ma.setAcceptedValues(new String[] { "dosal" });
 
     ObjectStoreManagedAttributeDto result = managedResourceRepository.findOne(
@@ -80,7 +80,7 @@ public class ObjectStoreManagedAttributeRepositoryCRUDIT extends BaseIntegration
     ObjectStoreManagedAttributeDto newAttribute = ObjectStoreManagedAttributeFixture
         .newObjectStoreManagedAttribute();
     newAttribute.setName("Object Store Attribute 1");
-    newAttribute.setManagedAttributeType(TypedVocabularyElement.VocabularyElementType.INTEGER);
+    newAttribute.setVocabularyElementType(TypedVocabularyElement.VocabularyElementType.INTEGER);
 
     UUID newAttributeUuid = managedResourceRepository.create(newAttribute).getUuid();
 

@@ -31,7 +31,7 @@ public class ObjectStoreManagedAttributeDto {
   @JsonApiField(patchable = false)
   private String key;
 
-  private TypedVocabularyElement.VocabularyElementType managedAttributeType;
+  private TypedVocabularyElement.VocabularyElementType vocabularyElementType;
   private String[] acceptedValues;
   private OffsetDateTime createdOn;
   private String createdBy;

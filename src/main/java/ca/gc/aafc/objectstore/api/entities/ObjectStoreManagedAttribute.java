@@ -38,7 +38,7 @@ public class ObjectStoreManagedAttribute implements ca.gc.aafc.dina.entity.Manag
 
   private Integer id;
   private UUID uuid;
-  private VocabularyElementType managedAttributeType;
+  private VocabularyElementType vocabularyElementType;
   private String[] acceptedValues;
   private OffsetDateTime createdOn;
   private String createdBy;
@@ -99,12 +99,12 @@ public class ObjectStoreManagedAttribute implements ca.gc.aafc.dina.entity.Manag
   @Type(type = "pgsql_enum")
   @Enumerated(EnumType.STRING)
   @Column(name = "type")
-  public VocabularyElementType getManagedAttributeType() {
-    return managedAttributeType;
+  public VocabularyElementType getVocabularyElementType() {
+    return vocabularyElementType;
   }
 
-  public void setManagedAttributeType(VocabularyElementType type) {
-    this.managedAttributeType = type;
+  public void setVocabularyElementType(VocabularyElementType type) {
+    this.vocabularyElementType = type;
   }
 
   @Type(type = "string-array")

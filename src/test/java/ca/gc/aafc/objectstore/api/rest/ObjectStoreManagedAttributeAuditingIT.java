@@ -50,7 +50,7 @@ public class ObjectStoreManagedAttributeAuditingIT extends BaseIntegrationTest {
     managed.setName("name");
     managed.setUuid(UUID.randomUUID());
     managed.setMultilingualDescription(MultilingualDescriptionFactory.newMultilingualDescription().build());
-    managed.setManagedAttributeType(TypedVocabularyElement.VocabularyElementType.STRING);
+    managed.setVocabularyElementType(TypedVocabularyElement.VocabularyElementType.STRING);
   }
 
   @Test

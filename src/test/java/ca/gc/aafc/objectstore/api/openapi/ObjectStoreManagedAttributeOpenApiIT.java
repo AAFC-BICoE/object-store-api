@@ -56,7 +56,7 @@ public class ObjectStoreManagedAttributeOpenApiIT extends BaseRestAssuredTest {
     ObjectStoreManagedAttributeDto managedAttribute = new ObjectStoreManagedAttributeDto();
     managedAttribute.setAcceptedValues(acceptedValues);
     managedAttribute.setName(TestableEntityFactory.generateRandomNameLettersOnly(12));
-    managedAttribute.setManagedAttributeType(TypedVocabularyElement.VocabularyElementType.STRING);
+    managedAttribute.setVocabularyElementType(TypedVocabularyElement.VocabularyElementType.STRING);
     managedAttribute.setCreatedBy(DINA_USER_NAME);
 
     managedAttribute.setMultilingualDescription(MultilingualDescriptionFactory.newMultilingualDescription().build());
