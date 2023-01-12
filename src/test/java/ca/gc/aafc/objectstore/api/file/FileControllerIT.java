@@ -44,6 +44,7 @@ import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -103,8 +104,9 @@ public class FileControllerIT extends BaseIntegrationTest {
  // @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
   public void fileUploadConversion_OnValidSpreadsheet_contentReturned() throws Exception {
     MockMultipartFile mockFile = createMockMultipartFile("test_spreadsheet.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE);
-    List<WorkbookConverter.WorkbookRow> content = fileController.handleFileConversion(mockFile);
+    Map<Integer, List<WorkbookConverter.WorkbookRow>> content = fileController.handleFileConversion(mockFile);
     assertFalse(content.isEmpty());
+    assertFalse(content.get(0).isEmpty());
   }
 
   @Test
