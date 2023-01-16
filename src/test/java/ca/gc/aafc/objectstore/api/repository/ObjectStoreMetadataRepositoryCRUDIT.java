@@ -1,6 +1,6 @@
 package ca.gc.aafc.objectstore.api.repository;
 
-import ca.gc.aafc.dina.entity.ManagedAttribute;
+import ca.gc.aafc.dina.vocabulary.TypedVocabularyElement;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
@@ -138,6 +138,32 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
   }
 
   @Test
+  public void create_resourceWithUnescapedHtmlChars_ResourcePersisted() {
+
+    ObjectStoreManagedAttribute testManagedAttribute = ObjectStoreManagedAttributeFactory.newManagedAttribute()
+            .build();
+    testManagedAttribute = managedAttributeService.create(testManagedAttribute);
+
+    ObjectUpload objectUploadTest = ObjectUploadFactory.newObjectUpload().build();
+    objectUploadService.create(objectUploadTest);
+
+    ObjectStoreMetadataDto dto = new ObjectStoreMetadataDto();
+    dto.setBucket(objectUploadTest.getBucket());
+    dto.setFileIdentifier(objectUploadTest.getFileIdentifier());
+    dto.setAcSubtype(acSubtype.getAcSubtype());
+    dto.setDcType(acSubtype.getDcType());
+    dto.setXmpRightsUsageTerms(ObjectUploadFactory.TEST_USAGE_TERMS);
+    dto.setCreatedBy(RandomStringUtils.random(4));
+    dto.setManagedAttributes(Map.of(testManagedAttribute.getKey(), " = = < -"));
+
+    UUID dtoUuid = objectStoreResourceRepository.create(dto).getUuid();
+
+    ObjectStoreMetadata result = objectStoreMetaDataService.findOne(dtoUuid);
+    assertEquals(dtoUuid, result.getUuid());
+
+  }
+
+  @Test
   public void create_OnValidExternalResource_persisted() {
     ObjectStoreMetadata testObjectStoreMetadata = ObjectStoreMetadataFactory
         .newObjectStoreMetadata()
@@ -228,7 +254,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
   public void create_onManagedAttributeValue_validationOccur() {
 
     ObjectStoreManagedAttributeDto newAttribute = ObjectStoreManagedAttributeFixture.newObjectStoreManagedAttribute();
-    newAttribute.setManagedAttributeType(ManagedAttribute.ManagedAttributeType.DATE);
+    newAttribute.setVocabularyElementType(TypedVocabularyElement.VocabularyElementType.DATE);
     newAttribute.setAcceptedValues(null);
     newAttribute = managedResourceRepository.create(newAttribute);
 
@@ -248,6 +274,8 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
 
     // can't delete managed attribute for now since the check for key in use is using a fresh transaction
   }
+
+
   
   private ObjectStoreMetadataDto newMetaDto() {
     ObjectStoreMetadataDto parentDTO = new ObjectStoreMetadataDto();

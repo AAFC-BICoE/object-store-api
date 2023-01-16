@@ -132,18 +132,18 @@ public class FileController {
   }
 
   @PostMapping("/conversion/workbook")
-  public List<WorkbookConverter.WorkbookRow> handleFileConversion(
-      @RequestParam("file") MultipartFile file
+  public Map<Integer, List<WorkbookConverter.WorkbookRow>> handleFileConversion(
+          @RequestParam("file") MultipartFile file
   ) throws IOException, MimeTypeException {
     MediaTypeDetectionStrategy.MediaTypeDetectionResult mtdr = mediaTypeDetectionStrategy
-        .detectMediaType(file.getInputStream(), file.getContentType(), file.getOriginalFilename());
+            .detectMediaType(file.getInputStream(), file.getContentType(), file.getOriginalFilename());
     MediaType detectedMediaType = mtdr.getDetectedMediaType();
 
     if(!WorkbookConverter.isSupported(detectedMediaType.toString())) {
       throw new UnsupportedMediaTypeStatusException(messageSource.getMessage(
-          "supportedMediaType.illegal", new String[]{detectedMediaType.toString()}, LocaleContextHolder.getLocale()));
+              "supportedMediaType.illegal", new String[]{detectedMediaType.toString()}, LocaleContextHolder.getLocale()));
     }
-    return WorkbookConverter.convert(file.getInputStream());
+    return WorkbookConverter.convertWorkbook(file.getInputStream());
   }
 
   private ObjectUploadDto handleUpload(

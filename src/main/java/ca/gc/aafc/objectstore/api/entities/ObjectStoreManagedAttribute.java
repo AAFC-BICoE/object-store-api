@@ -10,10 +10,12 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import ca.gc.aafc.dina.i18n.MultilingualTitle;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Generated;
@@ -36,7 +38,7 @@ public class ObjectStoreManagedAttribute implements ca.gc.aafc.dina.entity.Manag
 
   private Integer id;
   private UUID uuid;
-  private ManagedAttributeType managedAttributeType;
+  private VocabularyElementType vocabularyElementType;
   private String[] acceptedValues;
   private OffsetDateTime createdOn;
   private String createdBy;
@@ -97,12 +99,12 @@ public class ObjectStoreManagedAttribute implements ca.gc.aafc.dina.entity.Manag
   @Type(type = "pgsql_enum")
   @Enumerated(EnumType.STRING)
   @Column(name = "type")
-  public ManagedAttributeType getManagedAttributeType() {
-    return managedAttributeType;
+  public VocabularyElementType getVocabularyElementType() {
+    return vocabularyElementType;
   }
 
-  public void setManagedAttributeType(ManagedAttributeType type) {
-    this.managedAttributeType = type;
+  public void setVocabularyElementType(VocabularyElementType type) {
+    this.vocabularyElementType = type;
   }
 
   @Type(type = "string-array")
@@ -135,4 +137,17 @@ public class ObjectStoreManagedAttribute implements ca.gc.aafc.dina.entity.Manag
     this.createdBy = createdBy;
   }
 
+  // not implemented for now
+  @Transient
+  @Override
+  public String getTerm() {
+    return null;
+  }
+
+  // not implemented for now
+  @Transient
+  @Override
+  public MultilingualTitle getMultilingualTitle() {
+    return null;
+  }
 }
