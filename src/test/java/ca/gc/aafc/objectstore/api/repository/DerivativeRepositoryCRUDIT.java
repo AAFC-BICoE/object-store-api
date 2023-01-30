@@ -3,12 +3,11 @@ package ca.gc.aafc.objectstore.api.repository;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.dto.DerivativeDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
-import ca.gc.aafc.objectstore.api.entities.DcType;
-import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
+import ca.gc.aafc.objectstore.api.testsupport.fixtures.DerivativeTestFixture;
 import io.crnk.core.exception.BadRequestException;
 import io.crnk.core.exception.MethodNotAllowedException;
 import io.crnk.core.queryspec.QuerySpec;
@@ -99,13 +98,11 @@ public class DerivativeRepositoryCRUDIT extends BaseIntegrationTest {
   }
 
   private DerivativeDto newDerivative(UUID fileIdentifier) {
-    DerivativeDto dto = new DerivativeDto();
-    dto.setDcType(DcType.IMAGE);
     ObjectStoreMetadataDto from = new ObjectStoreMetadataDto();
     from.setUuid(acDerivedFrom.getUuid());
+
+    DerivativeDto dto = DerivativeTestFixture.newDerivative(fileIdentifier);
     dto.setAcDerivedFrom(from);
-    dto.setDerivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE);
-    dto.setFileIdentifier(fileIdentifier);
     return dto;
   }
 }

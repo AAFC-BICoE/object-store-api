@@ -8,9 +8,9 @@ import ca.gc.aafc.dina.repository.external.ExternalResourceProvider;
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.dina.security.TextHtmlSanitizer;
 import ca.gc.aafc.dina.service.AuditService;
-import ca.gc.aafc.dina.security.DinaAuthorizationService;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
+import ca.gc.aafc.objectstore.api.security.MetadataAuthorizationService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.crnk.core.queryspec.QuerySpec;
@@ -43,13 +43,13 @@ public class ObjectStoreResourceRepository
     @NonNull ExternalResourceProvider externalResourceProvider,
     Optional<DinaAuthenticatedUser> authenticatedUser,
     @NonNull AuditService auditService,
-    DinaAuthorizationService groupAuthorizationService,
+    MetadataAuthorizationService metadataAuthorizationService,
     @NonNull BuildProperties props,
     @NonNull ObjectMapper objMapper
   ) {
     super(
       dinaService,
-      groupAuthorizationService,
+      metadataAuthorizationService,
       Optional.of(auditService),
       new DinaMapper<>(ObjectStoreMetadataDto.class),
       ObjectStoreMetadataDto.class,
