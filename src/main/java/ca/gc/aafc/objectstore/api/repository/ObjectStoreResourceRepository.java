@@ -1,7 +1,6 @@
 package ca.gc.aafc.objectstore.api.repository;
 
 import ca.gc.aafc.dina.mapper.DinaMapper;
-import ca.gc.aafc.dina.mapper.DinaMappingRegistry;
 import ca.gc.aafc.dina.repository.DinaRepository;
 import ca.gc.aafc.dina.repository.external.ExternalResourceProvider;
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
@@ -30,10 +29,6 @@ public class ObjectStoreResourceRepository
   private static final Safelist NONE_SAFELIST = Safelist.none();
 
   private Optional<DinaAuthenticatedUser> authenticatedUser;
-  private final ObjectMapper objMapper;
-
-  //The base class should expose it
-  private final DinaMappingRegistry registry;
 
   public ObjectStoreResourceRepository(
     @NonNull ObjectStoreMetaDataService dinaService,
@@ -55,10 +50,6 @@ public class ObjectStoreResourceRepository
       externalResourceProvider,
       props, objMapper);
     this.authenticatedUser = authenticatedUser;
-    this.objMapper = objMapper;
-
-    // should be exposed by base class to avoid an unnecessary second instance
-    this.registry = new DinaMappingRegistry(ObjectStoreMetadataDto.class);
   }
 
   /**
