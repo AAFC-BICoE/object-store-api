@@ -11,6 +11,7 @@ import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
 
 import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPIRelationship;
+import ca.gc.aafc.objectstore.api.testsupport.fixtures.DerivativeTestFixture;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,11 +28,9 @@ import ca.gc.aafc.dina.testsupport.specs.OpenAPI3Assertions;
 import ca.gc.aafc.objectstore.api.ObjectStoreApiLauncher;
 import ca.gc.aafc.objectstore.api.dto.DerivativeDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
-import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
-import ca.gc.aafc.objectstore.api.entities.Derivative.DerivativeType;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import lombok.SneakyThrows;
 
@@ -126,17 +125,9 @@ public class DerivativeOpenApiIT extends BaseRestAssuredTest {
   }
 
   private DerivativeDto buildDerivativeDto(UUID fileIdentifier) {
-    DerivativeDto dto = new DerivativeDto();
-    dto.setDcType(DcType.IMAGE);
+    DerivativeDto dto = DerivativeTestFixture.newDerivative(fileIdentifier);
     dto.setAcDerivedFrom(null);
     dto.setGeneratedFromDerivative(null);
-    dto.setDerivativeType(DerivativeType.THUMBNAIL_IMAGE);
-    dto.setFileIdentifier(fileIdentifier);
-    dto.setFileExtension(".jpg");
-    dto.setAcHashFunction("abcFunction");
-    dto.setAcHashValue("abc");
-    dto.setDcFormat(MediaType.IMAGE_JPEG_VALUE);
-    dto.setCreatedBy("user");
     return dto;
   }
 

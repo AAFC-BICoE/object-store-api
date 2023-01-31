@@ -1,4 +1,4 @@
-package ca.gc.aafc.objectstore.api.repository;
+package ca.gc.aafc.objectstore.api.security;
 
 import ca.gc.aafc.dina.testsupport.security.WithMockKeycloakUser;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
@@ -8,6 +8,7 @@ import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
+import ca.gc.aafc.objectstore.api.repository.DerivativeRepository;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import io.crnk.core.queryspec.QuerySpec;
@@ -26,6 +27,7 @@ public class DerivativeRepoAuthorizationIT extends BaseIntegrationTest {
 
   @Inject
   private DerivativeRepository derivativeRepository;
+
   private static final String GROUP_1 = "CNC";
   private ObjectUpload uploadTest_1;
   private ObjectStoreMetadata acDerivedFrom;

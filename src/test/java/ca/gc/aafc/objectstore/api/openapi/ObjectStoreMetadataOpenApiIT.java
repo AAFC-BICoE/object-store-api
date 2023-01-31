@@ -9,22 +9,20 @@ import ca.gc.aafc.dina.testsupport.specs.OpenAPI3Assertions;
 import ca.gc.aafc.objectstore.api.ObjectStoreApiLauncher;
 import ca.gc.aafc.objectstore.api.dto.DerivativeDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
-import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
-import ca.gc.aafc.objectstore.api.entities.Derivative.DerivativeType;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
+import ca.gc.aafc.objectstore.api.testsupport.fixtures.DerivativeTestFixture;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
@@ -177,17 +175,9 @@ public class ObjectStoreMetadataOpenApiIT extends BaseRestAssuredTest {
   }
 
   private DerivativeDto buildDerivativeDto() {
-    DerivativeDto dto = new DerivativeDto();
-    dto.setDcType(DcType.IMAGE);
+    DerivativeDto dto = DerivativeTestFixture.newDerivative(oUpload_derivative.getFileIdentifier());
     dto.setAcDerivedFrom(null);
     dto.setGeneratedFromDerivative(null);
-    dto.setDerivativeType(DerivativeType.THUMBNAIL_IMAGE);
-    dto.setFileIdentifier(oUpload_derivative.getFileIdentifier());
-    dto.setFileExtension(".jpg");
-    dto.setAcHashFunction("abcFunction");
-    dto.setAcHashValue("abc");
-    dto.setDcFormat(MediaType.IMAGE_JPEG_VALUE);
-    dto.setCreatedBy("user");
     return dto;
   }
 
