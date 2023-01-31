@@ -1,6 +1,5 @@
 package ca.gc.aafc.objectstore.api.repository;
 
-import ca.gc.aafc.dina.json.JsonDocumentInspector;
 import ca.gc.aafc.dina.mapper.DinaMapper;
 import ca.gc.aafc.dina.mapper.DinaMappingRegistry;
 import ca.gc.aafc.dina.repository.DinaRepository;
@@ -20,10 +19,8 @@ import org.springframework.boot.info.BuildProperties;
 import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
+import java.util.function.Predicate;
 
 @Repository
 @Transactional
@@ -84,23 +81,9 @@ public class ObjectStoreResourceRepository
     return super.create(resource);
   }
 
-  /**
-   * We override the checkMethod to use a less aggressive check since Determination can have simple text html.
-   * @param resource
-   * @param <S>
-   */
   @Override
-  protected <S extends ObjectStoreMetadataDto> void checkSubmittedData(S resource) {
-    Objects.requireNonNull(this.objMapper);
-    Map<String, Object> convertedObj = (Map)this.objMapper.convertValue(resource, IT_OM_TYPE_REF);
-    Set<String> attributesForClass = (Set)this.registry.getAttributesPerClass().get(resource.getClass());
-    if (attributesForClass != null) {
-      convertedObj.keySet().removeIf(k -> !attributesForClass.contains(k));
-    }
-
-    if (!JsonDocumentInspector.testPredicateOnValues(convertedObj, ObjectStoreResourceRepository::isSafeText)) {
-      throw new IllegalArgumentException("unsafe value detected in attributes");
-    }
+  protected Predicate<String> supplyPredicate() {
+    return (txt) -> isSafeText(txt) || TextHtmlSanitizer.isAcceptableText(txt);
   }
 
   /**
