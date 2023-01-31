@@ -74,7 +74,7 @@ public class ObjectStoreResourceRepository
 
   @Override
   protected Predicate<String> supplyPredicate() {
-    return (txt) -> isSafeText(txt) || TextHtmlSanitizer.isAcceptableText(txt);
+    return txt -> isSafeText(txt) || TextHtmlSanitizer.isAcceptableText(txt);
   }
 
   /**
