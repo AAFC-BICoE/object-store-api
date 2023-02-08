@@ -35,15 +35,15 @@
     <spotbugs-maven-plugin.version>4.6.0.0</spotbugs-maven-plugin.version>
     <spotbugs.version>4.7.1</spotbugs.version>
     <jcip-annotations.version>1.0</jcip-annotations.version>
-    <dependency-check.version>7.3.2</dependency-check.version>
+    <dependency-check.version>8.0.2</dependency-check.version>
     <jacoco-maven-plugin.version>0.8.8</jacoco-maven-plugin.version>
     <maven-checkstyle-plugin.version>3.1.2</maven-checkstyle-plugin.version>
     <checkstyle.version>9.3</checkstyle.version>
     <asciidoctor-maven-plugin.version>2.1.0</asciidoctor-maven-plugin.version>
     <asciidoctorj.diagram.version>2.0.2</asciidoctorj.diagram.version>
-    <dina-base-api.version>0.100</dina-base-api.version>
+    <dina-base-api.version>0.102</dina-base-api.version>
     
-    <postgresql.version>42.4.1</postgresql.version>
+    <postgresql.version>42.4.3</postgresql.version>
     <spring-security.version>5.7.5</spring-security.version>
 
     <!-- Override to avoid NoClassDefFoundError: org/apache/maven/doxia/siterenderer/DocumentContent -->
