@@ -7,7 +7,6 @@ import org.apache.tika.mime.MimeType;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.parser.Parser;
 import org.apache.tika.parser.executable.ExecutableParser;
-import org.apache.tika.parser.pkg.CompressorParser;
 import org.apache.tika.parser.pkg.PackageParser;
 import org.apache.tika.parser.pkg.RarParser;
 import org.springframework.context.annotation.Configuration;
@@ -30,8 +29,9 @@ public class MediaTypeConfiguration {
 
   private static final TikaConfig TIKA_CONFIG = TikaConfig.getDefaultConfig();
 
+  // we allow CompressorParser gzip
   public static final Set<MediaType> UNSUPPORTED_MEDIA_TYPE = getSupportedMediaTypesFromParsers(
-          new ExecutableParser(), new CompressorParser(), new PackageParser(), new RarParser());
+          new ExecutableParser(), new PackageParser(), new RarParser());
 
   public static final Map<String, Set<MediaType>> SUPPORTED_MEDIA_TYPE = initSupportedMediaType();
 

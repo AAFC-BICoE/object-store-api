@@ -137,6 +137,17 @@ public class FileControllerIT extends BaseIntegrationTest {
 
   @Test
   @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
+  public void fileUpload_gzipUpload_ObjectUploadEntryCreated() throws Exception {
+    MockMultipartFile mockFile = createMockMultipartFile("testfile.txt.gz", "application/gzip");
+
+    ObjectUploadDto uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
+    ObjectUpload objUploaded = objectUploadService.findOne(uploadResponse.getFileIdentifier(), ObjectUpload.class);
+
+    assertNotNull(objUploaded);
+  }
+
+  @Test
+  @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
   public void fileUpload_OnValidUpload_ObjectUploadEntryCreated() throws Exception {
     MockMultipartFile mockFile = getFileUnderTest();
     ObjectUploadDto uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
