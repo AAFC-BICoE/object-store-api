@@ -4,11 +4,15 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://local.xsd/dbchangelog-4.4.xsd"
                    objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
 
-  <!-- sha1hex before 1.4 were incorrectly calculated, this can be used to remove the incorrect data -->
+  <!-- sha1hex before 1.4 were incorrectly calculated, this can be used to remove the incorrect data and change the hash_function-->
   <changeSet id="1-Reset_ObjectUpload_sha1hex" context="data-migration-reset-sha1hex" author="cgendreau">
     <update tableName="object_upload">
       <column name="sha1_hex" value="0" />
       <where>sha1_hex IS NOT NULL</where>
+    </update>
+    <update tableName="metadata">
+      <column name="ac_hash_function" value="Double SHA-1" />
+      <where>ac_hash_function = 'SHA-1'</where>
     </update>
   </changeSet>
 </databaseChangeLog>
