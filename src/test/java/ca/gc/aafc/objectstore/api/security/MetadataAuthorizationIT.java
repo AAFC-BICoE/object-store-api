@@ -1,4 +1,4 @@
-package ca.gc.aafc.objectstore.api.service;
+package ca.gc.aafc.objectstore.api.security;
 
 import java.util.UUID;
 
@@ -26,10 +26,11 @@ import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import io.crnk.core.queryspec.QuerySpec;
 
 @SpringBootTest(properties = "keycloak.enabled=true")
-public class MetaDataAuthorizationIT extends BaseIntegrationTest {
+public class MetadataAuthorizationIT extends BaseIntegrationTest {
 
   @Inject
   private ObjectStoreResourceRepository repo;
+
   private static final String GROUP_1 = "CNC";
   private static final String TEST_USAGE_TERMS = "test user terms";
   public ObjectUpload testObjectUpload;
@@ -90,12 +91,19 @@ public class MetaDataAuthorizationIT extends BaseIntegrationTest {
 
   @Test
   @WithMockKeycloakUser(groupRole = {"CNC:USER"})
-  public void delete_AuthorizedGroup_UpdatesObject() {
+  public void delete_NotSuperUser_ThrowsAccessDeniedException() {
+    ObjectStoreMetadataDto dto = repo.create(newMetaDto(GROUP_1));
+    Assertions.assertThrows(AccessDeniedException.class, () -> repo.delete(dto.getUuid()));
+  }
+
+  @Test
+  @WithMockKeycloakUser(groupRole = {"CNC:SUPER_USER"})
+  public void delete_SuperUser_resourceDeleted() {
     ObjectStoreMetadataDto dto = repo.create(newMetaDto(GROUP_1));
     repo.delete(dto.getUuid());
     Assertions.assertThrows(
-      GoneException.class,
-      () -> repo.findOne(dto.getUuid(), new QuerySpec(ObjectStoreMetadataDto.class)));
+            GoneException.class,
+            () -> repo.findOne(dto.getUuid(), new QuerySpec(ObjectStoreMetadataDto.class)));
   }
 
   @Test

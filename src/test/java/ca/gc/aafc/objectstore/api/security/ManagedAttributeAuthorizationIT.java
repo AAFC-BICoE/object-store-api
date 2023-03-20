@@ -1,4 +1,4 @@
-package ca.gc.aafc.objectstore.api.service;
+package ca.gc.aafc.objectstore.api.security;
 
 import ca.gc.aafc.dina.testsupport.security.WithMockKeycloakUser;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
@@ -17,7 +17,7 @@ import org.springframework.security.access.AccessDeniedException;
 import javax.inject.Inject;
 
 @SpringBootTest(properties = "keycloak.enabled=true")
-public class ObjectStoreManagedAttributePermissionServiceIT extends BaseIntegrationTest {
+public class ManagedAttributeAuthorizationIT extends BaseIntegrationTest {
 
   @Inject
   private ObjectStoreManagedAttributeResourceRepository repoUnderTest;

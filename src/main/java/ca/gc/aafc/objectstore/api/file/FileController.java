@@ -25,7 +25,8 @@ import io.minio.errors.ServerException;
 import io.minio.errors.XmlParserException;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.codec.digest.DigestUtils;
+
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MediaType;
@@ -172,7 +173,6 @@ public class FileController {
         "supportedMediaType.illegal", new String[]{detectedMediaType.toString()}, LocaleContextHolder.getLocale()));
     }
     MessageDigest md = MessageDigest.getInstance(DIGEST_ALGORITHM);
-
     storeFile(bucket, uuid, mtdr, new DigestInputStream(prIs.getInputStream(), md), isDerivative);
 
     return createObjectUpload(
@@ -180,7 +180,7 @@ public class FileController {
       bucket,
       mtdr,
       uuid,
-      DigestUtils.sha1Hex(md.digest()),
+      Hex.encodeHexString(md.digest()),
       extractExifData(file),
       isDerivative);
   }
