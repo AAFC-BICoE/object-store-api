@@ -53,6 +53,10 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest(properties = "keycloak.enabled = true")
 public class FileControllerIT extends BaseIntegrationTest {
 
+  private static final String TEST_UPLOAD_FILE_NAME = "drawing.png";
+  // calculated using sha1sum drawing.png
+  private static final String TEST_UPLOAD_FILE_SHA1HEX = "5e51269a9f21eef93ff5fbf2e8c3ceeb3d84a430";
+
   @Inject
   private ResourceLoader resourceLoader;
 
@@ -137,10 +141,22 @@ public class FileControllerIT extends BaseIntegrationTest {
 
   @Test
   @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
+  public void fileUpload_gzipUpload_ObjectUploadEntryCreated() throws Exception {
+    MockMultipartFile mockFile = createMockMultipartFile("testfile.txt.gz", "application/gzip");
+
+    ObjectUploadDto uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
+    ObjectUpload objUploaded = objectUploadService.findOne(uploadResponse.getFileIdentifier(), ObjectUpload.class);
+
+    assertNotNull(objUploaded);
+  }
+
+  @Test
+  @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
   public void fileUpload_OnValidUpload_ObjectUploadEntryCreated() throws Exception {
     MockMultipartFile mockFile = getFileUnderTest();
     ObjectUploadDto uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
     ObjectUpload objUploaded = objectUploadService.findOne(uploadResponse.getFileIdentifier(), ObjectUpload.class);
+    assertEquals(TEST_UPLOAD_FILE_SHA1HEX, uploadResponse.getSha1Hex());
 
     assertNotNull(objUploaded);
     assertNotNull(objUploaded.getDcType());
@@ -240,7 +256,7 @@ public class FileControllerIT extends BaseIntegrationTest {
   }
 
   private MockMultipartFile getFileUnderTest() throws IOException {
-    return createMockMultipartFile("drawing.png", MediaType.IMAGE_PNG_VALUE);
+    return createMockMultipartFile(TEST_UPLOAD_FILE_NAME, MediaType.IMAGE_PNG_VALUE);
   }
 
   private MockMultipartFile createMockMultipartFile(

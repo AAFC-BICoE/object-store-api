@@ -1,5 +1,6 @@
 package ca.gc.aafc.objectstore.api.repository;
 
+import ca.gc.aafc.dina.json.JsonDocumentInspector;
 import ca.gc.aafc.dina.mapper.DinaMapper;
 import ca.gc.aafc.dina.repository.DinaRepository;
 import ca.gc.aafc.dina.repository.external.ExternalResourceProvider;
@@ -12,8 +13,9 @@ import ca.gc.aafc.objectstore.api.security.MetadataAuthorizationService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.crnk.core.queryspec.QuerySpec;
+import java.util.Map;
+import java.util.Set;
 import lombok.NonNull;
-import org.jsoup.safety.Safelist;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.stereotype.Repository;
 
@@ -26,7 +28,7 @@ import java.util.function.Predicate;
 public class ObjectStoreResourceRepository
   extends DinaRepository<ObjectStoreMetadataDto, ObjectStoreMetadata> {
 
-  private static final Safelist NONE_SAFELIST = Safelist.none();
+  private final ObjectMapper objMapper;
 
   private Optional<DinaAuthenticatedUser> authenticatedUser;
 
@@ -50,6 +52,8 @@ public class ObjectStoreResourceRepository
       externalResourceProvider,
       props, objMapper);
     this.authenticatedUser = authenticatedUser;
+    this.objMapper = objMapper;
+
   }
 
   /**
@@ -73,17 +77,25 @@ public class ObjectStoreResourceRepository
   }
 
   @Override
-  protected Predicate<String> supplyCheckSubmittedDataPredicate() {
-    return txt -> isSafeText(txt) || TextHtmlSanitizer.isAcceptableText(txt);
+  protected <S extends ObjectStoreMetadataDto> void checkSubmittedData(S resource) {
+    Map<String, Object> convertedObj = objMapper.convertValue(resource, IT_OM_TYPE_REF);
+    // if it is a known resource class limit validation to attributes and exclude relationships
+    Set<String> attributesForClass = registry.getAttributesPerClass().get(resource.getClass());
+    if (attributesForClass != null) {
+      convertedObj.keySet().removeIf(k -> !attributesForClass.contains(k));
+    }
+
+    //remove managedAttributes to allow OCR data
+    convertedObj.remove("managedAttributes");
+
+    if(!JsonDocumentInspector.testPredicateOnValues(convertedObj, supplyCheckSubmittedDataPredicate())) {
+      throw new IllegalArgumentException("Unaccepted value detected in attributes");
+    }
   }
 
-  /**
-   * Custom function to allow unescapedEntities since the ocr field often has some.
-   * @param txt
-   * @return
-   */
-  private static boolean isSafeText(String txt) {
-    return TextHtmlSanitizer.isSafeText(txt, NONE_SAFELIST, true);
+  @Override
+  protected Predicate<String> supplyCheckSubmittedDataPredicate() {
+    return txt -> TextHtmlSanitizer.isSafeText(txt) || TextHtmlSanitizer.isAcceptableText(txt);
   }
 
 }
