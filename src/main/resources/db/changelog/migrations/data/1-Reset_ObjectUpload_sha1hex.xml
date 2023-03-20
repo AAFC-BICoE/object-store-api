@@ -8,11 +8,11 @@
   <changeSet id="1-Reset_ObjectUpload_sha1hex" context="data-migration-reset-sha1hex" author="cgendreau">
     <update tableName="object_upload">
       <column name="sha1_hex" value="0" />
-      <where>sha1_hex IS NOT NULL</where>
+      <where>created_on &lt; (SELECT created_on FROM migrations_hints WHERE hint_key = 'sha1_calculation_fix_marker')</where>
     </update>
     <update tableName="metadata">
       <column name="ac_hash_function" value="Double SHA-1" />
-      <where>ac_hash_function = 'SHA-1'</where>
+      <where>created_on &lt; (SELECT created_on FROM migrations_hints WHERE hint_key = 'sha1_calculation_fix_marker')</where>
     </update>
   </changeSet>
 </databaseChangeLog>
