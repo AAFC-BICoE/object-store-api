@@ -1,0 +1,28 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no" ?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://local.xsd/dbchangelog-4.4.xsd"
+                   objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+
+  <changeSet id="14-Add_migration_hint_table-1" context="schema-change" author="cgendreau">
+    <createTable tableName="migrations_hints">
+      <column autoIncrement="true" name="id" type="INTEGER">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_migration_hints_id"/>
+      </column>
+      <column name="hint_key" type="VARCHAR(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="created_on" defaultValueComputed="now()"  type="TIMESTAMP WITH TIME ZONE"/>
+    </createTable>
+    <createIndex indexName="migrations_hints_unique_hint_key" tableName="migrations_hints"
+                 unique="true">
+      <column name="hint_key"/>
+    </createIndex>
+  </changeSet>
+  <!-- We add a marker to identify the timestamp before we include the fix for double sha1 calculation-->
+  <changeSet id="14-Add_migration_hint_table-2" context="schema-change" author="cgendreau">
+    <insert tableName="migrations_hints">
+      <column name="hint_key" value="sha1_calculation_fix_marker"/>
+    </insert>
+  </changeSet>
+</databaseChangeLog>
