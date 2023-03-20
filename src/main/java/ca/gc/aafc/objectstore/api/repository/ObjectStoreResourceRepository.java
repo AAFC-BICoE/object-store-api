@@ -16,7 +16,6 @@ import io.crnk.core.queryspec.QuerySpec;
 import java.util.Map;
 import java.util.Set;
 import lombok.NonNull;
-import org.jsoup.safety.Safelist;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.stereotype.Repository;
 
@@ -28,7 +27,7 @@ import java.util.function.Predicate;
 @Transactional
 public class ObjectStoreResourceRepository
   extends DinaRepository<ObjectStoreMetadataDto, ObjectStoreMetadata> {
-  
+
   private final ObjectMapper objMapper;
 
   private Optional<DinaAuthenticatedUser> authenticatedUser;
