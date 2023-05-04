@@ -44,7 +44,6 @@
     <dina-base-api.version>0.105</dina-base-api.version>
     
     <postgresql.version>42.4.3</postgresql.version>
-    <spring-security.version>5.7.5</spring-security.version>
 
     <!-- Override to avoid NoClassDefFoundError: org/apache/maven/doxia/siterenderer/DocumentContent -->
     <maven-site-plugin.version>3.7.1</maven-site-plugin.version>
