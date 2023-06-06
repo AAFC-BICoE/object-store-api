@@ -147,6 +147,13 @@ public class ObjectStoreManagedAttribute implements ca.gc.aafc.dina.entity.Manag
   // not implemented for now
   @Transient
   @Override
+  public String getUnit() {
+    return null;
+  }
+
+  // not implemented for now
+  @Transient
+  @Override
   public MultilingualTitle getMultilingualTitle() {
     return null;
   }
