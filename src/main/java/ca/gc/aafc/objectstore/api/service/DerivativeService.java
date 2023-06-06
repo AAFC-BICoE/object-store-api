@@ -89,7 +89,7 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
   }
 
   /**
-   * Generates a thumbnail for a resource with the given parameters.
+   * Generates a thumbnail for a resource with the given parameters if possible based on the evaluatedMediaType.
    *
    * @param sourceBucket                bucket of the resource
    * @param sourceFilename              file name of the resource
