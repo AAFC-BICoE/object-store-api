@@ -63,7 +63,7 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
   @Override
   public ObjectStoreMetadata create(ObjectStoreMetadata entity) {
     ObjectStoreMetadata objectStoreMetadata = super.create(entity);
-    handleThumbNailGeneration(objectStoreMetadata);
+    handleThumbnailGeneration(objectStoreMetadata);
     return objectStoreMetadata;
   }
 
@@ -122,11 +122,17 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
   }
 
   /**
-   * Generates a thumbnail for the given resource.
+   * Generates a thumbnail for the given resource if required/possible.
    *
    * @param resource - parent resource metadata of the thumbnail
    */
-  private void handleThumbNailGeneration(ObjectStoreMetadata resource) {
+  private void handleThumbnailGeneration(ObjectStoreMetadata resource) {
+
+    // we don't try to generate a thumbnail for external resources
+    if(resource.isExternal()) {
+      return;
+    }
+
     String evaluatedMediaType = resource.getDcFormat();
     String bucket = resource.getBucket();
     UUID derivedId = resource.getUuid();
