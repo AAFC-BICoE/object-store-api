@@ -4,8 +4,8 @@ The object-store-api is an API providing an object metadata store backed by [Min
 
 Features :
  * Implements DINA object-store [specification](https://dina-web.github.io/object-store-specs/).
- * Aligned with [Audubon Core](https://ac.tdwg.org/termlist/) standard
- * objects type detection
+ * Aligned with [Audiovisual Core](https://ac.tdwg.org/termlist/) standard
+ * Objects type detection
  * EXIF extraction for images
  * Supports derivative and relationship to original object
  * Duplicate detection
