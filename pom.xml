@@ -5,7 +5,7 @@
 
   <groupId>ca.gc.aafc</groupId>
   <artifactId>object-store.api</artifactId>
-  <version>1.6-SNAPSHOT</version>
+  <version>1.7-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>Object-Store API</name>
@@ -27,9 +27,9 @@
     <okhttp.version>4.8.1</okhttp.version>
     <minio.version>8.4.6</minio.version>
     
-    <tika.version>2.6.0</tika.version>
+    <tika.version>2.8.0</tika.version>
     <thumbnailator.version>0.4.18</thumbnailator.version>
-    <pdfbox.version>2.0.27</pdfbox.version>
+    <pdfbox.version>2.0.28</pdfbox.version>
     <imageio.version>3.9.3</imageio.version>
 
     <spotbugs-maven-plugin.version>4.6.0.0</spotbugs-maven-plugin.version>
@@ -41,7 +41,7 @@
     <checkstyle.version>9.3</checkstyle.version>
     <asciidoctor-maven-plugin.version>2.1.0</asciidoctor-maven-plugin.version>
     <asciidoctorj.diagram.version>2.0.2</asciidoctorj.diagram.version>
-    <dina-base-api.version>0.105.1</dina-base-api.version>
+    <dina-base-api.version>0.106</dina-base-api.version>
     
     <postgresql.version>42.4.3</postgresql.version>
 

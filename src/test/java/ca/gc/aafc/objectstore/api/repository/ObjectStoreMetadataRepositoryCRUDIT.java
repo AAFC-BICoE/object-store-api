@@ -196,7 +196,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
   }
       
   @Test
-  public void create_ValidResource_ThumbNailMetaDerivesFromParent() {
+  public void create_ValidResource_ThumbnailMetaDerivesFromParent() {
     // Resource needs an detected media type that supports thumbnails
     ObjectUpload objectUpload = ObjectUploadFactory.newObjectUpload().build();
     objectUpload.setDetectedMediaType(MediaType.IMAGE_JPEG_VALUE);
@@ -206,16 +206,29 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
 
     UUID parentUuid = objectStoreResourceRepository.create(resource).getUuid();
     Derivative child = derivativeService.findAll(Derivative.class,
-    (criteriaBuilder, root) -> new Predicate[]{criteriaBuilder.equal(
-      root.get("acDerivedFrom"),
-      objectStoreMetaDataService.findOne(parentUuid))},
+      (criteriaBuilder, root) -> new Predicate[] {criteriaBuilder.equal(
+        root.get("acDerivedFrom"),
+        objectStoreMetaDataService.findOne(parentUuid))},
       null, 0, 1).stream().findFirst().orElse(null);
-      //Assert values
-      assertNotNull(child);
-      assertNotNull(child.getAcDerivedFrom());
-      assertEquals(parentUuid, child.getAcDerivedFrom().getUuid());
-      assertEquals(Derivative.DerivativeType.THUMBNAIL_IMAGE, child.getDerivativeType());
-    }
+    //Assert values
+    assertNotNull(child);
+    assertNotNull(child.getAcDerivedFrom());
+    assertEquals(parentUuid, child.getAcDerivedFrom().getUuid());
+    assertEquals(Derivative.DerivativeType.THUMBNAIL_IMAGE, child.getDerivativeType());
+  }
+
+  @Test
+  public void create_validExternalResource_NoThumbnailCreated() {
+    ObjectStoreMetadataDto resource = newMetaDtoExternalResource();
+
+    UUID resourceUuid = objectStoreResourceRepository.create(resource).getUuid();
+    Derivative child = derivativeService.findAll(Derivative.class,
+      (criteriaBuilder, root) -> new Predicate[] {criteriaBuilder.equal(
+        root.get("acDerivedFrom"),
+        objectStoreMetaDataService.findOne(resourceUuid))},
+      null, 0, 1).stream().findFirst().orElse(null);
+    assertNull(child);
+  }
 
   @Test
   public void save_ValidResource_ResourceUpdated() {
@@ -275,8 +288,6 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
     // can't delete managed attribute for now since the check for key in use is using a fresh transaction
   }
 
-
-  
   private ObjectStoreMetadataDto newMetaDto() {
     ObjectStoreMetadataDto parentDTO = new ObjectStoreMetadataDto();
     parentDTO.setBucket(ObjectUploadFactory.TEST_BUCKET);
@@ -286,7 +297,15 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
     parentDTO.setCreatedBy(RandomStringUtils.random(4));
     return parentDTO;
   }
-  
+
+  private ObjectStoreMetadataDto newMetaDtoExternalResource() {
+    ObjectStoreMetadataDto resource = newMetaDto();
+    resource.setResourceExternalURL("https://perdu.com");
+    resource.setDcFormat(MediaType.IMAGE_JPEG_VALUE);
+    resource.setFileIdentifier(null);
+    return resource;
+  }
+
   private ObjectStoreMetadataDto fetchMetaById(UUID uuid) {
     return objectStoreResourceRepository.findOne(uuid, newQuery());
   }

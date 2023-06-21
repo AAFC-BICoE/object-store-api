@@ -167,13 +167,6 @@ Example request:
 curl http:/localhost:8081/api/v1/file/mybucket/0050559c-beae-48d6-a2b0-91f5a666fad1 > my-downloaded-image.png
 ```
 
-== Thumbnail File Download
-
-To download a thumbnail, send a GET request to the `/api/v1/file/{bucket}/{fileId}/thumbnail` endpoint.
-
-A thumbnail is automatically generated after an image file's metadata is uploaded.
-
-
 == Derivative File Download
 
 To download a stored derivative, send a GET request to the `/api/v1/file/{bucket}/derivative/{fileId}` endpoint.
