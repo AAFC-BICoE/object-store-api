@@ -1,27 +1,39 @@
 package ca.gc.aafc.objectstore.api.repository;
 
-import ca.gc.aafc.dina.mapper.DinaMapper;
-import ca.gc.aafc.dina.repository.ReadOnlyDinaRepository;
-import ca.gc.aafc.objectstore.api.dto.ObjectUploadDto;
-import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
-import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import ca.gc.aafc.dina.mapper.DinaMapper;
+import ca.gc.aafc.dina.repository.DinaRepository;
+import ca.gc.aafc.objectstore.api.dto.ObjectUploadDto;
+import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
+import ca.gc.aafc.objectstore.api.security.ObjectUploadAuthorizationService;
+import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
+
+import java.util.Optional;
+import lombok.NonNull;
+
 @Component
 public class ObjectUploadResourceRepository
-  extends ReadOnlyDinaRepository<ObjectUploadDto, ObjectUpload> {
+  extends DinaRepository<ObjectUploadDto, ObjectUpload> {
 
   protected ObjectUploadResourceRepository(
     ObjectUploadService service,
-    BuildProperties props
+    ObjectUploadAuthorizationService authorizationService,
+    BuildProperties props,
+    @NonNull ObjectMapper objMapper
   ) {
     super(
       service,
+      authorizationService,
+      Optional.empty(),
       new DinaMapper<>(ObjectUploadDto.class),
       ObjectUploadDto.class,
       ObjectUpload.class,
       null,
-      props);
+      null,
+      props, objMapper);
   }
 }

@@ -7,6 +7,9 @@ import org.springframework.stereotype.Service;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+/***
+ * Authorization for file upload.
+ */
 @Service
 public class FileUploadAuthorizationService {
 
