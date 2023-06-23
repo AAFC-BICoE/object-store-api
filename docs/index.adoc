@@ -6,8 +6,6 @@
 
 include::object_storage.adoc[]
 
-include::keycloak.adoc[]
-
 include::file_upload_download.adoc[]
 
 include::media_type_detection.adoc[]
