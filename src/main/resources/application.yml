@@ -31,14 +31,6 @@ crnk:
   # query, so we don't let Crnk automatically call findOneTarget for each null relation.
   config.lookup.behavior.default: NONE
   jpa.enabled: false
-
-# Object Orphan Removal Cron Job
-# orphan-removal:
-#   expiration:
-#     objectMaxAge: 3m
-#   cron:
-#     expression: "0 * * * * *" # Every minute for testing purposes.
-
 default-values:
   values:
     - type: metadata
