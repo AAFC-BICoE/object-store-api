@@ -21,6 +21,7 @@ import java.util.UUID;
 @Log4j2
 public class ObjectOrphanRemovalService {
 
+  private static final int MAX_ORPHAN_QUERY_LIMIT = 1000;
   private static final String FILE_IDENTIFIER_KEY = "fileIdentifier";
   private final ObjectUploadService objectUploadService;
   private final MinioFileService fileService;
@@ -69,7 +70,7 @@ public class ObjectOrphanRemovalService {
             metaSubQuery.select(metaSubQuery.from(ObjectStoreMetadata.class).get(FILE_IDENTIFIER_KEY))).not(),
           criteriaBuilder.in(objectUploadRoot.get(FILE_IDENTIFIER_KEY)).value(
             derivSubQuery.select(derivSubQuery.from(Derivative.class).get(FILE_IDENTIFIER_KEY))).not()};
-      }, null, 0, Integer.MAX_VALUE);
+      }, null, 0, MAX_ORPHAN_QUERY_LIMIT);
   }
 
   private boolean isExpired(ObjectUpload upload) {

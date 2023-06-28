@@ -6,8 +6,6 @@
 
 include::object_storage.adoc[]
 
-include::keycloak.adoc[]
-
 include::file_upload_download.adoc[]
 
 include::media_type_detection.adoc[]
@@ -19,3 +17,5 @@ include::filtering.adoc[]
 include::lazy_logging.adoc[]
 
 include::auditing.adoc[]
+
+include::orphan_removal_config.adoc[]
