@@ -19,7 +19,6 @@ import java.util.List;
 public class ObjectOrphanRemovalService {
 
   private static final int MAX_ORPHAN_QUERY_LIMIT = 1000;
-  private static final String FILE_IDENTIFIER_KEY = "fileIdentifier";
 
   private final ObjectUploadService objectUploadService;
   private final MinioFileService fileService;
