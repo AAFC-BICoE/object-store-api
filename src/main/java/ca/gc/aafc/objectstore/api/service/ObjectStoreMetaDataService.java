@@ -165,14 +165,20 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
 
       // make sure that there is an ObjectUpload that is not a derivative
     if (objectUpload == null || objectUpload.getIsDerivative()) {
-      throw new ValidationException("primary object with fileIdentifier not found: " + objectMetadata.getFileIdentifier());
+      throw new ValidationException("object-upload with fileIdentifier not found: " + objectMetadata.getFileIdentifier());
     }
 
+    //the following data are considered immutable and are taken directly from the object-upload
     objectMetadata.setFileExtension(objectUpload.getEvaluatedFileExtension());
     objectMetadata.setOriginalFilename(objectUpload.getOriginalFilename());
     objectMetadata.setDcFormat(objectUpload.getEvaluatedMediaType());
-    objectMetadata.setAcHashValue(objectUpload.getSha1Hex());
-    objectMetadata.setAcHashFunction(FileController.DIGEST_ALGORITHM);
+
+    // if the sha1hex is unspecified, do not alter the value on the metadata
+    // see https://github.com/AAFC-BICoE/object-store-api/releases/tag/v1.4
+    if (StringUtils.isNotBlank(objectUpload.getSha1Hex()) && !"0".equals(objectUpload.getSha1Hex())) {
+      objectMetadata.setAcHashValue(objectUpload.getSha1Hex());
+      objectMetadata.setAcHashFunction(FileController.DIGEST_ALGORITHM);
+    }
   }
 
   public Optional<ObjectStoreMetadata> loadObjectStoreMetadataByFileId(UUID fileId) {
