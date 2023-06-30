@@ -1,5 +1,6 @@
 package ca.gc.aafc.objectstore.api.service;
 
+import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.objectstore.api.OrphanRemovalConfiguration;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
@@ -9,31 +10,31 @@ import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Subquery;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @Log4j2
 public class ObjectOrphanRemovalService {
 
   private static final int MAX_ORPHAN_QUERY_LIMIT = 1000;
-  private static final String FILE_IDENTIFIER_KEY = "fileIdentifier";
+
   private final ObjectUploadService objectUploadService;
   private final MinioFileService fileService;
+  private final BaseDAO baseDAO;
+
   private final OrphanRemovalConfiguration.OrphanRemovalExpirationSetting expiration;
 
   public ObjectOrphanRemovalService(
     ObjectUploadService objectUploadService,
     MinioFileService fileService,
+    BaseDAO baseDAO,
     OrphanRemovalConfiguration orphanRemovalConfiguration
   ) {
     this.objectUploadService = objectUploadService;
     this.fileService = fileService;
+    this.baseDAO = baseDAO;
     this.expiration = orphanRemovalConfiguration.getExpiration();
   }
 
@@ -59,18 +60,19 @@ public class ObjectOrphanRemovalService {
    * ObjectStoreMetadata.
    */
   private List<ObjectUpload> findOrphans() {
-    return objectUploadService.findAll(
-      ObjectUpload.class,
-      (criteriaBuilder, objectUploadRoot) -> {
-        Subquery<UUID> metaSubQuery = criteriaBuilder.createQuery(ObjectStoreMetadata.class)
-          .subquery(UUID.class);
-        Subquery<UUID> derivSubQuery = criteriaBuilder.createQuery(Derivative.class).subquery(UUID.class);
-        return new Predicate[]{
-          criteriaBuilder.in(objectUploadRoot.get(FILE_IDENTIFIER_KEY)).value(
-            metaSubQuery.select(metaSubQuery.from(ObjectStoreMetadata.class).get(FILE_IDENTIFIER_KEY))).not(),
-          criteriaBuilder.in(objectUploadRoot.get(FILE_IDENTIFIER_KEY)).value(
-            derivSubQuery.select(derivSubQuery.from(Derivative.class).get(FILE_IDENTIFIER_KEY))).not()};
-      }, null, 0, MAX_ORPHAN_QUERY_LIMIT);
+    String sql = 
+      "SELECT ou " +
+      "FROM " + ObjectUpload.class.getCanonicalName() + " ou " +
+      "LEFT JOIN " + ObjectStoreMetadata.class.getCanonicalName() + " m ON ou.fileIdentifier = m.fileIdentifier " +
+      "LEFT JOIN " + Derivative.class.getCanonicalName() + " d ON ou.fileIdentifier = d.fileIdentifier " +
+      "WHERE m.fileIdentifier IS NULL AND d.fileIdentifier IS NULL";
+
+    return baseDAO.resultListFromQuery(
+        ObjectUpload.class,
+        sql,
+        0,
+        MAX_ORPHAN_QUERY_LIMIT,
+        null);
   }
 
   private boolean isExpired(ObjectUpload upload) {
