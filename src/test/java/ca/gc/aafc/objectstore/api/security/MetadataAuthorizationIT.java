@@ -117,7 +117,7 @@ public class MetadataAuthorizationIT extends BaseIntegrationTest {
     ObjectStoreMetadataDto meta = new ObjectStoreMetadataDto();
     meta.setFileIdentifier(testObjectUpload.getFileIdentifier());
     meta.setDcType(DcType.IMAGE);
-    meta.setBucket(group);
+    meta.setBucket(group.toLowerCase());
     meta.setXmpRightsUsageTerms(TEST_USAGE_TERMS);
     meta.setCreatedBy(RandomStringUtils.random(4));
     return meta;
@@ -127,7 +127,7 @@ public class MetadataAuthorizationIT extends BaseIntegrationTest {
     ObjectUpload objectUpload = ObjectUploadFactory.newObjectUpload().build();
     objectUploadService.create(objectUpload);
     ObjectStoreMetadata meta = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
-    meta.setBucket(group);
+    meta.setBucket(group.toLowerCase());
     meta.setFileIdentifier(objectUpload.getFileIdentifier());
     objectStoreMetaDataService.create(meta);
     return meta;

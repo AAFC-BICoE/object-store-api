@@ -45,14 +45,14 @@ public class ThumbnailGenerator {
   @Transactional
   @Async
   public void generateThumbnail(
-    @NonNull UUID uuid,
+    @NonNull UUID derivativeFileIdentifier,
     @NonNull String sourceFilename,
     @NonNull String sourceFileType,
     @NonNull String sourceBucket,
     boolean isSourceDerivative
   ) {
 
-    String fileName = uuid + ThumbnailGenerator.THUMBNAIL_EXTENSION;
+    String fileName = derivativeFileIdentifier + ThumbnailGenerator.THUMBNAIL_EXTENSION;
 
     try (
       InputStream originalFile = minioService
@@ -82,13 +82,17 @@ public class ThumbnailGenerator {
         .toOutputStream(os);
 
       try (ByteArrayInputStream thumbnail = new ByteArrayInputStream(os.toByteArray())) {
-        minioService.storeFile(fileName, thumbnail, "image/jpeg", sourceBucket, true);
+        minioService.storeFile(fileName, thumbnail, MediaType.IMAGE_JPEG_VALUE, sourceBucket, true);
       }
 
     } catch (MinioException | IOException | GeneralSecurityException e) {
       log.warn(() -> "A thumbnail could not be generated for file " + sourceFilename, e);
     }
+  }
 
+  public void deleteThumbnail(UUID derivativeFileIdentifier, String bucket) throws IOException {
+    String fileName = derivativeFileIdentifier + ThumbnailGenerator.THUMBNAIL_EXTENSION;
+    minioService.removeFile(bucket, fileName, true);
   }
 
   public static boolean isSupported(String fileType) {
