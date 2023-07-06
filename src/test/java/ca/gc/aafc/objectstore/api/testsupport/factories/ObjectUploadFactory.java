@@ -45,7 +45,7 @@ public class ObjectUploadFactory implements TestableEntityFactory<ObjectUpload> 
         .dcType(DcType.IMAGE)
         .originalFilename("testFile")
         .sha1Hex("b52c98d49782a6ebb9c8e3bb1ad7aa2f03706481")
-        .bucket("testBucket")
+        .bucket("testbucket")
         .exif(Map.of("ex1", "exVal1"))
         .evaluatedFileExtension(".jpg")
         .isDerivative(false)
