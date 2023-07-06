@@ -1,5 +1,6 @@
 package ca.gc.aafc.objectstore.api.file;
 
+import ca.gc.aafc.objectstore.api.MainConfiguration;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.minio.MinioFileService;
 import io.minio.errors.MinioException;
@@ -43,7 +44,7 @@ public class ThumbnailGenerator {
   private final MinioFileService minioService;
 
   @Transactional
-  @Async
+  @Async(MainConfiguration.DINA_THREAD_POOL_BEAN_NAME)
   public void generateThumbnail(
     @NonNull UUID derivativeFileIdentifier,
     @NonNull String sourceFilename,

@@ -136,5 +136,5 @@ public class MetadataAuthorizationIT extends BaseIntegrationTest {
     objectStoreMetaDataService.create(meta);
     return meta;
   }
-  
+
 }

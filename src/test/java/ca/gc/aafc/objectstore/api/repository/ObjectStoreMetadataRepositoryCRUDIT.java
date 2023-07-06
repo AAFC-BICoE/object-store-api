@@ -2,6 +2,7 @@ package ca.gc.aafc.objectstore.api.repository;
 
 import ca.gc.aafc.dina.vocabulary.TypedVocabularyElement;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
+import ca.gc.aafc.objectstore.api.config.AsyncOverrideConfig;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectSubtypeDto;
@@ -22,6 +23,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 
 import io.minio.MinioClient;
@@ -35,6 +37,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Import(AsyncOverrideConfig.class)
 public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
 
   @MockBean
