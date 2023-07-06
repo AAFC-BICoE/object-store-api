@@ -12,6 +12,7 @@ import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.minio.MinioTestContainerInitializer;
 import ca.gc.aafc.objectstore.api.repository.ObjectStoreResourceRepository;
+import ca.gc.aafc.objectstore.api.testsupport.factories.MultipartFileFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import io.minio.errors.ErrorResponseException;
@@ -107,7 +108,7 @@ public class FileControllerIT extends BaseIntegrationTest {
   @Test
  // @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
   public void fileUploadConversion_OnValidSpreadsheet_contentReturned() throws Exception {
-    MockMultipartFile mockFile = createMockMultipartFile("test_spreadsheet.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE);
+    MockMultipartFile mockFile = MultipartFileFactory.createMockMultipartFile(resourceLoader,"test_spreadsheet.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE);
     Map<Integer, List<WorkbookConverter.WorkbookRow>> content = fileController.handleFileConversion(mockFile);
     assertFalse(content.isEmpty());
     assertFalse(content.get(0).isEmpty());
@@ -116,7 +117,7 @@ public class FileControllerIT extends BaseIntegrationTest {
   @Test
   @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
   public void fileUpload_InvalidMediaTypeExecutable_throwsIllegalArgumentException() throws Exception {
-    MockMultipartFile mockFile = createMockMultipartFile("testExecutable", "application/x-sharedlib");
+    MockMultipartFile mockFile = MultipartFileFactory.createMockMultipartFile(resourceLoader, "testExecutable", "application/x-sharedlib");
 
     UnsupportedMediaTypeStatusException error = assertThrows(UnsupportedMediaTypeStatusException.class, () -> fileController.handleFileUpload(mockFile, bucketUnderTest));
 
@@ -129,7 +130,7 @@ public class FileControllerIT extends BaseIntegrationTest {
   @Test
   @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
   public void fileUpload_InvalidMediaTypeZIP_throwsIllegalArgumentException() throws Exception {
-    MockMultipartFile mockFile = createMockMultipartFile("test.zip", "application/zip");
+    MockMultipartFile mockFile = MultipartFileFactory.createMockMultipartFile(resourceLoader, "test.zip", "application/zip");
 
     UnsupportedMediaTypeStatusException error = assertThrows(UnsupportedMediaTypeStatusException.class, () -> fileController.handleFileUpload(mockFile, bucketUnderTest));
 
@@ -142,7 +143,7 @@ public class FileControllerIT extends BaseIntegrationTest {
   @Test
   @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
   public void fileUpload_gzipUpload_ObjectUploadEntryCreated() throws Exception {
-    MockMultipartFile mockFile = createMockMultipartFile("testfile.txt.gz", "application/gzip");
+    MockMultipartFile mockFile = MultipartFileFactory.createMockMultipartFile(resourceLoader, "testfile.txt.gz", "application/gzip");
 
     ObjectUploadDto uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
     ObjectUpload objUploaded = objectUploadService.findOne(uploadResponse.getFileIdentifier(), ObjectUpload.class);
@@ -195,7 +196,7 @@ public class FileControllerIT extends BaseIntegrationTest {
   @Test
   @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
   public void fileUpload_OnValidLargerUpload_ObjectUploadEntryCreated() throws Exception {
-    MockMultipartFile mockFile = createMockMultipartFile("cc0_test_image.jpg", MediaType.IMAGE_JPEG_VALUE);
+    MockMultipartFile mockFile = MultipartFileFactory.createMockMultipartFile(resourceLoader,"cc0_test_image.jpg", MediaType.IMAGE_JPEG_VALUE);
     ObjectUploadDto uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
     ObjectUpload objUploaded = objectUploadService.findOne(uploadResponse.getFileIdentifier(), ObjectUpload.class);
 
@@ -256,16 +257,8 @@ public class FileControllerIT extends BaseIntegrationTest {
   }
 
   private MockMultipartFile getFileUnderTest() throws IOException {
-    return createMockMultipartFile(TEST_UPLOAD_FILE_NAME, MediaType.IMAGE_PNG_VALUE);
+    return MultipartFileFactory.createMockMultipartFile(resourceLoader, TEST_UPLOAD_FILE_NAME, MediaType.IMAGE_PNG_VALUE);
   }
 
-  private MockMultipartFile createMockMultipartFile(
-    String fileNameInClasspath,
-    String mediaType
-  ) throws IOException {
-    Resource testFile = resourceLoader.getResource("classpath:" + fileNameInClasspath);
-    byte[] bytes = IOUtils.toByteArray(testFile.getInputStream());
 
-    return new MockMultipartFile("file", "testfile" + "." + FilenameUtils.getExtension(fileNameInClasspath), mediaType, bytes);
-  }
 }
