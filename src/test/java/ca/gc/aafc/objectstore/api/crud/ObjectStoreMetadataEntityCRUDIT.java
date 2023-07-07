@@ -19,8 +19,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 
+import io.minio.MinioClient;
 import javax.persistence.criteria.Predicate;
 import javax.validation.ValidationException;
 
@@ -36,6 +38,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
+
+  @MockBean
+  private MinioClient minioClient;
 
   private ObjectUpload objectUpload;
 

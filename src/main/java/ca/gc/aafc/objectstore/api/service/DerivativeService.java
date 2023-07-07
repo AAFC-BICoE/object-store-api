@@ -1,21 +1,23 @@
 package ca.gc.aafc.objectstore.api.service;
 
+import org.springframework.stereotype.Service;
+import org.springframework.validation.SmartValidator;
+
 import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.dina.service.DefaultDinaService;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.file.ThumbnailGenerator;
 import ca.gc.aafc.objectstore.api.validation.DerivativeValidator;
-import lombok.NonNull;
-import org.springframework.stereotype.Service;
-import org.springframework.validation.SmartValidator;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiFunction;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import lombok.NonNull;
 
 @Service
 public class DerivativeService extends DefaultDinaService<Derivative> {
@@ -63,14 +65,15 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
   }
 
   public Optional<Derivative> findThumbnailDerivativeForMetadata(ObjectStoreMetadata metadata) {
-    return findOneBy((criteriaBuilder, derivativeRoot) -> new Predicate[]{
+    return findOneBy((criteriaBuilder, derivativeRoot) -> new Predicate[] {
       criteriaBuilder.equal(derivativeRoot.get("acDerivedFrom"), metadata),
-      criteriaBuilder.equal(derivativeRoot.get("derivativeType"), Derivative.DerivativeType.THUMBNAIL_IMAGE)
+      criteriaBuilder.equal(derivativeRoot.get("derivativeType"),
+        Derivative.DerivativeType.THUMBNAIL_IMAGE)
     });
   }
 
   public Optional<Derivative> findByFileId(UUID fileId) {
-    return findOneBy((cb, root) -> new Predicate[]{cb.equal(root.get("fileIdentifier"), fileId)});
+    return findOneBy((cb, root) -> new Predicate[] {cb.equal(root.get("fileIdentifier"), fileId)});
   }
 
   private void handleThumbNailGeneration(@NonNull Derivative resource) {
@@ -111,9 +114,11 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
       Derivative derivative = generateDerivativeForThumbnail(sourceBucket, uuid);
 
       if (!this.exists(ObjectStoreMetadata.class, acDerivedFromId)) {
-        throw new IllegalArgumentException("ObjectStoreMetadata with id " + acDerivedFromId + " does not exist");
+        throw new IllegalArgumentException(
+          "ObjectStoreMetadata with id " + acDerivedFromId + " does not exist");
       }
-      derivative.setAcDerivedFrom(this.getReferenceByNaturalId(ObjectStoreMetadata.class, acDerivedFromId));
+      derivative.setAcDerivedFrom(
+        this.getReferenceByNaturalId(ObjectStoreMetadata.class, acDerivedFromId));
 
       if (generatedFromDerivativeUUID != null) {
         if (!this.exists(Derivative.class, generatedFromDerivativeUUID)) {
@@ -124,13 +129,29 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
           this.getReferenceByNaturalId(Derivative.class, generatedFromDerivativeUUID));
       }
 
-      this.create(derivative);
+      super.create(derivative);
       thumbnailGenerator.generateThumbnail(
         uuid,
         sourceFilename,
         evaluatedMediaType,
         sourceBucket,
         isSourceDerivative);
+    }
+  }
+
+  /**
+   * If found, delete the system generated thumbnail attached to the provided metadata.
+   * This method will delete the file in MinIO and the derivative record.
+   *
+   * @param metadata
+   */
+  public void deleteGeneratedThumbnail(ObjectStoreMetadata metadata) throws IOException {
+    Optional<Derivative> thumbnail = findThumbnailDerivativeForMetadata(metadata);
+    if (thumbnail.isPresent() &&
+      ThumbnailGenerator.SYSTEM_GENERATED.equals(thumbnail.get().getCreatedBy())) {
+      thumbnailGenerator.deleteThumbnail(thumbnail.get().getFileIdentifier(),
+        thumbnail.get().getBucket());
+      delete(thumbnail.get());
     }
   }
 
@@ -158,7 +179,8 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
    * @param crit criteria to find the derivative
    * @return an Optional Derivative for a given criteria.
    */
-  private Optional<Derivative> findOneBy(@NonNull BiFunction<CriteriaBuilder, Root<Derivative>, Predicate[]> crit) {
+  private Optional<Derivative> findOneBy(
+    @NonNull BiFunction<CriteriaBuilder, Root<Derivative>, Predicate[]> crit) {
     return this.findAll(Derivative.class, crit, null, 0, 1).stream().findFirst();
   }
 

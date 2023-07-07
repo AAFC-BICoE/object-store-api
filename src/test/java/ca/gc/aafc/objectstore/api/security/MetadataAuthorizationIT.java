@@ -1,19 +1,16 @@
 package ca.gc.aafc.objectstore.api.security;
 
-import java.util.UUID;
-
-import javax.inject.Inject;
-
-import ca.gc.aafc.dina.repository.GoneException;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
 
+import ca.gc.aafc.dina.repository.GoneException;
 import ca.gc.aafc.dina.testsupport.security.WithMockKeycloakUser;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
@@ -23,10 +20,17 @@ import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.repository.ObjectStoreResourceRepository;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
+
 import io.crnk.core.queryspec.QuerySpec;
+import io.minio.MinioClient;
+import java.util.UUID;
+import javax.inject.Inject;
 
 @SpringBootTest(properties = "keycloak.enabled=true")
 public class MetadataAuthorizationIT extends BaseIntegrationTest {
+
+  @MockBean
+  private MinioClient minioClient;
 
   @Inject
   private ObjectStoreResourceRepository repo;
@@ -117,7 +121,7 @@ public class MetadataAuthorizationIT extends BaseIntegrationTest {
     ObjectStoreMetadataDto meta = new ObjectStoreMetadataDto();
     meta.setFileIdentifier(testObjectUpload.getFileIdentifier());
     meta.setDcType(DcType.IMAGE);
-    meta.setBucket(group);
+    meta.setBucket(group.toLowerCase());
     meta.setXmpRightsUsageTerms(TEST_USAGE_TERMS);
     meta.setCreatedBy(RandomStringUtils.random(4));
     return meta;
@@ -127,9 +131,10 @@ public class MetadataAuthorizationIT extends BaseIntegrationTest {
     ObjectUpload objectUpload = ObjectUploadFactory.newObjectUpload().build();
     objectUploadService.create(objectUpload);
     ObjectStoreMetadata meta = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
-    meta.setBucket(group);
+    meta.setBucket(group.toLowerCase());
     meta.setFileIdentifier(objectUpload.getFileIdentifier());
     objectStoreMetaDataService.create(meta);
     return meta;
   }
+
 }

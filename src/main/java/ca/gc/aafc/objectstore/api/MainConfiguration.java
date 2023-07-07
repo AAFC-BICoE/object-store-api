@@ -11,7 +11,6 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -25,7 +24,9 @@ import java.util.concurrent.Executor;
 @EnableAsync
 @MapperScan(basePackageClasses = JaversDataService.class)
 @EnableScheduling
-public class MainConfiguration implements AsyncConfigurer {
+public class MainConfiguration {
+
+  public static final String DINA_THREAD_POOL_BEAN_NAME = "DinaThreadPoolTaskExecutor";
 
   @Bean
   @ConditionalOnMissingBean
@@ -42,8 +43,9 @@ public class MainConfiguration implements AsyncConfigurer {
       .credentials(accessKey, secretKey).build();
   }
 
-  @Override
-  public Executor getAsyncExecutor() {
+  @Bean(name = DINA_THREAD_POOL_BEAN_NAME)
+  @ConditionalOnMissingBean
+  public Executor threadPoolTaskExecutor() {
     ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
     executor.setCorePoolSize(5);
     executor.setMaxPoolSize(15);
