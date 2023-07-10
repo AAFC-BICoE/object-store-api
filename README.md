@@ -3,12 +3,14 @@
 The object-store-api is an API providing an object metadata store backed by [MinIO](https://min.io/).
 
 Features :
- * Implements DINA object-store [specification](https://dina-web.github.io/object-store-specs/).
+ * Implements DINA object-store [specification](https://dina-web.github.io/object-store-specs/)
  * Aligned with [Audiovisual Core](https://ac.tdwg.org/termlist/) standard
  * Objects type detection
  * EXIF extraction for images
  * Supports derivative and relationship to original object
+ * Supports external resources (link with metadata to a resource stored outside the object-store)
  * Duplicate detection
+ * Thumbnails generation for images (supported types) and PDF
  * Optional Message Queue producer for integration (e.g. search index)
 
 ## Container Image
