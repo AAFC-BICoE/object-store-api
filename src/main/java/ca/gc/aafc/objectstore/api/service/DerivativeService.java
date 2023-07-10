@@ -1,12 +1,18 @@
 package ca.gc.aafc.objectstore.api.service;
 
 import ca.gc.aafc.dina.jpa.BaseDAO;
-import ca.gc.aafc.dina.service.DefaultDinaService;
+import ca.gc.aafc.dina.search.messaging.types.DocumentOperationType;
+import ca.gc.aafc.dina.service.MessageProducingService;
+import ca.gc.aafc.objectstore.api.dto.DerivativeDto;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.file.ThumbnailGenerator;
 import ca.gc.aafc.objectstore.api.validation.DerivativeValidator;
+
+import java.util.EnumSet;
 import lombok.NonNull;
+
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.SmartValidator;
 
@@ -18,7 +24,7 @@ import java.util.UUID;
 import java.util.function.BiFunction;
 
 @Service
-public class DerivativeService extends DefaultDinaService<Derivative> {
+public class DerivativeService extends MessageProducingService<Derivative> {
   private final ThumbnailGenerator thumbnailGenerator;
   private final DerivativeValidator validator;
 
@@ -26,9 +32,10 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
     @NonNull BaseDAO baseDAO,
     @NonNull ThumbnailGenerator thumbnailGenerator,
     @NonNull DerivativeValidator validator,
-    @NonNull SmartValidator smartValidator
+    @NonNull SmartValidator smartValidator,
+    ApplicationEventPublisher eventPublisher
   ) {
-    super(baseDAO, smartValidator);
+    super(baseDAO, smartValidator, DerivativeDto.TYPENAME, eventPublisher);
     this.thumbnailGenerator = thumbnailGenerator;
     this.validator = validator;
   }
@@ -42,7 +49,7 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
   @Override
   public Derivative create(Derivative entity) {
     Derivative derivative = super.create(entity);
-    handleThumbNailGeneration(derivative);
+    handleThumbnailGeneration(derivative);
     return derivative;
   }
 
@@ -73,7 +80,7 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
     return findOneBy((cb, root) -> new Predicate[]{cb.equal(root.get("fileIdentifier"), fileId)});
   }
 
-  private void handleThumbNailGeneration(@NonNull Derivative resource) {
+  private void handleThumbnailGeneration(@NonNull Derivative resource) {
     ObjectStoreMetadata acDerivedFrom = resource.getAcDerivedFrom();
     Derivative.DerivativeType derivativeType = resource.getDerivativeType();
 
@@ -124,7 +131,8 @@ public class DerivativeService extends DefaultDinaService<Derivative> {
           this.getReferenceByNaturalId(Derivative.class, generatedFromDerivativeUUID));
       }
 
-      this.create(derivative);
+      // do not emit message since the source will already emit one
+      super.create(derivative, false);
       thumbnailGenerator.generateThumbnail(
         uuid,
         sourceFilename,
