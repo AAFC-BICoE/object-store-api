@@ -97,6 +97,8 @@ public class DerivativeService extends MessageProducingService<Derivative> {
   /**
    * Generates a thumbnail for a resource with the given parameters if possible based on the evaluatedMediaType.
    *
+   * No messages will be emitted if a derivative is created for the thumbnail.
+   *
    * @param sourceBucket                bucket of the resource
    * @param sourceFilename              file name of the resource
    * @param acDerivedFromId             metadata id of the original resource
@@ -147,6 +149,8 @@ public class DerivativeService extends MessageProducingService<Derivative> {
    * If found, delete the system generated thumbnail attached to the provided metadata.
    * This method will delete the file in MinIO and the derivative record.
    *
+   * No messages will be emitted for the deleted derivative.
+   *
    * @param metadata
    */
   public void deleteGeneratedThumbnail(ObjectStoreMetadata metadata) throws IOException {
@@ -155,7 +159,8 @@ public class DerivativeService extends MessageProducingService<Derivative> {
       ThumbnailGenerator.SYSTEM_GENERATED.equals(thumbnail.get().getCreatedBy())) {
       thumbnailGenerator.deleteThumbnail(thumbnail.get().getFileIdentifier(),
         thumbnail.get().getBucket());
-      delete(thumbnail.get());
+      // do not emit message since the source will already emit one
+      delete(thumbnail.get(), false);
     }
   }
 
