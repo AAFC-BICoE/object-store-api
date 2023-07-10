@@ -10,7 +10,6 @@ import com.drew.metadata.exif.ExifSubIFDDirectory;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 
@@ -23,7 +22,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Parse EXIF data from an InputStream and extract relevant data.
