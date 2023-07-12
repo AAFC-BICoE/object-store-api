@@ -13,7 +13,7 @@ steps:
 - task: dependency-check-build-task@6
   inputs:
     projectName: 'object-store-api'
-    scanPath: '$(Pipeline.Workspace)'
+    scanPath: '**/*.jar'
     format: 'JUNIT'
     failOnCVSS: '8'
     suppressionPath: 'owasp-suppression.xml'
