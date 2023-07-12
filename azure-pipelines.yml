@@ -17,3 +17,12 @@ steps:
     format: 'HTML'
     failOnCVSS: '8'
     suppressionPath: 'owasp-suppression.xml'
+
+- task: PublishTestResults@2
+  displayName: 'Publish OWASP Dependency Check results'
+  inputs:
+    testResultsFormat: 'JUnit'
+    testResultsFiles: 'dependency-check/*junit.xml'
+    searchFolder: '$(Common.TestResultsDirectory)'
+    testRunTitle: 'Dependency Check'
+    buildConfiguration: '$(BuildConfiguration)'
