@@ -22,7 +22,7 @@ steps:
   displayName: 'Publish OWASP Dependency Check results'
   inputs:
     testResultsFormat: 'JUnit'
-    testResultsFiles: 'dependency-check/*junit.xml'
+    testResultsFiles: 'dependency-check/dependency-check-report.xml'
     searchFolder: '$(Common.TestResultsDirectory)'
     testRunTitle: 'Dependency Check'
     buildConfiguration: '$(BuildConfiguration)'
