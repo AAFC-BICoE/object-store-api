@@ -14,7 +14,7 @@ steps:
   inputs:
     projectName: 'object-store-api'
     scanPath: '$(Pipeline.Workspace)'
-    format: 'XML'
+    format: 'JUNIT'
     failOnCVSS: '8'
     suppressionPath: 'owasp-suppression.xml'
 
@@ -22,7 +22,7 @@ steps:
   displayName: 'Publish OWASP Dependency Check results'
   inputs:
     testResultsFormat: 'JUnit'
-    testResultsFiles: 'dependency-check/dependency-check-report.xml'
+    testResultsFiles: 'dependency-check/*junit.xml'
     searchFolder: '$(Common.TestResultsDirectory)'
     testRunTitle: 'Dependency Check'
     buildConfiguration: '$(BuildConfiguration)'
