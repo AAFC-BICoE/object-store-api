@@ -14,7 +14,7 @@ steps:
   inputs:
     projectName: 'object-store-api'
     scanPath: '$(Pipeline.Workspace)'
-    format: 'HTML'
+    format: 'XML'
     failOnCVSS: '8'
     suppressionPath: 'owasp-suppression.xml'
 
