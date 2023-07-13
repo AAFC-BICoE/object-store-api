@@ -19,8 +19,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 
+import io.minio.MinioClient;
 import javax.persistence.criteria.Predicate;
 import javax.validation.ValidationException;
 
@@ -33,8 +35,12 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
+
+  @MockBean
+  private MinioClient minioClient;
 
   private ObjectUpload objectUpload;
 
@@ -164,6 +170,39 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
     ObjectStoreMetadata fetchedObjectStoreMeta = objectStoreMetaDataService.findOne(
       objectStoreMetaUnderTest.getUuid(), ObjectStoreMetadata.class);
     Assertions.assertEquals(DcType.IMAGE, fetchedObjectStoreMeta.getDcType());
+  }
+
+  @Test
+  void acHashValue_WhenObjectUploadHasNoValue_acHashValueUntouched() {
+    ObjectUpload ou = ObjectUploadFactory.newObjectUpload()
+      .sha1Hex("0").build();
+    objectUploadService.createAndFlush(ou);
+
+    objectStoreMetaUnderTest.setFileIdentifier(ou.getFileIdentifier());
+    objectStoreMetaUnderTest.setAcHashValue("1234");
+    objectStoreMetaUnderTest.setAcHashFunction("fct1");
+    objectStoreMetaDataService.create(objectStoreMetaUnderTest);
+
+    ObjectStoreMetadata fetchedObjectStoreMeta = objectStoreMetaDataService.findOne(
+      objectStoreMetaUnderTest.getUuid(), ObjectStoreMetadata.class);
+    assertEquals("1234", fetchedObjectStoreMeta.getAcHashValue());
+    assertEquals("fct1", fetchedObjectStoreMeta.getAcHashFunction());
+  }
+
+  @Test
+  void acHashValue_WhenObjectUploadHasValue_acHashValueSet() {
+    ObjectUpload ou = ObjectUploadFactory.newObjectUpload()
+      .sha1Hex("xyz").build();
+    objectUploadService.createAndFlush(ou);
+
+    objectStoreMetaUnderTest.setFileIdentifier(ou.getFileIdentifier());
+    objectStoreMetaUnderTest.setAcHashValue("1234");
+    objectStoreMetaDataService.create(objectStoreMetaUnderTest);
+
+    ObjectStoreMetadata fetchedObjectStoreMeta = objectStoreMetaDataService.findOne(
+      objectStoreMetaUnderTest.getUuid(), ObjectStoreMetadata.class);
+    assertEquals("xyz", fetchedObjectStoreMeta.getAcHashValue());
+    assertEquals("SHA-1", fetchedObjectStoreMeta.getAcHashFunction());
   }
 
   @ParameterizedTest

@@ -1,5 +1,6 @@
 package ca.gc.aafc.objectstore.api.service;
 
+import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -23,8 +24,14 @@ import ca.gc.aafc.objectstore.api.validation.ObjectStoreMetadataValidator;
 
 import io.crnk.core.exception.BadRequestException;
 import lombok.NonNull;
+import lombok.extern.log4j.Log4j2;
 
+/**
+ * Service responsible for handling {@link ObjectStoreMetadata} and its related data.
+ * This service will trigger thumbnail creation (if required) and delete the thumbnails on deletion.
+ */
 @Service
+@Log4j2
 public class ObjectStoreMetaDataService extends MessageProducingService<ObjectStoreMetadata> {
 
   private final BaseDAO baseDAO;
@@ -83,6 +90,16 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
     }
 
     handleFileRelatedData(entity);
+  }
+
+  @Override
+  protected void preDelete(ObjectStoreMetadata entity) {
+    try {
+      derivativeService.deleteGeneratedThumbnail(entity);
+    } catch (IOException e) {
+      // log the exception but don't block the deletion of metadata
+      log.warn(e);
+    }
   }
 
   @Override
@@ -165,14 +182,20 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
 
       // make sure that there is an ObjectUpload that is not a derivative
     if (objectUpload == null || objectUpload.getIsDerivative()) {
-      throw new ValidationException("primary object with fileIdentifier not found: " + objectMetadata.getFileIdentifier());
+      throw new ValidationException("object-upload with fileIdentifier not found: " + objectMetadata.getFileIdentifier());
     }
 
+    //the following data are considered immutable and are taken directly from the object-upload
     objectMetadata.setFileExtension(objectUpload.getEvaluatedFileExtension());
     objectMetadata.setOriginalFilename(objectUpload.getOriginalFilename());
     objectMetadata.setDcFormat(objectUpload.getEvaluatedMediaType());
-    objectMetadata.setAcHashValue(objectUpload.getSha1Hex());
-    objectMetadata.setAcHashFunction(FileController.DIGEST_ALGORITHM);
+
+    // if the sha1hex is unspecified, do not alter the value on the metadata
+    // see https://github.com/AAFC-BICoE/object-store-api/releases/tag/v1.4
+    if (StringUtils.isNotBlank(objectUpload.getSha1Hex()) && !"0".equals(objectUpload.getSha1Hex())) {
+      objectMetadata.setAcHashValue(objectUpload.getSha1Hex());
+      objectMetadata.setAcHashFunction(FileController.DIGEST_ALGORITHM);
+    }
   }
 
   public Optional<ObjectStoreMetadata> loadObjectStoreMetadataByFileId(UUID fileId) {

@@ -22,9 +22,8 @@ jobs:
       - name: Run SpotBugs
         run: mvn spotbugs:check
 
-      - name: Run OWASP dependency-check (only on dev)
-        run: mvn org.owasp:dependency-check-maven:check
-        if: ${{ github.ref == 'refs/heads/dev' }}
+#       OWASP dependency-check done in AzureDevOps now
+
 
       - name: Extract Version
         if: ${{ github.ref == 'refs/heads/master' }}
