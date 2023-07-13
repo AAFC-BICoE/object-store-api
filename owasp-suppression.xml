@@ -4,7 +4,7 @@
         <notes><![CDATA[
         This suppresses all CVE entries that have a score below CVSS 8.
         ]]></notes>
-        <cvssBelow>7</cvssBelow>
+        <cvssBelow>8</cvssBelow>
     </suppress>
     <suppress>
         <!-- simple-xml-safe is fine but it is flagged as the same as simple-xml -->
