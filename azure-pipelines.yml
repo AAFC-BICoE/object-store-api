@@ -25,7 +25,7 @@ steps:
   inputs:
     projectName: 'object-store-api'
     scanPath: '**/*.jar'
-    format: 'JUNIT'
+    format: 'HTML, JUNIT'
     failOnCVSS: '8'
     suppressionPath: 'owasp-suppression.xml'
 
