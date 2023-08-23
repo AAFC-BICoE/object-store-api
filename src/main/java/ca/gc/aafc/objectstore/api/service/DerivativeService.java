@@ -5,8 +5,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.SmartValidator;
 
 import ca.gc.aafc.dina.jpa.BaseDAO;
+import ca.gc.aafc.dina.messaging.EntityChanged;
+import ca.gc.aafc.dina.search.messaging.types.DocumentOperationType;
 import ca.gc.aafc.dina.service.MessageProducingService;
 import ca.gc.aafc.objectstore.api.dto.DerivativeDto;
+import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.file.ThumbnailGenerator;
@@ -59,6 +62,19 @@ public class DerivativeService extends MessageProducingService<Derivative> {
   @Override
   public void validateBusinessRules(Derivative entity) {
     applyBusinessRule(entity, validator);
+  }
+
+  @Override
+  protected void postPublishEvent(Derivative persisted, DocumentOperationType op) {
+    // if we are adding or updating a derivative, we need to notify the metadata since the relationship
+    // is hold on the derivative end
+    if ((DocumentOperationType.UPDATE == op || DocumentOperationType.ADD == op)
+      && persisted.getAcDerivedFrom() != null) {
+      EntityChanged event = EntityChanged.builder().op(DocumentOperationType.UPDATE)
+        .resourceType(ObjectStoreMetadataDto.TYPENAME)
+        .uuid(persisted.getAcDerivedFrom().getUuid()).build();
+      publishEvent(event);
+    }
   }
 
   private static void establishBiDirectionalAssociation(Derivative entity) {
