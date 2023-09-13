@@ -1,6 +1,8 @@
 package ca.gc.aafc.objectstore.api.security;
 
 import ca.gc.aafc.dina.entity.DinaEntity;
+import ca.gc.aafc.dina.security.DinaRole;
+
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
@@ -11,10 +13,15 @@ import java.util.UUID;
  * Authorization for file upload.
  */
 @Service
-public class FileUploadAuthorizationService {
+public class FileControllerAuthorizationService {
 
   @PreAuthorize("hasMinimumGroupAndRolePermissions(@currentUser, 'GUEST', #entity)")
   public void authorizeUpload(ObjectUploadAuth entity) {
+  }
+
+  @PreAuthorize("hasMinimumGroupAndRolePermissions(@currentUser, 'READ_ONLY', #entity)" +
+    " || #entity.isPubliclyReleasable().orElse(false)")
+  public void authorizeDownload(DinaEntity entity) {
   }
 
   /**

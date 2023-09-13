@@ -1,5 +1,6 @@
 package ca.gc.aafc.objectstore.api.entities;
 
+import java.util.Optional;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
@@ -395,5 +396,15 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
 
   public void setResourceExternalURL(String resourceExternalURL) {
     this.resourceExternalURL = resourceExternalURL;
+  }
+
+  /**
+   * Return publiclyReleasable as Optional as defined by {@link ca.gc.aafc.dina.entity.DinaEntity}.
+   * @return
+   */
+  @Override
+  @Transient
+  public Optional<Boolean> isPubliclyReleasable() {
+    return Optional.ofNullable(publiclyReleasable);
   }
 }

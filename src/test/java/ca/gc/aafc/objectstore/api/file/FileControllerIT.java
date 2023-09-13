@@ -256,6 +256,36 @@ public class FileControllerIT extends BaseIntegrationTest {
     assertNotNull(objectUploadService.findOne(uploadResponse.getFileIdentifier(), ObjectUpload.class));
   }
 
+  @Test
+  @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
+  public void fileDownload_onUnauthorized() throws Exception {
+    MockMultipartFile mockFile = getFileUnderTest();
+
+    ObjectUploadDto uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
+    assertNotNull(uploadResponse);
+
+    // file can only be downloaded if we attach metadata to it
+    ObjectStoreMetadataDto metadataForFile = new ObjectStoreMetadataDto();
+    metadataForFile.setBucket(bucketUnderTest);
+
+    metadataForFile.setFileIdentifier(uploadResponse.getFileIdentifier());
+    metadataForFile = objectStoreResourceRepository.create(metadataForFile);
+
+    // change the bucket using the service to avoid permission issues but set it publiclyReleasable
+    ObjectStoreMetadata metadataEntity = objectStoreMetaDataService.findOne(metadataForFile.getUuid());
+    metadataEntity.setPubliclyReleasable(true);
+    metadataEntity.setBucket("abc");
+    objectStoreMetaDataService.update(metadataEntity);
+    ResponseEntity<InputStreamResource> response = fileController.downloadObject(bucketUnderTest, uploadResponse.getFileIdentifier());
+    // expected to work since (publiclyReleasable)
+    assertEquals(200, response.getStatusCode().value());
+
+    metadataEntity.setPubliclyReleasable(false);
+    objectStoreMetaDataService.update(metadataEntity);
+    assertThrows(AccessDeniedException.class,
+      () -> fileController.downloadObject(bucketUnderTest, uploadResponse.getFileIdentifier()));
+  }
+
   private MockMultipartFile getFileUnderTest() throws IOException {
     return MultipartFileFactory.createMockMultipartFile(resourceLoader, TEST_UPLOAD_FILE_NAME, MediaType.IMAGE_PNG_VALUE);
   }
