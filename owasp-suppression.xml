@@ -17,8 +17,8 @@
         <cve>CVE-2021-43858</cve>
     </suppress>
      <suppress>
-        <notes>CVE about Keycloak server</notes>
-        <cve>CVE-2022-1245</cve>
+        <notes>self-registration not used</notes>
+        <cve>CVE-2023-4918</cve>
     </suppress>
     <suppress>
         <notes>not valid for api</notes>
