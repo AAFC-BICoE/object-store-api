@@ -5,7 +5,7 @@
 
   <groupId>ca.gc.aafc</groupId>
   <artifactId>object-store.api</artifactId>
-  <version>1.7</version>
+  <version>1.8</version>
   <packaging>jar</packaging>
 
   <name>Object-Store API</name>
@@ -44,6 +44,7 @@
     <dina-base-api.version>0.108</dina-base-api.version>
     
     <postgresql.version>42.4.3</postgresql.version>
+    <spring-security.version>5.7.10</spring-security.version>
 
     <!-- Override to avoid NoClassDefFoundError: org/apache/maven/doxia/siterenderer/DocumentContent -->
     <maven-site-plugin.version>3.7.1</maven-site-plugin.version>
