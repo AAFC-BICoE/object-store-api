@@ -11,6 +11,9 @@ import lombok.Data;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
 @RelatedEntity(Derivative.class)
 @Data
 @JsonApiResource(type = DerivativeDto.TYPENAME)
@@ -30,6 +33,9 @@ public class DerivativeDto {
   private String createdBy;
   private OffsetDateTime createdOn;
   private Derivative.DerivativeType derivativeType;
+  private Boolean publiclyReleasable;
+  @JsonInclude(Include.NON_EMPTY)
+  private String notPubliclyReleasableReason;
 
   @JsonApiRelation
   private DerivativeDto generatedFromDerivative;

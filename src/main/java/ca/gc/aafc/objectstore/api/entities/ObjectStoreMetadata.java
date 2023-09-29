@@ -1,6 +1,5 @@
 package ca.gc.aafc.objectstore.api.entities;
 
-import java.util.Optional;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
@@ -64,9 +63,6 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
 
   private List<Derivative> derivatives;
 
-  private Boolean publiclyReleasable;
-  private String notPubliclyReleasableReason;
-
   private ObjectSubtype acSubtype;
 
   private Integer orientation;
@@ -80,48 +76,49 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
 
   @Builder
   public ObjectStoreMetadata(
-    UUID uuid,
-    String bucket,
-    UUID fileIdentifier,
-    String fileExtension,
-    DcType dcType,
-    String acHashFunction,
-    String acHashValue,
-    String createdBy,
-    OffsetDateTime createdOn,
-    Integer id,
-    String dcFormat,
-    String acCaption,
-    OffsetDateTime acDigitizationDate,
-    OffsetDateTime xmpMetadataDate,
-    String xmpRightsWebStatement,
-    String dcRights,
-    String xmpRightsOwner,
-    String xmpRightsUsageTerms,
-    String originalFilename,
-    String[] acTags,
-    Map<String, String> managedAttributeValues,
-    UUID acMetadataCreator,
-    UUID dcCreator,
-    List<Derivative> derivatives,
-    Boolean publiclyReleasable,
-    String notPubliclyReleasableReason,
-    ObjectSubtype acSubtype,
-    Integer acSubtypeId,
-    Integer orientation,
-    String resourceExternalURL
-  ) {
+      UUID uuid,
+      String bucket,
+      UUID fileIdentifier,
+      String fileExtension,
+      DcType dcType,
+      String acHashFunction,
+      String acHashValue,
+      String createdBy,
+      OffsetDateTime createdOn,
+      Integer id,
+      String dcFormat,
+      String acCaption,
+      OffsetDateTime acDigitizationDate,
+      OffsetDateTime xmpMetadataDate,
+      String xmpRightsWebStatement,
+      String dcRights,
+      String xmpRightsOwner,
+      String xmpRightsUsageTerms,
+      String originalFilename,
+      String[] acTags,
+      Map<String, String> managedAttributeValues,
+      UUID acMetadataCreator,
+      UUID dcCreator,
+      List<Derivative> derivatives,
+      Boolean publiclyReleasable,
+      String notPubliclyReleasableReason,
+      ObjectSubtype acSubtype,
+      Integer acSubtypeId,
+      Integer orientation,
+      String resourceExternalURL) {
     super(
-      uuid,
-      bucket,
-      fileIdentifier,
-      fileExtension,
-      dcType,
-      acHashFunction,
-      acHashValue,
-      createdBy,
-      createdOn,
-      dcFormat);
+        uuid,
+        bucket,
+        fileIdentifier,
+        fileExtension,
+        dcType,
+        acHashFunction,
+        acHashValue,
+        createdBy,
+        createdOn,
+        dcFormat,
+        publiclyReleasable,
+        notPubliclyReleasableReason);
     this.id = id;
     this.acCaption = acCaption;
     this.acDigitizationDate = acDigitizationDate;
@@ -136,8 +133,6 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
     this.acMetadataCreator = acMetadataCreator;
     this.dcCreator = dcCreator;
     this.derivatives = CollectionUtils.isNotEmpty(derivatives) ? derivatives : new ArrayList<>();
-    this.publiclyReleasable = publiclyReleasable;
-    this.notPubliclyReleasableReason = notPubliclyReleasableReason;
     this.acSubtype = acSubtype;
     this.acSubtypeId = acSubtypeId;
     this.orientation = orientation;
@@ -246,7 +241,7 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
     this.xmpRightsOwner = xmpRightsOwner;
   }
 
-  @OneToMany(mappedBy = "acDerivedFrom", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+  @OneToMany(mappedBy = "acDerivedFrom", cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
   public List<Derivative> getDerivatives() {
     return derivatives;
   }
@@ -256,7 +251,8 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
   }
 
   /**
-   * Adds the given derivative to the list of derivatives. This method should be used to establish Bi
+   * Adds the given derivative to the list of derivatives. This method should be
+   * used to establish Bi
    * directional JPA relations ships.
    *
    * @param derivative - derivative to add
@@ -267,7 +263,8 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
   }
 
   /**
-   * Adds the given derivative to the list of derivatives. This method should be used to remove Bi directional
+   * Adds the given derivative to the list of derivatives. This method should be
+   * used to remove Bi directional
    * JPA relations ships.
    *
    * @param derivative - derivative to remove
@@ -275,24 +272,6 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
   public void removeDerivative(Derivative derivative) {
     derivatives.remove(derivative);
     derivative.setAcDerivedFrom(null);
-  }
-
-  @Column(name = "publicly_releasable")
-  public Boolean getPubliclyReleasable() {
-    return publiclyReleasable;
-  }
-
-  public void setPubliclyReleasable(Boolean publiclyReleasable) {
-    this.publiclyReleasable = publiclyReleasable;
-  }
-
-  @Column(name = "not_publicly_releasable_reason")
-  public String getNotPubliclyReleasableReason() {
-    return notPubliclyReleasableReason;
-  }
-
-  public void setNotPubliclyReleasableReason(String notPubliclyReleasableReason) {
-    this.notPubliclyReleasableReason = notPubliclyReleasableReason;
   }
 
   @ManyToOne
@@ -306,7 +285,8 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
   }
 
   /**
-   * Read-only field to get the ac_derived_from_id to allow filtering by null values.
+   * Read-only field to get the ac_derived_from_id to allow filtering by null
+   * values.
    */
   @Column(name = "ac_sub_type_id", updatable = false, insertable = false)
   public Integer getAcSubtypeId() {
@@ -365,7 +345,8 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
   }
 
   /**
-   * Empty setter method to avoid resource method error: missing accessor method until multiple custom field
+   * Empty setter method to avoid resource method error: missing accessor method
+   * until multiple custom field
    * resolvers can be associated with single resource
    */
   public void setGroup(String group) {
@@ -396,15 +377,5 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
 
   public void setResourceExternalURL(String resourceExternalURL) {
     this.resourceExternalURL = resourceExternalURL;
-  }
-
-  /**
-   * Return publiclyReleasable as Optional as defined by {@link ca.gc.aafc.dina.entity.DinaEntity}.
-   * @return
-   */
-  @Override
-  @Transient
-  public Optional<Boolean> isPubliclyReleasable() {
-    return Optional.ofNullable(publiclyReleasable);
   }
 }
