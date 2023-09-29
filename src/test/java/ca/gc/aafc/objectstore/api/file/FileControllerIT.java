@@ -2,6 +2,7 @@ package ca.gc.aafc.objectstore.api.file;
 
 import ca.gc.aafc.dina.testsupport.security.WithMockKeycloakUser;
 import ca.gc.aafc.dina.workbook.WorkbookConverter;
+import ca.gc.aafc.dina.workbook.WorkbookRow;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
@@ -109,7 +110,17 @@ public class FileControllerIT extends BaseIntegrationTest {
  // @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
   public void fileUploadConversion_OnValidSpreadsheet_contentReturned() throws Exception {
     MockMultipartFile mockFile = MultipartFileFactory.createMockMultipartFile(resourceLoader,"test_spreadsheet.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE);
-    Map<Integer, List<WorkbookConverter.WorkbookRow>> content = fileController.handleFileConversion(mockFile);
+    Map<Integer, List<WorkbookRow>> content = fileController.handleFileConversion(mockFile);
+    assertFalse(content.isEmpty());
+    assertFalse(content.get(0).isEmpty());
+  }
+
+  @Test
+  // @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
+  public void fileUploadConversion_OnValidCSV_contentReturned() throws Exception {
+    // use Octet Stream to amke sure the FileController will detect it's a csv
+    MockMultipartFile mockFile = MultipartFileFactory.createMockMultipartFile(resourceLoader,"test_spreadsheet.csv", MediaType.APPLICATION_OCTET_STREAM_VALUE);
+    Map<Integer, List<WorkbookRow>> content = fileController.handleFileConversion(mockFile);
     assertFalse(content.isEmpty());
     assertFalse(content.get(0).isEmpty());
   }
