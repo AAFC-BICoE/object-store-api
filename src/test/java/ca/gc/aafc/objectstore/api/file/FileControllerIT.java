@@ -266,6 +266,7 @@ public class FileControllerIT extends BaseIntegrationTest {
 
     // Assert can download - wrong bucket but publicly releasable
     derivative.setPubliclyReleasable(true);
+    derivativeService.update(derivative);
     ResponseEntity<InputStreamResource> response = fileController.downloadDerivative(
         bucketUnderTest,
         uploadResponse.getFileIdentifier());
