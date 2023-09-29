@@ -137,8 +137,9 @@ public class FileController {
   /**
    * Converts Workbooks (Excel files) or CSV/TSV (handled as Workbook with 1 sheet) to a
    * generic row-based JSON structure.
+   *
    * @param file
-   * @return
+   * @return the content of the workbook per sheets
    * @throws IOException
    * @throws MimeTypeException
    */
@@ -150,10 +151,10 @@ public class FileController {
             .detectMediaType(file.getInputStream(), file.getContentType(), file.getOriginalFilename());
     MediaType detectedMediaType = mtdr.getDetectedMediaType();
 
-    if(DelimiterSeparatedConverter.isSupported(detectedMediaType.toString())) {
-      return Map.of(0, DelimiterSeparatedConverter.convert(file.getInputStream(), detectedMediaType.toString()));
-    }
-    else if(WorkbookConverter.isSupported(detectedMediaType.toString())) {
+    if (DelimiterSeparatedConverter.isSupported(detectedMediaType.toString())) {
+      return Map.of(0,
+        DelimiterSeparatedConverter.convert(file.getInputStream(), detectedMediaType.toString()));
+    } else if (WorkbookConverter.isSupported(detectedMediaType.toString())) {
       return WorkbookConverter.convertWorkbook(file.getInputStream());
     }
 

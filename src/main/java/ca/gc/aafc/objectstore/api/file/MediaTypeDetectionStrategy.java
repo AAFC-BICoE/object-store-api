@@ -16,7 +16,6 @@ import org.apache.tika.mime.MimeType;
 import org.apache.tika.mime.MimeTypeException;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -70,10 +69,10 @@ public class MediaTypeDetectionStrategy {
 
   /**
    * Tries to extract the extension from the provided filename and return null if not possible
-   * @param filename filename with extension
+   * @param filename filename with extension. null-safe
    * @return
    */
-  private static String extractFileExtension(@Nullable String filename) {
+  private static String extractFileExtension(String filename) {
     if (StringUtils.isBlank(filename) || StringUtils.isBlank(FilenameUtils.getExtension(filename))) {
       return null;
     }
@@ -92,7 +91,7 @@ public class MediaTypeDetectionStrategy {
    * @throws MimeTypeException
    */
   public MediaTypeDetectionResult detectMediaType(@NonNull InputStream is,
-      @Nullable String receivedMediaType, @Nullable String originalFilename)
+      String receivedMediaType, String originalFilename)
       throws IOException, MimeTypeException {
 
     Metadata metadata = new Metadata();
