@@ -1,5 +1,6 @@
 package ca.gc.aafc.objectstore.api.file;
 
+import ca.gc.aafc.dina.entity.DinaEntity;
 import ca.gc.aafc.dina.mapper.DinaMapper;
 import ca.gc.aafc.dina.mapper.DinaMappingLayer;
 import ca.gc.aafc.dina.repository.meta.AttributeMetaInfoProvider;
@@ -13,7 +14,7 @@ import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.exif.ExifParser;
 import ca.gc.aafc.objectstore.api.minio.MinioFileService;
-import ca.gc.aafc.objectstore.api.security.FileUploadAuthorizationService;
+import ca.gc.aafc.objectstore.api.security.FileControllerAuthorizationService;
 import ca.gc.aafc.objectstore.api.service.DerivativeService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
 import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
@@ -70,7 +71,7 @@ public class FileController {
   private static final int MAX_NUMBER_OF_ATTEMPT_RANDOM_UUID = 5;
   private static final int READ_AHEAD_BUFFER_SIZE = 10 * 1024;
 
-  private final FileUploadAuthorizationService authorizationService;
+  private final FileControllerAuthorizationService authorizationService;
   private final DinaMappingLayer<ObjectUploadDto, ObjectUpload> mappingLayer;
   private final ObjectUploadService objectUploadService;
   private final DerivativeService derivativeService;
@@ -85,7 +86,7 @@ public class FileController {
 
   @Inject
   public FileController(
-    FileUploadAuthorizationService authorizationService,
+    FileControllerAuthorizationService authorizationService,
     MinioFileService minioService,
     ObjectUploadService objectUploadService,
     DerivativeService derivativeService,
@@ -156,7 +157,7 @@ public class FileController {
       XmlParserException, ServerException {
 
     //Authorize before anything else
-    authorizationService.authorizeUpload(FileUploadAuthorizationService.objectUploadAuthFromBucket(bucket));
+    authorizationService.authorizeUpload(FileControllerAuthorizationService.objectUploadAuthFromBucket(bucket));
 
     // Safe get unique UUID
     UUID uuid = generateUUID();
@@ -205,7 +206,7 @@ public class FileController {
     // For the download of an object use the originalFilename provided (if possible)
     return download(bucket, metadata.getFilename(),
         generateDownloadFilename(metadata.getOriginalFilename(), metadata.getFilename(), metadata.getFileExtension()),
-        false, metadata.getDcFormat());
+        false, metadata.getDcFormat(), metadata);
   }
 
   @GetMapping("/file/{bucket}/derivative/{fileId}")
@@ -216,7 +217,7 @@ public class FileController {
     Derivative derivative = derivativeService.findByFileId(fileId)
       .orElseThrow(() -> buildNotFoundException(bucket, Objects.toString(fileId)));
     String fileName = derivative.getFileIdentifier() + derivative.getFileExtension();
-    return download(bucket, fileName, fileName, true, derivative.getDcFormat());
+    return download(bucket, fileName, fileName, true, derivative.getDcFormat(), derivative);
   }
 
   @GetMapping("/file/{bucket}/{fileId}/thumbnail")
@@ -248,8 +249,13 @@ public class FileController {
     @NonNull String fileName,
     @NonNull String downloadFilename,
     boolean isDerivative,
-    @NonNull String mediaType
+    @NonNull String mediaType,
+    DinaEntity entity
   ) throws IOException {
+
+    //Authorize before anything else
+    authorizationService.authorizeDownload(entity);
+
     FileObjectInfo foi = minioService.getFileInfo(fileName, bucket, isDerivative)
       .orElseThrow(() -> buildNotFoundException(bucket, fileName));
     InputStream is = minioService.getFile(fileName, bucket, isDerivative)

@@ -27,8 +27,10 @@ import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 
 /**
- * Service responsible for handling {@link ObjectStoreMetadata} and its related data.
- * This service will trigger thumbnail creation (if required) and delete the thumbnails on deletion.
+ * Service responsible for handling {@link ObjectStoreMetadata} and its related
+ * data.
+ * This service will trigger thumbnail creation (if required) and delete the
+ * thumbnails on deletion.
  */
 @Service
 @Log4j2
@@ -41,14 +43,13 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
   private final ObjectStoreMetadataValidator objectStoreMetadataValidator;
 
   public ObjectStoreMetaDataService(
-    @NonNull BaseDAO baseDAO,
-    @NonNull ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService,
-    @NonNull DerivativeService derivativeService,
-    @NonNull SmartValidator smartValidator,
-    @NonNull ObjectStoreManagedAttributeValueValidator objectStoreManagedAttributeValueValidator,
-    @NonNull ObjectStoreMetadataValidator objectStoreMetadataValidator,
-    ApplicationEventPublisher eventPublisher
-  ) {
+      @NonNull BaseDAO baseDAO,
+      @NonNull ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService,
+      @NonNull DerivativeService derivativeService,
+      @NonNull SmartValidator smartValidator,
+      @NonNull ObjectStoreManagedAttributeValueValidator objectStoreManagedAttributeValueValidator,
+      @NonNull ObjectStoreMetadataValidator objectStoreMetadataValidator,
+      ApplicationEventPublisher eventPublisher) {
     super(baseDAO, smartValidator, ObjectStoreMetadataDto.TYPENAME, eventPublisher);
     this.baseDAO = baseDAO;
     this.defaultValueSetterService = defaultValueSetterService;
@@ -109,25 +110,25 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
   }
 
   /**
-   * Set a given ObjectStoreMetadata with database backed acSubtype based of the given acSubtype.
+   * Set a given ObjectStoreMetadata with database backed acSubtype based of the
+   * given acSubtype.
    *
    * @param metadata  - metadata to set
    * @param acSubtype - acSubtype to fetch
    */
   private void setAcSubtype(
-    @NonNull ObjectStoreMetadata metadata,
-    @NonNull ObjectSubtype acSubtype
-  ) {
+      @NonNull ObjectStoreMetadata metadata,
+      @NonNull ObjectSubtype acSubtype) {
     if (acSubtype.getDcType() == null || StringUtils.isBlank(acSubtype.getAcSubtype())) {
       metadata.setAcSubtype(null);
       metadata.setAcSubtypeId(null);
     } else {
       ObjectSubtype fetchedType = this.findAll(ObjectSubtype.class,
-        (criteriaBuilder, objectRoot) -> new Predicate[]{
-          criteriaBuilder.equal(objectRoot.get("acSubtype"), acSubtype.getAcSubtype()),
-          criteriaBuilder.equal(objectRoot.get("dcType"), acSubtype.getDcType()),
-        }, null, 0, 1)
-        .stream().findFirst().orElseThrow(() -> throwBadRequest(acSubtype));
+          (criteriaBuilder, objectRoot) -> new Predicate[] {
+              criteriaBuilder.equal(objectRoot.get("acSubtype"), acSubtype.getAcSubtype()),
+              criteriaBuilder.equal(objectRoot.get("dcType"), acSubtype.getDcType()),
+          }, null, 0, 1)
+          .stream().findFirst().orElseThrow(() -> throwBadRequest(acSubtype));
       metadata.setAcSubtype(fetchedType);
       metadata.setAcSubtypeId(fetchedType.getId());
     }
@@ -135,7 +136,7 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
 
   private BadRequestException throwBadRequest(ObjectSubtype acSubtype) {
     return new BadRequestException(
-      acSubtype.getAcSubtype() + "/" + acSubtype.getDcType() + " is not a valid acSubtype/dcType");
+        acSubtype.getAcSubtype() + "/" + acSubtype.getDcType() + " is not a valid acSubtype/dcType");
   }
 
   /**
@@ -146,7 +147,7 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
   private void handleThumbnailGeneration(ObjectStoreMetadata resource) {
 
     // we don't try to generate a thumbnail for external resources
-    if(resource.isExternal()) {
+    if (resource.isExternal()) {
       return;
     }
 
@@ -154,11 +155,14 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
     String bucket = resource.getBucket();
     UUID derivedId = resource.getUuid();
     String sourceFilename = resource.getFileIdentifier() + resource.getFileExtension();
-    derivativeService.generateThumbnail(bucket, sourceFilename, derivedId, evaluatedMediaType, null, false);
+    Boolean publiclyReleasable = resource.getPubliclyReleasable();
+    derivativeService.generateThumbnail(bucket, sourceFilename, derivedId, evaluatedMediaType, null, false,
+        publiclyReleasable);
   }
 
   /**
-   * Method responsible for dealing with validation and setting of data related to files.
+   * Method responsible for dealing with validation and setting of data related to
+   * files.
    *
    * @param objectMetadata - The metadata of the data to set.
    * @throws ValidationException If a file identifier was not provided.
@@ -172,20 +176,22 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
     }
     // we need to validate at least that bucket name and fileIdentifier are there
     if (StringUtils.isBlank(objectMetadata.getBucket())
-      || StringUtils.isBlank(Objects.toString(objectMetadata.getFileIdentifier(), ""))) {
+        || StringUtils.isBlank(Objects.toString(objectMetadata.getFileIdentifier(), ""))) {
       throw new ValidationException("fileIdentifier and bucket should be provided");
     }
 
     ObjectUpload objectUpload = this.findOne(
-      objectMetadata.getFileIdentifier(),
-      ObjectUpload.class);
+        objectMetadata.getFileIdentifier(),
+        ObjectUpload.class);
 
-      // make sure that there is an ObjectUpload that is not a derivative
+    // make sure that there is an ObjectUpload that is not a derivative
     if (objectUpload == null || objectUpload.getIsDerivative()) {
-      throw new ValidationException("object-upload with fileIdentifier not found: " + objectMetadata.getFileIdentifier());
+      throw new ValidationException(
+          "object-upload with fileIdentifier not found: " + objectMetadata.getFileIdentifier());
     }
 
-    //the following data are considered immutable and are taken directly from the object-upload
+    // the following data are considered immutable and are taken directly from the
+    // object-upload
     objectMetadata.setFileExtension(objectUpload.getEvaluatedFileExtension());
     objectMetadata.setOriginalFilename(objectUpload.getOriginalFilename());
     objectMetadata.setDcFormat(objectUpload.getEvaluatedMediaType());
@@ -200,10 +206,9 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
 
   public Optional<ObjectStoreMetadata> loadObjectStoreMetadataByFileId(UUID fileId) {
     return this.findAll(
-      ObjectStoreMetadata.class,
-      (cb, root) -> new Predicate[]{cb.equal(root.get("fileIdentifier"), fileId)}
-      , null, 0, 1)
-      .stream().findFirst();
+        ObjectStoreMetadata.class,
+        (cb, root) -> new Predicate[] { cb.equal(root.get("fileIdentifier"), fileId) }, null, 0, 1)
+        .stream().findFirst();
   }
 
   /**

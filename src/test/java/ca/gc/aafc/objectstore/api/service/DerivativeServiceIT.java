@@ -98,7 +98,8 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
       acDerivedFrom.getUuid(),
       MediaType.IMAGE_JPEG_VALUE,
       null,
-      true);
+      true,
+      acDerivedFrom.getPubliclyReleasable());
 
     Derivative thumbNailDerivativeResult = derivativeService.findAll(
       Derivative.class, (criteriaBuilder, derivativeRoot) -> new Predicate[]{
@@ -121,7 +122,8 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
         acDerivedFrom.getUuid(),
         MediaType.IMAGE_JPEG_VALUE,
         UUID.randomUUID(),
-        true));
+        true,
+        acDerivedFrom.getPubliclyReleasable()));
   }
 
   @Test
@@ -134,7 +136,8 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
         UUID.randomUUID(),
         MediaType.IMAGE_JPEG_VALUE,
         null,
-        true));
+        true,
+        acDerivedFrom.getPubliclyReleasable()));
   }
 
   private Derivative newDerivative(ObjectStoreMetadata child) {

@@ -49,7 +49,9 @@ public class Derivative extends AbstractObjectStoreMetadata {
     ObjectStoreMetadata acDerivedFrom,
     DerivativeType derivativeType,
     Derivative generatedFromDerivative,
-    String dcFormat
+    String dcFormat,
+    Boolean publiclyReleasable,
+    String notPubliclyReleasableReason
   ) {
     super(
       uuid,
@@ -61,7 +63,9 @@ public class Derivative extends AbstractObjectStoreMetadata {
       acHashValue,
       createdBy,
       createdOn,
-      dcFormat);
+      dcFormat,
+      publiclyReleasable,
+      notPubliclyReleasableReason);
     this.id = id;
     this.acDerivedFrom = acDerivedFrom;
     this.derivativeType = derivativeType;
