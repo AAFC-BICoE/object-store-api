@@ -252,8 +252,7 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
 
   /**
    * Adds the given derivative to the list of derivatives. This method should be
-   * used to establish Bi
-   * directional JPA relations ships.
+   * used to establish Bi-directional JPA relations ships.
    *
    * @param derivative - derivative to add
    */
@@ -264,8 +263,7 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
 
   /**
    * Adds the given derivative to the list of derivatives. This method should be
-   * used to remove Bi directional
-   * JPA relations ships.
+   * used to remove Bi directional JPA relations ships.
    *
    * @param derivative - derivative to remove
    */
@@ -346,8 +344,7 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
 
   /**
    * Empty setter method to avoid resource method error: missing accessor method
-   * until multiple custom field
-   * resolvers can be associated with single resource
+   * until multiple custom field resolvers can be associated with single resource
    */
   public void setGroup(String group) {
   }
