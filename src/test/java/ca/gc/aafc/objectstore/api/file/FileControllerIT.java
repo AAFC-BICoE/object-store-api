@@ -1,7 +1,7 @@
 package ca.gc.aafc.objectstore.api.file;
 
 import ca.gc.aafc.dina.testsupport.security.WithMockKeycloakUser;
-import ca.gc.aafc.dina.workbook.WorkbookConverter;
+import ca.gc.aafc.dina.workbook.WorkbookRow;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
@@ -21,7 +21,6 @@ import io.minio.errors.InternalException;
 import io.minio.errors.InvalidResponseException;
 import io.minio.errors.ServerException;
 import io.minio.errors.XmlParserException;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MimeTypeException;
@@ -29,7 +28,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -111,9 +109,18 @@ public class FileControllerIT extends BaseIntegrationTest {
   // @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET +
   // ":USER")
   public void fileUploadConversion_OnValidSpreadsheet_contentReturned() throws Exception {
-    MockMultipartFile mockFile = MultipartFileFactory.createMockMultipartFile(resourceLoader, "test_spreadsheet.xlsx",
-        MediaType.APPLICATION_OCTET_STREAM_VALUE);
-    Map<Integer, List<WorkbookConverter.WorkbookRow>> content = fileController.handleFileConversion(mockFile);
+    MockMultipartFile mockFile = MultipartFileFactory.createMockMultipartFile(resourceLoader,"test_spreadsheet.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE);
+    Map<Integer, List<WorkbookRow>> content = fileController.handleFileConversion(mockFile);
+    assertFalse(content.isEmpty());
+    assertFalse(content.get(0).isEmpty());
+  }
+
+  @Test
+  // @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
+  public void fileUploadConversion_OnValidCSV_contentReturned() throws Exception {
+    // use Octet Stream to make sure the FileController will detect it's a csv
+    MockMultipartFile mockFile = MultipartFileFactory.createMockMultipartFile(resourceLoader,"test_spreadsheet.csv", MediaType.APPLICATION_OCTET_STREAM_VALUE);
+    Map<Integer, List<WorkbookRow>> content = fileController.handleFileConversion(mockFile);
     assertFalse(content.isEmpty());
     assertFalse(content.get(0).isEmpty());
   }

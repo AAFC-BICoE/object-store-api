@@ -6,7 +6,9 @@ import ca.gc.aafc.dina.mapper.DinaMappingLayer;
 import ca.gc.aafc.dina.repository.meta.AttributeMetaInfoProvider;
 import ca.gc.aafc.dina.repository.meta.AttributeMetaInfoProvider.DinaJsonMetaInfo;
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
+import ca.gc.aafc.dina.workbook.DelimiterSeparatedConverter;
 import ca.gc.aafc.dina.workbook.WorkbookConverter;
+import ca.gc.aafc.dina.workbook.WorkbookRow;
 import ca.gc.aafc.objectstore.api.config.MediaTypeConfiguration;
 import ca.gc.aafc.objectstore.api.dto.ObjectUploadDto;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
@@ -133,19 +135,32 @@ public class FileController {
     return handleUpload(file, bucket, false);
   }
 
+  /**
+   * Converts Workbooks (Excel files) or CSV/TSV (handled as Workbook with 1 sheet) to a
+   * generic row-based JSON structure.
+   *
+   * @param file
+   * @return the content of the workbook per sheets
+   * @throws IOException
+   * @throws MimeTypeException
+   */
   @PostMapping("/conversion/workbook")
-  public Map<Integer, List<WorkbookConverter.WorkbookRow>> handleFileConversion(
+  public Map<Integer, List<WorkbookRow>> handleFileConversion(
           @RequestParam("file") MultipartFile file
   ) throws IOException, MimeTypeException {
     MediaTypeDetectionStrategy.MediaTypeDetectionResult mtdr = mediaTypeDetectionStrategy
             .detectMediaType(file.getInputStream(), file.getContentType(), file.getOriginalFilename());
     MediaType detectedMediaType = mtdr.getDetectedMediaType();
 
-    if(!WorkbookConverter.isSupported(detectedMediaType.toString())) {
-      throw new UnsupportedMediaTypeStatusException(messageSource.getMessage(
-              "supportedMediaType.illegal", new String[]{detectedMediaType.toString()}, LocaleContextHolder.getLocale()));
+    if (DelimiterSeparatedConverter.isSupported(detectedMediaType.toString())) {
+      return Map.of(0,
+        DelimiterSeparatedConverter.convert(file.getInputStream(), detectedMediaType.toString()));
+    } else if (WorkbookConverter.isSupported(detectedMediaType.toString())) {
+      return WorkbookConverter.convertWorkbook(file.getInputStream());
     }
-    return WorkbookConverter.convertWorkbook(file.getInputStream());
+
+    throw new UnsupportedMediaTypeStatusException(messageSource.getMessage(
+      "supportedMediaType.illegal", new String[]{detectedMediaType.toString()}, LocaleContextHolder.getLocale()));
   }
 
   private ObjectUploadDto handleUpload(
