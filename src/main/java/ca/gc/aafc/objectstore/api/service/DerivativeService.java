@@ -106,7 +106,8 @@ public class DerivativeService extends MessageProducingService<Derivative> {
         acDerivedFrom.getUuid(),
         resource.getDcFormat(),
         resource.getUuid(),
-        true);
+        true,
+        acDerivedFrom.getPubliclyReleasable());
     }
   }
 
@@ -121,6 +122,7 @@ public class DerivativeService extends MessageProducingService<Derivative> {
    * @param evaluatedMediaType          evaluated media type of the resource, can be null
    * @param generatedFromDerivativeUUID id of the derivative this resource derives from, can be null
    * @param isSourceDerivative          true if the source of the thumbnail is a derivative
+   * @param publiclyReleasable          Is the entity considered publicly releasable?
    */
   public void generateThumbnail(
     @NonNull String sourceBucket,
@@ -128,11 +130,12 @@ public class DerivativeService extends MessageProducingService<Derivative> {
     @NonNull UUID acDerivedFromId,
     String evaluatedMediaType,
     UUID generatedFromDerivativeUUID,
-    boolean isSourceDerivative
+    boolean isSourceDerivative,
+    Boolean publiclyReleasable
   ) {
     if (ThumbnailGenerator.isSupported(evaluatedMediaType)) {
       UUID uuid = UUID.randomUUID();
-      Derivative derivative = generateDerivativeForThumbnail(sourceBucket, uuid);
+      Derivative derivative = generateDerivativeForThumbnail(sourceBucket, uuid, publiclyReleasable);
 
       if (!this.exists(ObjectStoreMetadata.class, acDerivedFromId)) {
         throw new IllegalArgumentException(
@@ -214,9 +217,10 @@ public class DerivativeService extends MessageProducingService<Derivative> {
    *
    * @param bucket         bucket of the derivative
    * @param fileIdentifier file identifier for the thumbnail
+   * @param publiclyReleasable          Is the entity considered publicly releasable?
    * @return a Template for a derivative to be used with thumbnails
    */
-  private static Derivative generateDerivativeForThumbnail(String bucket, UUID fileIdentifier) {
+  private static Derivative generateDerivativeForThumbnail(String bucket, UUID fileIdentifier, Boolean publiclyReleasable) {
     return Derivative.builder()
       .uuid(UUID.randomUUID())
       .createdBy(ThumbnailGenerator.SYSTEM_GENERATED)
@@ -226,6 +230,7 @@ public class DerivativeService extends MessageProducingService<Derivative> {
       .dcFormat(ThumbnailGenerator.THUMB_DC_FORMAT)
       .derivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE)
       .bucket(bucket)
+      .publiclyReleasable(publiclyReleasable)
       .build();
   }
 

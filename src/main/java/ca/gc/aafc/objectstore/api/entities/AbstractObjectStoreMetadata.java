@@ -13,10 +13,12 @@ import javax.persistence.Column;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.OffsetDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 @MappedSuperclass
@@ -34,6 +36,8 @@ public abstract class AbstractObjectStoreMetadata implements DinaEntity {
   protected String createdBy;
   protected OffsetDateTime createdOn;
   private String dcFormat;
+  private Boolean publiclyReleasable;
+  private String notPubliclyReleasableReason;
 
   @NaturalId
   @NotNull
@@ -134,5 +138,35 @@ public abstract class AbstractObjectStoreMetadata implements DinaEntity {
 
   public void setCreatedOn(OffsetDateTime createdOn) {
     this.createdOn = createdOn;
+  }
+
+  @Column(name = "publicly_releasable")
+  public Boolean getPubliclyReleasable() {
+    return publiclyReleasable;
+  }
+
+  public void setPubliclyReleasable(Boolean publiclyReleasable) {
+    this.publiclyReleasable = publiclyReleasable;
+  }
+
+    /**
+   * Return publiclyReleasable as Optional as defined by
+   * {@link ca.gc.aafc.dina.entity.DinaEntity}.
+   * 
+   * @return
+   */
+  @Override
+  @Transient
+  public Optional<Boolean> isPubliclyReleasable() {
+    return Optional.ofNullable(publiclyReleasable);
+  }
+
+  @Column(name = "not_publicly_releasable_reason")
+  public String getNotPubliclyReleasableReason() {
+    return notPubliclyReleasableReason;
+  }
+
+  public void setNotPubliclyReleasableReason(String notPubliclyReleasableReason) {
+    this.notPubliclyReleasableReason = notPubliclyReleasableReason;
   }
 }

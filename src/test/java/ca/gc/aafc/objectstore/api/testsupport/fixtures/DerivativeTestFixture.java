@@ -21,6 +21,8 @@ public class DerivativeTestFixture {
     dto.setDcFormat(MediaType.IMAGE_JPEG_VALUE);
     dto.setFileIdentifier(fileIdentifier);
     dto.setCreatedBy(CREATED_BY);
+    dto.setPubliclyReleasable(true);
+    dto.setNotPubliclyReleasableReason("Classified");
     return dto;
   }
 }
