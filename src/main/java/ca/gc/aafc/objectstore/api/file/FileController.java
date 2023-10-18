@@ -197,7 +197,7 @@ public class FileController {
     Optional<FileObjectInfo> foInfo = minioService.getFileInfo(filename, bucket, isDerivative);
 
     if(foInfo.isEmpty() || foInfo.get().getLength() != file.getSize()) {
-      throw new IllegalStateException("Can't file the file uploaded to Minio. filename:" + filename);
+      throw new IllegalStateException("Can't find the file uploaded to Minio. filename: " + filename);
     }
 
     return createObjectUpload(
