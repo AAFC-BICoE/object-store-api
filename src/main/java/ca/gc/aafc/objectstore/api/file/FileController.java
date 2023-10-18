@@ -26,6 +26,7 @@ import io.minio.errors.InternalException;
 import io.minio.errors.InvalidResponseException;
 import io.minio.errors.ServerException;
 import io.minio.errors.XmlParserException;
+import java.util.Optional;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 
@@ -190,6 +191,14 @@ public class FileController {
     }
     MessageDigest md = MessageDigest.getInstance(DIGEST_ALGORITHM);
     storeFile(bucket, uuid, mtdr, new DigestInputStream(prIs.getInputStream(), md), isDerivative);
+
+    // Make sure we can find the file in Minio
+    String filename = uuid + mtdr.getEvaluatedExtension();
+    Optional<FileObjectInfo> foInfo = minioService.getFileInfo(filename, bucket, isDerivative);
+
+    if(foInfo.isEmpty() || foInfo.get().getLength() != file.getSize()) {
+      throw new IllegalStateException("Can't find the file uploaded to Minio. filename: " + filename);
+    }
 
     return createObjectUpload(
       file,
