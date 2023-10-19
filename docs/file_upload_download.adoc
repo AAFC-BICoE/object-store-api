@@ -171,8 +171,15 @@ curl http:/localhost:8081/api/v1/file/mybucket/0050559c-beae-48d6-a2b0-91f5a666f
 
 To download a stored derivative, send a GET request to the `/api/v1/file/{bucket}/derivative/{fileId}` endpoint.
 
-> Example Request: GET /api/v1/file/{bucket}/derivative/{fileId}
+Example Request: `GET /api/v1/file/{bucket}/derivative/{fileId}`
 ```sh
 curl --request GET \
   --url http://localhost:8081/api/v1/file/dev-group/derivative/cbb9484a-67f1-4112-accd-829bdfa0ad9e
 ```
+
+== Get File Information
+
+It is possible to check for the presence of a file directly on the file system.
+The user must be SUPER_USER on the target group (bucket) and the filename (uuid) with extensions is required.
+
+`GET /api/v1/file-info/{bucket}/{filename}`

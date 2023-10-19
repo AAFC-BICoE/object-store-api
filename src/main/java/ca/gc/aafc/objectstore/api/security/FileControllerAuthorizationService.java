@@ -15,7 +15,7 @@ import java.util.UUID;
 public class FileControllerAuthorizationService {
 
   @PreAuthorize("hasMinimumGroupAndRolePermissions(@currentUser, 'GUEST', #entity)")
-  public void authorizeUpload(ObjectUploadAuth entity) {
+  public void authorizeUpload(FileObjectAuth entity) {
   }
 
   @PreAuthorize("hasMinimumGroupAndRolePermissions(@currentUser, 'READ_ONLY', #entity)" +
@@ -23,20 +23,24 @@ public class FileControllerAuthorizationService {
   public void authorizeDownload(DinaEntity entity) {
   }
 
+  @PreAuthorize("hasMinimumGroupAndRolePermissions(@currentUser, 'SUPER_USER', #entity)")
+  public void authorizeFileInfo(FileObjectAuth entity) {
+  }
+
   /**
-   * Creates a {@link ObjectUploadAuth} from a bucket name.
+   * Creates a {@link FileObjectAuth} from a bucket name.
    * @param bucket
    * @return
    */
-  public static ObjectUploadAuth objectUploadAuthFromBucket(String bucket) {
-    return new ObjectUploadAuth(bucket);
+  public static FileObjectAuth objectUploadAuthFromBucket(String bucket) {
+    return new FileObjectAuth(bucket);
   }
 
   /**
    * Wrapper class (record) to allow usage of regular dina authorization service.
-   * in the context of FileUpload the bucket represents the group.
+   * in the context of File Object (e.g. upload) the bucket represents the group.
    */
-  public record ObjectUploadAuth(String group) implements DinaEntity {
+  public record FileObjectAuth(String group) implements DinaEntity {
 
     @Override
     public Integer getId() {
