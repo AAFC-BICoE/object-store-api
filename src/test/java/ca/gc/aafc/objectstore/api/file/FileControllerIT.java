@@ -53,6 +53,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class FileControllerIT extends BaseIntegrationTest {
 
   private static final String TEST_UPLOAD_FILE_NAME = "drawing.png";
+  private static final String TEST_UPLOAD_FILE_EXT = "png";
   // calculated using sha1sum drawing.png
   private static final String TEST_UPLOAD_FILE_SHA1HEX = "5e51269a9f21eef93ff5fbf2e8c3ceeb3d84a430";
 
@@ -98,6 +99,9 @@ public class FileControllerIT extends BaseIntegrationTest {
     metadataForFile.setFileIdentifier(uploadResponse.getFileIdentifier());
     objectStoreResourceRepository.create(metadataForFile);
 
+    assertThrows(AccessDeniedException.class, () ->
+      fileController.getObjectInfo(bucketUnderTest, uploadResponse.getFileIdentifier()+ "." + TEST_UPLOAD_FILE_EXT));
+
     ResponseEntity<InputStreamResource> response = fileController.downloadObject(bucketUnderTest,
         uploadResponse.getFileIdentifier());
 
@@ -106,8 +110,6 @@ public class FileControllerIT extends BaseIntegrationTest {
   }
 
   @Test
-  // @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET +
-  // ":USER")
   public void fileUploadConversion_OnValidSpreadsheet_contentReturned() throws Exception {
     MockMultipartFile mockFile = MultipartFileFactory.createMockMultipartFile(resourceLoader,"test_spreadsheet.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE);
     Map<Integer, List<WorkbookRow>> content = fileController.handleFileConversion(mockFile);
@@ -116,7 +118,6 @@ public class FileControllerIT extends BaseIntegrationTest {
   }
 
   @Test
-  // @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
   public void fileUploadConversion_OnValidCSV_contentReturned() throws Exception {
     // use Octet Stream to make sure the FileController will detect it's a csv
     MockMultipartFile mockFile = MultipartFileFactory.createMockMultipartFile(resourceLoader,"test_spreadsheet.csv", MediaType.APPLICATION_OCTET_STREAM_VALUE);
@@ -156,15 +157,15 @@ public class FileControllerIT extends BaseIntegrationTest {
   }
 
   @Test
-  @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
+  @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":SUPER_USER")
   public void fileUpload_gzipUpload_ObjectUploadEntryCreated() throws Exception {
     MockMultipartFile mockFile = MultipartFileFactory.createMockMultipartFile(resourceLoader, "testfile.txt.gz",
         "application/gzip");
 
     ObjectUploadDto uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
     ObjectUpload objUploaded = objectUploadService.findOne(uploadResponse.getFileIdentifier(), ObjectUpload.class);
-
     assertNotNull(objUploaded);
+    fileController.getObjectInfo(DinaAuthenticatedUserConfig.TEST_BUCKET, objUploaded.getUuid() + ".gz");
   }
 
   @Test

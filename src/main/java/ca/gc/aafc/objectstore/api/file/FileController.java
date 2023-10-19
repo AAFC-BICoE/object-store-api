@@ -233,6 +233,30 @@ public class FileController {
         false, metadata.getDcFormat(), metadata);
   }
 
+  /**
+   * Checks the presence and some basic information about a file on the file system (Minio).
+   * Since the database is not used, we must receive the filename as opposed to only the fileIdentifier.
+   * @param bucket bucket of the file (aka the group)
+   * @param filename filename including extension.
+   * @return
+   */
+  @GetMapping("/file-info/{bucket}/{filename}")
+  public ResponseEntity<FileObjectInfo> getObjectInfo(@PathVariable String bucket,
+                                                      @PathVariable String filename
+  ) throws IOException {
+
+    authorizationService.authorizeFileInfo(FileControllerAuthorizationService
+      .objectUploadAuthFromBucket(bucket));
+
+    Optional<FileObjectInfo> fileInfo = minioService.getFileInfo(filename, bucket, false);
+
+    if(fileInfo.isPresent()) {
+      return new ResponseEntity<>(fileInfo.get(), HttpStatus.OK);
+    }
+
+    throw buildNotFoundException(bucket, filename);
+  }
+
   @GetMapping("/file/{bucket}/derivative/{fileId}")
   public ResponseEntity<InputStreamResource> downloadDerivative(
     @PathVariable String bucket,
