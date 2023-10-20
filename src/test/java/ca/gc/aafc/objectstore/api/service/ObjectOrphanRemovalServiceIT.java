@@ -223,11 +223,12 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
   private String storeFileForUpload(ObjectUpload upload) {
     String fileName = upload.getCompleteFileName();
     fileService.storeFile(
-      fileName,
-      new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8)),
-      upload.getEvaluatedMediaType(),
       BUCKET,
-      upload.getIsDerivative());
+      fileName,
+      upload.getIsDerivative(),
+      upload.getEvaluatedMediaType(),
+      new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8))
+    );
     return fileName;
   }
 }

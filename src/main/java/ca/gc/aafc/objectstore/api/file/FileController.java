@@ -366,17 +366,17 @@ public class FileController {
     MediaTypeDetectionStrategy.MediaTypeDetectionResult mtdr,
     InputStream iStream,
     boolean isDerivative
-  ) throws IOException, InvalidKeyException, ErrorResponseException, InsufficientDataException, InternalException,
-      InvalidResponseException, NoSuchAlgorithmException, XmlParserException, ServerException {
+  ) throws IOException {
     // make bucket if it does not exist
     minioService.ensureBucketExists(bucket);
 
     minioService.storeFile(
-      uuid.toString() + mtdr.getEvaluatedExtension(),
-      iStream,
-      mtdr.getEvaluatedMediaType(),
       bucket,
-      isDerivative);
+      uuid.toString() + mtdr.getEvaluatedExtension(),
+      isDerivative,
+      mtdr.getEvaluatedMediaType(),
+      iStream
+    );
   }
 
   /**

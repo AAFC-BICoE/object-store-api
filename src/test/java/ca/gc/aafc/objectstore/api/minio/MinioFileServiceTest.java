@@ -41,20 +41,22 @@ class MinioFileServiceTest extends BaseIntegrationTest {
     String fileName = "name";
     byte[] firstFile = "firstFile".getBytes();
     fileService.storeFile(
-      fileName,
-      new ByteArrayInputStream(firstFile),
-      MediaType.TEXT_PLAIN_VALUE,
       BUCKET,
-      false);
+      fileName,
+      false,
+      MediaType.TEXT_PLAIN_VALUE,
+      new ByteArrayInputStream(firstFile)
+    );
     Assertions.assertArrayEquals(firstFile, returnBytesForFile(fileName));
 
     byte[] expected = "dina".getBytes();
     fileService.storeFile(
-      fileName,
-      new ByteArrayInputStream(expected),
-      MediaType.TEXT_PLAIN_VALUE,
       BUCKET,
-      false);
+      fileName,
+      false,
+      MediaType.TEXT_PLAIN_VALUE,
+      new ByteArrayInputStream(expected)
+    );
 
     Assertions.assertArrayEquals(expected, returnBytesForFile(fileName));
   }
@@ -66,11 +68,12 @@ class MinioFileServiceTest extends BaseIntegrationTest {
     String fileName = "name";
 
     fileService.storeFile(
-      fileName,
-      new ByteArrayInputStream(bytes),
-      MediaType.TEXT_PLAIN_VALUE,
       BUCKET,
-      false);
+      fileName,
+      false,
+      MediaType.TEXT_PLAIN_VALUE,
+      new ByteArrayInputStream(bytes)
+    );
 
     Assertions.assertArrayEquals(bytes, returnBytesForFile(fileName));
   }
@@ -88,11 +91,12 @@ class MinioFileServiceTest extends BaseIntegrationTest {
     String fileName = "name";
 
     fileService.storeFile(
-      fileName,
-      new ByteArrayInputStream(bytes),
-      MediaType.TEXT_PLAIN_VALUE,
       BUCKET,
-      false);
+      fileName,
+      false,
+      MediaType.TEXT_PLAIN_VALUE,
+      new ByteArrayInputStream(bytes)
+    );
 
     Assertions.assertFalse(fileService.getFile(fileName, "fake", false).isPresent());
   }
@@ -104,11 +108,12 @@ class MinioFileServiceTest extends BaseIntegrationTest {
     String fileName = "name";
 
     fileService.storeFile(
-      fileName,
-      new ByteArrayInputStream(bytes),
-      MediaType.TEXT_PLAIN_VALUE,
       BUCKET,
-      false);
+      fileName,
+      false,
+      MediaType.TEXT_PLAIN_VALUE,
+      new ByteArrayInputStream(bytes)
+    );
 
     Assertions.assertTrue(fileService.getFileInfo(fileName, BUCKET, false).isPresent());
   }
@@ -126,11 +131,12 @@ class MinioFileServiceTest extends BaseIntegrationTest {
     String fileName = "name";
 
     fileService.storeFile(
-      fileName,
-      new ByteArrayInputStream(bytes),
-      MediaType.TEXT_PLAIN_VALUE,
       BUCKET,
-      false);
+      fileName,
+      false,
+      MediaType.TEXT_PLAIN_VALUE,
+      new ByteArrayInputStream(bytes)
+    );
 
     Assertions.assertTrue(fileService.getFile(fileName, BUCKET, false).isPresent());
     fileService.removeFile(BUCKET, fileName, false);
