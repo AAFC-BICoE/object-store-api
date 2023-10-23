@@ -126,12 +126,7 @@ public class MinioFileService implements FileStorage, FileInformationService {
     }
   }
 
-  /**
-   * Checks if a bucket exists and if not tries to create it.
-   *
-   * @param bucketName
-   * @throws IOException
-   */
+  @Override
   public void ensureBucketExists(String bucketName) throws IOException {
     try {
       if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build())) {

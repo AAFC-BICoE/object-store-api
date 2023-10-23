@@ -20,6 +20,8 @@ import ca.gc.aafc.objectstore.api.security.FileControllerAuthorizationService;
 import ca.gc.aafc.objectstore.api.service.DerivativeService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
 import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
+import ca.gc.aafc.objectstore.api.storage.FileStorage;
+
 import java.util.Optional;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
@@ -71,7 +73,7 @@ public class FileController {
   private final DinaMappingLayer<ObjectUploadDto, ObjectUpload> mappingLayer;
   private final ObjectUploadService objectUploadService;
   private final DerivativeService derivativeService;
-  private final MinioFileService minioService;
+  private final FileStorage fileStorage;
   private final ObjectStoreMetaDataService objectStoreMetaDataService;
   private final MediaTypeDetectionStrategy mediaTypeDetectionStrategy;
   private final MessageSource messageSource;
@@ -93,7 +95,7 @@ public class FileController {
     MediaTypeConfiguration mediaTypeConfiguration
   ) {
     this.authorizationService = authorizationService;
-    this.minioService = minioService;
+    this.fileStorage = minioService;
     this.objectUploadService = objectUploadService;
     this.objectStoreMetaDataService = objectStoreMetaDataService;
     this.mediaTypeDetectionStrategy = mediaTypeDetectionStrategy;
@@ -181,7 +183,7 @@ public class FileController {
 
     // Make sure we can find the file in Minio
     String filename = uuid + mtdr.getEvaluatedExtension();
-    Optional<FileObjectInfo> foInfo = minioService.getFileInfo(bucket, filename, isDerivative);
+    Optional<FileObjectInfo> foInfo = fileStorage.getFileInfo(bucket, filename, isDerivative);
 
     if(foInfo.isEmpty() || foInfo.get().getLength() != file.getSize()) {
       throw new IllegalStateException("Can't find the file uploaded to Minio. filename: " + filename);
@@ -235,7 +237,7 @@ public class FileController {
     authorizationService.authorizeFileInfo(FileControllerAuthorizationService
       .objectUploadAuthFromBucket(bucket));
 
-    Optional<FileObjectInfo> fileInfo = minioService.getFileInfo(bucket, filename,false);
+    Optional<FileObjectInfo> fileInfo = fileStorage.getFileInfo(bucket, filename,false);
 
     if(fileInfo.isPresent()) {
       return new ResponseEntity<>(fileInfo.get(), HttpStatus.OK);
@@ -291,9 +293,9 @@ public class FileController {
     //Authorize before anything else
     authorizationService.authorizeDownload(entity);
 
-    FileObjectInfo foi = minioService.getFileInfo(bucket, fileName, isDerivative)
+    FileObjectInfo foi = fileStorage.getFileInfo(bucket, fileName, isDerivative)
       .orElseThrow(() -> buildNotFoundException(bucket, fileName));
-    InputStream is = minioService.retrieveFile(bucket, fileName, isDerivative)
+    InputStream is = fileStorage.retrieveFile(bucket, fileName, isDerivative)
       .orElseThrow(() -> buildNotFoundException(bucket, fileName));
 
     return new ResponseEntity<>(
@@ -355,9 +357,9 @@ public class FileController {
     boolean isDerivative
   ) throws IOException {
     // make bucket if it does not exist
-    minioService.ensureBucketExists(bucket);
+    fileStorage.ensureBucketExists(bucket);
 
-    minioService.storeFile(
+    fileStorage.storeFile(
       bucket,
       uuid.toString() + mtdr.getEvaluatedExtension(),
       isDerivative,

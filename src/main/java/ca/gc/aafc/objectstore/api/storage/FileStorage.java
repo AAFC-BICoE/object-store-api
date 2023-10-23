@@ -8,6 +8,7 @@ import ca.gc.aafc.objectstore.api.file.FileObjectInfo;
 
 /**
  * Main interface for interacting with the file storage.
+ * Based on "bucket" concept like s3.
  */
 public interface FileStorage {
 
@@ -39,4 +40,9 @@ public interface FileStorage {
   Optional<FileObjectInfo> getFileInfo(String bucketName, String fileName, boolean isDerivative)
       throws IOException;
 
+  /**
+   * Checks if the bucket exists and if it doesn't create it.
+   * @param bucketName
+   */
+  void ensureBucketExists(String bucketName) throws IOException;
 }
