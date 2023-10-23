@@ -81,12 +81,12 @@ public class MetadataServiceIT extends BaseIntegrationTest {
 
     // 4 - Make sure we can load the file
     String thumbnailFilename = thumbnail.get().getFileIdentifier() + thumbnail.get().getFileExtension();
-    Optional<InputStream> file = minioFileService.getFile(thumbnailFilename, DinaAuthenticatedUserConfig.TEST_BUCKET, true);
+    Optional<InputStream> file = minioFileService.retrieveFile(DinaAuthenticatedUserConfig.TEST_BUCKET, thumbnailFilename, true);
     assertTrue(file.isPresent());
 
     // Deleting the metadata should also delete the derivative and the system generated thumbnail
     objectStoreMetaDataService.delete(osm);
-    file = minioFileService.getFile(thumbnailFilename, DinaAuthenticatedUserConfig.TEST_BUCKET, true);
+    file = minioFileService.retrieveFile(DinaAuthenticatedUserConfig.TEST_BUCKET, thumbnailFilename, true);
     assertFalse(file.isPresent());
   }
 

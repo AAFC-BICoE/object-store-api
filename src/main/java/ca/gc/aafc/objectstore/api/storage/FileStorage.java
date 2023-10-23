@@ -22,7 +22,8 @@ public interface FileStorage {
   void storeFile(String bucket, String fileName, boolean isDerivative, String contentType, InputStream iStream)
     throws IOException;
 
-  Optional<InputStream> retrieveFile(String bucket, String fileName, boolean isDerivative);
+  Optional<InputStream> retrieveFile(String bucket, String fileName, boolean isDerivative)
+    throws IOException;
 
   void deleteFile(String bucket, String fileName, boolean isDerivative);
 

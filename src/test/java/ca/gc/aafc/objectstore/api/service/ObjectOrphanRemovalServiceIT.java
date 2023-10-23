@@ -73,7 +73,7 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
     serviceUnderTest.removeObjectOrphans(); // method under test
 
     Assertions.assertTrue(
-      fileService.getFile(fileName, BUCKET, false).isEmpty(),
+      fileService.retrieveFile(BUCKET, fileName, false).isEmpty(),
       "There should be no returned files");
     Assertions.assertNull(
       objectUploadService.findOne(upload.getFileIdentifier(), ObjectUpload.class),
@@ -91,7 +91,7 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
     serviceUnderTest.removeObjectOrphans(); // method under test
 
     Assertions.assertTrue(
-      fileService.getFile(fileName, BUCKET, false).isPresent(),
+      fileService.retrieveFile(BUCKET, fileName,false).isPresent(),
       "There should be a returned file");
     Assertions.assertNotNull(
       objectUploadService.findOne(upload.getFileIdentifier(), ObjectUpload.class),
@@ -112,7 +112,7 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
     serviceUnderTest.removeObjectOrphans(); // method under test
 
     Assertions.assertTrue(
-      fileService.getFile(fileName, BUCKET, false).isPresent(),
+      fileService.retrieveFile(BUCKET, fileName,false).isPresent(),
       "There should be a returned file");
     Assertions.assertNotNull(
       objectUploadService.findOne(upload.getFileIdentifier(), ObjectUpload.class),
@@ -151,7 +151,7 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
     serviceUnderTest.removeObjectOrphans(); // method under test
 
     Assertions.assertTrue(
-      fileService.getFile(fileName, BUCKET, true).isPresent(),
+      fileService.retrieveFile(BUCKET, fileName, true).isPresent(),
       "There should be a returned file");
     Assertions.assertNotNull(
       objectUploadService.findOne(derivativeUpload.getFileIdentifier(), ObjectUpload.class),
@@ -172,7 +172,7 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
     serviceUnderTest.removeObjectOrphans(); // method under test
 
     Assertions.assertTrue(
-      fileService.getFile(fileName, BUCKET, true).isEmpty(),
+      fileService.retrieveFile(BUCKET, fileName,true).isEmpty(),
       "There should be no returned files");
     Assertions.assertNull(
       objectUploadService.findOne(derivativeUpload.getFileIdentifier(), ObjectUpload.class),
@@ -190,7 +190,7 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
     Thread.sleep(2000);
 
     Assertions.assertTrue(
-      fileService.getFile(fileName, BUCKET, false).isEmpty(),
+      fileService.retrieveFile(BUCKET, fileName,false).isEmpty(),
       "There should be no returned files");
     Assertions.assertTrue(findUploads().isEmpty(), "There should be no upload record");
   }

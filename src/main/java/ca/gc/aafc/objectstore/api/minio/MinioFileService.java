@@ -101,6 +101,29 @@ public class MinioFileService implements FileStorage, FileInformationService {
     }
   }
 
+  @Override
+  public Optional<InputStream> retrieveFile(String bucket, String fileName, boolean isDerivative)
+    throws IOException {
+    try {
+      return Optional.ofNullable(
+        minioClient.getObject(
+          GetObjectArgs.builder()
+            .bucket(bucket)
+            .object(getFileLocation(fileName, isDerivative))
+            .build()));
+    } catch (InvalidKeyException | IllegalArgumentException |
+             InsufficientDataException | InternalException | InvalidResponseException |
+             NoSuchAlgorithmException | XmlParserException | ServerException erEx) {
+      throw new IOException(erEx);
+    } catch (ErrorResponseException e) {
+      if (isNotFoundError(e.errorResponse())) {
+        return Optional.empty();
+      } else {
+        throw new IOException(e);
+      }
+    }
+  }
+
   /**
    * Checks if a bucket exists and if not tries to create it.
    *
@@ -134,31 +157,6 @@ public class MinioFileService implements FileStorage, FileInformationService {
     return false;
   }
 
-  public Optional<InputStream> getFile(String fileName, String bucketName, boolean isDerivative) throws IOException {
-    try {
-      return Optional.ofNullable(
-        minioClient.getObject(
-          GetObjectArgs.builder()
-            .bucket(bucketName)
-            .object(getFileLocation(fileName, isDerivative))
-            .build()));
-    } catch (InvalidKeyException | IllegalArgumentException |
-      InsufficientDataException | InternalException | InvalidResponseException |
-      NoSuchAlgorithmException | XmlParserException | ServerException erEx) {
-      throw new IOException(erEx);
-    } catch (ErrorResponseException e) {
-      if (isNotFoundError(e.errorResponse())) {
-        return Optional.empty();
-      } else {
-        throw new IOException(e);
-      }
-    }
-  }
-
-  @Override
-  public Optional<InputStream> retrieveFile(String bucket, String fileName, boolean isDerivative) {
-    return Optional.empty();
-  }
 
   @Override
   public void deleteFile(String bucket, String fileName, boolean isDerivative) {

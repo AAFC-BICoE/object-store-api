@@ -168,9 +168,7 @@ public class FileController {
     @NonNull MultipartFile file,
     @NonNull String bucket,
     boolean isDerivative
-  ) throws IOException, MimeTypeException, NoSuchAlgorithmException, InvalidKeyException, ErrorResponseException,
-      InsufficientDataException, InternalException, InvalidResponseException,
-      XmlParserException, ServerException {
+  ) throws IOException, MimeTypeException, NoSuchAlgorithmException {
 
     //Authorize before anything else
     authorizationService.authorizeUpload(FileControllerAuthorizationService.objectUploadAuthFromBucket(bucket));
@@ -306,7 +304,7 @@ public class FileController {
 
     FileObjectInfo foi = minioService.getFileInfo(fileName, bucket, isDerivative)
       .orElseThrow(() -> buildNotFoundException(bucket, fileName));
-    InputStream is = minioService.getFile(fileName, bucket, isDerivative)
+    InputStream is = minioService.retrieveFile(bucket, fileName, isDerivative)
       .orElseThrow(() -> buildNotFoundException(bucket, fileName));
 
     return new ResponseEntity<>(

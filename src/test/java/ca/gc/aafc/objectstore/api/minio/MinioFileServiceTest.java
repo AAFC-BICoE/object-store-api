@@ -81,7 +81,7 @@ class MinioFileServiceTest extends BaseIntegrationTest {
   @SneakyThrows
   @Test
   void getFile_WhenFileDoesNotExist_OptionalEmptyReturned() {
-    Assertions.assertFalse(fileService.getFile("fileName", BUCKET, false).isPresent());
+    Assertions.assertFalse(fileService.retrieveFile(BUCKET,"fileName", false).isPresent());
   }
 
   @SneakyThrows
@@ -98,7 +98,7 @@ class MinioFileServiceTest extends BaseIntegrationTest {
       new ByteArrayInputStream(bytes)
     );
 
-    Assertions.assertFalse(fileService.getFile(fileName, "fake", false).isPresent());
+    Assertions.assertFalse(fileService.retrieveFile("fake", fileName,false).isPresent());
   }
 
   @SneakyThrows
@@ -138,9 +138,9 @@ class MinioFileServiceTest extends BaseIntegrationTest {
       new ByteArrayInputStream(bytes)
     );
 
-    Assertions.assertTrue(fileService.getFile(fileName, BUCKET, false).isPresent());
+    Assertions.assertTrue(fileService.retrieveFile(BUCKET, fileName,false).isPresent());
     fileService.removeFile(BUCKET, fileName, false);
-    Assertions.assertFalse(fileService.getFile(fileName, BUCKET, false).isPresent());
+    Assertions.assertFalse(fileService.retrieveFile(BUCKET, fileName, false).isPresent());
   }
 
   @Test
@@ -150,7 +150,7 @@ class MinioFileServiceTest extends BaseIntegrationTest {
   }
 
   private byte[] returnBytesForFile(String fileName) throws IOException {
-    return IOUtils.toByteArray(fileService.getFile(fileName, BUCKET, false)
+    return IOUtils.toByteArray(fileService.retrieveFile(BUCKET, fileName, false)
       .orElseThrow(() -> {
         Assertions.fail("The file was not persisted");
         return null;

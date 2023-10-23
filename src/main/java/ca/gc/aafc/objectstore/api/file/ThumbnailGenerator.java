@@ -55,7 +55,7 @@ public class ThumbnailGenerator {
 
     try (
       InputStream originalFile = minioService
-        .getFile(sourceFilename, sourceBucket, isSourceDerivative)
+        .retrieveFile(sourceBucket, sourceFilename, isSourceDerivative)
         .orElseThrow(() -> new IllegalArgumentException("file not found: " + sourceFilename));
       ByteArrayOutputStream os = new ByteArrayOutputStream()
     ) {
