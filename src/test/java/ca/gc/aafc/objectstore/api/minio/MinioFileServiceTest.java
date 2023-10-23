@@ -115,13 +115,13 @@ class MinioFileServiceTest extends BaseIntegrationTest {
       new ByteArrayInputStream(bytes)
     );
 
-    Assertions.assertTrue(fileService.getFileInfo(fileName, BUCKET, false).isPresent());
+    Assertions.assertTrue(fileService.getFileInfo(BUCKET, fileName,false).isPresent());
   }
 
   @SneakyThrows
   @Test
   void getFileInfo_WhenNoFile_OptionalEmptyReturned() {
-    Assertions.assertFalse(fileService.getFileInfo("nosuchfile", BUCKET, false).isPresent());
+    Assertions.assertFalse(fileService.getFileInfo(BUCKET, "nosuchfile",false).isPresent());
   }
 
   @SneakyThrows

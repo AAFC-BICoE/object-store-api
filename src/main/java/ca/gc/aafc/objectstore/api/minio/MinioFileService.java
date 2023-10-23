@@ -105,7 +105,7 @@ public class MinioFileService implements FileStorage, FileInformationService {
 
   @Override
   public Optional<InputStream> retrieveFile(String bucket, String fileName, boolean isDerivative)
-    throws IOException {
+      throws IOException {
     try {
       return Optional.ofNullable(
         minioClient.getObject(
@@ -159,9 +159,10 @@ public class MinioFileService implements FileStorage, FileInformationService {
     return false;
   }
 
+  @Override
   public Optional<FileObjectInfo> getFileInfo(
-    String fileName,
     String bucketName,
+    String fileName,
     boolean isDerivative
   ) throws IOException {
     StatObjectResponse objectStat;

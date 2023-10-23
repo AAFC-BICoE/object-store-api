@@ -20,12 +20,6 @@ import ca.gc.aafc.objectstore.api.security.FileControllerAuthorizationService;
 import ca.gc.aafc.objectstore.api.service.DerivativeService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
 import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
-import io.minio.errors.ErrorResponseException;
-import io.minio.errors.InsufficientDataException;
-import io.minio.errors.InternalException;
-import io.minio.errors.InvalidResponseException;
-import io.minio.errors.ServerException;
-import io.minio.errors.XmlParserException;
 import java.util.Optional;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
@@ -56,7 +50,6 @@ import javax.transaction.Transactional;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.DigestInputStream;
-import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
@@ -119,9 +112,7 @@ public class FileController {
   public ObjectUploadDto handleDerivativeUpload(
     @RequestParam("file") MultipartFile file,
     @PathVariable String bucket
-  ) throws IOException, MimeTypeException, NoSuchAlgorithmException, ServerException, ErrorResponseException,
-      InternalException, XmlParserException, InvalidResponseException,
-      InsufficientDataException, InvalidKeyException {
+  ) throws IOException, MimeTypeException, NoSuchAlgorithmException {
     return handleUpload(file, bucket, true);
   }
 
@@ -130,9 +121,7 @@ public class FileController {
   public ObjectUploadDto handleFileUpload(
     @RequestParam("file") MultipartFile file,
     @PathVariable String bucket
-  ) throws InvalidKeyException, NoSuchAlgorithmException, ErrorResponseException,
-      InternalException, InsufficientDataException, InvalidResponseException, MimeTypeException, XmlParserException,
-      IOException, ServerException {
+  ) throws NoSuchAlgorithmException, MimeTypeException, IOException {
     return handleUpload(file, bucket, false);
   }
 
@@ -192,7 +181,7 @@ public class FileController {
 
     // Make sure we can find the file in Minio
     String filename = uuid + mtdr.getEvaluatedExtension();
-    Optional<FileObjectInfo> foInfo = minioService.getFileInfo(filename, bucket, isDerivative);
+    Optional<FileObjectInfo> foInfo = minioService.getFileInfo(bucket, filename, isDerivative);
 
     if(foInfo.isEmpty() || foInfo.get().getLength() != file.getSize()) {
       throw new IllegalStateException("Can't find the file uploaded to Minio. filename: " + filename);
@@ -246,7 +235,7 @@ public class FileController {
     authorizationService.authorizeFileInfo(FileControllerAuthorizationService
       .objectUploadAuthFromBucket(bucket));
 
-    Optional<FileObjectInfo> fileInfo = minioService.getFileInfo(filename, bucket, false);
+    Optional<FileObjectInfo> fileInfo = minioService.getFileInfo(bucket, filename,false);
 
     if(fileInfo.isPresent()) {
       return new ResponseEntity<>(fileInfo.get(), HttpStatus.OK);
@@ -302,7 +291,7 @@ public class FileController {
     //Authorize before anything else
     authorizationService.authorizeDownload(entity);
 
-    FileObjectInfo foi = minioService.getFileInfo(fileName, bucket, isDerivative)
+    FileObjectInfo foi = minioService.getFileInfo(bucket, fileName, isDerivative)
       .orElseThrow(() -> buildNotFoundException(bucket, fileName));
     InputStream is = minioService.retrieveFile(bucket, fileName, isDerivative)
       .orElseThrow(() -> buildNotFoundException(bucket, fileName));
