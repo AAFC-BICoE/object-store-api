@@ -22,6 +22,9 @@ import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
 import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
 import ca.gc.aafc.objectstore.api.storage.FileStorage;
 
+import java.io.BufferedInputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Optional;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
@@ -67,7 +70,6 @@ public class FileController {
 
   public static final String DIGEST_ALGORITHM = "SHA-1";
   private static final int MAX_NUMBER_OF_ATTEMPT_RANDOM_UUID = 5;
-  private static final int READ_AHEAD_BUFFER_SIZE = 10 * 1024;
 
   private final FileControllerAuthorizationService authorizationService;
   private final DinaMappingLayer<ObjectUploadDto, ObjectUpload> mappingLayer;
@@ -167,19 +169,33 @@ public class FileController {
     // Safe get unique UUID
     UUID uuid = generateUUID();
 
-    // We need access to the first bytes in a form that we can reset the InputStream
-    ReadAheadInputStream prIs = ReadAheadInputStream.from(file.getInputStream(), READ_AHEAD_BUFFER_SIZE);
+    // Copy the entire stream to a temp file under our control
+    Path tmpFile = Files.createTempFile(uuid.toString(), null);
+    MediaTypeDetectionStrategy.MediaTypeDetectionResult mtdr;
+    String sha1Hash;
+    try {
+      file.transferTo(tmpFile);
 
-    MediaTypeDetectionStrategy.MediaTypeDetectionResult mtdr = mediaTypeDetectionStrategy
-      .detectMediaType(prIs.getReadAheadBuffer(), file.getContentType(), file.getOriginalFilename());
+      try (InputStream bIs = new BufferedInputStream(Files.newInputStream(tmpFile))) {
+        mtdr = mediaTypeDetectionStrategy
+          .detectMediaType(bIs, file.getContentType(), file.getOriginalFilename());
+      }
 
-    MediaType detectedMediaType = mtdr.getDetectedMediaType();
-    if (!mediaTypeConfiguration.isSupported(detectedMediaType)) {
-      throw new UnsupportedMediaTypeStatusException(messageSource.getMessage(
-        "supportedMediaType.illegal", new String[]{detectedMediaType.toString()}, LocaleContextHolder.getLocale()));
+      MediaType detectedMediaType = mtdr.getDetectedMediaType();
+      if (!mediaTypeConfiguration.isSupported(detectedMediaType)) {
+        throw new UnsupportedMediaTypeStatusException(messageSource.getMessage(
+          "supportedMediaType.illegal", new String[] {detectedMediaType.toString()},
+          LocaleContextHolder.getLocale()));
+      }
+      MessageDigest md = MessageDigest.getInstance(DIGEST_ALGORITHM);
+
+      try (InputStream dIs = new DigestInputStream(Files.newInputStream(tmpFile), md)) {
+        storeFile(bucket, uuid, mtdr, dIs, isDerivative);
+        sha1Hash = Hex.encodeHexString(md.digest());
+      }
+    } finally {
+      Files.delete(tmpFile);
     }
-    MessageDigest md = MessageDigest.getInstance(DIGEST_ALGORITHM);
-    storeFile(bucket, uuid, mtdr, new DigestInputStream(prIs.getInputStream(), md), isDerivative);
 
     // Make sure we can find the file in Minio
     String filename = uuid + mtdr.getEvaluatedExtension();
@@ -194,7 +210,7 @@ public class FileController {
       bucket,
       mtdr,
       uuid,
-      Hex.encodeHexString(md.digest()),
+      sha1Hash,
       extractExifData(file),
       isDerivative);
   }
