@@ -91,7 +91,7 @@ public class ThumbnailGenerator {
 
   public void deleteThumbnail(UUID derivativeFileIdentifier, String bucket) throws IOException {
     String fileName = derivativeFileIdentifier + ThumbnailGenerator.THUMBNAIL_EXTENSION;
-    minioService.removeFile(bucket, fileName, true);
+    minioService.deleteFile(bucket, fileName, true);
   }
 
   public static boolean isSupported(String fileType) {

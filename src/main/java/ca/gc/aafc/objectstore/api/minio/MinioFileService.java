@@ -77,12 +77,14 @@ public class MinioFileService implements FileStorage, FileInformationService {
   }
 
   /**
-   * * Store a file (received as an InputStream) on Minio into a specific bucket. The bucket is expected to
+   * Store a file (received as an InputStream) on Minio into a specific bucket. The bucket is expected to
    * exist.
-   *
-   * @param fileName filename to be used in Minio
-   * @param iStream  inputStream to send to Minio (won't be closed)
    * @param bucket   name of the bucket (will NOT be created if doesn't exist)
+   * @param fileName filename to be used in Minio
+   * @param isDerivative is the file a derivative or not ?
+   * @param contentType the content type of the file to store
+   * @param iStream  inputStream to send to Minio (won't be closed)
+   *
    */
   @Override
   public void storeFile(String bucket, String fileName, boolean isDerivative, String contentType,
@@ -157,12 +159,6 @@ public class MinioFileService implements FileStorage, FileInformationService {
     return false;
   }
 
-
-  @Override
-  public void deleteFile(String bucket, String fileName, boolean isDerivative) {
-
-  }
-
   public Optional<FileObjectInfo> getFileInfo(
     String fileName,
     String bucketName,
@@ -193,7 +189,8 @@ public class MinioFileService implements FileStorage, FileInformationService {
     }
   }
 
-  public void removeFile(String bucket, String fileName, boolean isDerivative) throws IOException {
+  @Override
+  public void deleteFile(String bucket, String fileName, boolean isDerivative) throws IOException {
     try {
       minioClient.removeObject(RemoveObjectArgs.builder()
         .bucket(bucket)

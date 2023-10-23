@@ -12,7 +12,7 @@ import ca.gc.aafc.objectstore.api.file.FileObjectInfo;
 public interface FileStorage {
 
   /**
-   * Store a new file in the file storage. The bucket is expected to exist but not the file.
+   * Store a new file in the file storage. The bucket is expected to exist.
    * @param bucket
    * @param fileName
    * @param isDerivative
@@ -25,7 +25,7 @@ public interface FileStorage {
   Optional<InputStream> retrieveFile(String bucket, String fileName, boolean isDerivative)
     throws IOException;
 
-  void deleteFile(String bucket, String fileName, boolean isDerivative);
+  void deleteFile(String bucket, String fileName, boolean isDerivative) throws IOException;
 
   Optional<FileObjectInfo> getFileInfo(String fileName, String bucketName, boolean isDerivative)
     throws IOException;

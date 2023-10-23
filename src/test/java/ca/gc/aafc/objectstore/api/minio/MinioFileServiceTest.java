@@ -139,7 +139,7 @@ class MinioFileServiceTest extends BaseIntegrationTest {
     );
 
     Assertions.assertTrue(fileService.retrieveFile(BUCKET, fileName,false).isPresent());
-    fileService.removeFile(BUCKET, fileName, false);
+    fileService.deleteFile(BUCKET, fileName, false);
     Assertions.assertFalse(fileService.retrieveFile(BUCKET, fileName, false).isPresent());
   }
 
