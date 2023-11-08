@@ -125,7 +125,9 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
     ObjectUpload acDerivedRecord = objectUploadService.create(
       ObjectUploadFactory.newObjectUpload().bucket(BUCKET).build());
     ObjectStoreMetadata acDerivedFrom = metaDataService.create(
-      ObjectStoreMetadataFactory.newObjectStoreMetadata().fileIdentifier(acDerivedRecord.getFileIdentifier())
+      ObjectStoreMetadataFactory.newObjectStoreMetadata()
+        .fileIdentifier(acDerivedRecord.getFileIdentifier())
+        .bucket(BUCKET)
         .build());
     persistOrphanDerivative();
 
@@ -218,6 +220,7 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
       upload.setBucket(BUCKET);
       em.persist(upload);
       em.createNativeQuery(INTERVAL_2_WEEKS).executeUpdate(); // Mock record created in the past
+      em.flush();
     });
   }
 
