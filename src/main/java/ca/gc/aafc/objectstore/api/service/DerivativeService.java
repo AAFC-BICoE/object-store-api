@@ -61,6 +61,7 @@ public class DerivativeService extends MessageProducingService<Derivative> {
 
   @Override
   protected void preUpdate(Derivative entity) {
+    handleFileRelatedData(entity);
     establishBiDirectionalAssociation(entity);
   }
 

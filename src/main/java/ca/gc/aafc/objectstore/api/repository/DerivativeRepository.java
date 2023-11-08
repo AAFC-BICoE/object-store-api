@@ -9,7 +9,6 @@ import ca.gc.aafc.objectstore.api.dto.DerivativeDto;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.service.DerivativeService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.crnk.core.exception.MethodNotAllowedException;
 import lombok.NonNull;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.stereotype.Repository;
@@ -21,7 +20,6 @@ import java.util.UUID;
 @Repository
 public class DerivativeRepository extends DinaRepository<DerivativeDto, Derivative> {
 
-  private final DerivativeService derivativeService;
   private final DinaAuthenticatedUser authenticatedUser;
 
   public DerivativeRepository(
@@ -42,7 +40,6 @@ public class DerivativeRepository extends DinaRepository<DerivativeDto, Derivati
       null,
       externalResourceProvider,
       buildProperties, objMapper);
-    this.derivativeService = derivativeService;
     this.authenticatedUser = authenticatedUser;
   }
 
@@ -57,10 +54,4 @@ public class DerivativeRepository extends DinaRepository<DerivativeDto, Derivati
 
     return super.create(resource);
   }
-
-  @Override
-  public <S extends DerivativeDto> S save(S resource) {
-    throw new MethodNotAllowedException("Updating a derivative is prohibited");
-  }
-
 }
