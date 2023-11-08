@@ -3,6 +3,8 @@ package ca.gc.aafc.objectstore.api.minio;
 import ca.gc.aafc.objectstore.api.file.FileInformationService;
 import ca.gc.aafc.objectstore.api.file.FileObjectInfo;
 import ca.gc.aafc.objectstore.api.file.FolderStructureStrategy;
+import ca.gc.aafc.objectstore.api.storage.FileStorage;
+
 import io.minio.BucketExistsArgs;
 import io.minio.GetObjectArgs;
 import io.minio.MakeBucketArgs;
@@ -15,6 +17,7 @@ import io.minio.errors.ErrorResponseException;
 import io.minio.errors.InsufficientDataException;
 import io.minio.errors.InternalException;
 import io.minio.errors.InvalidResponseException;
+import io.minio.errors.MinioException;
 import io.minio.errors.ServerException;
 import io.minio.errors.XmlParserException;
 import io.minio.messages.ErrorResponse;
@@ -34,7 +37,7 @@ import java.util.stream.StreamSupport;
 
 @Service
 @Log4j2
-public class MinioFileService implements FileInformationService {
+public class MinioFileService implements FileStorage, FileInformationService {
 
   private static final int UNKNOWN_OBJECT_SIZE = -1;
   // 10MiB
@@ -74,38 +77,56 @@ public class MinioFileService implements FileInformationService {
   }
 
   /**
-   * * Store a file (received as an InputStream) on Minio into a specific bucket. The bucket is expected to
+   * Store a file (received as an InputStream) on Minio into a specific bucket. The bucket is expected to
    * exist.
-   *
-   * @param fileName filename to be used in Minio
-   * @param iStream  inputStream to send to Minio (won't be closed)
    * @param bucket   name of the bucket (will NOT be created if doesn't exist)
+   * @param fileName filename to be used in Minio
+   * @param isDerivative is the file a derivative or not ?
+   * @param contentType the content type of the file to store
+   * @param iStream  inputStream to send to Minio (won't be closed)
+   *
    */
-  public void storeFile(
-    String fileName,
-    InputStream iStream,
-    String contentType,
-    String bucket,
-    boolean isDerivative
-  )
-      throws ServerException, InsufficientDataException, ErrorResponseException, IOException,
-      NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException,
-      InternalException {
-
-    minioClient.putObject(PutObjectArgs.builder()
+  @Override
+  public void storeFile(String bucket, String fileName, boolean isDerivative, String contentType,
+                        InputStream iStream) throws IOException, IllegalStateException {
+    try {
+      minioClient.putObject(PutObjectArgs.builder()
         .bucket(bucket)
         .object(getFileLocation(fileName, isDerivative))
         .stream(iStream, UNKNOWN_OBJECT_SIZE, DEFAULT_PART_SIZE)
         .contentType(contentType)
         .build());
+    } catch (MinioException e) {
+      throw new IOException(e);
+    } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+      throw new IllegalStateException(e);
+    }
   }
 
-  /**
-   * Checks if a bucket exists and if not tries to create it.
-   *
-   * @param bucketName
-   * @throws IOException
-   */
+  @Override
+  public Optional<InputStream> retrieveFile(String bucket, String fileName, boolean isDerivative)
+      throws IOException {
+    try {
+      return Optional.ofNullable(
+        minioClient.getObject(
+          GetObjectArgs.builder()
+            .bucket(bucket)
+            .object(getFileLocation(fileName, isDerivative))
+            .build()));
+    } catch (InvalidKeyException | IllegalArgumentException |
+             InsufficientDataException | InternalException | InvalidResponseException |
+             NoSuchAlgorithmException | XmlParserException | ServerException erEx) {
+      throw new IOException(erEx);
+    } catch (ErrorResponseException e) {
+      if (isNotFoundError(e.errorResponse())) {
+        return Optional.empty();
+      } else {
+        throw new IOException(e);
+      }
+    }
+  }
+
+  @Override
   public void ensureBucketExists(String bucketName) throws IOException {
     try {
       if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build())) {
@@ -133,30 +154,10 @@ public class MinioFileService implements FileInformationService {
     return false;
   }
 
-  public Optional<InputStream> getFile(String fileName, String bucketName, boolean isDerivative) throws IOException {
-    try {
-      return Optional.ofNullable(
-        minioClient.getObject(
-          GetObjectArgs.builder()
-            .bucket(bucketName)
-            .object(getFileLocation(fileName, isDerivative))
-            .build()));
-    } catch (InvalidKeyException | IllegalArgumentException |
-      InsufficientDataException | InternalException | InvalidResponseException |
-      NoSuchAlgorithmException | XmlParserException | ServerException erEx) {
-      throw new IOException(erEx);
-    } catch (ErrorResponseException e) {
-      if (isNotFoundError(e.errorResponse())) {
-        return Optional.empty();
-      } else {
-        throw new IOException(e);
-      }
-    }
-  }
-
+  @Override
   public Optional<FileObjectInfo> getFileInfo(
-    String fileName,
     String bucketName,
+    String fileName,
     boolean isDerivative
   ) throws IOException {
     StatObjectResponse objectStat;
@@ -184,7 +185,8 @@ public class MinioFileService implements FileInformationService {
     }
   }
 
-  public void removeFile(String bucket, String fileName, boolean isDerivative) throws IOException {
+  @Override
+  public void deleteFile(String bucket, String fileName, boolean isDerivative) throws IOException {
     try {
       minioClient.removeObject(RemoveObjectArgs.builder()
         .bucket(bucket)
