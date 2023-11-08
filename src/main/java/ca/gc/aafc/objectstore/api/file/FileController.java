@@ -154,7 +154,7 @@ public class FileController {
     }
 
     throw new UnsupportedMediaTypeStatusException(messageSource.getMessage(
-      "supportedMediaType.illegal", new String[]{detectedMediaType.toString()}, LocaleContextHolder.getLocale()));
+      "upload.invalid_media_type", new String[]{detectedMediaType.toString()}, LocaleContextHolder.getLocale()));
   }
 
   private ObjectUploadDto handleUpload(
@@ -176,6 +176,11 @@ public class FileController {
     try {
       file.transferTo(tmpFile);
 
+      if (tmpFile.toFile().length() <= 0L) {
+        throw new IllegalStateException(
+          messageSource.getMessage("upload.empty_file_error", null, LocaleContextHolder.getLocale()));
+      }
+
       try (InputStream bIs = new BufferedInputStream(Files.newInputStream(tmpFile))) {
         mtdr = mediaTypeDetectionStrategy
           .detectMediaType(bIs, file.getContentType(), file.getOriginalFilename());
@@ -184,7 +189,7 @@ public class FileController {
       MediaType detectedMediaType = mtdr.getDetectedMediaType();
       if (!mediaTypeConfiguration.isSupported(detectedMediaType)) {
         throw new UnsupportedMediaTypeStatusException(messageSource.getMessage(
-          "supportedMediaType.illegal", new String[] {detectedMediaType.toString()},
+          "upload.invalid_media_type", new String[] {detectedMediaType.toString()},
           LocaleContextHolder.getLocale()));
       }
       MessageDigest md = MessageDigest.getInstance(DIGEST_ALGORITHM);
