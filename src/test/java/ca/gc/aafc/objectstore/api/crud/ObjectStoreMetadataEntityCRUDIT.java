@@ -116,7 +116,9 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
 
     objectStoreMetaDataService.create(osm);
 
-    Derivative derivative = newDerivative(osm);
+    ObjectUpload ou = ObjectUploadFactory.newObjectUpload().isDerivative(true).build();
+    objectUploadService.create(ou);
+    Derivative derivative = newDerivative(osm, ou.getFileIdentifier());
     derivativeService.create(derivative);
 
     UUID uuid = osm.getUuid();
@@ -297,10 +299,10 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
       null, 0, 100);
   }  
   
-  private Derivative newDerivative(ObjectStoreMetadata child) {
+  private Derivative newDerivative(ObjectStoreMetadata child, UUID fileIdentifier) {
     return Derivative.builder()
       .uuid(UUID.randomUUID())
-      .fileIdentifier(UUID.randomUUID())
+      .fileIdentifier(fileIdentifier)
       .fileExtension(".jpg")
       .bucket("mybucket")
       .acHashValue("abc")

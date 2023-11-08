@@ -1,5 +1,6 @@
 package ca.gc.aafc.objectstore.api.service;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.SmartValidator;
@@ -12,6 +13,8 @@ import ca.gc.aafc.objectstore.api.dto.DerivativeDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
+import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
+import ca.gc.aafc.objectstore.api.file.FileController;
 import ca.gc.aafc.objectstore.api.file.ThumbnailGenerator;
 import ca.gc.aafc.objectstore.api.validation.DerivativeValidator;
 
@@ -22,6 +25,7 @@ import java.util.function.BiFunction;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.validation.ValidationException;
 import lombok.NonNull;
 
 @Service
@@ -44,6 +48,7 @@ public class DerivativeService extends MessageProducingService<Derivative> {
   @Override
   protected void preCreate(Derivative entity) {
     entity.setUuid(UUID.randomUUID());
+    handleFileRelatedData(entity);
     establishBiDirectionalAssociation(entity);
   }
 
@@ -62,6 +67,42 @@ public class DerivativeService extends MessageProducingService<Derivative> {
   @Override
   public void validateBusinessRules(Derivative entity) {
     applyBusinessRule(entity, validator);
+  }
+
+  /**
+   * Handle data that is related to file (ObjectUpload).
+   * @param derivative
+   */
+  private void handleFileRelatedData(Derivative derivative) {
+
+    // skip validation for system generated
+    if (isSystemGenerated(derivative)) {
+      return;
+    }
+
+    UUID fileIdentifier = derivative.getFileIdentifier();
+    ObjectUpload objectUpload = findOne(
+      fileIdentifier,
+      ObjectUpload.class);
+
+    // Object Upload must be present, signals a real file has been previously uploaded.
+    if (objectUpload == null) {
+      throw new ValidationException("Upload with fileIdentifier:" + fileIdentifier + " not found");
+    }
+
+    // Object Upload must be a derivative
+    if (!objectUpload.getIsDerivative()) {
+      throw new ValidationException("Upload with fileIdentifier:" + fileIdentifier + " is not a derivative");
+    }
+
+    // Auto populated fields based on object upload for given File Id
+    derivative.setFileExtension(objectUpload.getEvaluatedFileExtension());
+    derivative.setAcHashValue(objectUpload.getSha1Hex());
+    derivative.setAcHashFunction(FileController.DIGEST_ALGORITHM);
+    derivative.setBucket(objectUpload.getBucket());
+    if (StringUtils.isBlank(derivative.getDcFormat())) { // Auto populate if not submitted
+      derivative.setDcFormat(objectUpload.getEvaluatedMediaType());
+    }
   }
 
   @Override
@@ -232,6 +273,12 @@ public class DerivativeService extends MessageProducingService<Derivative> {
       .bucket(bucket)
       .publiclyReleasable(publiclyReleasable)
       .build();
+  }
+
+  private static boolean isSystemGenerated(Derivative derivative) {
+    return
+      Derivative.DerivativeType.THUMBNAIL_IMAGE.equals(derivative.getDerivativeType()) &&
+        ThumbnailGenerator.SYSTEM_GENERATED.equals(derivative.getCreatedBy());
   }
 
 }

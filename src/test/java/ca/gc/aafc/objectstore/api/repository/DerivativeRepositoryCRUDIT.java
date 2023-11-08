@@ -8,7 +8,6 @@ import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import ca.gc.aafc.objectstore.api.testsupport.fixtures.DerivativeTestFixture;
-import io.crnk.core.exception.BadRequestException;
 import io.crnk.core.exception.MethodNotAllowedException;
 import io.crnk.core.queryspec.QuerySpec;
 
@@ -86,7 +85,7 @@ public class DerivativeRepositoryCRUDIT extends BaseIntegrationTest {
     notDerivative.setIsDerivative(false);
     objectUploadService.create(notDerivative);
     Assertions.assertThrows(
-      BadRequestException.class,
+      ValidationException.class,
       () -> derivativeRepository.create(newDerivative(notDerivative.getFileIdentifier())));
   }
 
