@@ -276,6 +276,12 @@ public class DerivativeService extends MessageProducingService<Derivative> {
       .build();
   }
 
+  /**
+   * Consistent with generateDerivativeForThumbnail but should be based on a boolean fields instead
+   * createdBy
+   * @param derivative
+   * @return
+   */
   private static boolean isSystemGenerated(Derivative derivative) {
     return
       Derivative.DerivativeType.THUMBNAIL_IMAGE.equals(derivative.getDerivativeType()) &&
