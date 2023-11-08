@@ -107,7 +107,15 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
 
   @Test
   void update_UsesValidator() {
-    Derivative derivative = derivativeService.create(newDerivative(acDerivedFrom, objectUpload.getFileIdentifier()));
+    ObjectUpload ou = ObjectUploadFactory.newObjectUpload()
+      .bucket("test")
+      .isDerivative(true)
+      .evaluatedMediaType(null)
+      .build();
+
+    objectUploadService.create(ou);
+
+    Derivative derivative = derivativeService.create(newDerivative(acDerivedFrom, ou.getFileIdentifier()));
     derivative.setDerivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE);
     derivative.setDcFormat(null);
     Assertions.assertThrows(ValidationException.class, () -> derivativeService.update(derivative));
