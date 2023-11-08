@@ -3,7 +3,6 @@ package ca.gc.aafc.objectstore.api.file;
 import ca.gc.aafc.objectstore.api.MainConfiguration;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.minio.MinioFileService;
-import io.minio.errors.MinioException;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
@@ -24,7 +23,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.GeneralSecurityException;
 import java.util.UUID;
 
 @Service
@@ -57,7 +55,7 @@ public class ThumbnailGenerator {
 
     try (
       InputStream originalFile = minioService
-        .getFile(sourceFilename, sourceBucket, isSourceDerivative)
+        .retrieveFile(sourceBucket, sourceFilename, isSourceDerivative)
         .orElseThrow(() -> new IllegalArgumentException("file not found: " + sourceFilename));
       ByteArrayOutputStream os = new ByteArrayOutputStream()
     ) {
@@ -83,17 +81,17 @@ public class ThumbnailGenerator {
         .toOutputStream(os);
 
       try (ByteArrayInputStream thumbnail = new ByteArrayInputStream(os.toByteArray())) {
-        minioService.storeFile(fileName, thumbnail, MediaType.IMAGE_JPEG_VALUE, sourceBucket, true);
+        minioService.storeFile(sourceBucket, fileName, true, MediaType.IMAGE_JPEG_VALUE, thumbnail);
       }
 
-    } catch (MinioException | IOException | GeneralSecurityException e) {
+    } catch (IOException e) {
       log.warn(() -> "A thumbnail could not be generated for file " + sourceFilename, e);
     }
   }
 
   public void deleteThumbnail(UUID derivativeFileIdentifier, String bucket) throws IOException {
     String fileName = derivativeFileIdentifier + ThumbnailGenerator.THUMBNAIL_EXTENSION;
-    minioService.removeFile(bucket, fileName, true);
+    minioService.deleteFile(bucket, fileName, true);
   }
 
   public static boolean isSupported(String fileType) {

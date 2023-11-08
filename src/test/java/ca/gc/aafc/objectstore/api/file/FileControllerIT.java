@@ -230,9 +230,7 @@ public class FileControllerIT extends BaseIntegrationTest {
 
   @Test
   @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
-  public void downloadDerivative() throws IOException, InvalidKeyException, NoSuchAlgorithmException,
-      XmlParserException, InvalidResponseException, ServerException, InternalException, MimeTypeException,
-      InsufficientDataException, ErrorResponseException {
+  public void downloadDerivative() throws IOException, NoSuchAlgorithmException, MimeTypeException{
     MockMultipartFile mockFile = getFileUnderTest();
     ObjectUploadDto uploadResponse = fileController.handleDerivativeUpload(mockFile, bucketUnderTest);
     ObjectUpload objectUpload = ObjectUploadFactory.newObjectUpload().build();
