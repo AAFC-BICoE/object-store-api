@@ -9,6 +9,7 @@ import ca.gc.aafc.objectstore.api.file.ThumbnailGenerator;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,19 +23,34 @@ import java.util.UUID;
 public class DerivativeServiceIT extends BaseIntegrationTest {
 
   private ObjectStoreMetadata acDerivedFrom;
+  private ObjectUpload objectUpload;
 
   @BeforeEach
   void setUp() {
     acDerivedFrom = ObjectStoreMetadataFactory.newObjectStoreMetadata().build();
+    objectUpload = ObjectUploadFactory.newObjectUpload()
+      .bucket("test")
+      .isDerivative(true)
+      .evaluatedMediaType(MediaType.IMAGE_JPEG_VALUE)
+      .build();
 
     service.runInNewTransaction(em -> {
       em.persist(acDerivedFrom);
+      em.persist(objectUpload);
+    });
+  }
+
+  @AfterEach
+  void tearDown() {
+    service.runInNewTransaction(em -> {
+      // find and delete since the entity is unmanaged in that new transaction
+      em.remove(em.find(ObjectUpload.class, objectUpload.getId()));
     });
   }
 
   @Test
   void create_WhenThumbnailSupported_ThumbnailGenerated() {
-    Derivative derivative = newDerivative(acDerivedFrom);
+    Derivative derivative = newDerivative(acDerivedFrom, objectUpload.getFileIdentifier());
     derivativeService.create(derivative);
 
     Derivative thumbResult = findAllByDerivative(derivative)
@@ -52,7 +68,13 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
 
   @Test
   void create_UsesValidator() {
-    Derivative derivative = newDerivative(acDerivedFrom);
+    ObjectUpload upload = ObjectUploadFactory.newObjectUpload()
+      .isDerivative(true)
+      .bucket("test")
+      .evaluatedMediaType(null).build();
+    objectUploadService.create(upload);
+
+    Derivative derivative = newDerivative(acDerivedFrom, upload.getFileIdentifier());
     derivative.setDerivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE);
     derivative.setDcFormat(null);
     Assertions.assertThrows(ValidationException.class, () -> derivativeService.create(derivative));
@@ -60,7 +82,7 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
 
   @Test
   void create_WhenDerivativeIsThumbNail_ThumbNailNotGenerated() {
-    Derivative derivative = newDerivative(acDerivedFrom);
+    Derivative derivative = newDerivative(acDerivedFrom, objectUpload.getFileIdentifier());
     derivative.setDerivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE);
     derivativeService.create(derivative);
     Assertions.assertEquals(0, findAllByDerivative(derivative).size());
@@ -68,14 +90,15 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
 
   @Test
   void create_WhenThumbNailAlreadyExists_ThumbNailNotGenerated() {
-    Derivative derivative = newDerivative(acDerivedFrom);
+    Derivative derivative = newDerivative(acDerivedFrom, objectUpload.getFileIdentifier());
     derivativeService.create(derivative);
 
     ObjectUpload upload = ObjectUploadFactory.newObjectUpload()
-      .bucket("test").evaluatedMediaType(MediaType.IMAGE_JPEG_VALUE).build();
+      .isDerivative(true)
+      .bucket("test")
+      .evaluatedMediaType(MediaType.IMAGE_JPEG_VALUE).build();
     objectUploadService.create(upload);
-    Derivative derivative2 = newDerivative(acDerivedFrom);
-    derivative2.setFileIdentifier(upload.getFileIdentifier());
+    Derivative derivative2 = newDerivative(acDerivedFrom, upload.getFileIdentifier());
     derivativeService.create(derivative2);
 
     Assertions.assertEquals(1, findAllByDerivative(derivative).size());
@@ -84,7 +107,15 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
 
   @Test
   void update_UsesValidator() {
-    Derivative derivative = derivativeService.create(newDerivative(acDerivedFrom));
+    ObjectUpload ou = ObjectUploadFactory.newObjectUpload()
+      .bucket("test")
+      .isDerivative(true)
+      .evaluatedMediaType(null)
+      .build();
+
+    objectUploadService.create(ou);
+
+    Derivative derivative = derivativeService.create(newDerivative(acDerivedFrom, ou.getFileIdentifier()));
     derivative.setDerivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE);
     derivative.setDcFormat(null);
     Assertions.assertThrows(ValidationException.class, () -> derivativeService.update(derivative));
@@ -140,10 +171,10 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
         acDerivedFrom.getPubliclyReleasable()));
   }
 
-  private Derivative newDerivative(ObjectStoreMetadata child) {
+  private Derivative newDerivative(ObjectStoreMetadata child, UUID fileIdentifier) {
     return Derivative.builder()
       .uuid(UUID.randomUUID())
-      .fileIdentifier(UUID.randomUUID())
+      .fileIdentifier(fileIdentifier)
       .fileExtension(".jpg")
       .bucket("mybucket")
       .dcFormat(MediaType.IMAGE_JPEG_VALUE)

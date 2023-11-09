@@ -244,9 +244,6 @@ public class FileControllerIT extends BaseIntegrationTest {
     Derivative derivative = derivativeService.create(Derivative.builder()
         .fileIdentifier(uploadResponse.getFileIdentifier())
         .acDerivedFrom(acDerivedFrom)
-        .bucket(uploadResponse.getBucket())
-        .dcFormat(uploadResponse.getDetectedMediaType())
-        .fileExtension(uploadResponse.getEvaluatedFileExtension())
         .dcType(DcType.IMAGE)
         .createdBy("dina")
         .build());
@@ -264,7 +261,11 @@ public class FileControllerIT extends BaseIntegrationTest {
     // Assert no download permissions - wrong bucket and not publicly releasable
     derivative.setPubliclyReleasable(false);
     derivative.setBucket("abc");
-    derivativeService.update(derivative);
+
+    // update the record outside the service to skip validation since changing the bucket is not
+    // allowed by the service
+    service.save(derivative, false);
+
     assertThrows(AccessDeniedException.class,
         () -> fileController.downloadDerivative(
             bucketUnderTest,

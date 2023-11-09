@@ -8,8 +8,6 @@ import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import ca.gc.aafc.objectstore.api.testsupport.fixtures.DerivativeTestFixture;
-import io.crnk.core.exception.BadRequestException;
-import io.crnk.core.exception.MethodNotAllowedException;
 import io.crnk.core.queryspec.QuerySpec;
 
 import org.junit.jupiter.api.Assertions;
@@ -20,6 +18,9 @@ import org.springframework.http.MediaType;
 import javax.inject.Inject;
 import javax.validation.ValidationException;
 import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DerivativeRepositoryCRUDIT extends BaseIntegrationTest {
 
@@ -86,15 +87,27 @@ public class DerivativeRepositoryCRUDIT extends BaseIntegrationTest {
     notDerivative.setIsDerivative(false);
     objectUploadService.create(notDerivative);
     Assertions.assertThrows(
-      BadRequestException.class,
+      ValidationException.class,
       () -> derivativeRepository.create(newDerivative(notDerivative.getFileIdentifier())));
   }
 
   @Test
-  void save_ThrowsMethodNotAllowed() {
-    Assertions.assertThrows(
-      MethodNotAllowedException.class,
-      () -> derivativeRepository.save(newDerivative(UUID.randomUUID())));
+  void save() {
+    DerivativeDto toCreate = newDerivative(uploadTest_1.getFileIdentifier());
+    toCreate.setPubliclyReleasable(false);
+    DerivativeDto resource = derivativeRepository.create(toCreate);
+    DerivativeDto result = derivativeRepository.findOne(
+      resource.getUuid(),
+      new QuerySpec(DerivativeDto.class));
+    assertFalse(result.getPubliclyReleasable());
+
+    resource.setPubliclyReleasable(true);
+    derivativeRepository.save(resource);
+
+    result = derivativeRepository.findOne(
+      resource.getUuid(),
+      new QuerySpec(DerivativeDto.class));
+    assertTrue(result.getPubliclyReleasable());
   }
 
   private DerivativeDto newDerivative(UUID fileIdentifier) {
