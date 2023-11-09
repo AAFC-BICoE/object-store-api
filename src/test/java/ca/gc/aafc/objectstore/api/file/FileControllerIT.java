@@ -15,12 +15,7 @@ import ca.gc.aafc.objectstore.api.repository.ObjectStoreResourceRepository;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MultipartFileFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
-import io.minio.errors.ErrorResponseException;
-import io.minio.errors.InsufficientDataException;
-import io.minio.errors.InternalException;
-import io.minio.errors.InvalidResponseException;
-import io.minio.errors.ServerException;
-import io.minio.errors.XmlParserException;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MimeTypeException;
@@ -40,7 +35,6 @@ import org.springframework.web.server.UnsupportedMediaTypeStatusException;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +47,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class FileControllerIT extends BaseIntegrationTest {
 
   private static final String TEST_UPLOAD_FILE_NAME = "drawing.png";
+  private static final String TEST_UPLOAD_FILE_EXT = "png";
   // calculated using sha1sum drawing.png
   private static final String TEST_UPLOAD_FILE_SHA1HEX = "5e51269a9f21eef93ff5fbf2e8c3ceeb3d84a430";
 
@@ -98,6 +93,9 @@ public class FileControllerIT extends BaseIntegrationTest {
     metadataForFile.setFileIdentifier(uploadResponse.getFileIdentifier());
     objectStoreResourceRepository.create(metadataForFile);
 
+    assertThrows(AccessDeniedException.class, () ->
+      fileController.getObjectInfo(bucketUnderTest, uploadResponse.getFileIdentifier()+ "." + TEST_UPLOAD_FILE_EXT));
+
     ResponseEntity<InputStreamResource> response = fileController.downloadObject(bucketUnderTest,
         uploadResponse.getFileIdentifier());
 
@@ -106,8 +104,6 @@ public class FileControllerIT extends BaseIntegrationTest {
   }
 
   @Test
-  // @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET +
-  // ":USER")
   public void fileUploadConversion_OnValidSpreadsheet_contentReturned() throws Exception {
     MockMultipartFile mockFile = MultipartFileFactory.createMockMultipartFile(resourceLoader,"test_spreadsheet.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE);
     Map<Integer, List<WorkbookRow>> content = fileController.handleFileConversion(mockFile);
@@ -116,7 +112,6 @@ public class FileControllerIT extends BaseIntegrationTest {
   }
 
   @Test
-  // @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
   public void fileUploadConversion_OnValidCSV_contentReturned() throws Exception {
     // use Octet Stream to make sure the FileController will detect it's a csv
     MockMultipartFile mockFile = MultipartFileFactory.createMockMultipartFile(resourceLoader,"test_spreadsheet.csv", MediaType.APPLICATION_OCTET_STREAM_VALUE);
@@ -156,15 +151,23 @@ public class FileControllerIT extends BaseIntegrationTest {
   }
 
   @Test
-  @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
+  @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":SUPER_USER")
   public void fileUpload_gzipUpload_ObjectUploadEntryCreated() throws Exception {
     MockMultipartFile mockFile = MultipartFileFactory.createMockMultipartFile(resourceLoader, "testfile.txt.gz",
         "application/gzip");
 
     ObjectUploadDto uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
     ObjectUpload objUploaded = objectUploadService.findOne(uploadResponse.getFileIdentifier(), ObjectUpload.class);
-
     assertNotNull(objUploaded);
+    fileController.getObjectInfo(DinaAuthenticatedUserConfig.TEST_BUCKET, objUploaded.getUuid() + ".gz");
+  }
+
+  @Test
+  @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":SUPER_USER")
+  public void fileUpload_emptyFile_ExceptionThrown() throws Exception {
+    MockMultipartFile mockFile = new MockMultipartFile("file", "testfile.txt" , MediaType.TEXT_PLAIN_VALUE, new byte[]{});
+    assertThrows(IllegalStateException.class,
+      () -> fileController.handleFileUpload(mockFile, bucketUnderTest));
   }
 
   @Test
@@ -229,9 +232,7 @@ public class FileControllerIT extends BaseIntegrationTest {
 
   @Test
   @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
-  public void downloadDerivative() throws IOException, InvalidKeyException, NoSuchAlgorithmException,
-      XmlParserException, InvalidResponseException, ServerException, InternalException, MimeTypeException,
-      InsufficientDataException, ErrorResponseException {
+  public void downloadDerivative() throws IOException, NoSuchAlgorithmException, MimeTypeException{
     MockMultipartFile mockFile = getFileUnderTest();
     ObjectUploadDto uploadResponse = fileController.handleDerivativeUpload(mockFile, bucketUnderTest);
     ObjectUpload objectUpload = ObjectUploadFactory.newObjectUpload().build();
@@ -245,9 +246,6 @@ public class FileControllerIT extends BaseIntegrationTest {
     Derivative derivative = derivativeService.create(Derivative.builder()
         .fileIdentifier(uploadResponse.getFileIdentifier())
         .acDerivedFrom(acDerivedFrom)
-        .bucket(uploadResponse.getBucket())
-        .dcFormat(uploadResponse.getDetectedMediaType())
-        .fileExtension(uploadResponse.getEvaluatedFileExtension())
         .dcType(DcType.IMAGE)
         .createdBy("dina")
         .build());
@@ -265,7 +263,11 @@ public class FileControllerIT extends BaseIntegrationTest {
     // Assert no download permissions - wrong bucket and not publicly releasable
     derivative.setPubliclyReleasable(false);
     derivative.setBucket("abc");
-    derivativeService.update(derivative);
+
+    // update the record outside the service to skip validation since changing the bucket is not
+    // allowed by the service
+    service.save(derivative, false);
+
     assertThrows(AccessDeniedException.class,
         () -> fileController.downloadDerivative(
             bucketUnderTest,

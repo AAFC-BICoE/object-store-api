@@ -33,7 +33,7 @@ import java.util.List;
 })
 class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
 
-  public static final String BUCKET = "bucket";
+  public static final String BUCKET = "objectuploadbucket";
   public static final String INTERVAL_2_WEEKS = "UPDATE object_upload SET created_on = created_on - interval '2 weeks'";
 
   @Inject
@@ -73,7 +73,7 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
     serviceUnderTest.removeObjectOrphans(); // method under test
 
     Assertions.assertTrue(
-      fileService.getFile(fileName, BUCKET, false).isEmpty(),
+      fileService.retrieveFile(BUCKET, fileName, false).isEmpty(),
       "There should be no returned files");
     Assertions.assertNull(
       objectUploadService.findOne(upload.getFileIdentifier(), ObjectUpload.class),
@@ -91,7 +91,7 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
     serviceUnderTest.removeObjectOrphans(); // method under test
 
     Assertions.assertTrue(
-      fileService.getFile(fileName, BUCKET, false).isPresent(),
+      fileService.retrieveFile(BUCKET, fileName,false).isPresent(),
       "There should be a returned file");
     Assertions.assertNotNull(
       objectUploadService.findOne(upload.getFileIdentifier(), ObjectUpload.class),
@@ -112,7 +112,7 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
     serviceUnderTest.removeObjectOrphans(); // method under test
 
     Assertions.assertTrue(
-      fileService.getFile(fileName, BUCKET, false).isPresent(),
+      fileService.retrieveFile(BUCKET, fileName,false).isPresent(),
       "There should be a returned file");
     Assertions.assertNotNull(
       objectUploadService.findOne(upload.getFileIdentifier(), ObjectUpload.class),
@@ -125,7 +125,9 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
     ObjectUpload acDerivedRecord = objectUploadService.create(
       ObjectUploadFactory.newObjectUpload().bucket(BUCKET).build());
     ObjectStoreMetadata acDerivedFrom = metaDataService.create(
-      ObjectStoreMetadataFactory.newObjectStoreMetadata().fileIdentifier(acDerivedRecord.getFileIdentifier())
+      ObjectStoreMetadataFactory.newObjectStoreMetadata()
+        .fileIdentifier(acDerivedRecord.getFileIdentifier())
+        .bucket(BUCKET)
         .build());
     persistOrphanDerivative();
 
@@ -151,7 +153,7 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
     serviceUnderTest.removeObjectOrphans(); // method under test
 
     Assertions.assertTrue(
-      fileService.getFile(fileName, BUCKET, true).isPresent(),
+      fileService.retrieveFile(BUCKET, fileName, true).isPresent(),
       "There should be a returned file");
     Assertions.assertNotNull(
       objectUploadService.findOne(derivativeUpload.getFileIdentifier(), ObjectUpload.class),
@@ -172,7 +174,7 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
     serviceUnderTest.removeObjectOrphans(); // method under test
 
     Assertions.assertTrue(
-      fileService.getFile(fileName, BUCKET, true).isEmpty(),
+      fileService.retrieveFile(BUCKET, fileName,true).isEmpty(),
       "There should be no returned files");
     Assertions.assertNull(
       objectUploadService.findOne(derivativeUpload.getFileIdentifier(), ObjectUpload.class),
@@ -190,14 +192,16 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
     Thread.sleep(2000);
 
     Assertions.assertTrue(
-      fileService.getFile(fileName, BUCKET, false).isEmpty(),
+      fileService.retrieveFile(BUCKET, fileName,false).isEmpty(),
       "There should be no returned files");
     Assertions.assertTrue(findUploads().isEmpty(), "There should be no upload record");
   }
 
   private List<ObjectUpload> findUploads() {
     return objectUploadService.findAll(ObjectUpload.class,
-      (criteriaBuilder, objectUploadRoot) -> new Predicate[]{}, null, 0, 20);
+      (criteriaBuilder, objectUploadRoot) -> new Predicate[] {
+        criteriaBuilder.equal(objectUploadRoot.get("bucket"), BUCKET)
+      }, null, 0, 20);
   }
 
   private void persistOrphanRecord() {
@@ -216,6 +220,7 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
       upload.setBucket(BUCKET);
       em.persist(upload);
       em.createNativeQuery(INTERVAL_2_WEEKS).executeUpdate(); // Mock record created in the past
+      em.flush();
     });
   }
 
@@ -223,11 +228,12 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
   private String storeFileForUpload(ObjectUpload upload) {
     String fileName = upload.getCompleteFileName();
     fileService.storeFile(
-      fileName,
-      new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8)),
-      upload.getEvaluatedMediaType(),
       BUCKET,
-      upload.getIsDerivative());
+      fileName,
+      upload.getIsDerivative(),
+      upload.getEvaluatedMediaType(),
+      new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8))
+    );
     return fileName;
   }
 }

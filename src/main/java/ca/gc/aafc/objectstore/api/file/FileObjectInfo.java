@@ -7,6 +7,8 @@ import java.util.Map;
 import lombok.Builder;
 import lombok.Getter;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Builder
 @Getter
 public class FileObjectInfo {
@@ -15,6 +17,7 @@ public class FileObjectInfo {
   
   private long length;
   private String contentType;
+  @JsonIgnore
   private Map<String, List<String>> headerMap;
   
   public List<String> extractHeader(String header) {

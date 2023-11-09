@@ -20,12 +20,12 @@ import ca.gc.aafc.objectstore.api.security.FileControllerAuthorizationService;
 import ca.gc.aafc.objectstore.api.service.DerivativeService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
 import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
-import io.minio.errors.ErrorResponseException;
-import io.minio.errors.InsufficientDataException;
-import io.minio.errors.InternalException;
-import io.minio.errors.InvalidResponseException;
-import io.minio.errors.ServerException;
-import io.minio.errors.XmlParserException;
+import ca.gc.aafc.objectstore.api.storage.FileStorage;
+
+import java.io.BufferedInputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Optional;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 
@@ -55,7 +55,6 @@ import javax.transaction.Transactional;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.DigestInputStream;
-import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
@@ -71,13 +70,12 @@ public class FileController {
 
   public static final String DIGEST_ALGORITHM = "SHA-1";
   private static final int MAX_NUMBER_OF_ATTEMPT_RANDOM_UUID = 5;
-  private static final int READ_AHEAD_BUFFER_SIZE = 10 * 1024;
 
   private final FileControllerAuthorizationService authorizationService;
   private final DinaMappingLayer<ObjectUploadDto, ObjectUpload> mappingLayer;
   private final ObjectUploadService objectUploadService;
   private final DerivativeService derivativeService;
-  private final MinioFileService minioService;
+  private final FileStorage fileStorage;
   private final ObjectStoreMetaDataService objectStoreMetaDataService;
   private final MediaTypeDetectionStrategy mediaTypeDetectionStrategy;
   private final MessageSource messageSource;
@@ -99,7 +97,7 @@ public class FileController {
     MediaTypeConfiguration mediaTypeConfiguration
   ) {
     this.authorizationService = authorizationService;
-    this.minioService = minioService;
+    this.fileStorage = minioService;
     this.objectUploadService = objectUploadService;
     this.objectStoreMetaDataService = objectStoreMetaDataService;
     this.mediaTypeDetectionStrategy = mediaTypeDetectionStrategy;
@@ -118,9 +116,7 @@ public class FileController {
   public ObjectUploadDto handleDerivativeUpload(
     @RequestParam("file") MultipartFile file,
     @PathVariable String bucket
-  ) throws IOException, MimeTypeException, NoSuchAlgorithmException, ServerException, ErrorResponseException,
-      InternalException, XmlParserException, InvalidResponseException,
-      InsufficientDataException, InvalidKeyException {
+  ) throws IOException, MimeTypeException, NoSuchAlgorithmException {
     return handleUpload(file, bucket, true);
   }
 
@@ -129,9 +125,7 @@ public class FileController {
   public ObjectUploadDto handleFileUpload(
     @RequestParam("file") MultipartFile file,
     @PathVariable String bucket
-  ) throws InvalidKeyException, NoSuchAlgorithmException, ErrorResponseException,
-      InternalException, InsufficientDataException, InvalidResponseException, MimeTypeException, XmlParserException,
-      IOException, ServerException {
+  ) throws NoSuchAlgorithmException, MimeTypeException, IOException {
     return handleUpload(file, bucket, false);
   }
 
@@ -160,16 +154,14 @@ public class FileController {
     }
 
     throw new UnsupportedMediaTypeStatusException(messageSource.getMessage(
-      "supportedMediaType.illegal", new String[]{detectedMediaType.toString()}, LocaleContextHolder.getLocale()));
+      "upload.invalid_media_type", new String[]{detectedMediaType.toString()}, LocaleContextHolder.getLocale()));
   }
 
   private ObjectUploadDto handleUpload(
     @NonNull MultipartFile file,
     @NonNull String bucket,
     boolean isDerivative
-  ) throws IOException, MimeTypeException, NoSuchAlgorithmException, InvalidKeyException, ErrorResponseException,
-      InsufficientDataException, InternalException, InvalidResponseException,
-      XmlParserException, ServerException {
+  ) throws IOException, MimeTypeException, NoSuchAlgorithmException {
 
     //Authorize before anything else
     authorizationService.authorizeUpload(FileControllerAuthorizationService.objectUploadAuthFromBucket(bucket));
@@ -177,26 +169,53 @@ public class FileController {
     // Safe get unique UUID
     UUID uuid = generateUUID();
 
-    // We need access to the first bytes in a form that we can reset the InputStream
-    ReadAheadInputStream prIs = ReadAheadInputStream.from(file.getInputStream(), READ_AHEAD_BUFFER_SIZE);
+    // Copy the entire stream to a temp file under our control
+    Path tmpFile = Files.createTempFile(uuid.toString(), null);
+    MediaTypeDetectionStrategy.MediaTypeDetectionResult mtdr;
+    String sha1Hash;
+    try {
+      file.transferTo(tmpFile);
 
-    MediaTypeDetectionStrategy.MediaTypeDetectionResult mtdr = mediaTypeDetectionStrategy
-      .detectMediaType(prIs.getReadAheadBuffer(), file.getContentType(), file.getOriginalFilename());
+      if (tmpFile.toFile().length() <= 0L) {
+        throw new IllegalStateException(
+          messageSource.getMessage("upload.empty_file_error", null, LocaleContextHolder.getLocale()));
+      }
 
-    MediaType detectedMediaType = mtdr.getDetectedMediaType();
-    if (!mediaTypeConfiguration.isSupported(detectedMediaType)) {
-      throw new UnsupportedMediaTypeStatusException(messageSource.getMessage(
-        "supportedMediaType.illegal", new String[]{detectedMediaType.toString()}, LocaleContextHolder.getLocale()));
+      try (InputStream bIs = new BufferedInputStream(Files.newInputStream(tmpFile))) {
+        mtdr = mediaTypeDetectionStrategy
+          .detectMediaType(bIs, file.getContentType(), file.getOriginalFilename());
+      }
+
+      MediaType detectedMediaType = mtdr.getDetectedMediaType();
+      if (!mediaTypeConfiguration.isSupported(detectedMediaType)) {
+        throw new UnsupportedMediaTypeStatusException(messageSource.getMessage(
+          "upload.invalid_media_type", new String[] {detectedMediaType.toString()},
+          LocaleContextHolder.getLocale()));
+      }
+      MessageDigest md = MessageDigest.getInstance(DIGEST_ALGORITHM);
+
+      try (InputStream dIs = new DigestInputStream(Files.newInputStream(tmpFile), md)) {
+        storeFile(bucket, uuid, mtdr, dIs, isDerivative);
+        sha1Hash = Hex.encodeHexString(md.digest());
+      }
+    } finally {
+      Files.delete(tmpFile);
     }
-    MessageDigest md = MessageDigest.getInstance(DIGEST_ALGORITHM);
-    storeFile(bucket, uuid, mtdr, new DigestInputStream(prIs.getInputStream(), md), isDerivative);
+
+    // Make sure we can find the file in Minio
+    String filename = uuid + mtdr.getEvaluatedExtension();
+    Optional<FileObjectInfo> foInfo = fileStorage.getFileInfo(bucket, filename, isDerivative);
+
+    if(foInfo.isEmpty() || foInfo.get().getLength() != file.getSize()) {
+      throw new IllegalStateException("Can't find the file uploaded to Minio. filename: " + filename);
+    }
 
     return createObjectUpload(
       file,
       bucket,
       mtdr,
       uuid,
-      Hex.encodeHexString(md.digest()),
+      sha1Hash,
       extractExifData(file),
       isDerivative);
   }
@@ -222,6 +241,30 @@ public class FileController {
     return download(bucket, metadata.getFilename(),
         generateDownloadFilename(metadata.getOriginalFilename(), metadata.getFilename(), metadata.getFileExtension()),
         false, metadata.getDcFormat(), metadata);
+  }
+
+  /**
+   * Checks the presence and some basic information about a file on the file system (Minio).
+   * Since the database is not used, we must receive the filename as opposed to only the fileIdentifier.
+   * @param bucket bucket of the file (aka the group)
+   * @param filename filename including extension.
+   * @return
+   */
+  @GetMapping("/file-info/{bucket}/{filename}")
+  public ResponseEntity<FileObjectInfo> getObjectInfo(@PathVariable String bucket,
+                                                      @PathVariable String filename
+  ) throws IOException {
+
+    authorizationService.authorizeFileInfo(FileControllerAuthorizationService
+      .objectUploadAuthFromBucket(bucket));
+
+    Optional<FileObjectInfo> fileInfo = fileStorage.getFileInfo(bucket, filename,false);
+
+    if(fileInfo.isPresent()) {
+      return new ResponseEntity<>(fileInfo.get(), HttpStatus.OK);
+    }
+
+    throw buildNotFoundException(bucket, filename);
   }
 
   @GetMapping("/file/{bucket}/derivative/{fileId}")
@@ -271,9 +314,9 @@ public class FileController {
     //Authorize before anything else
     authorizationService.authorizeDownload(entity);
 
-    FileObjectInfo foi = minioService.getFileInfo(fileName, bucket, isDerivative)
+    FileObjectInfo foi = fileStorage.getFileInfo(bucket, fileName, isDerivative)
       .orElseThrow(() -> buildNotFoundException(bucket, fileName));
-    InputStream is = minioService.getFile(fileName, bucket, isDerivative)
+    InputStream is = fileStorage.retrieveFile(bucket, fileName, isDerivative)
       .orElseThrow(() -> buildNotFoundException(bucket, fileName));
 
     return new ResponseEntity<>(
@@ -333,17 +376,17 @@ public class FileController {
     MediaTypeDetectionStrategy.MediaTypeDetectionResult mtdr,
     InputStream iStream,
     boolean isDerivative
-  ) throws IOException, InvalidKeyException, ErrorResponseException, InsufficientDataException, InternalException,
-      InvalidResponseException, NoSuchAlgorithmException, XmlParserException, ServerException {
+  ) throws IOException {
     // make bucket if it does not exist
-    minioService.ensureBucketExists(bucket);
+    fileStorage.ensureBucketExists(bucket);
 
-    minioService.storeFile(
-      uuid.toString() + mtdr.getEvaluatedExtension(),
-      iStream,
-      mtdr.getEvaluatedMediaType(),
+    fileStorage.storeFile(
       bucket,
-      isDerivative);
+      uuid.toString() + mtdr.getEvaluatedExtension(),
+      isDerivative,
+      mtdr.getEvaluatedMediaType(),
+      iStream
+    );
   }
 
   /**

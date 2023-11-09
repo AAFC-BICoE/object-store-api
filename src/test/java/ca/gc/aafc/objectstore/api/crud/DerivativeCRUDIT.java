@@ -27,10 +27,17 @@ public class DerivativeCRUDIT extends BaseEntityCRUDIT {
     objectUploadService.create(upload);
     objectStoreMetaDataService.create(metadata);
 
-    Derivative generatedFrom = newDerivative(metadata);
+    ObjectUpload derivativeUpload = ObjectUploadFactory.newObjectUpload()
+      .isDerivative(true).build();
+    objectUploadService.create(derivativeUpload);
+    Derivative generatedFrom = newDerivative(metadata, derivativeUpload.getFileIdentifier());
     derivativeService.create(generatedFrom);
 
-    derivative = newDerivative(metadata);
+    ObjectUpload derivativeUpload2 = ObjectUploadFactory.newObjectUpload()
+      .isDerivative(true).build();
+    objectUploadService.create(derivativeUpload2);
+
+    derivative = newDerivative(metadata, derivativeUpload2.getFileIdentifier());
     derivative.setGeneratedFromDerivative(generatedFrom);
     derivativeService.create(derivative);
   }
@@ -70,10 +77,10 @@ public class DerivativeCRUDIT extends BaseEntityCRUDIT {
     Assertions.assertNotNull(objectStoreMetaDataService.findOne(metadata.getUuid(), ObjectStoreMetadata.class));
   }
 
-  private Derivative newDerivative(ObjectStoreMetadata child) {
+  private Derivative newDerivative(ObjectStoreMetadata child, UUID fileIdentifier) {
     return Derivative.builder()
       .uuid(UUID.randomUUID())
-      .fileIdentifier(UUID.randomUUID())
+      .fileIdentifier(fileIdentifier)
       .fileExtension(".jpg")
       .bucket("mybucket")
       .acHashValue("abc")

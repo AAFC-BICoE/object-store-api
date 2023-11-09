@@ -7,14 +7,9 @@ import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.dina.security.auth.DinaAuthorizationService;
 import ca.gc.aafc.objectstore.api.dto.DerivativeDto;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
-import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
-import ca.gc.aafc.objectstore.api.file.FileController;
 import ca.gc.aafc.objectstore.api.service.DerivativeService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.crnk.core.exception.BadRequestException;
-import io.crnk.core.exception.MethodNotAllowedException;
 import lombok.NonNull;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.stereotype.Repository;
 
@@ -25,7 +20,6 @@ import java.util.UUID;
 @Repository
 public class DerivativeRepository extends DinaRepository<DerivativeDto, Derivative> {
 
-  private final DerivativeService derivativeService;
   private final DinaAuthenticatedUser authenticatedUser;
 
   public DerivativeRepository(
@@ -46,7 +40,6 @@ public class DerivativeRepository extends DinaRepository<DerivativeDto, Derivati
       null,
       externalResourceProvider,
       buildProperties, objMapper);
-    this.derivativeService = derivativeService;
     this.authenticatedUser = authenticatedUser;
   }
 
@@ -57,37 +50,8 @@ public class DerivativeRepository extends DinaRepository<DerivativeDto, Derivati
     if (fileIdentifier == null) {
       throw new ValidationException("fileIdentifier should be provided");
     }
-
-    ObjectUpload objectUpload = derivativeService.findOne(
-      fileIdentifier,
-      ObjectUpload.class);
-
-    // Object Upload must be present, signals a real file has been previously uploaded.
-    if (objectUpload == null) {
-      throw new ValidationException("Upload with fileIdentifier:" + fileIdentifier + " not found");
-    }
-
-    // Object Upload must be a derivative
-    if (!objectUpload.getIsDerivative()) {
-      throw new BadRequestException("Upload with fileIdentifier:" + fileIdentifier + " is not a derivative");
-    }
-
-    // Auto populated fields based on object upload for given File Id
-    resource.setFileExtension(objectUpload.getEvaluatedFileExtension());
-    resource.setAcHashValue(objectUpload.getSha1Hex());
-    resource.setAcHashFunction(FileController.DIGEST_ALGORITHM);
-    resource.setBucket(objectUpload.getBucket());
-    if (StringUtils.isBlank(resource.getDcFormat())) { // Auto populate if not submitted
-      resource.setDcFormat(objectUpload.getEvaluatedMediaType());
-    }
     resource.setCreatedBy(authenticatedUser.getUsername());
 
     return super.create(resource);
   }
-
-  @Override
-  public <S extends DerivativeDto> S save(S resource) {
-    throw new MethodNotAllowedException("Updating a derivative is prohibited");
-  }
-
 }
