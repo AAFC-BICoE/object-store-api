@@ -15,12 +15,7 @@ import ca.gc.aafc.objectstore.api.repository.ObjectStoreResourceRepository;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MultipartFileFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
-import io.minio.errors.ErrorResponseException;
-import io.minio.errors.InsufficientDataException;
-import io.minio.errors.InternalException;
-import io.minio.errors.InvalidResponseException;
-import io.minio.errors.ServerException;
-import io.minio.errors.XmlParserException;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MimeTypeException;
@@ -40,7 +35,6 @@ import org.springframework.web.server.UnsupportedMediaTypeStatusException;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
@@ -166,6 +160,14 @@ public class FileControllerIT extends BaseIntegrationTest {
     ObjectUpload objUploaded = objectUploadService.findOne(uploadResponse.getFileIdentifier(), ObjectUpload.class);
     assertNotNull(objUploaded);
     fileController.getObjectInfo(DinaAuthenticatedUserConfig.TEST_BUCKET, objUploaded.getUuid() + ".gz");
+  }
+
+  @Test
+  @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":SUPER_USER")
+  public void fileUpload_emptyFile_ExceptionThrown() throws Exception {
+    MockMultipartFile mockFile = new MockMultipartFile("file", "testfile.txt" , MediaType.TEXT_PLAIN_VALUE, new byte[]{});
+    assertThrows(IllegalStateException.class,
+      () -> fileController.handleFileUpload(mockFile, bucketUnderTest));
   }
 
   @Test
