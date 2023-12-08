@@ -1,4 +1,4 @@
-package ca.gc.aafc.objectstore.api;
+package ca.gc.aafc.objectstore.api.config;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

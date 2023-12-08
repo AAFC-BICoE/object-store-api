@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.BiFunction;
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import javax.validation.ValidationException;
 
 import org.apache.commons.lang3.StringUtils;
@@ -204,11 +207,19 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
     }
   }
 
-  public Optional<ObjectStoreMetadata> loadObjectStoreMetadataByFileId(UUID fileId) {
-    return this.findAll(
-        ObjectStoreMetadata.class,
-        (cb, root) -> new Predicate[] { cb.equal(root.get("fileIdentifier"), fileId) }, null, 0, 1)
-        .stream().findFirst();
+  /**
+   * Returns an Optional ObjectStoreMetadata for a given criteria.
+   *
+   * @param crit criteria to find the derivative
+   * @return an Optional Derivative for a given criteria.
+   */
+  private Optional<ObjectStoreMetadata> findOneBy(
+    @NonNull BiFunction<CriteriaBuilder, Root<ObjectStoreMetadata>, Predicate[]> crit) {
+    return this.findAll(ObjectStoreMetadata.class, crit, null, 0, 1).stream().findFirst();
+  }
+
+  public Optional<ObjectStoreMetadata> findByFileId(UUID fileId) {
+    return findOneBy((cb, root) -> new Predicate[] {cb.equal(root.get("fileIdentifier"), fileId)});
   }
 
   /**

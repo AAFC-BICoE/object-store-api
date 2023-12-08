@@ -150,16 +150,6 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
     this.id = id;
   }
 
-  /**
-   * Returns fileIdentifier + fileExtension
-   *
-   * @return fileIdentifier + fileExtension
-   */
-  @Transient
-  public String getFilename() {
-    return fileIdentifier + fileExtension;
-  }
-
   @Column(name = "ac_caption")
   @Size(max = 250)
   public String getAcCaption() {
