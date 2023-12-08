@@ -34,7 +34,7 @@ public class ObjectExportService {
   public ObjectExportService(FileControllerAuthorizationService authorizationService,
                              FileStorage fileStorage,
                              ObjectStoreMetaDataService objectMetadataService,
-                             DerivativeService derivativeService){
+                             DerivativeService derivativeService) {
     this.authorizationService = authorizationService;
     this.fileStorage = fileStorage;
     this.objectMetadataService = objectMetadataService;
