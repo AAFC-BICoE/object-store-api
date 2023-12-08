@@ -348,7 +348,7 @@ public class FileController {
    * @param contentLength length of the file
    * @return HttpHeaders based on the given parameters
    */
-  private static HttpHeaders buildHttpHeaders(String filename, String mediaType, long contentLength) {
+  static HttpHeaders buildHttpHeaders(String filename, String mediaType, long contentLength) {
     HttpHeaders respHeaders = new HttpHeaders();
     respHeaders.setContentType(
       org.springframework.http.MediaType.parseMediaType(
