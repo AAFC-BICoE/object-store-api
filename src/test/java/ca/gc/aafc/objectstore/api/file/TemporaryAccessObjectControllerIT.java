@@ -37,7 +37,7 @@ public class TemporaryAccessObjectControllerIT extends BaseIntegrationTest {
 
     ByteArrayOutputStream os = new ByteArrayOutputStream();
     InputStream is = response.getBody().getInputStream();
-    IOUtils.copy(response.getBody().getInputStream(), os);
+    IOUtils.copy(is, os);
 
     is.close();
 

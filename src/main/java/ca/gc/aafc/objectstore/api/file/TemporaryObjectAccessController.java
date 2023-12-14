@@ -16,6 +16,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.temporal.TemporalAmount;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.log4j.Log4j2;
 
@@ -25,6 +28,7 @@ import lombok.extern.log4j.Log4j2;
 public class TemporaryObjectAccessController {
 
   private static final Path WORKING_FOLDER = assignWorkingDir();
+  private static final TemporalAmount MAX_AGE = Duration.ofHours(1);
 
   private static final ConcurrentHashMap<String, TemporaryAccessObject> ACCESS_MAP
     = new ConcurrentHashMap<>();
@@ -49,15 +53,15 @@ public class TemporaryObjectAccessController {
     }
 
     String key = RandomStringUtils.randomAlphanumeric(128);
-    ACCESS_MAP.put(key, new TemporaryAccessObject(filename));
+    TemporaryAccessObject tao = new TemporaryAccessObject(filename, LocalDateTime.now());
+    ACCESS_MAP.put(key, tao);
     return key;
   }
 
   /**
-   * Triggers a download of a file. Note that the file requires a metadata entry in the database to be
-   * available for download.
+   * Triggers a download of a file.
    *
-   * @param key the bucket
+   * @param key the tao key
    * @return a response entity
    */
   @GetMapping("/tao/{key}")
@@ -65,7 +69,14 @@ public class TemporaryObjectAccessController {
     @PathVariable String key
   ) throws IOException {
     TemporaryAccessObject tao = ACCESS_MAP.remove(key);
+
     if(tao == null) {
+      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    // make sure the tao is not expired
+    if(LocalDateTime.now().isAfter(tao.createdOn.plus(MAX_AGE))) {
+      log.warn("tao expired");
       return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
@@ -77,5 +88,6 @@ public class TemporaryObjectAccessController {
       HttpStatus.OK);
   }
 
-  record TemporaryAccessObject(String filename){}
+  record TemporaryAccessObject(String filename, LocalDateTime createdOn) {
+  }
 }
