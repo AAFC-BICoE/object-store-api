@@ -30,7 +30,7 @@ public class TemporaryObjectAccessController {
   private static final Path WORKING_FOLDER = assignWorkingDir();
   private static final TemporalAmount MAX_AGE = Duration.ofHours(1);
 
-  private static final ConcurrentHashMap<String, TemporaryAccessObject> ACCESS_MAP
+  private static final ConcurrentHashMap<String, TemporaryObjectAccess> ACCESS_MAP
     = new ConcurrentHashMap<>();
 
   private static Path assignWorkingDir() {
@@ -53,8 +53,8 @@ public class TemporaryObjectAccessController {
     }
 
     String key = RandomStringUtils.randomAlphanumeric(128);
-    TemporaryAccessObject tao = new TemporaryAccessObject(filename, LocalDateTime.now());
-    ACCESS_MAP.put(key, tao);
+    TemporaryObjectAccess toa = new TemporaryObjectAccess(filename, LocalDateTime.now());
+    ACCESS_MAP.put(key, toa);
     return key;
   }
 
@@ -64,30 +64,29 @@ public class TemporaryObjectAccessController {
    * @param key the tao key
    * @return a response entity
    */
-  @GetMapping("/tao/{key}")
+  @GetMapping("/toa/{key}")
   public ResponseEntity<InputStreamResource> downloadObject(
     @PathVariable String key
   ) throws IOException {
-    TemporaryAccessObject tao = ACCESS_MAP.remove(key);
+    TemporaryObjectAccess toa = ACCESS_MAP.remove(key);
 
-    if(tao == null) {
+    if(toa == null) {
       return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    // make sure the tao is not expired
-    if(LocalDateTime.now().isAfter(tao.createdOn.plus(MAX_AGE))) {
-      log.warn("tao expired");
+    // make sure the toa is not expired
+    if(LocalDateTime.now().isAfter(toa.createdOn.plus(MAX_AGE))) {
+      log.warn("toa expired");
       return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    File f = WORKING_FOLDER.resolve(tao.filename()).toFile();
-
+    File f = WORKING_FOLDER.resolve(toa.filename()).toFile();
     return new ResponseEntity<>(
-      new InputStreamResource(Files.newInputStream(WORKING_FOLDER.resolve(tao.filename()))),
-      buildHttpHeaders(tao.filename(), MediaType.OCTET_STREAM.toString(), f.length()),
+      new InputStreamResource(Files.newInputStream(WORKING_FOLDER.resolve(toa.filename()))),
+      buildHttpHeaders(toa.filename(), MediaType.OCTET_STREAM.toString(), f.length()),
       HttpStatus.OK);
   }
 
-  record TemporaryAccessObject(String filename, LocalDateTime createdOn) {
+  record TemporaryObjectAccess(String filename, LocalDateTime createdOn) {
   }
 }
