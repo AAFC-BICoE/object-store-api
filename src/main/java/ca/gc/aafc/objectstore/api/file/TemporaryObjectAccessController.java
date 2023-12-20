@@ -20,7 +20,9 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.annotation.PreDestroy;
 import lombok.extern.log4j.Log4j2;
 
 import ca.gc.aafc.dina.file.FileCleaner;
@@ -34,6 +36,8 @@ import ca.gc.aafc.dina.file.FileCleaner;
 @RequestMapping("/api/v1")
 @Log4j2
 public class TemporaryObjectAccessController {
+
+  private static final String SUPPORTED_FILE_EXT = "txt";
 
   private static final Path WORKING_FOLDER = assignWorkingDir();
   private static final long MAX_AGE_MINUTES = 60;
@@ -54,7 +58,8 @@ public class TemporaryObjectAccessController {
 
   public TemporaryObjectAccessController() {
     fileCleaner = FileCleaner.newInstance(WORKING_FOLDER,
-      FileCleaner.buildMaxAgePredicate(ChronoUnit.SECONDS, MAX_AGE_MINUTES * 60));
+      FileCleaner.buildMaxAgePredicate(ChronoUnit.SECONDS, MAX_AGE_MINUTES * 60)
+        .and(FileCleaner.buildFileExtensionPredicate(SUPPORTED_FILE_EXT)));
   }
 
   /**
@@ -115,6 +120,16 @@ public class TemporaryObjectAccessController {
       new InputStreamResource(Files.newInputStream(WORKING_FOLDER.resolve(toa.filename()))),
       buildHttpHeaders(toa.filename(), MediaType.OCTET_STREAM.toString(), f.length()),
       HttpStatus.OK);
+  }
+
+  @PreDestroy
+  public void cleanAllFiles() {
+    // clean all files since we will lose the keys anyway
+    try {
+      FileCleaner.newInstance(WORKING_FOLDER, FileCleaner.buildFileExtensionPredicate(SUPPORTED_FILE_EXT)).clean();
+    } catch (IOException e) {
+      log.warn("Unable clear temporary files on exit");
+    }
   }
 
   private void cleanExpiredFile() {
