@@ -17,21 +17,32 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.log4j.Log4j2;
 
+import ca.gc.aafc.dina.file.FileCleaner;
+
+/**
+ * Allows a single, temporary access to a specific file that is also temporary.
+ * Files are stored in specific folder that should only be used for temporary object access.
+ * Once used or expired, the file will be deleted.
+ */
 @RestController
 @RequestMapping("/api/v1")
 @Log4j2
 public class TemporaryObjectAccessController {
 
   private static final Path WORKING_FOLDER = assignWorkingDir();
-  private static final TemporalAmount MAX_AGE = Duration.ofHours(1);
+  private static final long MAX_AGE_MINUTES= 60;
+  private static final TemporalAmount MAX_AGE = Duration.ofMinutes(MAX_AGE_MINUTES);
 
   private static final ConcurrentHashMap<String, TemporaryObjectAccess> ACCESS_MAP
     = new ConcurrentHashMap<>();
+
+  private final FileCleaner fileCleaner;
 
   private static Path assignWorkingDir() {
     try {
@@ -41,11 +52,30 @@ public class TemporaryObjectAccessController {
     }
   }
 
+  public TemporaryObjectAccessController() {
+    fileCleaner = FileCleaner.newInstance(WORKING_FOLDER,
+      FileCleaner.buildMaxAgePredicate(ChronoUnit.SECONDS, MAX_AGE_MINUTES * 60));
+  }
+
+  /**
+   * Generate a path to store a temporary file that should be available for
+   * temporary object access.
+   * @param filename
+   * @return
+   */
   public Path generatePath(String filename) {
     return WORKING_FOLDER.resolve(filename);
   }
 
+  /**
+   * Register the file so it becomes available for download (a single time) using the returned key.
+   * @param filename
+   * @return the single-use TemporaryObjectAccess key that can be used to download the file
+   */
   public String registerObject(String filename) {
+
+    // run the clean method on new requests to avoid a scheduled method (at least for now)
+    cleanExpiredFile();
 
     // make sure the object exists
     if(!WORKING_FOLDER.resolve(filename).toFile().exists()) {
@@ -53,7 +83,7 @@ public class TemporaryObjectAccessController {
     }
 
     String key = RandomStringUtils.randomAlphanumeric(128);
-    TemporaryObjectAccess toa = new TemporaryObjectAccess(filename, LocalDateTime.now());
+    TemporaryObjectAccess toa = new TemporaryObjectAccess(filename, Instant.now());
     ACCESS_MAP.put(key, toa);
     return key;
   }
@@ -75,7 +105,7 @@ public class TemporaryObjectAccessController {
     }
 
     // make sure the toa is not expired
-    if(LocalDateTime.now().isAfter(toa.createdOn.plus(MAX_AGE))) {
+    if(Instant.now().isAfter(toa.createdOn.plus(MAX_AGE))) {
       log.warn("toa expired");
       return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
@@ -87,6 +117,14 @@ public class TemporaryObjectAccessController {
       HttpStatus.OK);
   }
 
-  record TemporaryObjectAccess(String filename, LocalDateTime createdOn) {
+  private void cleanExpiredFile() {
+    try {
+      fileCleaner.clean();
+    } catch (IOException e) {
+      log.warn("Unable clear expired files in TemporaryObjectAccessController");
+    }
+  }
+
+  record TemporaryObjectAccess(String filename, Instant createdOn) {
   }
 }
