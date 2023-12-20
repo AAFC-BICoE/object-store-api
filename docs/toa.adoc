@@ -1,0 +1,14 @@
+= Temporary Object Access
+
+The object-store can generate temporary files that can be downloaded by another service using a randomly generated key.
+The key is communicated using an event (message).
+
+
+== Sequence of operations
+
+* Create a temporary file (e.g. image export)
+* Register the file to get a key
+* Trigger an event on the message queue to indicate a file is available
+* The consumer pulls the file using the key (`/toa/{key}` endpoint)
+* The key is removed from usable keys
+* The temporary file is deleted from the object-store temporary storage
