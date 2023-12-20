@@ -10,6 +10,8 @@ include::file_upload_download.adoc[]
 
 include::media_type_detection.adoc[]
 
+include::toa.adoc[]
+
 include::design.adoc[]
 
 include::filtering.adoc[]

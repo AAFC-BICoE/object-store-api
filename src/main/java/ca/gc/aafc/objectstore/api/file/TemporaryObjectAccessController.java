@@ -36,7 +36,7 @@ import ca.gc.aafc.dina.file.FileCleaner;
 public class TemporaryObjectAccessController {
 
   private static final Path WORKING_FOLDER = assignWorkingDir();
-  private static final long MAX_AGE_MINUTES= 60;
+  private static final long MAX_AGE_MINUTES = 60;
   private static final TemporalAmount MAX_AGE = Duration.ofMinutes(MAX_AGE_MINUTES);
 
   private static final ConcurrentHashMap<String, TemporaryObjectAccess> ACCESS_MAP
