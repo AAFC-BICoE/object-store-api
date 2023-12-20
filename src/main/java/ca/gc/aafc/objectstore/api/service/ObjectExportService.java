@@ -10,17 +10,19 @@ import ca.gc.aafc.objectstore.api.entities.AbstractObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.file.FileObjectInfo;
+import ca.gc.aafc.objectstore.api.file.TemporaryObjectAccessController;
 import ca.gc.aafc.objectstore.api.security.FileControllerAuthorizationService;
 import ca.gc.aafc.objectstore.api.storage.FileStorage;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import lombok.extern.log4j.Log4j2;
 
+@Log4j2
 @Service
 public class ObjectExportService {
 
@@ -30,15 +32,18 @@ public class ObjectExportService {
   private final FileStorage fileStorage;
   private final ObjectStoreMetaDataService objectMetadataService;
   private final DerivativeService derivativeService;
+  private final TemporaryObjectAccessController toaCtrl;
 
   public ObjectExportService(FileControllerAuthorizationService authorizationService,
                              FileStorage fileStorage,
                              ObjectStoreMetaDataService objectMetadataService,
-                             DerivativeService derivativeService) {
+                             DerivativeService derivativeService,
+                             TemporaryObjectAccessController toaCtrl) {
     this.authorizationService = authorizationService;
     this.fileStorage = fileStorage;
     this.objectMetadataService = objectMetadataService;
     this.derivativeService = derivativeService;
+    this.toaCtrl = toaCtrl;
   }
 
   /**
@@ -47,11 +52,10 @@ public class ObjectExportService {
    * @param fileIdentifiers
    * @throws IOException
    */
-  public UUID export(List<UUID> fileIdentifiers) throws IOException {
+  public ExportResult export(List<UUID> fileIdentifiers) throws IOException {
     UUID exportUUID = UUID.randomUUID();
 
-    Path zipFile = Files.createTempFile(exportUUID.toString(), EXPORT_EXT);
-
+    Path zipFile = toaCtrl.generatePath(exportUUID + EXPORT_EXT);
     try (ArchiveOutputStream o = new ZipArchiveOutputStream(zipFile)) {
       for (UUID fileIdentifier : fileIdentifiers) {
 
@@ -86,7 +90,12 @@ public class ObjectExportService {
       }
       o.finish();
     }
-    return exportUUID;
+    String toaKey = toaCtrl.registerObject(zipFile.getFileName().toString());
+    log.info("Generated toaKey {}", () -> toaKey);
+    return new ExportResult(exportUUID, toaKey);
+  }
+
+  public record ExportResult(UUID uuid, String toaKey) {
   }
 
 }

@@ -1,5 +1,6 @@
 package ca.gc.aafc.objectstore.api.file;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.tika.mime.MediaType;
 import org.springframework.core.io.InputStreamResource;
@@ -20,7 +21,11 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import javax.annotation.PreDestroy;
 import lombok.extern.log4j.Log4j2;
 
@@ -36,7 +41,7 @@ import ca.gc.aafc.dina.file.FileCleaner;
 @Log4j2
 public class TemporaryObjectAccessController {
 
-  private static final String SUPPORTED_FILE_EXT = "txt";
+  private static final Set<String> SUPPORTED_FILE_EXT = Set.of("txt", "zip");
 
   private static final Path WORKING_FOLDER = assignWorkingDir();
   private static final long MAX_AGE_MINUTES = 60;
@@ -58,7 +63,30 @@ public class TemporaryObjectAccessController {
   public TemporaryObjectAccessController() {
     fileCleaner = FileCleaner.newInstance(WORKING_FOLDER,
       FileCleaner.buildMaxAgePredicate(ChronoUnit.SECONDS, MAX_AGE_MINUTES * 60)
-        .and(FileCleaner.buildFileExtensionPredicate(SUPPORTED_FILE_EXT)));
+        .and(buildFileExtensionPredicate()));
+  }
+
+  private static Predicate<Path> buildFileExtensionPredicate() {
+
+    Optional<String> firstExt = SUPPORTED_FILE_EXT.stream().findFirst();
+
+    if (firstExt.isEmpty()) {
+      throw new IllegalStateException("Requires at least 1 extension");
+    }
+
+    // create a predicate for the first file extension
+    Predicate<Path> fileExtensionPredicate =
+      FileCleaner.buildFileExtensionPredicate(firstExt.get());
+    Set<String> filteredFileExt =
+      SUPPORTED_FILE_EXT.stream().filter(s -> !s.equals(firstExt.get())).collect(
+        Collectors.toSet());
+
+    // if there is more than 1, combine with an OR
+    for (String ext : filteredFileExt) {
+      fileExtensionPredicate =
+        fileExtensionPredicate.or(FileCleaner.buildFileExtensionPredicate(ext));
+    }
+    return fileExtensionPredicate;
   }
 
   /**
@@ -84,6 +112,10 @@ public class TemporaryObjectAccessController {
     // make sure the object exists
     if(!WORKING_FOLDER.resolve(filename).toFile().exists()) {
       throw new IllegalArgumentException("the file must exist");
+    }
+
+    if(!SUPPORTED_FILE_EXT.contains(FilenameUtils.getExtension(filename))) {
+      throw new IllegalArgumentException("unsupported file extension");
     }
 
     String key = RandomStringUtils.randomAlphanumeric(128);
@@ -126,7 +158,7 @@ public class TemporaryObjectAccessController {
   public void cleanAllFiles() {
     // clean all files since we will lose the keys anyway
     try {
-      FileCleaner.newInstance(WORKING_FOLDER, FileCleaner.buildFileExtensionPredicate(SUPPORTED_FILE_EXT)).clean();
+      FileCleaner.newInstance(WORKING_FOLDER, buildFileExtensionPredicate()).clean();
     } catch (IOException e) {
       log.warn("Unable clear temporary files on exit");
     }

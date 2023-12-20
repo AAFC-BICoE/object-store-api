@@ -15,17 +15,17 @@ import ca.gc.aafc.objectstore.api.dto.ObjectUploadDto;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.file.FileController;
+import ca.gc.aafc.objectstore.api.file.TemporaryObjectAccessController;
 import ca.gc.aafc.objectstore.api.minio.MinioFileService;
 import ca.gc.aafc.objectstore.api.minio.MinioTestContainerInitializer;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MultipartFileFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Optional;
@@ -48,6 +48,9 @@ public class ObjectExportServiceIT extends BaseIntegrationTest {
 
   @Inject
   private ObjectExportService objectExportService;
+
+  @Inject
+  private TemporaryObjectAccessController toaController;
 
   @Test
   public void endToEndMetadataServiceTest()
@@ -74,17 +77,11 @@ public class ObjectExportServiceIT extends BaseIntegrationTest {
     Optional<Derivative> thumbnail = derivativeService.findThumbnailDerivativeForMetadata(osm);
     assertTrue(thumbnail.isPresent());
 
-    objectExportService.export(List.of(osm.getFileIdentifier()));
+    var result = objectExportService.export(List.of(osm.getFileIdentifier()));
 
-//    // 4 - Make sure we can load the file
-//    String thumbnailFilename = thumbnail.get().getFileIdentifier() + thumbnail.get().getFileExtension();
-//    Optional<InputStream> file = minioFileService.retrieveFile(DinaAuthenticatedUserConfig.TEST_BUCKET, thumbnailFilename, true);
-//    assertTrue(file.isPresent());
-//
-//    // Deleting the metadata should also delete the derivative and the system generated thumbnail
-//    objectStoreMetaDataService.delete(osm);
-//    file = minioFileService.retrieveFile(DinaAuthenticatedUserConfig.TEST_BUCKET, thumbnailFilename, true);
-//    assertFalse(file.isPresent());
+    // make sure we can get the export file using the toa key
+    assertEquals(200, toaController.downloadObject(result.toaKey()).getStatusCode().value());
+
   }
 
 }

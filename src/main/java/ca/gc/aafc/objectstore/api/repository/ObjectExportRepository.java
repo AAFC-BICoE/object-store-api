@@ -7,7 +7,6 @@ import io.crnk.core.resource.list.ResourceList;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.UUID;
 
 import org.springframework.stereotype.Repository;
 
@@ -26,8 +25,8 @@ public class ObjectExportRepository implements ResourceRepository<ObjectExportDt
   @Override
   public <S extends ObjectExportDto> S create(S s) {
     try {
-      UUID exportUUID = objectExportService.export(s.getFileIdentifiers());
-      s.setUuid(exportUUID);
+      ObjectExportService.ExportResult exportResult = objectExportService.export(s.getFileIdentifiers());
+      s.setUuid(exportResult.uuid());
     } catch (IOException e) {
       throw new IllegalStateException(e);
     }
