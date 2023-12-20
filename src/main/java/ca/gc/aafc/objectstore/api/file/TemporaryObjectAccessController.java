@@ -20,7 +20,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.PreDestroy;
 import lombok.extern.log4j.Log4j2;
@@ -112,6 +111,7 @@ public class TemporaryObjectAccessController {
     // make sure the toa is not expired
     if(Instant.now().isAfter(toa.createdOn.plus(MAX_AGE))) {
       log.warn("toa expired");
+      cleanExpiredFile();
       return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
