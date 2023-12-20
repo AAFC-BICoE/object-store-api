@@ -55,7 +55,8 @@ public class ObjectExportService {
   public ExportResult export(List<UUID> fileIdentifiers) throws IOException {
     UUID exportUUID = UUID.randomUUID();
 
-    Path zipFile = toaCtrl.generatePath(exportUUID + EXPORT_EXT);
+    String filename = exportUUID + EXPORT_EXT;
+    Path zipFile = toaCtrl.generatePath(filename);
     try (ArchiveOutputStream o = new ZipArchiveOutputStream(zipFile)) {
       for (UUID fileIdentifier : fileIdentifiers) {
 
@@ -90,7 +91,7 @@ public class ObjectExportService {
       }
       o.finish();
     }
-    String toaKey = toaCtrl.registerObject(zipFile.getFileName().toString());
+    String toaKey = toaCtrl.registerObject(filename);
     log.info("Generated toaKey {}", () -> toaKey);
     return new ExportResult(exportUUID, toaKey);
   }
