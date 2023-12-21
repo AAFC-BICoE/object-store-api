@@ -234,7 +234,7 @@ public class FileController {
     @PathVariable UUID fileId
   ) throws IOException {
     ObjectStoreMetadata metadata = objectStoreMetaDataService
-      .loadObjectStoreMetadataByFileId(fileId)
+      .findByFileId(fileId)
       .orElseThrow(() -> buildNotFoundException(bucket, Objects.toString(fileId)));
 
     // For the download of an object use the originalFilename provided (if possible)
@@ -274,7 +274,7 @@ public class FileController {
   ) throws IOException {
     Derivative derivative = derivativeService.findByFileId(fileId)
       .orElseThrow(() -> buildNotFoundException(bucket, Objects.toString(fileId)));
-    String fileName = derivative.getFileIdentifier() + derivative.getFileExtension();
+    String fileName = derivative.getFilename();
     return download(bucket, fileName, fileName, true, derivative.getDcFormat(), derivative);
   }
 
@@ -284,7 +284,7 @@ public class FileController {
     @PathVariable UUID fileId
   ) throws IOException {
     ObjectStoreMetadata objectStoreMetadata = objectStoreMetaDataService
-      .loadObjectStoreMetadataByFileId(fileId)
+      .findByFileId(fileId)
       .orElseThrow(() -> buildNotFoundException(bucket, Objects.toString(fileId)));
 
     Derivative derivative = derivativeService.findThumbnailDerivativeForMetadata(objectStoreMetadata)

@@ -169,4 +169,14 @@ public abstract class AbstractObjectStoreMetadata implements DinaEntity {
   public void setNotPubliclyReleasableReason(String notPubliclyReleasableReason) {
     this.notPubliclyReleasableReason = notPubliclyReleasableReason;
   }
+
+  /**
+   * Returns fileIdentifier + fileExtension
+   *
+   * @return fileIdentifier + fileExtension
+   */
+  @Transient
+  public String getFilename() {
+    return fileIdentifier + fileExtension;
+  }
 }
