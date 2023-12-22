@@ -123,7 +123,7 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
 
   @Test
   void generateThumbnail_DerivedFromMetaData_DerivativeGenerated() {
-    derivativeService.generateThumbnail(
+    derivativeGenerationService.generateThumbnail(
       "test",
       UUID.randomUUID() + ".jpg",
       acDerivedFrom.getUuid(),
@@ -147,7 +147,7 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
   void generateThumbnail_WhenGeneratedDerivedDoesNotExist_ThrowsIllegalArgumentException() {
     Assertions.assertThrows(
       IllegalArgumentException.class,
-      () -> derivativeService.generateThumbnail(
+      () -> derivativeGenerationService.generateThumbnail(
         "test",
         "dina.jpg",
         acDerivedFrom.getUuid(),
@@ -161,7 +161,7 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
   void generateThumbnail_WhenAcDerivedFromDoesNotExist_ThrowsIllegalArgumentException() {
     Assertions.assertThrows(
       IllegalArgumentException.class,
-      () -> derivativeService.generateThumbnail(
+      () -> derivativeGenerationService.generateThumbnail(
         "test",
         "dina.jpg",
         UUID.randomUUID(),
