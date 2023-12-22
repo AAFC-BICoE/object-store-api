@@ -74,7 +74,7 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
   @Override
   public ObjectStoreMetadata create(ObjectStoreMetadata entity) {
     ObjectStoreMetadata objectStoreMetadata = super.create(entity);
-    handleThumbnailGeneration(objectStoreMetadata);
+    derivativeGenerationService.handleThumbnailGeneration(objectStoreMetadata);
     return objectStoreMetadata;
   }
 
@@ -140,27 +140,6 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
   private BadRequestException throwBadRequest(ObjectSubtype acSubtype) {
     return new BadRequestException(
         acSubtype.getAcSubtype() + "/" + acSubtype.getDcType() + " is not a valid acSubtype/dcType");
-  }
-
-  /**
-   * Generates a thumbnail for the given resource if required/possible.
-   *
-   * @param resource - parent resource metadata of the thumbnail
-   */
-  private void handleThumbnailGeneration(ObjectStoreMetadata resource) {
-
-    // we don't try to generate a thumbnail for external resources
-    if (resource.isExternal()) {
-      return;
-    }
-
-    String evaluatedMediaType = resource.getDcFormat();
-    String bucket = resource.getBucket();
-    UUID derivedId = resource.getUuid();
-    String sourceFilename = resource.getFileIdentifier() + resource.getFileExtension();
-    Boolean publiclyReleasable = resource.getPubliclyReleasable();
-    derivativeGenerationService.generateThumbnail(bucket, sourceFilename, derivedId, evaluatedMediaType, null, false,
-        publiclyReleasable);
   }
 
   /**

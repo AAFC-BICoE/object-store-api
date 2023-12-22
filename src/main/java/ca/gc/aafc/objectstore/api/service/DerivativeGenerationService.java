@@ -33,6 +33,27 @@ public class DerivativeGenerationService extends DefaultDinaService<Derivative> 
     this.thumbnailGenerator = thumbnailGenerator;
   }
 
+  /**
+   * Generates a thumbnail for the given resource if required/possible.
+   *
+   * @param resource - parent resource metadata of the thumbnail
+   */
+  public void handleThumbnailGeneration(ObjectStoreMetadata resource) {
+
+    // we don't try to generate a thumbnail for external resources
+    if (resource.isExternal()) {
+      return;
+    }
+
+    String evaluatedMediaType = resource.getDcFormat();
+    String bucket = resource.getBucket();
+    UUID derivedId = resource.getUuid();
+    String sourceFilename = resource.getFileIdentifier() + resource.getFileExtension();
+    Boolean publiclyReleasable = resource.getPubliclyReleasable();
+    generateThumbnail(bucket, sourceFilename, derivedId, evaluatedMediaType, null, false,
+      publiclyReleasable);
+  }
+
   public void handleThumbnailGeneration(@NonNull Derivative resource) {
     ObjectStoreMetadata acDerivedFrom = resource.getAcDerivedFrom();
     Derivative.DerivativeType derivativeType = resource.getDerivativeType();
