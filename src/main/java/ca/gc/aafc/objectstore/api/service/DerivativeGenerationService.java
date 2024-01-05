@@ -15,6 +15,7 @@ import org.springframework.validation.SmartValidator;
 
 import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.dina.service.DefaultDinaService;
+import ca.gc.aafc.objectstore.api.entities.AbstractObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.file.ThumbnailGenerator;
@@ -124,6 +125,10 @@ public class DerivativeGenerationService extends DefaultDinaService<Derivative> 
       }
 
       super.create(derivative);
+
+      // notify the other end of the relationship
+      refresh(derivative.getAcDerivedFrom());
+
       thumbnailGenerator.generateThumbnail(
         uuid,
         sourceFilename,
@@ -140,17 +145,17 @@ public class DerivativeGenerationService extends DefaultDinaService<Derivative> 
    *
    * If the file already exist this method will simply return.
    *
-   * @param derivative a derivative entity from the database that represents the thumbnail
+   * @param thumbnailDerivative a derivative entity from the database that represents the thumbnail
    */
-  public void fixIncompleteThumbnail(Derivative derivative) {
+  public void fixIncompleteThumbnail(Derivative thumbnailDerivative) {
 
-    if(derivative.getDerivativeType() != Derivative.DerivativeType.THUMBNAIL_IMAGE) {
+    if(thumbnailDerivative.getDerivativeType() != Derivative.DerivativeType.THUMBNAIL_IMAGE) {
       throw new IllegalStateException("DerivativeType needs to be THUMBNAIL_IMAGE");
     }
 
     try {
       Optional<?> file =
-        fileStorage.getFileInfo(derivative.getBucket(), derivative.getFilename(), true);
+        fileStorage.getFileInfo(thumbnailDerivative.getBucket(), thumbnailDerivative.getFilename(), true);
       if(file.isPresent()) {
         log.info("Thumbnail file already present, skipping");
         return;
@@ -159,11 +164,17 @@ public class DerivativeGenerationService extends DefaultDinaService<Derivative> 
       throw new IllegalStateException(e);
     }
 
+    // Get source
+    AbstractObjectStoreMetadata source = thumbnailDerivative.getGeneratedFromDerivative();
+    if (source == null) {
+      source = thumbnailDerivative.getAcDerivedFrom();
+    }
+
     thumbnailGenerator.generateThumbnail(
-      derivative.getFileIdentifier(),
-      derivative.getFilename(),
-      derivative.getDcFormat(),
-      derivative.getBucket(),
+      thumbnailDerivative.getFileIdentifier(),
+      source.getFilename(),
+      source.getDcFormat(),
+      source.getBucket(),
       true);
   }
 
