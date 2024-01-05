@@ -6,7 +6,6 @@ import javax.persistence.criteria.Predicate;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.dto.DerivativeGenerationDto;
@@ -54,8 +53,8 @@ public class DerivativeGenerationRepositoryIT extends BaseIntegrationTest {
       .orElseGet(() -> Assertions.fail("A derivative for a thumbnail should of been generated"));
 
     derivativeService.delete(thumbResult);
-    
-    derivativeGenerationRepository.create(DerivativeGenerationDto.builder()
+
+    var dto = derivativeGenerationRepository.create(DerivativeGenerationDto.builder()
       .metadataUuid(acDerivedFrom.getUuid())
       .derivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE)
       .derivedFromType(Derivative.DerivativeType.LARGE_IMAGE).build());

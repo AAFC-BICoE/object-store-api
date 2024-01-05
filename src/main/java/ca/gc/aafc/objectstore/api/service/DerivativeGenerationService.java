@@ -8,6 +8,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import lombok.NonNull;
+import lombok.extern.log4j.Log4j2;
 
 import org.springframework.stereotype.Service;
 import org.springframework.validation.SmartValidator;
@@ -17,19 +18,24 @@ import ca.gc.aafc.dina.service.DefaultDinaService;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.file.ThumbnailGenerator;
+import ca.gc.aafc.objectstore.api.storage.FileStorage;
 
 /**
  * Service responsible for automatic derivative generation (only thumbnail for now)
  */
+@Log4j2
 @Service
 public class DerivativeGenerationService extends DefaultDinaService<Derivative> {
 
+  private final FileStorage fileStorage;
   private final ThumbnailGenerator thumbnailGenerator;
 
   public DerivativeGenerationService(@NonNull BaseDAO baseDAO,
                                      @NonNull SmartValidator validator,
+                                     FileStorage fileStorage,
                                      @NonNull ThumbnailGenerator thumbnailGenerator) {
     super(baseDAO, validator);
+    this.fileStorage = fileStorage;
     this.thumbnailGenerator = thumbnailGenerator;
   }
 
@@ -66,7 +72,7 @@ public class DerivativeGenerationService extends DefaultDinaService<Derivative> 
     if (thumbnailShouldBeGenerated(acDerivedFrom, derivativeType)) {
       this.generateThumbnail(
         resource.getBucket(),
-        resource.getFileIdentifier() + resource.getFileExtension(),
+        resource.getFilename(),
         acDerivedFrom.getUuid(),
         resource.getDcFormat(),
         resource.getUuid(),
@@ -127,6 +133,39 @@ public class DerivativeGenerationService extends DefaultDinaService<Derivative> 
     }
   }
 
+  /**
+   * An incomplete derivative is when the record exists in the database but the file is missing
+   * in the file storage.
+   * It can happen if the api is restarted and the queue for derivatives is not empty.
+   *
+   * If the file already exist this method will simply return.
+   *
+   * @param derivative a derivative entity from the database that represents the thumbnail
+   */
+  public void fixIncompleteThumbnail(Derivative derivative) {
+
+    if(derivative.getDerivativeType() != Derivative.DerivativeType.THUMBNAIL_IMAGE) {
+      throw new IllegalStateException("DerivativeType needs to be THUMBNAIL_IMAGE");
+    }
+
+    try {
+      Optional<?> file =
+        fileStorage.getFileInfo(derivative.getBucket(), derivative.getFilename(), true);
+      if(file.isPresent()) {
+        log.info("Thumbnail file already present, skipping");
+        return;
+      }
+    } catch (IOException e) {
+      throw new IllegalStateException(e);
+    }
+
+    thumbnailGenerator.generateThumbnail(
+      derivative.getFileIdentifier(),
+      derivative.getFilename(),
+      derivative.getDcFormat(),
+      derivative.getBucket(),
+      true);
+  }
 
   public Optional<Derivative> findThumbnailDerivativeForMetadata(ObjectStoreMetadata metadata) {
     return findOneBy((criteriaBuilder, derivativeRoot) -> new Predicate[] {

@@ -14,6 +14,7 @@ import io.crnk.core.repository.ResourceRepository;
 import io.crnk.core.resource.list.ResourceList;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 
 @Repository
@@ -39,13 +40,19 @@ public class DerivativeGenerationRepository implements
     ObjectStoreMetadata metadata = metadataService.findOne(s.getMetadataUuid(),
       ObjectStoreMetadata.class, Set.of(ObjectStoreMetadata.DERIVATIVES_PROP));
 
-    // make sure we don't already have a derivative of this type
-    if (metadata.getDerivatives().stream()
-      .anyMatch(d -> d.getDerivativeType().equals(s.getDerivativeType()))) {
-      throw new IllegalStateException("DerivativeType already exist");
+    // Check if we have a thumbnail entity already
+    Optional<Derivative> existingThumbnail = metadata.getDerivatives().stream()
+      .filter(d -> d.getDerivativeType().equals(Derivative.DerivativeType.THUMBNAIL_IMAGE))
+      .findFirst();
+
+    // if the thumbnail entity exists, try to fix and return.
+    if(existingThumbnail.isPresent()) {
+      derivativeGenerationService.fixIncompleteThumbnail(existingThumbnail.get());
+      s.setUuid(existingThumbnail.get().getUuid());
+      return s;
     }
 
-    // Check the source to use for the derivative
+    // Check the source to use for the thumbnail
     if(s.getDerivedFromType() != null) {
       Derivative derivative = metadata.getDerivatives().stream()
         .filter(d -> d.getDerivativeType().equals(s.getDerivedFromType()))
@@ -55,6 +62,13 @@ public class DerivativeGenerationRepository implements
       derivativeGenerationService.handleThumbnailGeneration(metadata);
     }
 
+    metadataService.refresh(metadata);
+
+    Optional<Derivative> createdThumbnail = metadata.getDerivatives().stream()
+      .filter(d -> d.getDerivativeType().equals(Derivative.DerivativeType.THUMBNAIL_IMAGE))
+      .findFirst();
+
+    s.setUuid(createdThumbnail.map(Derivative::getUuid).orElse(null));
     return s;
   }
 
