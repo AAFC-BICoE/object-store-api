@@ -29,6 +29,9 @@ public class Derivative extends AbstractObjectStoreMetadata {
     THUMBNAIL_IMAGE, LARGE_IMAGE
   }
 
+  public static final String AC_DERIVED_FROM_PROP = "acDerivedFrom";
+  public static final String DERIVATIVE_TYPE_PROP = "derivativeType";
+
   private Integer id;
   private ObjectStoreMetadata acDerivedFrom;
   private DerivativeType derivativeType;

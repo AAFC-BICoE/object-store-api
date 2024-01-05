@@ -54,6 +54,11 @@ public class DerivativeGenerationService extends DefaultDinaService<Derivative> 
       publiclyReleasable);
   }
 
+  /**
+   * Generates a thumbnail for the given Derivative if required/possible.
+   *
+   * @param resource - parent resource metadata of the thumbnail
+   */
   public void handleThumbnailGeneration(@NonNull Derivative resource) {
     ObjectStoreMetadata acDerivedFrom = resource.getAcDerivedFrom();
     Derivative.DerivativeType derivativeType = resource.getDerivativeType();
@@ -125,8 +130,8 @@ public class DerivativeGenerationService extends DefaultDinaService<Derivative> 
 
   public Optional<Derivative> findThumbnailDerivativeForMetadata(ObjectStoreMetadata metadata) {
     return findOneBy((criteriaBuilder, derivativeRoot) -> new Predicate[] {
-      criteriaBuilder.equal(derivativeRoot.get("acDerivedFrom"), metadata),
-      criteriaBuilder.equal(derivativeRoot.get("derivativeType"),
+      criteriaBuilder.equal(derivativeRoot.get(Derivative.AC_DERIVED_FROM_PROP), metadata),
+      criteriaBuilder.equal(derivativeRoot.get(Derivative.DERIVATIVE_TYPE_PROP),
         Derivative.DerivativeType.THUMBNAIL_IMAGE)
     });
   }
