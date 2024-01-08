@@ -175,7 +175,7 @@ public class DerivativeGenerationService extends DefaultDinaService<Derivative> 
       source.getFilename(),
       source.getDcFormat(),
       source.getBucket(),
-      true);
+      thumbnailDerivative.getGeneratedFromDerivative() != null);
   }
 
   public Optional<Derivative> findThumbnailDerivativeForMetadata(ObjectStoreMetadata metadata) {

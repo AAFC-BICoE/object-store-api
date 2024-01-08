@@ -51,7 +51,7 @@ public class DerivativeGenerationRepositoryIT extends BaseIntegrationTest {
   private DerivativeGenerationRepository derivativeGenerationRepository;
 
   @Test
-  public void derivativeGeneration_onThumbnailMissing_generationSucceed() throws IOException, MimeTypeException, NoSuchAlgorithmException {
+  public void derivativeGeneration_generatedFromDerivativeThumbnailMissing_generationSucceed() throws IOException, MimeTypeException, NoSuchAlgorithmException {
 
     // setup original file (txt file)
     MockMultipartFile originalMultipart = MultipartFileFactory.createMockMultipartFile(
@@ -69,7 +69,7 @@ public class DerivativeGenerationRepositoryIT extends BaseIntegrationTest {
     derivativeService.create(derivative);
 
     // make sure the thumbnail exists
-    Derivative thumbResult = findThumbnail(derivative)
+    Derivative thumbResult = findThumbnailByGeneratedFromDerivative(derivative)
       .orElseGet(() -> Assertions.fail("A derivative for a thumbnail should of been generated"));
     UUID firstThumbnailUUID = thumbResult.getUuid();
 
@@ -88,23 +88,67 @@ public class DerivativeGenerationRepositoryIT extends BaseIntegrationTest {
     // delete the derivative entity
     derivativeService.delete(thumbResult);
     derivativeService.refresh(derivative);
-    assertTrue(findThumbnail(derivative).isEmpty());
+    assertTrue(findThumbnailByGeneratedFromDerivative(derivative).isEmpty());
 
     derivativeGenerationRepository.create(DerivativeGenerationDto.builder()
       .metadataUuid(acDerivedFrom.getUuid())
       .derivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE)
       .derivedFromType(Derivative.DerivativeType.LARGE_IMAGE).build());
 
-    Derivative thumbResult2 = findThumbnail(derivative)
+    Derivative thumbResult2 = findThumbnailByGeneratedFromDerivative(derivative)
       .orElseGet(() -> Assertions.fail("A derivative for a thumbnail should of been generated"));
     assertNotEquals(firstThumbnailUUID, thumbResult2.getUuid());
     assertTrue(fileStorage.getFileInfo(thumbResult2.getBucket(), thumbResult2.getFilename(), true).isPresent());
   }
 
-  private Optional<Derivative> findThumbnail(Derivative derivative) {
+  @Test
+  public void derivativeGeneration_ThumbnailMissing_generationSucceed() throws IOException, MimeTypeException, NoSuchAlgorithmException {
+
+    MockMultipartFile multipartUpload = MultipartFileFactory.createMockMultipartFile(
+      resourceLoader, "testfile.jpg", MediaType.IMAGE_JPEG_VALUE);
+    ObjectUploadDto uploadResponse = fileController.handleFileUpload(multipartUpload, BUCKET_NAME);
+    ObjectStoreMetadata osMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata()
+      .bucket(BUCKET_NAME)
+      .fileIdentifier(uploadResponse.getFileIdentifier()).build();
+    objectStoreMetaDataService.create(osMetadata);
+
+    // make sure the thumbnail exists
+    Derivative thumbResult = derivativeGenerationService.findThumbnailDerivativeForMetadata(osMetadata)
+      .orElseGet(() -> Assertions.fail("A derivative for a thumbnail should of been generated"));
+    UUID firstThumbnailUUID = thumbResult.getUuid();
+
+    // Scenario 1: the thumbnail entity exists but not the file
+    // delete the file directly in the FileStorage but keep the entity
+    fileStorage.deleteFile(thumbResult.getBucket(), thumbResult.getFilename(), true);
+
+    derivativeGenerationRepository.create(DerivativeGenerationDto.builder()
+      .metadataUuid(osMetadata.getUuid())
+      .derivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE)
+      .build());
+
+    assertTrue(fileStorage.getFileInfo(thumbResult.getBucket(), thumbResult.getFilename(), true).isPresent());
+
+    // Scenario 2: thumbnail entity doesn't exist
+    // delete the derivative entity
+    derivativeService.delete(thumbResult);
+    derivativeService.refresh(osMetadata);
+    assertTrue(derivativeGenerationService.findThumbnailDerivativeForMetadata(osMetadata).isEmpty());
+
+    derivativeGenerationRepository.create(DerivativeGenerationDto.builder()
+      .metadataUuid(osMetadata.getUuid())
+      .derivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE)
+      .build());
+
+    Derivative thumbResult2 = derivativeGenerationService.findThumbnailDerivativeForMetadata(osMetadata)
+      .orElseGet(() -> Assertions.fail("A derivative for a thumbnail should of been generated"));
+    assertNotEquals(firstThumbnailUUID, thumbResult2.getUuid());
+    assertTrue(fileStorage.getFileInfo(thumbResult2.getBucket(), thumbResult2.getFilename(), true).isPresent());
+  }
+
+  private Optional<Derivative> findThumbnailByGeneratedFromDerivative(Derivative derivative) {
     return derivativeService.findAll(
         Derivative.class, (criteriaBuilder, derivativeRoot) -> new Predicate[]{
-          criteriaBuilder.equal(derivativeRoot.get("generatedFromDerivative"), derivative),
+          criteriaBuilder.equal(derivativeRoot.get(Derivative.GENERATED_FROM_DERIVATIVE_PROP), derivative),
         }, null, 0, 1)
       .stream().findFirst();
   }

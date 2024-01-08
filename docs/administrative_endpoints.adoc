@@ -1,0 +1,23 @@
+= Administrative Endpoints
+
+Unless explicitly mentioned administrative endpoints require `DINA_ADMIN` role.
+
+== Regenerate Thumbnails
+
+Send a POST request to `derivative-generation` with a body like:
+```
+{
+  "data": {
+    "type": "derivative-generation",
+    "attributes": {
+      "metadataUuid": "uuid of the original object",
+      "derivativeType": "THUMBNAIL_IMAGE",
+      "derivedFromType": "LARGE_IMAGE"
+    }
+  }
+}
+```
+
+That will instruct the api to generate a thumbnail from the large image derivative. This should be used in cases where the
+original object can not be used to create the thumbnails (like raw image files). Otherwise, `derivedFromType` should simply be omitted to
+use the original object as a source.
