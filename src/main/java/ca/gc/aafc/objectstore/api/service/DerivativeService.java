@@ -66,6 +66,11 @@ public class DerivativeService extends MessageProducingService<Derivative> {
   }
 
   @Override
+  protected void preDelete(Derivative entity) {
+    removeBiDirectionalAssociation(entity);
+  }
+
+  @Override
   public void validateBusinessRules(Derivative entity) {
     applyBusinessRule(entity, validator);
   }
@@ -122,6 +127,12 @@ public class DerivativeService extends MessageProducingService<Derivative> {
   private static void establishBiDirectionalAssociation(Derivative entity) {
     if (entity.getAcDerivedFrom() != null) {
       entity.getAcDerivedFrom().addDerivative(entity);
+    }
+  }
+
+  private static void removeBiDirectionalAssociation(Derivative entity) {
+    if (entity.getAcDerivedFrom() != null) {
+      entity.getAcDerivedFrom().removeDerivative(entity);
     }
   }
 

@@ -2,6 +2,8 @@ package ca.gc.aafc.objectstore.api.repository;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Optional;
+import java.util.UUID;
 import javax.inject.Inject;
 import javax.persistence.criteria.Predicate;
 
@@ -27,6 +29,7 @@ import ca.gc.aafc.objectstore.api.testsupport.factories.DerivativeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MultipartFileFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ContextConfiguration(initializers = MinioTestContainerInitializer.class)
@@ -48,7 +51,7 @@ public class DerivativeGenerationRepositoryIT extends BaseIntegrationTest {
   private DerivativeGenerationRepository derivativeGenerationRepository;
 
   @Test
-  public void generateThumbnail() throws IOException, MimeTypeException, NoSuchAlgorithmException {
+  public void derivativeGeneration_onThumbnailMissing_generationSucceed() throws IOException, MimeTypeException, NoSuchAlgorithmException {
 
     // setup original file (txt file)
     MockMultipartFile originalMultipart = MultipartFileFactory.createMockMultipartFile(
@@ -66,29 +69,44 @@ public class DerivativeGenerationRepositoryIT extends BaseIntegrationTest {
     derivativeService.create(derivative);
 
     // make sure the thumbnail exists
-    Derivative thumbResult = findThumbnailOrThrow(derivative);
+    Derivative thumbResult = findThumbnail(derivative)
+      .orElseGet(() -> Assertions.fail("A derivative for a thumbnail should of been generated"));
+    UUID firstThumbnailUUID = thumbResult.getUuid();
+
+    // Scenario 1: the thumbnail entity exists but not the file
     // delete the file directly in the FileStorage but keep the entity
     fileStorage.deleteFile(thumbResult.getBucket(), thumbResult.getFilename(), true);
-   // derivativeService.delete(thumbResult);
 
-    var dto = derivativeGenerationRepository.create(DerivativeGenerationDto.builder()
+    derivativeGenerationRepository.create(DerivativeGenerationDto.builder()
       .metadataUuid(acDerivedFrom.getUuid())
       .derivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE)
       .derivedFromType(Derivative.DerivativeType.LARGE_IMAGE).build());
 
     assertTrue(fileStorage.getFileInfo(thumbResult.getBucket(), thumbResult.getFilename(), true).isPresent());
 
-   // thumbResult = findThumbnailOrThrow(derivative);
+    // Scenario 2: thumbnail entity doesn't exist
+    // delete the derivative entity
+    derivativeService.delete(thumbResult);
+    derivativeService.refresh(derivative);
+    assertTrue(findThumbnail(derivative).isEmpty());
 
+    derivativeGenerationRepository.create(DerivativeGenerationDto.builder()
+      .metadataUuid(acDerivedFrom.getUuid())
+      .derivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE)
+      .derivedFromType(Derivative.DerivativeType.LARGE_IMAGE).build());
+
+    Derivative thumbResult2 = findThumbnail(derivative)
+      .orElseGet(() -> Assertions.fail("A derivative for a thumbnail should of been generated"));
+    assertNotEquals(firstThumbnailUUID, thumbResult2.getUuid());
+    assertTrue(fileStorage.getFileInfo(thumbResult2.getBucket(), thumbResult2.getFilename(), true).isPresent());
   }
 
-  private Derivative findThumbnailOrThrow(Derivative derivative) {
+  private Optional<Derivative> findThumbnail(Derivative derivative) {
     return derivativeService.findAll(
         Derivative.class, (criteriaBuilder, derivativeRoot) -> new Predicate[]{
           criteriaBuilder.equal(derivativeRoot.get("generatedFromDerivative"), derivative),
         }, null, 0, 1)
-      .stream().findFirst()
-      .orElseGet(() -> Assertions.fail("A derivative for a thumbnail should of been generated"));
+      .stream().findFirst();
   }
 
 }

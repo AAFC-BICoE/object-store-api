@@ -2,6 +2,7 @@ package ca.gc.aafc.objectstore.api.repository;
 
 import org.springframework.stereotype.Repository;
 
+import ca.gc.aafc.dina.security.auth.DinaAdminCUDAuthorizationService;
 import ca.gc.aafc.objectstore.api.dto.DerivativeGenerationDto;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
@@ -17,21 +18,31 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * Administrative repository.
+ * DINA_ADMIN role required.
+ */
 @Repository
 public class DerivativeGenerationRepository implements
   ResourceRepository<DerivativeGenerationDto, Serializable> {
 
+  private final DinaAdminCUDAuthorizationService authorizationService;
   private final ObjectStoreMetaDataService metadataService;
   private final DerivativeGenerationService derivativeGenerationService;
 
-  public DerivativeGenerationRepository(ObjectStoreMetaDataService metadataService,
+  public DerivativeGenerationRepository(DinaAdminCUDAuthorizationService authorizationService,
+                                        ObjectStoreMetaDataService metadataService,
                                         DerivativeGenerationService derivativeGenerationService) {
+
+    this.authorizationService = authorizationService;
     this.metadataService = metadataService;
     this.derivativeGenerationService = derivativeGenerationService;
   }
 
   @Override
   public <S extends DerivativeGenerationDto> S create(S s) {
+
+    authorizationService.authorizeCreate(s);
 
     if(s.getDerivativeType() != Derivative.DerivativeType.THUMBNAIL_IMAGE) {
       throw new IllegalArgumentException("DerivativeType can only be THUMBNAIL_IMAGE");
