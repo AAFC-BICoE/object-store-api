@@ -40,6 +40,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
 
+  public static final String DERIVATIVES_PROP = "derivatives";
+
   private Integer id;
 
   private String acCaption;
