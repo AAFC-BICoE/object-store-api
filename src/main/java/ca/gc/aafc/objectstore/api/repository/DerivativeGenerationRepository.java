@@ -11,6 +11,7 @@ import ca.gc.aafc.objectstore.api.service.DerivativeGenerationService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
 
 import io.crnk.core.exception.MethodNotAllowedException;
+import io.crnk.core.exception.ResourceNotFoundException;
 import io.crnk.core.queryspec.QuerySpec;
 import io.crnk.core.repository.ResourceRepository;
 import io.crnk.core.resource.list.ResourceList;
@@ -52,6 +53,10 @@ public class DerivativeGenerationRepository implements
 
     ObjectStoreMetadata metadata = metadataService.findOne(s.getMetadataUuid(),
       ObjectStoreMetadata.class, Set.of(ObjectStoreMetadata.DERIVATIVES_PROP));
+
+    if (metadata == null) {
+      throw new ResourceNotFoundException("Object not found: " + s.getMetadataUuid());
+    }
 
     // Check if we have a thumbnail entity already
     Optional<Derivative> existingThumbnail = metadata.getDerivatives().stream()
