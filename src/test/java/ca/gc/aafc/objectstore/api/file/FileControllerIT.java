@@ -93,6 +93,7 @@ public class FileControllerIT extends BaseIntegrationTest {
     metadataForFile.setFileIdentifier(uploadResponse.getFileIdentifier());
     objectStoreResourceRepository.create(metadataForFile);
 
+    // dina-admin role required
     assertThrows(AccessDeniedException.class, () ->
       fileController.getObjectInfo(bucketUnderTest, uploadResponse.getFileIdentifier()+ "." + TEST_UPLOAD_FILE_EXT));
 
