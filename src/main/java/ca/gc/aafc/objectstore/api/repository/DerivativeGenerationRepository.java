@@ -1,6 +1,7 @@
 package ca.gc.aafc.objectstore.api.repository;
 
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import ca.gc.aafc.dina.security.auth.DinaAdminCUDAuthorizationService;
 import ca.gc.aafc.objectstore.api.dto.DerivativeGenerationDto;
@@ -39,6 +40,7 @@ public class DerivativeGenerationRepository implements
     this.derivativeGenerationService = derivativeGenerationService;
   }
 
+  @Transactional
   @Override
   public <S extends DerivativeGenerationDto> S create(S s) {
 
