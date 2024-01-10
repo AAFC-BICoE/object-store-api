@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
@@ -41,6 +42,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ContextConfiguration(initializers = MinioTestContainerInitializer.class)
 @SpringBootTest(properties = "keycloak.enabled = true")
@@ -102,6 +104,34 @@ public class FileControllerIT extends BaseIntegrationTest {
 
     // on download, the original file name should be returned
     assertEquals(mockFile.getOriginalFilename(), response.getHeaders().getContentDisposition().getFilename());
+  }
+
+  @Test
+  @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":DINA_ADMIN")
+  public void fileInfo_onValidUpload_fileInfoReturned() throws Exception {
+    MockMultipartFile mockFile = getFileUnderTest();
+
+    ObjectUploadDto uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
+    assertNotNull(uploadResponse);
+
+    ResponseEntity<FileObjectInfo> foi = fileController.getObjectInfo(bucketUnderTest, uploadResponse.getFileIdentifier()+ "." + TEST_UPLOAD_FILE_EXT);
+    assertEquals(HttpStatus.OK, foi.getStatusCode());
+    assertNotNull(foi.getBody());
+    assertTrue(foi.getBody().getLength() > 0);
+
+    //Test derivative
+    MockMultipartFile derivativeMockFile = getFileUnderTest();
+    ObjectUploadDto derivativeUploadResponse = fileController.handleDerivativeUpload(derivativeMockFile, bucketUnderTest);
+    assertNotNull(derivativeUploadResponse);
+
+    ResponseEntity<FileObjectInfo> dfoi = fileController.getDerivativeObjectInfo(bucketUnderTest, derivativeUploadResponse.getFileIdentifier()+ "." + TEST_UPLOAD_FILE_EXT);
+    assertEquals(HttpStatus.OK, dfoi.getStatusCode());
+    assertNotNull(dfoi.getBody());
+    assertTrue(dfoi.getBody().getLength() > 0);
+
+    // test non-existing file
+    assertThrows(ResponseStatusException.class, () ->
+      fileController.getObjectInfo(bucketUnderTest, UUID.randomUUID() + "." + TEST_UPLOAD_FILE_EXT));
   }
 
   @Test

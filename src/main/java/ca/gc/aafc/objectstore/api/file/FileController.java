@@ -257,6 +257,12 @@ public class FileController {
     return handleObjectInfo(bucket, filename, false);
   }
 
+  /**
+   * Same as {@link #getObjectInfo(String, String)} but for derivatives
+   * @param bucket bucket of the file (aka the group)
+   * @param filename filename including extension.
+   * @return
+   */
   @GetMapping("/file-info/{bucket}/derivative/{filename}")
   public ResponseEntity<FileObjectInfo> getDerivativeObjectInfo(@PathVariable String bucket,
                                                                 @PathVariable String filename
