@@ -10,7 +10,14 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
+
+- task: DownloadSecureFile@1
+  name: secureMavenSettingsFile
+  inputs:
+    secureFile: 'nvd-api-settings.xml'
+
 - task: Maven@4
+  name: maven
   inputs:
     mavenPomFile: 'pom.xml'
     publishJUnitResults: false
@@ -20,10 +27,11 @@ steps:
     mavenAuthenticateFeed: false
     effectivePomSkip: false
     sonarQubeRunAnalysis: false
-- task: DownloadSecureFile@1
-  name: secureMavenSettingsFile
+
+- task: Bash@3
   inputs:
-    secureFile: 'nvd-api-settings.xml'
+    targetType: 'inline'
+    script: 'cp $(secureMavenSettingsFile.secureFilePath) $(Build.ArtifactStagingDirectory)/.m2/settings.xml'
 
 - task: dependency-check-build-task@6
   inputs:
@@ -32,7 +40,6 @@ steps:
     format: 'HTML, JUNIT'
     failOnCVSS: '8'
     suppressionPath: 'owasp-suppression.xml'
-    additionalArguments: '-s $(secureMavenSettingsFile.secureFilePath)'
 
 - task: PublishTestResults@2
   displayName: 'Publish OWASP Dependency Check results'
