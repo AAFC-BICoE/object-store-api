@@ -2,6 +2,7 @@ package ca.gc.aafc.objectstore.api;
 
 import ca.gc.aafc.dina.testsupport.DatabaseSupportService;
 import ca.gc.aafc.dina.testsupport.PostgresTestContainerInitializer;
+import ca.gc.aafc.objectstore.api.service.DerivativeGenerationService;
 import ca.gc.aafc.objectstore.api.service.DerivativeService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreManagedAttributeService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
@@ -32,6 +33,9 @@ public abstract class BaseIntegrationTest {
 
   @Inject
   protected DerivativeService derivativeService;
+
+  @Inject
+  protected DerivativeGenerationService derivativeGenerationService;
 
   @Inject
   protected ObjectStoreManagedAttributeService managedAttributeService;

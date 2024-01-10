@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.BiFunction;
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import javax.validation.ValidationException;
 
 import org.apache.commons.lang3.StringUtils;
@@ -38,14 +41,14 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
 
   private final BaseDAO baseDAO;
   private final ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService;
-  private final DerivativeService derivativeService;
+  private final DerivativeGenerationService derivativeGenerationService;
   private final ObjectStoreManagedAttributeValueValidator objectStoreManagedAttributeValueValidator;
   private final ObjectStoreMetadataValidator objectStoreMetadataValidator;
 
   public ObjectStoreMetaDataService(
       @NonNull BaseDAO baseDAO,
       @NonNull ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService,
-      @NonNull DerivativeService derivativeService,
+      DerivativeGenerationService derivativeGenerationService,
       @NonNull SmartValidator smartValidator,
       @NonNull ObjectStoreManagedAttributeValueValidator objectStoreManagedAttributeValueValidator,
       @NonNull ObjectStoreMetadataValidator objectStoreMetadataValidator,
@@ -53,7 +56,7 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
     super(baseDAO, smartValidator, ObjectStoreMetadataDto.TYPENAME, eventPublisher);
     this.baseDAO = baseDAO;
     this.defaultValueSetterService = defaultValueSetterService;
-    this.derivativeService = derivativeService;
+    this.derivativeGenerationService = derivativeGenerationService;
     this.objectStoreManagedAttributeValueValidator = objectStoreManagedAttributeValueValidator;
     this.objectStoreMetadataValidator = objectStoreMetadataValidator;
   }
@@ -71,7 +74,7 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
   @Override
   public ObjectStoreMetadata create(ObjectStoreMetadata entity) {
     ObjectStoreMetadata objectStoreMetadata = super.create(entity);
-    handleThumbnailGeneration(objectStoreMetadata);
+    derivativeGenerationService.handleThumbnailGeneration(objectStoreMetadata);
     return objectStoreMetadata;
   }
 
@@ -96,7 +99,7 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
   @Override
   protected void preDelete(ObjectStoreMetadata entity) {
     try {
-      derivativeService.deleteGeneratedThumbnail(entity);
+      derivativeGenerationService.deleteGeneratedThumbnail(entity);
     } catch (IOException e) {
       // log the exception but don't block the deletion of metadata
       log.warn(e);
@@ -137,27 +140,6 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
   private BadRequestException throwBadRequest(ObjectSubtype acSubtype) {
     return new BadRequestException(
         acSubtype.getAcSubtype() + "/" + acSubtype.getDcType() + " is not a valid acSubtype/dcType");
-  }
-
-  /**
-   * Generates a thumbnail for the given resource if required/possible.
-   *
-   * @param resource - parent resource metadata of the thumbnail
-   */
-  private void handleThumbnailGeneration(ObjectStoreMetadata resource) {
-
-    // we don't try to generate a thumbnail for external resources
-    if (resource.isExternal()) {
-      return;
-    }
-
-    String evaluatedMediaType = resource.getDcFormat();
-    String bucket = resource.getBucket();
-    UUID derivedId = resource.getUuid();
-    String sourceFilename = resource.getFileIdentifier() + resource.getFileExtension();
-    Boolean publiclyReleasable = resource.getPubliclyReleasable();
-    derivativeService.generateThumbnail(bucket, sourceFilename, derivedId, evaluatedMediaType, null, false,
-        publiclyReleasable);
   }
 
   /**
@@ -204,11 +186,19 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
     }
   }
 
-  public Optional<ObjectStoreMetadata> loadObjectStoreMetadataByFileId(UUID fileId) {
-    return this.findAll(
-        ObjectStoreMetadata.class,
-        (cb, root) -> new Predicate[] { cb.equal(root.get("fileIdentifier"), fileId) }, null, 0, 1)
-        .stream().findFirst();
+  /**
+   * Returns an Optional ObjectStoreMetadata for a given criteria.
+   *
+   * @param crit criteria to find the derivative
+   * @return an Optional Derivative for a given criteria.
+   */
+  private Optional<ObjectStoreMetadata> findOneBy(
+    @NonNull BiFunction<CriteriaBuilder, Root<ObjectStoreMetadata>, Predicate[]> crit) {
+    return this.findAll(ObjectStoreMetadata.class, crit, null, 0, 1).stream().findFirst();
+  }
+
+  public Optional<ObjectStoreMetadata> findByFileId(UUID fileId) {
+    return findOneBy((cb, root) -> new Predicate[] {cb.equal(root.get("fileIdentifier"), fileId)});
   }
 
   /**

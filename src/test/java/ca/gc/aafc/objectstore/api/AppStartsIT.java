@@ -1,5 +1,6 @@
 package ca.gc.aafc.objectstore.api;
 
+import ca.gc.aafc.objectstore.api.config.FileUploadConfiguration;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;

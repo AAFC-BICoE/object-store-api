@@ -87,10 +87,13 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
     assertEquals(objectStoreMetaUnderTest.getOrientation(), fetchedObjectStoreMeta.getOrientation());
 
     // the returned acDigitizationDate will use the timezone of the server
-    assertEquals(objectStoreMetaUnderTest.getAcDigitizationDate(),
-        fetchedObjectStoreMeta.getAcDigitizationDate()
-        .atZoneSameInstant(MTL_TZ)
-        .toOffsetDateTime());
+//    assertEquals(objectStoreMetaUnderTest.getAcDigitizationDate(),
+//        fetchedObjectStoreMeta.getAcDigitizationDate()
+//        .atZoneSameInstant(MTL_TZ)
+//        .toOffsetDateTime());
+
+    assertTrue(objectStoreMetaUnderTest.getAcDigitizationDate()
+        .isEqual(fetchedObjectStoreMeta.getAcDigitizationDate()));
 
     //should be auto-generated
     assertNotNull(fetchedObjectStoreMeta.getCreatedOn());

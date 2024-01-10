@@ -5,7 +5,7 @@
 
   <groupId>ca.gc.aafc</groupId>
   <artifactId>object-store.api</artifactId>
-  <version>1.10</version>
+  <version>1.11</version>
   <packaging>jar</packaging>
 
   <name>Object-Store API</name>
@@ -14,7 +14,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.7.13</version>
+    <version>2.7.18</version>
   </parent>
 
   <properties>
@@ -35,16 +35,15 @@
     <spotbugs-maven-plugin.version>4.6.0.0</spotbugs-maven-plugin.version>
     <spotbugs.version>4.7.1</spotbugs.version>
     <jcip-annotations.version>1.0</jcip-annotations.version>
-    <dependency-check.version>8.0.2</dependency-check.version>
+    <dependency-check.version>8.4.3</dependency-check.version>
     <jacoco-maven-plugin.version>0.8.8</jacoco-maven-plugin.version>
     <maven-checkstyle-plugin.version>3.1.2</maven-checkstyle-plugin.version>
     <checkstyle.version>9.3</checkstyle.version>
     <asciidoctor-maven-plugin.version>2.1.0</asciidoctor-maven-plugin.version>
     <asciidoctorj.diagram.version>2.0.2</asciidoctorj.diagram.version>
-    <dina-base-api.version>0.111</dina-base-api.version>
+    <dina-base-api.version>0.112</dina-base-api.version>
     
     <postgresql.version>42.4.3</postgresql.version>
-    <spring-security.version>5.7.10</spring-security.version>
 
     <!-- Override to avoid NoClassDefFoundError: org/apache/maven/doxia/siterenderer/DocumentContent -->
     <maven-site-plugin.version>3.7.1</maven-site-plugin.version>

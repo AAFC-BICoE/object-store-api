@@ -15,10 +15,8 @@ import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.file.FileController;
-import ca.gc.aafc.objectstore.api.file.ThumbnailGenerator;
 import ca.gc.aafc.objectstore.api.validation.DerivativeValidator;
 
-import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiFunction;
@@ -30,18 +28,20 @@ import lombok.NonNull;
 
 @Service
 public class DerivativeService extends MessageProducingService<Derivative> {
-  private final ThumbnailGenerator thumbnailGenerator;
+
+  private final DerivativeGenerationService derivativeGenerationService;
+
   private final DerivativeValidator validator;
 
   public DerivativeService(
     @NonNull BaseDAO baseDAO,
-    @NonNull ThumbnailGenerator thumbnailGenerator,
+    DerivativeGenerationService derivativeGenerationService,
     @NonNull DerivativeValidator validator,
     @NonNull SmartValidator smartValidator,
     ApplicationEventPublisher eventPublisher
   ) {
     super(baseDAO, smartValidator, DerivativeDto.TYPENAME, eventPublisher);
-    this.thumbnailGenerator = thumbnailGenerator;
+    this.derivativeGenerationService = derivativeGenerationService;
     this.validator = validator;
   }
 
@@ -55,7 +55,7 @@ public class DerivativeService extends MessageProducingService<Derivative> {
   @Override
   public Derivative create(Derivative entity) {
     Derivative derivative = super.create(entity);
-    handleThumbnailGeneration(derivative);
+    derivativeGenerationService.handleThumbnailGeneration(derivative);
     return derivative;
   }
 
@@ -63,6 +63,11 @@ public class DerivativeService extends MessageProducingService<Derivative> {
   protected void preUpdate(Derivative entity) {
     handleFileRelatedData(entity);
     establishBiDirectionalAssociation(entity);
+  }
+
+  @Override
+  protected void preDelete(Derivative entity) {
+    removeBiDirectionalAssociation(entity);
   }
 
   @Override
@@ -77,7 +82,7 @@ public class DerivativeService extends MessageProducingService<Derivative> {
   private void handleFileRelatedData(Derivative derivative) {
 
     // skip validation for system generated
-    if (isSystemGenerated(derivative)) {
+    if (DerivativeGenerationService.isSystemGenerated(derivative)) {
       return;
     }
 
@@ -125,6 +130,12 @@ public class DerivativeService extends MessageProducingService<Derivative> {
     }
   }
 
+  private static void removeBiDirectionalAssociation(Derivative entity) {
+    if (entity.getAcDerivedFrom() != null) {
+      entity.getAcDerivedFrom().removeDerivative(entity);
+    }
+  }
+
   public Optional<Derivative> findThumbnailDerivativeForMetadata(ObjectStoreMetadata metadata) {
     return findOneBy((criteriaBuilder, derivativeRoot) -> new Predicate[] {
       criteriaBuilder.equal(derivativeRoot.get("acDerivedFrom"), metadata),
@@ -137,112 +148,6 @@ public class DerivativeService extends MessageProducingService<Derivative> {
     return findOneBy((cb, root) -> new Predicate[] {cb.equal(root.get("fileIdentifier"), fileId)});
   }
 
-  private void handleThumbnailGeneration(@NonNull Derivative resource) {
-    ObjectStoreMetadata acDerivedFrom = resource.getAcDerivedFrom();
-    Derivative.DerivativeType derivativeType = resource.getDerivativeType();
-
-    if (thumbnailShouldBeGenerated(acDerivedFrom, derivativeType)) {
-      this.generateThumbnail(
-        resource.getBucket(),
-        resource.getFileIdentifier() + resource.getFileExtension(),
-        acDerivedFrom.getUuid(),
-        resource.getDcFormat(),
-        resource.getUuid(),
-        true,
-        acDerivedFrom.getPubliclyReleasable());
-    }
-  }
-
-  /**
-   * Generates a thumbnail for a resource with the given parameters if possible based on the evaluatedMediaType.
-   *
-   * No messages will be emitted if a derivative is created for the thumbnail.
-   *
-   * @param sourceBucket                bucket of the resource
-   * @param sourceFilename              file name of the resource
-   * @param acDerivedFromId             metadata id of the original resource
-   * @param evaluatedMediaType          evaluated media type of the resource, can be null
-   * @param generatedFromDerivativeUUID id of the derivative this resource derives from, can be null
-   * @param isSourceDerivative          true if the source of the thumbnail is a derivative
-   * @param publiclyReleasable          Is the entity considered publicly releasable?
-   */
-  public void generateThumbnail(
-    @NonNull String sourceBucket,
-    @NonNull String sourceFilename,
-    @NonNull UUID acDerivedFromId,
-    String evaluatedMediaType,
-    UUID generatedFromDerivativeUUID,
-    boolean isSourceDerivative,
-    Boolean publiclyReleasable
-  ) {
-    if (ThumbnailGenerator.isSupported(evaluatedMediaType)) {
-      UUID uuid = UUID.randomUUID();
-      Derivative derivative = generateDerivativeForThumbnail(sourceBucket, uuid, publiclyReleasable);
-
-      if (!this.exists(ObjectStoreMetadata.class, acDerivedFromId)) {
-        throw new IllegalArgumentException(
-          "ObjectStoreMetadata with id " + acDerivedFromId + " does not exist");
-      }
-      derivative.setAcDerivedFrom(
-        this.getReferenceByNaturalId(ObjectStoreMetadata.class, acDerivedFromId));
-
-      if (generatedFromDerivativeUUID != null) {
-        if (!this.exists(Derivative.class, generatedFromDerivativeUUID)) {
-          throw new IllegalArgumentException(
-            "Derivative with id " + generatedFromDerivativeUUID + " does not exist");
-        }
-        derivative.setGeneratedFromDerivative(
-          this.getReferenceByNaturalId(Derivative.class, generatedFromDerivativeUUID));
-      }
-
-      // do not emit message since the source will already emit one
-      super.create(derivative, false);
-      thumbnailGenerator.generateThumbnail(
-        uuid,
-        sourceFilename,
-        evaluatedMediaType,
-        sourceBucket,
-        isSourceDerivative);
-    }
-  }
-
-  /**
-   * If found, delete the system generated thumbnail attached to the provided metadata.
-   * This method will delete the file in MinIO and the derivative record.
-   *
-   * No messages will be emitted for the deleted derivative.
-   *
-   * @param metadata
-   */
-  public void deleteGeneratedThumbnail(ObjectStoreMetadata metadata) throws IOException {
-    Optional<Derivative> thumbnail = findThumbnailDerivativeForMetadata(metadata);
-    if (thumbnail.isPresent() &&
-      ThumbnailGenerator.SYSTEM_GENERATED.equals(thumbnail.get().getCreatedBy())) {
-      thumbnailGenerator.deleteThumbnail(thumbnail.get().getFileIdentifier(),
-        thumbnail.get().getBucket());
-      // do not emit message since the source will already emit one
-      delete(thumbnail.get(), false);
-    }
-  }
-
-  /**
-   * Returns true if a thumbnail should be generated. A thumbnail should be generated if a given Derivative
-   * type is not a thumbnail , has an ac derived from, and does not already have a thumbnail for the ac
-   * derived from.
-   *
-   * @param acDerivedFrom  metadata to check.
-   * @param derivativeType type of derivative
-   * @return Returns true if a thumbnail should be generated.
-   */
-  private boolean thumbnailShouldBeGenerated(
-    ObjectStoreMetadata acDerivedFrom,
-    Derivative.DerivativeType derivativeType
-  ) {
-    return derivativeType != Derivative.DerivativeType.THUMBNAIL_IMAGE &&
-      acDerivedFrom != null &&
-      findThumbnailDerivativeForMetadata(acDerivedFrom).isEmpty();
-  }
-
   /**
    * Returns an Optional Derivative for a given criteria.
    *
@@ -252,40 +157,6 @@ public class DerivativeService extends MessageProducingService<Derivative> {
   private Optional<Derivative> findOneBy(
     @NonNull BiFunction<CriteriaBuilder, Root<Derivative>, Predicate[]> crit) {
     return this.findAll(Derivative.class, crit, null, 0, 1).stream().findFirst();
-  }
-
-  /**
-   * Generates a Template for a derivative to be used with thumbnails.
-   *
-   * @param bucket         bucket of the derivative
-   * @param fileIdentifier file identifier for the thumbnail
-   * @param publiclyReleasable          Is the entity considered publicly releasable?
-   * @return a Template for a derivative to be used with thumbnails
-   */
-  private static Derivative generateDerivativeForThumbnail(String bucket, UUID fileIdentifier, Boolean publiclyReleasable) {
-    return Derivative.builder()
-      .uuid(UUID.randomUUID())
-      .createdBy(ThumbnailGenerator.SYSTEM_GENERATED)
-      .dcType(ThumbnailGenerator.THUMBNAIL_DC_TYPE)
-      .fileExtension(ThumbnailGenerator.THUMBNAIL_EXTENSION)
-      .fileIdentifier(fileIdentifier)
-      .dcFormat(ThumbnailGenerator.THUMB_DC_FORMAT)
-      .derivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE)
-      .bucket(bucket)
-      .publiclyReleasable(publiclyReleasable)
-      .build();
-  }
-
-  /**
-   * Consistent with generateDerivativeForThumbnail but should be based on a boolean fields instead
-   * createdBy
-   * @param derivative
-   * @return
-   */
-  private static boolean isSystemGenerated(Derivative derivative) {
-    return
-      Derivative.DerivativeType.THUMBNAIL_IMAGE.equals(derivative.getDerivativeType()) &&
-        ThumbnailGenerator.SYSTEM_GENERATED.equals(derivative.getCreatedBy());
   }
 
 }

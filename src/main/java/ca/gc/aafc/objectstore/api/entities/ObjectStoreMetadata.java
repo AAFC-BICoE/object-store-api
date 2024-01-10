@@ -40,6 +40,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
 
+  public static final String DERIVATIVES_PROP = "derivatives";
+
   private Integer id;
 
   private String acCaption;
@@ -148,16 +150,6 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
 
   public void setId(Integer id) {
     this.id = id;
-  }
-
-  /**
-   * Returns fileIdentifier + fileExtension
-   *
-   * @return fileIdentifier + fileExtension
-   */
-  @Transient
-  public String getFilename() {
-    return fileIdentifier + fileExtension;
   }
 
   @Column(name = "ac_caption")

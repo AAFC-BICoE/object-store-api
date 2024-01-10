@@ -9,6 +9,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
+import ca.gc.aafc.dina.property.YamlPropertyLoaderFactory;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 
 /**

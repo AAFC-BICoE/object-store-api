@@ -80,7 +80,12 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
     objectStoreMetaDataService.findAll(ObjectStoreMetadata.class,
     (criteriaBuilder, objectStoreMetadataRoot) -> new Predicate[0],
     null, 0, 100).forEach(metadata -> {
-      metadata.getDerivatives().forEach(derivativeService::delete);
+
+      List<UUID> toDelete = metadata.getDerivatives().stream().map(Derivative::getUuid).toList();
+      for(UUID curr : toDelete) {
+        derivativeService.delete(derivativeService.findOne(curr, Derivative.class));
+      }
+
       objectStoreMetaDataService.delete(metadata);
     });
     objectUploadService.delete(objectUpload);

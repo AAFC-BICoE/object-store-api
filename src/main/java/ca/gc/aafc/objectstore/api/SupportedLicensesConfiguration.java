@@ -1,5 +1,6 @@
 package ca.gc.aafc.objectstore.api;
 
+import ca.gc.aafc.dina.property.YamlPropertyLoaderFactory;
 import ca.gc.aafc.objectstore.api.dto.LicenseDto;
 
 import java.util.Map;
