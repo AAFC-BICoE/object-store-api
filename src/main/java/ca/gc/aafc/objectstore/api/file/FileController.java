@@ -254,17 +254,20 @@ public class FileController {
   public ResponseEntity<FileObjectInfo> getObjectInfo(@PathVariable String bucket,
                                                       @PathVariable String filename
   ) throws IOException {
+    return handleObjectInfo(bucket, filename, false);
+  }
 
-    authorizationService.authorizeFileInfo(FileControllerAuthorizationService
-      .objectUploadAuthFromBucket(bucket));
-
-    Optional<FileObjectInfo> fileInfo = fileStorage.getFileInfo(bucket, filename,false);
-
-    if(fileInfo.isPresent()) {
-      return new ResponseEntity<>(fileInfo.get(), HttpStatus.OK);
-    }
-
-    throw buildNotFoundException(bucket, filename);
+  /**
+   * Same as {@link #getObjectInfo(String, String)} but for derivatives
+   * @param bucket bucket of the file (aka the group)
+   * @param filename filename including extension.
+   * @return
+   */
+  @GetMapping("/file-info/{bucket}/derivative/{filename}")
+  public ResponseEntity<FileObjectInfo> getDerivativeObjectInfo(@PathVariable String bucket,
+                                                                @PathVariable String filename
+  ) throws IOException {
+    return handleObjectInfo(bucket, filename, true);
   }
 
   @GetMapping("/file/{bucket}/derivative/{fileId}")
@@ -387,6 +390,27 @@ public class FileController {
       mtdr.getEvaluatedMediaType(),
       iStream
     );
+  }
+
+  /**
+   * Internal handling of object-info requests.
+   * @param bucket
+   * @param filename
+   * @param isDerivative
+   * @return
+   */
+  private ResponseEntity<FileObjectInfo> handleObjectInfo(String bucket, String filename,
+                                                          boolean isDerivative
+  ) throws IOException {
+    authorizationService.authorizeFileInfo(FileControllerAuthorizationService
+      .objectUploadAuthFromBucket(bucket));
+    Optional<FileObjectInfo> fileInfo = fileStorage.getFileInfo(bucket, filename, isDerivative);
+
+    if (fileInfo.isPresent()) {
+      return new ResponseEntity<>(fileInfo.get(), HttpStatus.OK);
+    }
+
+    throw buildNotFoundException(bucket, filename);
   }
 
   /**
