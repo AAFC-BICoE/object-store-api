@@ -399,13 +399,14 @@ public class FileController {
    * @param isDerivative
    * @return
    */
-  private ResponseEntity<FileObjectInfo> handleObjectInfo(String bucket, String filename, boolean isDerivative)
-    throws IOException {
+  private ResponseEntity<FileObjectInfo> handleObjectInfo(String bucket, String filename,
+                                                          boolean isDerivative
+  ) throws IOException {
     authorizationService.authorizeFileInfo(FileControllerAuthorizationService
       .objectUploadAuthFromBucket(bucket));
     Optional<FileObjectInfo> fileInfo = fileStorage.getFileInfo(bucket, filename, isDerivative);
 
-    if(fileInfo.isPresent()) {
+    if (fileInfo.isPresent()) {
       return new ResponseEntity<>(fileInfo.get(), HttpStatus.OK);
     }
 
