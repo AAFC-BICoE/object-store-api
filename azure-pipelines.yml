@@ -20,6 +20,10 @@ steps:
     mavenAuthenticateFeed: false
     effectivePomSkip: false
     sonarQubeRunAnalysis: false
+- task: DownloadSecureFile@1
+  name: secureMavenSettingsFile
+  inputs:
+    secureFile: 'nvd-api-settings.xml'
 
 - task: dependency-check-build-task@6
   inputs:
@@ -28,6 +32,7 @@ steps:
     format: 'HTML, JUNIT'
     failOnCVSS: '8'
     suppressionPath: 'owasp-suppression.xml'
+    additionalArguments: '-s $(secureMavenSettingsFile.secureFilePath)'
 
 - task: PublishTestResults@2
   displayName: 'Publish OWASP Dependency Check results'
