@@ -32,7 +32,8 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      mvn help:evaluate -Dexpression=settings.localRepository -q -DforceStdout
+      SETTINGS_FILE= $(mvn help:evaluate -Dexpression=settings.localRepository -q -DforceStdout)
+      echo "${SETTINGS_FILE}"
       cp $(secureMavenSettingsFile.secureFilePath) $(Build.ArtifactStagingDirectory)/.m2/settings.xml
 
 - task: dependency-check-build-task@6
