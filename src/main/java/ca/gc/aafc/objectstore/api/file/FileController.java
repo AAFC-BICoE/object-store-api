@@ -398,7 +398,6 @@ public class FileController {
    * @param filename
    * @param isDerivative
    * @return
-   * @throws IOException
    */
   private ResponseEntity<FileObjectInfo> handleObjectInfo(String bucket, String filename, boolean isDerivative)
     throws IOException {
