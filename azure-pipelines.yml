@@ -32,9 +32,8 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      SETTINGS_FILE= $(mvn help:evaluate -Dexpression=settings.localRepository -q -DforceStdout)
       echo "Copying settings.xml"
-      cp $(secureMavenSettingsFile.secureFilePath) $SETTINGS_FILE
+      cp $(secureMavenSettingsFile.secureFilePath) $HOME/.m2/settings.xml
 
 - task: dependency-check-build-task@6
   inputs:
