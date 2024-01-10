@@ -35,6 +35,13 @@ steps:
       echo "Copying settings.xml"
       cp $(secureMavenSettingsFile.secureFilePath) $HOME/.m2/settings.xml
 
+- task: Maven@4
+  name: UpdateNVDdata
+  inputs:
+    mavenPomFile: 'pom.xml'
+    publishJUnitResults: false
+    goals: dependency-check:update-only
+
 - task: dependency-check-build-task@6
   inputs:
     projectName: 'object-store-api'
