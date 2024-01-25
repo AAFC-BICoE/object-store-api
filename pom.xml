@@ -41,7 +41,7 @@
     <checkstyle.version>9.3</checkstyle.version>
     <asciidoctor-maven-plugin.version>2.1.0</asciidoctor-maven-plugin.version>
     <asciidoctorj.diagram.version>2.0.2</asciidoctorj.diagram.version>
-    <dina-base-api.version>0.115-SNAPSHOT</dina-base-api.version>
+    <dina-base-api.version>0.115</dina-base-api.version>
     
     <postgresql.version>42.4.3</postgresql.version>
 
