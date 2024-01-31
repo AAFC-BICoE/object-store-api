@@ -77,7 +77,13 @@ server.shutdown: graceful
 external-types:
   providerMap:
     person: "Agent/api/v1/person"
-dina.auditing.enabled: true
+
+dina:
+  auditing.enabled: true
+  messaging:
+    export:
+      queue: dina.export.queue
+
 rabbitmq:
   queue: dina.search.queue
   username: guest
