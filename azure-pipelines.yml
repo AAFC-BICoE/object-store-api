@@ -10,7 +10,14 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
+
+- task: DownloadSecureFile@1
+  name: secureMavenSettingsFile
+  inputs:
+    secureFile: 'nvd-api-settings.xml'
+
 - task: Maven@4
+  name: maven
   inputs:
     mavenPomFile: 'pom.xml'
     publishJUnitResults: false
@@ -20,6 +27,20 @@ steps:
     mavenAuthenticateFeed: false
     effectivePomSkip: false
     sonarQubeRunAnalysis: false
+
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: |
+      echo "Copying settings.xml"
+      cp $(secureMavenSettingsFile.secureFilePath) $HOME/.m2/settings.xml
+
+- task: Maven@4
+  name: UpdateNVDdata
+  inputs:
+    mavenPomFile: 'pom.xml'
+    publishJUnitResults: false
+    goals: dependency-check:update-only
 
 - task: dependency-check-build-task@6
   inputs:

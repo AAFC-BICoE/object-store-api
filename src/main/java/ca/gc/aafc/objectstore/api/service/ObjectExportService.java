@@ -6,11 +6,13 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Service;
 
+import ca.gc.aafc.dina.messaging.message.ObjectExportNotification;
 import ca.gc.aafc.objectstore.api.entities.AbstractObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.file.FileObjectInfo;
 import ca.gc.aafc.objectstore.api.file.TemporaryObjectAccessController;
+import ca.gc.aafc.objectstore.api.messaging.ObjectExportMessageProducer;
 import ca.gc.aafc.objectstore.api.security.FileControllerAuthorizationService;
 import ca.gc.aafc.objectstore.api.storage.FileStorage;
 
@@ -34,16 +36,20 @@ public class ObjectExportService {
   private final DerivativeService derivativeService;
   private final TemporaryObjectAccessController toaCtrl;
 
+  private final ObjectExportMessageProducer objectExportMessageProducer;
+
   public ObjectExportService(FileControllerAuthorizationService authorizationService,
                              FileStorage fileStorage,
                              ObjectStoreMetaDataService objectMetadataService,
                              DerivativeService derivativeService,
-                             TemporaryObjectAccessController toaCtrl) {
+                             TemporaryObjectAccessController toaCtrl,
+                             ObjectExportMessageProducer objectExportMessageProducer) {
     this.authorizationService = authorizationService;
     this.fileStorage = fileStorage;
     this.objectMetadataService = objectMetadataService;
     this.derivativeService = derivativeService;
     this.toaCtrl = toaCtrl;
+    this.objectExportMessageProducer = objectExportMessageProducer;
   }
 
   /**
@@ -52,7 +58,7 @@ public class ObjectExportService {
    * @param fileIdentifiers
    * @throws IOException
    */
-  public ExportResult export(List<UUID> fileIdentifiers) throws IOException {
+  public ExportResult export(String username, List<UUID> fileIdentifiers) throws IOException {
     UUID exportUUID = UUID.randomUUID();
 
     String filename = exportUUID + EXPORT_EXT;
@@ -93,6 +99,15 @@ public class ObjectExportService {
     }
     String toaKey = toaCtrl.registerObject(filename);
     log.info("Generated toaKey {}", () -> toaKey);
+
+    ObjectExportNotification oen = ObjectExportNotification.builder()
+      .uuid(exportUUID)
+      .username(username)
+      .toa(toaKey)
+      .build();
+
+    objectExportMessageProducer.send(oen);
+
     return new ExportResult(exportUUID, toaKey);
   }
 
