@@ -77,7 +77,7 @@ public class ObjectExportServiceIT extends BaseIntegrationTest {
     Optional<Derivative> thumbnail = derivativeService.findThumbnailDerivativeForMetadata(osm);
     assertTrue(thumbnail.isPresent());
 
-    var result = objectExportService.export(List.of(osm.getFileIdentifier()));
+    var result = objectExportService.export("testuser", List.of(osm.getFileIdentifier()));
 
     // make sure we can get the export file using the toa key
     assertEquals(200, toaController.downloadObject(result.toaKey()).getStatusCode().value());

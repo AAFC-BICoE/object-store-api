@@ -10,6 +10,7 @@ import java.util.Collection;
 
 import org.springframework.stereotype.Repository;
 
+import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.objectstore.api.dto.ObjectExportDto;
 import ca.gc.aafc.objectstore.api.service.ObjectExportService;
 
@@ -17,15 +18,19 @@ import ca.gc.aafc.objectstore.api.service.ObjectExportService;
 public class ObjectExportRepository implements ResourceRepository<ObjectExportDto, Serializable> {
 
   private final ObjectExportService objectExportService;
+  private final DinaAuthenticatedUser authenticatedUser;
 
-  public ObjectExportRepository(ObjectExportService objectExportService) {
+  public ObjectExportRepository(ObjectExportService objectExportService,
+                                DinaAuthenticatedUser authenticatedUser) {
     this.objectExportService = objectExportService;
+    this.authenticatedUser = authenticatedUser;
   }
 
   @Override
   public <S extends ObjectExportDto> S create(S s) {
     try {
-      ObjectExportService.ExportResult exportResult = objectExportService.export(s.getFileIdentifiers());
+      ObjectExportService.ExportResult exportResult =
+        objectExportService.export(authenticatedUser.getUsername(), s.getFileIdentifiers());
       s.setUuid(exportResult.uuid());
     } catch (IOException e) {
       throw new IllegalStateException(e);
