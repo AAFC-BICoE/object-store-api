@@ -15,6 +15,7 @@ import org.springframework.validation.SmartValidator;
 
 import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.dina.service.DefaultDinaService;
+import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.objectstore.api.entities.AbstractObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
@@ -105,7 +106,7 @@ public class DerivativeGenerationService extends DefaultDinaService<Derivative> 
     Boolean publiclyReleasable
   ) {
     if (ThumbnailGenerator.isSupported(evaluatedMediaType)) {
-      UUID uuid = UUID.randomUUID();
+      UUID uuid = UUIDHelper.generateUUIDv7();
       Derivative derivative = generateDerivativeForThumbnail(sourceBucket, uuid, publiclyReleasable);
 
       if (!this.exists(ObjectStoreMetadata.class, acDerivedFromId)) {
@@ -225,7 +226,7 @@ public class DerivativeGenerationService extends DefaultDinaService<Derivative> 
    */
   private static Derivative generateDerivativeForThumbnail(String bucket, UUID fileIdentifier, Boolean publiclyReleasable) {
     return Derivative.builder()
-      .uuid(UUID.randomUUID())
+      .uuid(UUIDHelper.generateUUIDv7())
       .createdBy(ThumbnailGenerator.SYSTEM_GENERATED)
       .dcType(ThumbnailGenerator.THUMBNAIL_DC_TYPE)
       .fileExtension(ThumbnailGenerator.THUMBNAIL_EXTENSION)

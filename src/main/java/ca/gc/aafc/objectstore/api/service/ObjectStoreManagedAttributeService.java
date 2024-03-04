@@ -2,6 +2,7 @@ package ca.gc.aafc.objectstore.api.service;
 
 import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.dina.service.PostgresJsonbService;
+import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.objectstore.api.validation.ObjectStoreManagedAttributeValidator;
 import lombok.NonNull;
@@ -32,7 +33,7 @@ public class ObjectStoreManagedAttributeService extends ca.gc.aafc.dina.service.
 
   @Override
   protected void preCreate(ObjectStoreManagedAttribute entity) {
-    entity.setUuid(UUID.randomUUID());
+    entity.setUuid(UUIDHelper.generateUUIDv7());
     super.preCreate(entity);
   }
 

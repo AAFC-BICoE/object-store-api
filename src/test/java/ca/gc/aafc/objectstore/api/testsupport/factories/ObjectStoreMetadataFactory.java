@@ -1,6 +1,7 @@
 package ca.gc.aafc.objectstore.api.testsupport.factories;
 
 import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
+import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -25,8 +26,8 @@ public class ObjectStoreMetadataFactory implements TestableEntityFactory<ObjectS
   public static ObjectStoreMetadata.ObjectStoreMetadataBuilder newObjectStoreMetadata() {
 
     return  ObjectStoreMetadata.builder()
-        .uuid(UUID.randomUUID())
-        .fileIdentifier(UUID.randomUUID())
+        .uuid(UUIDHelper.generateUUIDv7())
+        .fileIdentifier(UUIDHelper.generateUUIDv7())
         .fileExtension(".jpg")
         .bucket("mybucket")
         .acHashValue("abc")

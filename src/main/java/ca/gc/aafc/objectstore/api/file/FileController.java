@@ -6,6 +6,7 @@ import ca.gc.aafc.dina.mapper.DinaMappingLayer;
 import ca.gc.aafc.dina.repository.meta.AttributeMetaInfoProvider;
 import ca.gc.aafc.dina.repository.meta.AttributeMetaInfoProvider.DinaJsonMetaInfo;
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
+import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.dina.workbook.DelimiterSeparatedConverter;
 import ca.gc.aafc.dina.workbook.WorkbookConverter;
 import ca.gc.aafc.dina.workbook.WorkbookRow;
@@ -486,7 +487,7 @@ public class FileController {
   private UUID generateUUID() throws IllegalStateException {
     int numberOfAttempt = 0;
     while (numberOfAttempt < MAX_NUMBER_OF_ATTEMPT_RANDOM_UUID) {
-      UUID uuid = UUID.randomUUID();
+      UUID uuid = UUIDHelper.generateUUIDv7();
       // this would be better with an exists() function
       if (objectUploadService.findOne(uuid, ObjectUpload.class) == null) {
         return uuid;
