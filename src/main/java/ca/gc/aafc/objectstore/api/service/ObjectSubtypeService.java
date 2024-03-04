@@ -8,7 +8,6 @@ import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.dina.service.DefaultDinaService;
 import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
-import java.util.UUID;
 
 import lombok.NonNull;
 import org.springframework.validation.SmartValidator;

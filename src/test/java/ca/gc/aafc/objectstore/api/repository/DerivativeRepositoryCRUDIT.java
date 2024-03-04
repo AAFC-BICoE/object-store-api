@@ -1,5 +1,6 @@
 package ca.gc.aafc.objectstore.api.repository;
 
+import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.dto.DerivativeDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
@@ -78,7 +79,7 @@ public class DerivativeRepositoryCRUDIT extends BaseIntegrationTest {
   void create_WhenNoObjectUpload_ThrowsValidationException() {
     Assertions.assertThrows(
       ValidationException.class,
-      () -> derivativeRepository.create(newDerivative(UUID.randomUUID())));
+      () -> derivativeRepository.create(newDerivative(UUIDHelper.generateUUIDv7())));
   }
 
   @Test

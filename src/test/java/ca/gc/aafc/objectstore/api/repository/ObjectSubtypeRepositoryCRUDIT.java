@@ -3,10 +3,9 @@ package ca.gc.aafc.objectstore.api.repository;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.util.UUID;
-
 import javax.inject.Inject;
 
+import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -53,7 +52,7 @@ public class ObjectSubtypeRepositoryCRUDIT extends BaseIntegrationTest {
   @Test
   public void create_WithAuthenticatedUser_SetsCreatedBy() {
     ObjectSubtypeDto os = new ObjectSubtypeDto();
-    os.setUuid(UUID.randomUUID());
+    os.setUuid(UUIDHelper.generateUUIDv7());
     os.setAcSubtype("test subtype".toUpperCase());
     os.setDcType(DcType.IMAGE);
     ObjectSubtypeDto result = objectSubtypeRepository.findOne(objectSubtypeRepository.create(os).getUuid(),
