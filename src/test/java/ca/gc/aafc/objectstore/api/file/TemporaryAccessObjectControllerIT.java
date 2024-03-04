@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
 
+import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,7 +28,7 @@ public class TemporaryAccessObjectControllerIT extends BaseIntegrationTest {
   public void toa_onObjectRegistered_objectCanBeDownloadedOnce() throws IOException {
 
     final String testText = "this is a test";
-    final String testFilename = UUID.randomUUID() + ".txt";
+    final String testFilename = UUIDHelper.generateUUIDv7() + ".txt";
 
     Path p = tempObjectAccessController.generatePath(testFilename);
     Files.writeString(p, testText);

@@ -41,6 +41,10 @@ public class ObjectStoreMetadataFactory implements TestableEntityFactory<ObjectS
         .createdBy(RandomStringUtils.random(4));
   }
 
+  public static ObjectStoreMetadata newEmptyObjectStoreMetadata() {
+    return ObjectStoreMetadata.builder().uuid(UUIDHelper.generateUUIDv7()).build();
+  }
+
   /**
    * A utility method to create a list of qty number of Chains with no configuration.
    *
