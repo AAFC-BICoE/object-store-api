@@ -1,5 +1,6 @@
 package ca.gc.aafc.objectstore.api.crud;
 
+import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
@@ -79,7 +80,7 @@ public class DerivativeCRUDIT extends BaseEntityCRUDIT {
 
   private Derivative newDerivative(ObjectStoreMetadata child, UUID fileIdentifier) {
     return Derivative.builder()
-      .uuid(UUID.randomUUID())
+      .uuid(UUIDHelper.generateUUIDv7())
       .fileIdentifier(fileIdentifier)
       .fileExtension(".jpg")
       .bucket("mybucket")

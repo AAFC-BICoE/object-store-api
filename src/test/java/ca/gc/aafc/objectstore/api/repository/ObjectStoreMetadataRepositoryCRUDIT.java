@@ -1,5 +1,6 @@
 package ca.gc.aafc.objectstore.api.repository;
 
+import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.dina.vocabulary.TypedVocabularyElement;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.config.AsyncOverrideConfig;
@@ -195,7 +196,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
       
   @Test
   public void create_onMetadataOnDerivative_ExceptionThrown() {
-    UUID uuid = UUID.randomUUID();
+    UUID uuid = UUIDHelper.generateUUIDv7();
     ObjectUpload derivativeObjectUpload = ObjectUploadFactory.buildTestObjectUpload();
     derivativeObjectUpload.setFileIdentifier(uuid);
     derivativeObjectUpload.setIsDerivative(true);

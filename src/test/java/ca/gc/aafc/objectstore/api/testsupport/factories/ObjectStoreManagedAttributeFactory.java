@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.BiFunction;
 
+import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.dina.vocabulary.TypedVocabularyElement;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
@@ -23,7 +24,7 @@ public class ObjectStoreManagedAttributeFactory implements TestableEntityFactory
    */
   public static ObjectStoreManagedAttribute.ObjectStoreManagedAttributeBuilder newManagedAttribute() {
     return ObjectStoreManagedAttribute.builder()
-        .uuid(UUID.randomUUID())
+        .uuid(UUIDHelper.generateUUIDv7())
         .name(TestableEntityFactory.generateRandomNameLettersOnly(12))
         .multilingualDescription(MultilingualDescriptionFactory.newMultilingualDescription().build())
         .createdBy("createdBy")

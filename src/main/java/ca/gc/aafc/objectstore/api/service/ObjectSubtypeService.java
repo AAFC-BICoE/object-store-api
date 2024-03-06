@@ -6,8 +6,8 @@ import org.springframework.stereotype.Service;
 
 import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.dina.service.DefaultDinaService;
+import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
-import java.util.UUID;
 
 import lombok.NonNull;
 import org.springframework.validation.SmartValidator;
@@ -32,7 +32,7 @@ public class ObjectSubtypeService extends DefaultDinaService<ObjectSubtype> {
 
   @Override
   protected void preCreate(ObjectSubtype entity) {
-    entity.setUuid(UUID.randomUUID());
+    entity.setUuid(UUIDHelper.generateUUIDv7());
   }
 
 }

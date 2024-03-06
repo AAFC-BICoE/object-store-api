@@ -1,6 +1,7 @@
 package ca.gc.aafc.objectstore.api.testsupport.factories;
 
 import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
+import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.exif.ExifParser;
@@ -17,7 +18,7 @@ public class ObjectUploadFactory implements TestableEntityFactory<ObjectUpload> 
   public static final String TEST_BUCKET = "test";
   public static final String TEST_USAGE_TERMS = "test usage terms";
 
-  public static final UUID TEST_FILE_IDENTIFIER = UUID.randomUUID();
+  public static final UUID TEST_FILE_IDENTIFIER = UUIDHelper.generateUUIDv7();
   public static final String TEST_FILE_EXT = ".txt";
   public static final String TEST_FILE_MEDIA_TYPE = MediaType.TEXT_PLAIN_VALUE;
   public static final String TEST_ORIGINAL_FILENAME = "myfile" + TEST_FILE_EXT;
@@ -41,7 +42,7 @@ public class ObjectUploadFactory implements TestableEntityFactory<ObjectUpload> 
    */
   public static ObjectUpload.ObjectUploadBuilder newObjectUpload() {
     return ObjectUpload.builder()
-        .fileIdentifier(UUID.randomUUID())
+        .fileIdentifier(UUIDHelper.generateUUIDv7())
         .dcType(DcType.IMAGE)
         .originalFilename("testFile")
         .sha1Hex("b52c98d49782a6ebb9c8e3bb1ad7aa2f03706481")

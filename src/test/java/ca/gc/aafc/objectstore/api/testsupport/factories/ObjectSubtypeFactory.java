@@ -1,10 +1,10 @@
 package ca.gc.aafc.objectstore.api.testsupport.factories;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.function.BiFunction;
 
 import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
+import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 
@@ -23,7 +23,7 @@ public class ObjectSubtypeFactory implements TestableEntityFactory<ObjectSubtype
    */
   public static ObjectSubtype.ObjectSubtypeBuilder newObjectSubtype() {
     return ObjectSubtype.builder()
-        .uuid(UUID.randomUUID())
+        .uuid(UUIDHelper.generateUUIDv7())
         .createdBy("createdBy")
         .dcType(DcType.IMAGE)
         .acSubtype(TestableEntityFactory.generateRandomNameLettersOnly(12).toUpperCase());

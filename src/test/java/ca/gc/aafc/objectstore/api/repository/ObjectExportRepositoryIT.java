@@ -1,12 +1,12 @@
 package ca.gc.aafc.objectstore.api.repository;
 
 import java.util.List;
-import java.util.UUID;
 import javax.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 
+import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.dto.ObjectExportDto;
 
@@ -19,7 +19,7 @@ public class ObjectExportRepositoryIT extends BaseIntegrationTest {
 
   @Test
   public void objectExport_onNonExistingUUID_exceptionThrown() {
-    ObjectExportDto dto = ObjectExportDto.builder().fileIdentifiers(List.of(UUID.randomUUID())).build();
+    ObjectExportDto dto = ObjectExportDto.builder().fileIdentifiers(List.of(UUIDHelper.generateUUIDv7())).build();
     assertThrows(InvalidDataAccessApiUsageException.class, () -> repository.create(dto));
   }
 }

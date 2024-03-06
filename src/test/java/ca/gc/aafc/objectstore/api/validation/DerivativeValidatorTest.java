@@ -1,5 +1,6 @@
 package ca.gc.aafc.objectstore.api.validation;
 
+import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import org.junit.jupiter.api.Assertions;
@@ -14,7 +15,6 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 
 import javax.inject.Inject;
-import java.util.UUID;
 
 class DerivativeValidatorTest extends BaseIntegrationTest {
 
@@ -76,7 +76,7 @@ class DerivativeValidatorTest extends BaseIntegrationTest {
 
   private static Derivative newDerivative() {
     return Derivative.builder()
-      .uuid(UUID.randomUUID())
+      .uuid(UUIDHelper.generateUUIDv7())
       .derivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE)
       .dcFormat(MediaType.IMAGE_JPEG_VALUE)
       .build();

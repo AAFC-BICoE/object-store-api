@@ -11,6 +11,7 @@ import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
 
 import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPIRelationship;
+import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.objectstore.api.testsupport.fixtures.DerivativeTestFixture;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,13 +63,13 @@ public class DerivativeOpenApiIT extends BaseRestAssuredTest {
   @BeforeEach
   public void setup() {
     objectUpload = ObjectUploadFactory.buildTestObjectUpload();
-    objectUpload.setFileIdentifier(UUID.randomUUID());
+    objectUpload.setFileIdentifier(UUIDHelper.generateUUIDv7());
     objectUpload.setIsDerivative(true);
 
     objectUpload_meta = ObjectUploadFactory.buildTestObjectUpload();
 
     objectUpload_generatedFrom = ObjectUploadFactory.buildTestObjectUpload();
-    objectUpload_generatedFrom.setFileIdentifier(UUID.randomUUID());
+    objectUpload_generatedFrom.setFileIdentifier(UUIDHelper.generateUUIDv7());
     objectUpload_generatedFrom.setIsDerivative(true);
     
     // we need to run the setup in another transaction and commit it otherwise it can't be visible
