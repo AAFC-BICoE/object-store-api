@@ -92,16 +92,15 @@ public class FileController {
 
   @Inject
   public FileController(
-    FileControllerAuthorizationService authorizationService,
-    MinioFileService minioService,
-    ObjectUploadService objectUploadService,
-    DerivativeService derivativeService,
-    ObjectStoreMetaDataService objectStoreMetaDataService,
-    MediaTypeDetectionStrategy mediaTypeDetectionStrategy,
-    DinaAuthenticatedUser authenticatedUser,
-    MessageSource messageSource,
-    MediaTypeConfiguration mediaTypeConfiguration
-  ) {
+      FileControllerAuthorizationService authorizationService,
+      MinioFileService minioService,
+      ObjectUploadService objectUploadService,
+      DerivativeService derivativeService,
+      ObjectStoreMetaDataService objectStoreMetaDataService,
+      MediaTypeDetectionStrategy mediaTypeDetectionStrategy,
+      DinaAuthenticatedUser authenticatedUser,
+      MessageSource messageSource,
+      MediaTypeConfiguration mediaTypeConfiguration) {
     this.authorizationService = authorizationService;
     this.fileStorage = minioService;
     this.objectUploadService = objectUploadService;
@@ -113,30 +112,29 @@ public class FileController {
     this.mediaTypeConfiguration = mediaTypeConfiguration;
 
     this.mappingLayer = new DinaMappingLayer<>(
-      ObjectUploadDto.class, objectUploadService,
-      new DinaMapper<>(ObjectUploadDto.class));
+        ObjectUploadDto.class, objectUploadService,
+        new DinaMapper<>(ObjectUploadDto.class));
   }
 
   @PostMapping("/file/{bucket}/derivative")
   @Transactional
   public ObjectUploadDto handleDerivativeUpload(
-    @RequestParam("file") MultipartFile file,
-    @PathVariable String bucket
-  ) throws IOException, MimeTypeException, NoSuchAlgorithmException {
+      @RequestParam("file") MultipartFile file,
+      @PathVariable String bucket) throws IOException, MimeTypeException, NoSuchAlgorithmException {
     return handleUpload(file, bucket, true);
   }
 
   @PostMapping("/file/{bucket}")
   @Transactional
   public ObjectUploadDto handleFileUpload(
-    @RequestParam("file") MultipartFile file,
-    @PathVariable String bucket
-  ) throws NoSuchAlgorithmException, MimeTypeException, IOException {
+      @RequestParam("file") MultipartFile file,
+      @PathVariable String bucket) throws NoSuchAlgorithmException, MimeTypeException, IOException {
     return handleUpload(file, bucket, false);
   }
 
   /**
-   * Converts Workbooks (Excel files) or CSV/TSV (handled as Workbook with 1 sheet) to a
+   * Converts Workbooks (Excel files) or CSV/TSV (handled as Workbook with 1
+   * sheet) to a
    * generic row-based JSON structure.
    *
    * @param file
@@ -146,15 +144,14 @@ public class FileController {
    */
   @PostMapping("/conversion/workbook")
   public Map<Integer, List<WorkbookRow>> handleFileConversion(
-          @RequestParam("file") MultipartFile file
-  ) throws IOException, MimeTypeException {
+      @RequestParam("file") MultipartFile file) throws IOException, MimeTypeException {
     MediaTypeDetectionStrategy.MediaTypeDetectionResult mtdr = mediaTypeDetectionStrategy
-            .detectMediaType(file.getInputStream(), file.getContentType(), file.getOriginalFilename());
+        .detectMediaType(file.getInputStream(), file.getContentType(), file.getOriginalFilename());
     MediaType detectedMediaType = mtdr.getDetectedMediaType();
 
     if (DelimiterSeparatedConverter.isSupported(detectedMediaType.toString())) {
       return Map.of(0,
-        DelimiterSeparatedConverter.convert(file.getInputStream(), detectedMediaType.toString()));
+          DelimiterSeparatedConverter.convert(file.getInputStream(), detectedMediaType.toString()));
     } else if (WorkbookConverter.isSupported(detectedMediaType.toString())) {
       return WorkbookConverter.convertWorkbook(file.getInputStream());
     }
@@ -175,21 +172,40 @@ public class FileController {
       @RequestAttribute("columns") List<String> columns)
       throws IOException {
     Path tmpFile = Files.createTempFile(null, null);
-    try (Workbook wb = WorkbookGenerator.generate(columns)) {
-      wb.write(new FileOutputStream(tmpFile.toFile()));
+
+    try {
+      try (Workbook wb = WorkbookGenerator.generate(columns)) {
+        wb.write(new FileOutputStream(tmpFile.toFile()));
+      }
+      try (InputStream is = new FileInputStream(tmpFile.toFile())) {
+        return new ResponseEntity<>(new InputStreamResource(is), HttpStatus.CREATED);
+      }
+    } finally {
+      Files.delete(tmpFile);
     }
-    try (InputStream is = new FileInputStream(tmpFile.toFile())) {
-      return new ResponseEntity<>(new InputStreamResource(is), HttpStatus.CREATED);
-    }
+
+  }
+
+  /**
+   * Utility method to generate a NOT_FOUND ResponseStatusException based on the
+   * given parameters.
+   *
+   * @param bucket   the bucket
+   * @param filename the name of the file
+   * @return a ResponseStatusException Not found
+   */
+  private ResponseStatusException generateTemplateException() {
+    return new ResponseStatusException(
+        HttpStatus.BAD_REQUEST,
+        null);
   }
 
   private ObjectUploadDto handleUpload(
-    @NonNull MultipartFile file,
-    @NonNull String bucket,
-    boolean isDerivative
-  ) throws IOException, MimeTypeException, NoSuchAlgorithmException {
+      @NonNull MultipartFile file,
+      @NonNull String bucket,
+      boolean isDerivative) throws IOException, MimeTypeException, NoSuchAlgorithmException {
 
-    //Authorize before anything else
+    // Authorize before anything else
     authorizationService.authorizeUpload(FileControllerAuthorizationService.objectUploadAuthFromBucket(bucket));
 
     // Safe get unique UUID
@@ -204,19 +220,19 @@ public class FileController {
 
       if (tmpFile.toFile().length() <= 0L) {
         throw new IllegalStateException(
-          messageSource.getMessage("upload.empty_file_error", null, LocaleContextHolder.getLocale()));
+            messageSource.getMessage("upload.empty_file_error", null, LocaleContextHolder.getLocale()));
       }
 
       try (InputStream bIs = new BufferedInputStream(Files.newInputStream(tmpFile))) {
         mtdr = mediaTypeDetectionStrategy
-          .detectMediaType(bIs, file.getContentType(), file.getOriginalFilename());
+            .detectMediaType(bIs, file.getContentType(), file.getOriginalFilename());
       }
 
       MediaType detectedMediaType = mtdr.getDetectedMediaType();
       if (!mediaTypeConfiguration.isSupported(detectedMediaType)) {
         throw new UnsupportedMediaTypeStatusException(messageSource.getMessage(
-          "upload.invalid_media_type", new String[] {detectedMediaType.toString()},
-          LocaleContextHolder.getLocale()));
+            "upload.invalid_media_type", new String[] { detectedMediaType.toString() },
+            LocaleContextHolder.getLocale()));
       }
       MessageDigest md = MessageDigest.getInstance(DIGEST_ALGORITHM);
 
@@ -232,22 +248,23 @@ public class FileController {
     String filename = uuid + mtdr.getEvaluatedExtension();
     Optional<FileObjectInfo> foInfo = fileStorage.getFileInfo(bucket, filename, isDerivative);
 
-    if(foInfo.isEmpty() || foInfo.get().getLength() != file.getSize()) {
+    if (foInfo.isEmpty() || foInfo.get().getLength() != file.getSize()) {
       throw new IllegalStateException("Can't find the file uploaded to Minio. filename: " + filename);
     }
 
     return createObjectUpload(
-      file,
-      bucket,
-      mtdr,
-      uuid,
-      sha1Hash,
-      extractExifData(file),
-      isDerivative);
+        file,
+        bucket,
+        mtdr,
+        uuid,
+        sha1Hash,
+        extractExifData(file),
+        isDerivative);
   }
 
   /**
-   * Triggers a download of a file. Note that the file requires a metadata entry in the database to be
+   * Triggers a download of a file. Note that the file requires a metadata entry
+   * in the database to be
    * available for download.
    *
    * @param bucket the bucket
@@ -256,12 +273,11 @@ public class FileController {
    */
   @GetMapping("/file/{bucket}/{fileId}")
   public ResponseEntity<InputStreamResource> downloadObject(
-    @PathVariable String bucket,
-    @PathVariable UUID fileId
-  ) throws IOException {
+      @PathVariable String bucket,
+      @PathVariable UUID fileId) throws IOException {
     ObjectStoreMetadata metadata = objectStoreMetaDataService
-      .findByFileId(fileId)
-      .orElseThrow(() -> buildNotFoundException(bucket, Objects.toString(fileId)));
+        .findByFileId(fileId)
+        .orElseThrow(() -> buildNotFoundException(bucket, Objects.toString(fileId)));
 
     // For the download of an object use the originalFilename provided (if possible)
     return download(bucket, metadata.getFilename(),
@@ -270,103 +286,104 @@ public class FileController {
   }
 
   /**
-   * Checks the presence and some basic information about a file on the file system (Minio).
-   * Since the database is not used, we must receive the filename as opposed to only the fileIdentifier.
-   * @param bucket bucket of the file (aka the group)
+   * Checks the presence and some basic information about a file on the file
+   * system (Minio).
+   * Since the database is not used, we must receive the filename as opposed to
+   * only the fileIdentifier.
+   * 
+   * @param bucket   bucket of the file (aka the group)
    * @param filename filename including extension.
    * @return
    */
   @GetMapping("/file-info/{bucket}/{filename}")
   public ResponseEntity<FileObjectInfo> getObjectInfo(@PathVariable String bucket,
-                                                      @PathVariable String filename
-  ) throws IOException {
+      @PathVariable String filename) throws IOException {
     return handleObjectInfo(bucket, filename, false);
   }
 
   /**
    * Same as {@link #getObjectInfo(String, String)} but for derivatives
-   * @param bucket bucket of the file (aka the group)
+   * 
+   * @param bucket   bucket of the file (aka the group)
    * @param filename filename including extension.
    * @return
    */
   @GetMapping("/file-info/{bucket}/derivative/{filename}")
   public ResponseEntity<FileObjectInfo> getDerivativeObjectInfo(@PathVariable String bucket,
-                                                                @PathVariable String filename
-  ) throws IOException {
+      @PathVariable String filename) throws IOException {
     return handleObjectInfo(bucket, filename, true);
   }
 
   @GetMapping("/file/{bucket}/derivative/{fileId}")
   public ResponseEntity<InputStreamResource> downloadDerivative(
-    @PathVariable String bucket,
-    @PathVariable UUID fileId
-  ) throws IOException {
+      @PathVariable String bucket,
+      @PathVariable UUID fileId) throws IOException {
     Derivative derivative = derivativeService.findByFileId(fileId)
-      .orElseThrow(() -> buildNotFoundException(bucket, Objects.toString(fileId)));
+        .orElseThrow(() -> buildNotFoundException(bucket, Objects.toString(fileId)));
     String fileName = derivative.getFilename();
     return download(bucket, fileName, fileName, true, derivative.getDcFormat(), derivative);
   }
 
   @GetMapping("/file/{bucket}/{fileId}/thumbnail")
   public ResponseEntity<InputStreamResource> downloadThumbNail(
-    @PathVariable String bucket,
-    @PathVariable UUID fileId
-  ) throws IOException {
+      @PathVariable String bucket,
+      @PathVariable UUID fileId) throws IOException {
     ObjectStoreMetadata objectStoreMetadata = objectStoreMetaDataService
-      .findByFileId(fileId)
-      .orElseThrow(() -> buildNotFoundException(bucket, Objects.toString(fileId)));
+        .findByFileId(fileId)
+        .orElseThrow(() -> buildNotFoundException(bucket, Objects.toString(fileId)));
 
     Derivative derivative = derivativeService.findThumbnailDerivativeForMetadata(objectStoreMetadata)
-      .orElseThrow(() -> buildNotFoundException(bucket, Objects.toString(fileId)));
+        .orElseThrow(() -> buildNotFoundException(bucket, Objects.toString(fileId)));
     return downloadDerivative(bucket, derivative.getFileIdentifier());
   }
 
   /**
    * Internal download function.
-   * @param bucket name of the bucket where to find the file
-   * @param fileName filename of the file in Minio
+   * 
+   * @param bucket           name of the bucket where to find the file
+   * @param fileName         filename of the file in Minio
    * @param downloadFilename filename to use for the download
-   * @param isDerivative used to look in the right subfolder in Minio
-   * @param mediaType media type to include in the headers of the download
+   * @param isDerivative     used to look in the right subfolder in Minio
+   * @param mediaType        media type to include in the headers of the download
    * @return InputStreamResource
    * @throws IOException
    */
   private ResponseEntity<InputStreamResource> download(
-    @NonNull String bucket,
-    @NonNull String fileName,
-    @NonNull String downloadFilename,
-    boolean isDerivative,
-    @NonNull String mediaType,
-    DinaEntity entity
-  ) throws IOException {
+      @NonNull String bucket,
+      @NonNull String fileName,
+      @NonNull String downloadFilename,
+      boolean isDerivative,
+      @NonNull String mediaType,
+      DinaEntity entity) throws IOException {
 
-    //Authorize before anything else
+    // Authorize before anything else
     authorizationService.authorizeDownload(entity);
 
     FileObjectInfo foi = fileStorage.getFileInfo(bucket, fileName, isDerivative)
-      .orElseThrow(() -> buildNotFoundException(bucket, fileName));
+        .orElseThrow(() -> buildNotFoundException(bucket, fileName));
     InputStream is = fileStorage.retrieveFile(bucket, fileName, isDerivative)
-      .orElseThrow(() -> buildNotFoundException(bucket, fileName));
+        .orElseThrow(() -> buildNotFoundException(bucket, fileName));
 
     return new ResponseEntity<>(
-      new InputStreamResource(is),
-      buildHttpHeaders(downloadFilename, mediaType, foi.getLength()),
-      HttpStatus.OK);
+        new InputStreamResource(is),
+        buildHttpHeaders(downloadFilename, mediaType, foi.getLength()),
+        HttpStatus.OK);
   }
 
   /**
-   * Utility method to generate a NOT_FOUND ResponseStatusException based on the given parameters.
+   * Utility method to generate a NOT_FOUND ResponseStatusException based on the
+   * given parameters.
    *
-   * @param bucket the bucket
+   * @param bucket   the bucket
    * @param filename the name of the file
    * @return a ResponseStatusException Not found
    */
   private ResponseStatusException buildNotFoundException(String bucket, String filename) {
     return new ResponseStatusException(
-      HttpStatus.NOT_FOUND,
-      messageSource.getMessage(
-        "minio.file_or_bucket_not_found", new Object[]{filename, bucket}, LocaleContextHolder.getLocale()),
-      null);
+        HttpStatus.NOT_FOUND,
+        messageSource.getMessage(
+            "minio.file_or_bucket_not_found", new Object[] { filename, bucket }, LocaleContextHolder.getLocale()),
+        null);
   }
 
   /**
@@ -380,10 +397,8 @@ public class FileController {
   static HttpHeaders buildHttpHeaders(String filename, String mediaType, long contentLength) {
     HttpHeaders respHeaders = new HttpHeaders();
     respHeaders.setContentType(
-      org.springframework.http.MediaType.parseMediaType(
-        mediaType
-      )
-    );
+        org.springframework.http.MediaType.parseMediaType(
+            mediaType));
     respHeaders.setContentLength(contentLength);
     respHeaders.setContentDispositionFormData("attachment", filename);
     return respHeaders;
@@ -396,40 +411,39 @@ public class FileController {
    * @param uuid         uuid of the object
    * @param mtdr         detected media result of the object
    * @param iStream      input stream of the object
-   * @param isDerivative boolean indicating if the stored file is a derivative, this alters the object path to
+   * @param isDerivative boolean indicating if the stored file is a derivative,
+   *                     this alters the object path to
    *                     be prefixed with /derivative.
    */
   private void storeFile(
-    String bucket,
-    UUID uuid,
-    MediaTypeDetectionStrategy.MediaTypeDetectionResult mtdr,
-    InputStream iStream,
-    boolean isDerivative
-  ) throws IOException {
+      String bucket,
+      UUID uuid,
+      MediaTypeDetectionStrategy.MediaTypeDetectionResult mtdr,
+      InputStream iStream,
+      boolean isDerivative) throws IOException {
     // make bucket if it does not exist
     fileStorage.ensureBucketExists(bucket);
 
     fileStorage.storeFile(
-      bucket,
-      uuid.toString() + mtdr.getEvaluatedExtension(),
-      isDerivative,
-      mtdr.getEvaluatedMediaType(),
-      iStream
-    );
+        bucket,
+        uuid.toString() + mtdr.getEvaluatedExtension(),
+        isDerivative,
+        mtdr.getEvaluatedMediaType(),
+        iStream);
   }
 
   /**
    * Internal handling of object-info requests.
+   * 
    * @param bucket
    * @param filename
    * @param isDerivative
    * @return
    */
   private ResponseEntity<FileObjectInfo> handleObjectInfo(String bucket, String filename,
-                                                          boolean isDerivative
-  ) throws IOException {
+      boolean isDerivative) throws IOException {
     authorizationService.authorizeFileInfo(FileControllerAuthorizationService
-      .objectUploadAuthFromBucket(bucket));
+        .objectUploadAuthFromBucket(bucket));
     Optional<FileObjectInfo> fileInfo = fileStorage.getFileInfo(bucket, filename, isDerivative);
 
     if (fileInfo.isPresent()) {
@@ -452,43 +466,43 @@ public class FileController {
    * @return the persisted object upload
    */
   private ObjectUploadDto createObjectUpload(
-    MultipartFile file,
-    String bucket,
-    MediaTypeDetectionStrategy.MediaTypeDetectionResult mtdr,
-    UUID uuid,
-    String sha1Hex,
-    Map<String, String> exifData,
-    boolean isDerivative
-  ) {
+      MultipartFile file,
+      String bucket,
+      MediaTypeDetectionStrategy.MediaTypeDetectionResult mtdr,
+      UUID uuid,
+      String sha1Hex,
+      Map<String, String> exifData,
+      boolean isDerivative) {
     DinaJsonMetaInfo meta = null;
     if (objectUploadService.existsByProperty("sha1Hex", sha1Hex)) {
-      meta =
-        AttributeMetaInfoProvider.DinaJsonMetaInfo.builder()
-        .warnings(Collections.singletonMap("duplicate_found", messageSource.getMessage("warnings.duplicate.Sha1Hex", null, LocaleContextHolder.getLocale())))
-        .build();
+      meta = AttributeMetaInfoProvider.DinaJsonMetaInfo.builder()
+          .warnings(Collections.singletonMap("duplicate_found",
+              messageSource.getMessage("warnings.duplicate.Sha1Hex", null, LocaleContextHolder.getLocale())))
+          .build();
     }
     ObjectUpload objectUpload = objectUploadService.create(ObjectUpload.builder()
-      .fileIdentifier(uuid)
-      .createdBy(authenticatedUser.getUsername())
-      .originalFilename(file.getOriginalFilename())
-      .sha1Hex(sha1Hex)
-      .receivedMediaType(file.getContentType())
-      .detectedMediaType(Objects.toString(mtdr.getDetectedMediaType()))
-      .detectedFileExtension(mtdr.getDetectedMimeType().getExtension())
-      .evaluatedMediaType(mtdr.getEvaluatedMediaType())
-      .evaluatedFileExtension(mtdr.getEvaluatedExtension())
-      .sizeInBytes(file.getSize())
-      .bucket(bucket)
-      .exif(exifData)
-      .isDerivative(isDerivative)
-      .build());
+        .fileIdentifier(uuid)
+        .createdBy(authenticatedUser.getUsername())
+        .originalFilename(file.getOriginalFilename())
+        .sha1Hex(sha1Hex)
+        .receivedMediaType(file.getContentType())
+        .detectedMediaType(Objects.toString(mtdr.getDetectedMediaType()))
+        .detectedFileExtension(mtdr.getDetectedMimeType().getExtension())
+        .evaluatedMediaType(mtdr.getEvaluatedMediaType())
+        .evaluatedFileExtension(mtdr.getEvaluatedExtension())
+        .sizeInBytes(file.getSize())
+        .bucket(bucket)
+        .exif(exifData)
+        .isDerivative(isDerivative)
+        .build());
     ObjectUploadDto dto = mapObjectUpload(objectUpload);
     dto.setMeta(meta);
     return dto;
   }
 
   /**
-   * Returns a map of exif data if extraction is possible, otherwise an empty map is returned.
+   * Returns a map of exif data if extraction is possible, otherwise an empty map
+   * is returned.
    *
    * @param file file to extract from
    * @return returns a map of exif data, or empty map.
@@ -503,7 +517,8 @@ public class FileController {
   }
 
   /**
-   * Even if it's almost impossible, we need to make sure that the UUID is not already in use otherwise we
+   * Even if it's almost impossible, we need to make sure that the UUID is not
+   * already in use otherwise we
    * will overwrite the previous file.
    *
    * @return the generated UUID
@@ -532,7 +547,8 @@ public class FileController {
    *
    * @param originalFilename filename provided by the client at upload time
    * @param internalFilename name internal to the system made from the identifier
-   * @param fileExtension file extension determined by the system including the dot (.)
+   * @param fileExtension    file extension determined by the system including the
+   *                         dot (.)
    * @return
    */
   private String generateDownloadFilename(String originalFilename, String internalFilename, String fileExtension) {
@@ -540,7 +556,8 @@ public class FileController {
     if (StringUtils.isEmpty(originalFilename) || StringUtils.isEmpty(FilenameUtils.getBaseName(originalFilename))) {
       return internalFilename;
     }
-    // use the internal extension since we are also returning the internal media type
+    // use the internal extension since we are also returning the internal media
+    // type
     return FilenameUtils.getBaseName(originalFilename) + fileExtension;
   }
 

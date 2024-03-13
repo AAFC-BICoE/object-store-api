@@ -43,7 +43,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ContextConfiguration(initializers = MinioTestContainerInitializer.class)
 @SpringBootTest(properties = "keycloak.enabled = true")
@@ -150,6 +149,12 @@ public class FileControllerIT extends BaseIntegrationTest {
     Map<Integer, List<WorkbookRow>> content = fileController.handleFileConversion(mockFile);
     assertFalse(content.isEmpty());
     assertFalse(content.get(0).isEmpty());
+  }
+
+  @Test
+  public void generateTemplateFromColumns_OnValidColumns_contentReturned() throws Exception {
+    ResponseEntity<InputStreamResource> response = fileController.generateTemplateFromColumns(List.of("col 1", "col 2"));
+    System.err.println(response);
   }
 
   @Test
