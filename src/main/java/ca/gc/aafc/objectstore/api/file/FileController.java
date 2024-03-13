@@ -163,6 +163,13 @@ public class FileController {
         "upload.invalid_media_type", new String[] { detectedMediaType.toString() }, LocaleContextHolder.getLocale()));
   }
 
+  /**
+   * Generates Workbook template from given columns
+   *
+   * @param columns
+   * @return the Workbook template
+   * @throws IOException
+   */
   @PostMapping("workbook/generation")
   public ResponseEntity<InputStreamResource> generateTemplateFromColumns(
       @RequestAttribute("columns") List<String> columns)
@@ -172,7 +179,7 @@ public class FileController {
       wb.write(new FileOutputStream(tmpFile.toFile()));
     }
     try (InputStream is = new FileInputStream(tmpFile.toFile())) {
-      return new ResponseEntity<>(new InputStreamResource(is), HttpStatus.OK);
+      return new ResponseEntity<>(new InputStreamResource(is), HttpStatus.CREATED);
     }
   }
 
