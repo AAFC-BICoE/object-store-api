@@ -27,6 +27,7 @@ import ca.gc.aafc.objectstore.api.storage.FileStorage;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -175,15 +176,17 @@ public class FileController {
       @RequestAttribute("columns") List<String> columns)
       throws IOException {
     Path tmpFile = Files.createTempFile(null, null);
-    InputStream is;
+
     try {
-      try (Workbook wb = WorkbookGenerator.generate(columns)) {
-        wb.write(new FileOutputStream(tmpFile.toFile()));
-        is = new FileInputStream(tmpFile.toFile());
+      try (Workbook wb = WorkbookGenerator.generate(columns);
+           OutputStream os = new FileOutputStream(tmpFile.toFile())) {
+        wb.write(os);
       }
     } finally {
       Files.delete(tmpFile);
     }
+
+    InputStream is = new FileInputStream(tmpFile.toFile());
     return new ResponseEntity<>(new InputStreamResource(is), HttpStatus.CREATED);
   }
 
