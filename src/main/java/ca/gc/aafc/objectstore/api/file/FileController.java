@@ -9,6 +9,7 @@ import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.dina.workbook.DelimiterSeparatedConverter;
 import ca.gc.aafc.dina.workbook.WorkbookConverter;
+import ca.gc.aafc.dina.workbook.WorkbookGenerator;
 import ca.gc.aafc.dina.workbook.WorkbookRow;
 import ca.gc.aafc.objectstore.api.config.MediaTypeConfiguration;
 import ca.gc.aafc.objectstore.api.dto.ObjectUploadDto;
@@ -24,6 +25,8 @@ import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
 import ca.gc.aafc.objectstore.api.storage.FileStorage;
 
 import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -33,6 +36,7 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.tika.mime.MediaType;
 import org.apache.tika.mime.MimeTypeException;
 import org.springframework.context.MessageSource;
@@ -44,6 +48,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -155,7 +160,20 @@ public class FileController {
     }
 
     throw new UnsupportedMediaTypeStatusException(messageSource.getMessage(
-      "upload.invalid_media_type", new String[]{detectedMediaType.toString()}, LocaleContextHolder.getLocale()));
+        "upload.invalid_media_type", new String[] { detectedMediaType.toString() }, LocaleContextHolder.getLocale()));
+  }
+
+  @PostMapping("workbook/generation")
+  public ResponseEntity<InputStreamResource> generateTemplateFromColumns(
+      @RequestAttribute("columns") List<String> columns)
+      throws IOException {
+    Path tmpFile = Files.createTempFile(null, null);
+    try (Workbook wb = WorkbookGenerator.generate(columns)) {
+      wb.write(new FileOutputStream(tmpFile.toFile()));
+    }
+    try (InputStream is = new FileInputStream(tmpFile.toFile())) {
+      return new ResponseEntity<>(new InputStreamResource(is), HttpStatus.OK);
+    }
   }
 
   private ObjectUploadDto handleUpload(
