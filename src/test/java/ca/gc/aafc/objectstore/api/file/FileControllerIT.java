@@ -154,7 +154,8 @@ public class FileControllerIT extends BaseIntegrationTest {
   @Test
   public void generateTemplateFromColumns_OnValidColumns_contentReturned() throws Exception {
     ResponseEntity<InputStreamResource> response = fileController.generateTemplateFromColumns(List.of("col 1", "col 2"));
-    System.err.println(response);
+    assertEquals(response.getStatusCode(), HttpStatus.CREATED);
+    assertNotNull(response.getBody());
   }
 
   @Test
