@@ -176,32 +176,14 @@ public class FileController {
     try {
       try (Workbook wb = WorkbookGenerator.generate(columns)) {
         wb.write(new FileOutputStream(tmpFile.toFile()));
-      } catch (Exception e) {
-        throw generateTemplateException();
       }
       try (InputStream is = new FileInputStream(tmpFile.toFile())) {
         return new ResponseEntity<>(new InputStreamResource(is), HttpStatus.CREATED);
-      } catch (Exception e) {
-        throw generateTemplateException();
       }
     } finally {
       Files.delete(tmpFile);
     }
 
-  }
-
-  /**
-   * Utility method to generate a NOT_FOUND ResponseStatusException based on the
-   * given parameters.
-   *
-   * @param bucket   the bucket
-   * @param filename the name of the file
-   * @return a ResponseStatusException Not found
-   */
-  private ResponseStatusException generateTemplateException() {
-    return new ResponseStatusException(
-        HttpStatus.BAD_REQUEST,
-        null);
   }
 
   private ObjectUploadDto handleUpload(
