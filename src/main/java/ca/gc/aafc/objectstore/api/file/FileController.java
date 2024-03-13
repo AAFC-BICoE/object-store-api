@@ -515,7 +515,7 @@ public class FileController {
   private UUID generateUUID() throws IllegalStateException {
     int numberOfAttempt = 0;
     while (numberOfAttempt < MAX_NUMBER_OF_ATTEMPT_RANDOM_UUID) {
-      UUID uuid = UUID.randomUUID();
+      UUID uuid = UUID.generateUUIDv7();
       // this would be better with an exists() function
       if (objectUploadService.findOne(uuid, ObjectUpload.class) == null) {
         return uuid;
