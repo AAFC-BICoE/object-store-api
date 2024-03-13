@@ -25,11 +25,7 @@ import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
 import ca.gc.aafc.objectstore.api.storage.FileStorage;
 
 import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
