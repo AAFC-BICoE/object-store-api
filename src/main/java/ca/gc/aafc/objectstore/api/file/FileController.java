@@ -176,9 +176,13 @@ public class FileController {
     try {
       try (Workbook wb = WorkbookGenerator.generate(columns)) {
         wb.write(new FileOutputStream(tmpFile.toFile()));
+      } catch (Exception e) {
+        throw generateTemplateException();
       }
       try (InputStream is = new FileInputStream(tmpFile.toFile())) {
         return new ResponseEntity<>(new InputStreamResource(is), HttpStatus.CREATED);
+      } catch (Exception e) {
+        throw generateTemplateException();
       }
     } finally {
       Files.delete(tmpFile);
