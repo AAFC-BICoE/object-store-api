@@ -25,6 +25,8 @@ import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
 import ca.gc.aafc.objectstore.api.storage.FileStorage;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
@@ -42,6 +44,7 @@ import org.apache.tika.mime.MediaType;
 import org.apache.tika.mime.MimeTypeException;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -172,22 +175,19 @@ public class FileController {
    * @throws IOException
    */
   @PostMapping("workbook/generation")
-  public ResponseEntity<InputStreamResource> generateTemplateFromColumns(
+  public ResponseEntity<ByteArrayResource> generateTemplateFromColumns(
       @RequestAttribute("columns") List<String> columns)
       throws IOException {
-    Path tmpFile = Files.createTempFile(null, null);
 
-    try {
-      try (Workbook wb = WorkbookGenerator.generate(columns);
-           OutputStream os = new FileOutputStream(tmpFile.toFile())) {
-        wb.write(os);
-      }
-    } finally {
-      Files.delete(tmpFile);
+    // size is quite small, load in memory to make it easier
+    byte[] content;
+    try (Workbook wb = WorkbookGenerator.generate(columns);
+         ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+      wb.write(os);
+      content = os.toByteArray();
     }
 
-    InputStream is = new FileInputStream(tmpFile.toFile());
-    return new ResponseEntity<>(new InputStreamResource(is), HttpStatus.CREATED);
+    return new ResponseEntity<>(new ByteArrayResource(content), HttpStatus.CREATED);
   }
 
   private ObjectUploadDto handleUpload(

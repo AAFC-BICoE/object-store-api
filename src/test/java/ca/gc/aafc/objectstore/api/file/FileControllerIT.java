@@ -24,6 +24,7 @@ import org.apache.tika.mime.MimeTypeException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpStatus;
@@ -154,7 +155,7 @@ public class FileControllerIT extends BaseIntegrationTest {
 
   @Test
   public void generateTemplateFromColumns_OnValidColumns_contentReturned() throws Exception {
-    ResponseEntity<InputStreamResource> response = fileController.generateTemplateFromColumns(List.of("col 1", "col 2"));
+    ResponseEntity<ByteArrayResource> response = fileController.generateTemplateFromColumns(List.of("col 1", "col 2"));
     assertEquals(response.getStatusCode(), HttpStatus.CREATED);
     assertNotNull(response.getBody());
     var result = WorkbookConverter.convertWorkbook(response.getBody().getInputStream());
