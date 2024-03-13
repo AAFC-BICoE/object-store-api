@@ -2,6 +2,7 @@ package ca.gc.aafc.objectstore.api.file;
 
 import ca.gc.aafc.dina.testsupport.security.WithMockKeycloakUser;
 import ca.gc.aafc.dina.util.UUIDHelper;
+import ca.gc.aafc.dina.workbook.WorkbookConverter;
 import ca.gc.aafc.dina.workbook.WorkbookRow;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
@@ -156,6 +157,8 @@ public class FileControllerIT extends BaseIntegrationTest {
     ResponseEntity<InputStreamResource> response = fileController.generateTemplateFromColumns(List.of("col 1", "col 2"));
     assertEquals(response.getStatusCode(), HttpStatus.CREATED);
     assertNotNull(response.getBody());
+    var result = WorkbookConverter.convertWorkbook(response.getBody().getInputStream());
+    assertEquals("col 1", result.get(0).get(0).content()[0]);
   }
 
   @Test

@@ -174,18 +174,16 @@ public class FileController {
       @RequestAttribute("columns") List<String> columns)
       throws IOException {
     Path tmpFile = Files.createTempFile(null, null);
-
+    InputStream is;
     try {
       try (Workbook wb = WorkbookGenerator.generate(columns)) {
         wb.write(new FileOutputStream(tmpFile.toFile()));
-      }
-      try (InputStream is = new FileInputStream(tmpFile.toFile())) {
-        return new ResponseEntity<>(new InputStreamResource(is), HttpStatus.CREATED);
+        is = new FileInputStream(tmpFile.toFile());
       }
     } finally {
       Files.delete(tmpFile);
     }
-
+    return new ResponseEntity<>(new InputStreamResource(is), HttpStatus.CREATED);
   }
 
   private ObjectUploadDto handleUpload(
