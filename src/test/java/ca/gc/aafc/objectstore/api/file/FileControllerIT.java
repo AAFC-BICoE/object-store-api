@@ -2,7 +2,6 @@ package ca.gc.aafc.objectstore.api.file;
 
 import ca.gc.aafc.dina.testsupport.security.WithMockKeycloakUser;
 import ca.gc.aafc.dina.util.UUIDHelper;
-import ca.gc.aafc.dina.workbook.WorkbookConverter;
 import ca.gc.aafc.dina.workbook.WorkbookRow;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
@@ -24,7 +23,6 @@ import org.apache.tika.mime.MimeTypeException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpStatus;
@@ -42,7 +40,6 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -151,15 +148,6 @@ public class FileControllerIT extends BaseIntegrationTest {
     Map<Integer, List<WorkbookRow>> content = fileController.handleFileConversion(mockFile);
     assertFalse(content.isEmpty());
     assertFalse(content.get(0).isEmpty());
-  }
-
-  @Test
-  public void generateTemplateFromColumns_OnValidColumns_contentReturned() throws Exception {
-    ResponseEntity<ByteArrayResource> response = fileController.generateTemplateFromColumns(List.of("col 1", "col 2"));
-    assertEquals(response.getStatusCode(), HttpStatus.CREATED);
-    assertNotNull(response.getBody());
-    var result = WorkbookConverter.convertWorkbook(response.getBody().getInputStream());
-    assertEquals("col 1", result.get(0).get(0).content()[0]);
   }
 
   @Test

@@ -9,7 +9,6 @@ import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.dina.workbook.DelimiterSeparatedConverter;
 import ca.gc.aafc.dina.workbook.WorkbookConverter;
-import ca.gc.aafc.dina.workbook.WorkbookGenerator;
 import ca.gc.aafc.dina.workbook.WorkbookRow;
 import ca.gc.aafc.objectstore.api.config.MediaTypeConfiguration;
 import ca.gc.aafc.objectstore.api.dto.ObjectUploadDto;
@@ -25,7 +24,6 @@ import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
 import ca.gc.aafc.objectstore.api.storage.FileStorage;
 
 import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -35,12 +33,10 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.tika.mime.MediaType;
 import org.apache.tika.mime.MimeTypeException;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -48,7 +44,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -161,29 +156,6 @@ public class FileController {
 
     throw new UnsupportedMediaTypeStatusException(messageSource.getMessage(
       "upload.invalid_media_type", new String[]{detectedMediaType.toString()}, LocaleContextHolder.getLocale()));
-  }
-
-   /**
-   * Generates Workbook template from given columns
-   *
-   * @param columns
-   * @return the Workbook template
-   * @throws IOException
-   */
-  @PostMapping("workbook/generation")
-  public ResponseEntity<ByteArrayResource> generateTemplateFromColumns(
-      @RequestAttribute("columns") List<String> columns)
-      throws IOException {
-
-    // size is quite small, load in memory to make it easier
-    byte[] content;
-    try (Workbook wb = WorkbookGenerator.generate(columns);
-         ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-      wb.write(os);
-      content = os.toByteArray();
-    }
-
-    return new ResponseEntity<>(new ByteArrayResource(content), HttpStatus.CREATED);
   }
 
   private ObjectUploadDto handleUpload(
@@ -371,6 +343,8 @@ public class FileController {
         "minio.file_or_bucket_not_found", new Object[]{filename, bucket}, LocaleContextHolder.getLocale()),
       null);
   }
+
+ 
 
   /**
    * Utility method to generate HttpHeaders based on the given parameters
