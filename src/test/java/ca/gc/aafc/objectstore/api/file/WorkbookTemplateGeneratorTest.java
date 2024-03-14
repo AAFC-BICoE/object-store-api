@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class WorkbookTemplateGeneratorTest extends BaseIntegrationTest {
 
   @Inject
-  private WorkbookTemplateGenerator workbookTemplateGenerator;
+  private WorkbookTemplateController workbookTemplateController;
 
   @Inject
   private TransactionTemplate transactionTemplate;
@@ -44,7 +44,7 @@ public class WorkbookTemplateGeneratorTest extends BaseIntegrationTest {
 
   @Test
   public void generateWorkbookTemplateFromColumns_OnValidColumns_contentReturned() throws Exception {
-    ResponseEntity<ByteArrayResource> response = workbookTemplateGenerator.generateWorkbookTemplateFromColumns(List.of("col 1", "col 2"));
+    ResponseEntity<ByteArrayResource> response = workbookTemplateController.generateWorkbookTemplateFromColumns(List.of("col 1", "col 2"));
     assertNotNull(response.getHeaders());
     assertEquals(response.getStatusCode(), HttpStatus.CREATED);
     assertNotNull(response.getBody());

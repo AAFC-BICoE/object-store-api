@@ -30,13 +30,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1")
-public class WorkbookTemplateGenerator {
+public class WorkbookTemplateController {
 
   public static final String DIGEST_ALGORITHM = "SHA-1";
   private static final TikaConfig TIKA_CONFIG = TikaConfig.getDefaultConfig();
 
   @Inject
-  public WorkbookTemplateGenerator(
+  public WorkbookTemplateController(
       FileControllerAuthorizationService authorizationService,
       MinioFileService minioService,
       ObjectUploadService objectUploadService,
