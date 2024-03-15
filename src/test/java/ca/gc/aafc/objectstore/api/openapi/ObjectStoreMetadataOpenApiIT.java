@@ -6,6 +6,7 @@ import ca.gc.aafc.dina.testsupport.PostgresTestContainerInitializer;
 import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPIRelationship;
 import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.dina.testsupport.specs.OpenAPI3Assertions;
+import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.objectstore.api.ObjectStoreApiLauncher;
 import ca.gc.aafc.objectstore.api.dto.DerivativeDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
@@ -67,10 +68,10 @@ public class ObjectStoreMetadataOpenApiIT extends BaseRestAssuredTest {
 
     oUpload_derivative = ObjectUploadFactory.buildTestObjectUpload();
     oUpload_derivative.setIsDerivative(true);
-    oUpload_derivative.setFileIdentifier(UUID.randomUUID());
+    oUpload_derivative.setFileIdentifier(UUIDHelper.generateUUIDv7());
 
     oUpload_acDerivedFrom = ObjectUploadFactory.buildTestObjectUpload();
-    oUpload_acDerivedFrom.setFileIdentifier(UUID.randomUUID());
+    oUpload_acDerivedFrom.setFileIdentifier(UUIDHelper.generateUUIDv7());
 
     oUpload = ObjectUploadFactory.buildTestObjectUpload();
 
@@ -80,7 +81,7 @@ public class ObjectStoreMetadataOpenApiIT extends BaseRestAssuredTest {
 
     // Add a managed attribute to use for the object store metadata testing.
     ObjectStoreManagedAttribute managedAttribute = ObjectStoreManagedAttributeFactory.newManagedAttribute()
-        .uuid(UUID.randomUUID())
+        .uuid(UUIDHelper.generateUUIDv7())
         .name(MANAGED_ATTRIBUTE_KEY)
         .key(MANAGED_ATTRIBUTE_KEY)
         .acceptedValues(new String[] { MANAGED_ATTRIBUTE_VALUE })

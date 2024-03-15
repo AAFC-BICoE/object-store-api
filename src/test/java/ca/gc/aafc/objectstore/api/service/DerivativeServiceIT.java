@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 
+import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
@@ -16,7 +17,6 @@ import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFacto
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 
 import java.util.List;
-import java.util.UUID;
 import javax.persistence.criteria.Predicate;
 import javax.validation.ValidationException;
 
@@ -126,7 +126,7 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
   void generateThumbnail_DerivedFromMetaData_DerivativeGenerated() {
     derivativeGenerationService.generateThumbnail(
       "test",
-      UUID.randomUUID() + ".jpg",
+      UUIDHelper.generateUUIDv7() + ".jpg",
       acDerivedFrom.getUuid(),
       MediaType.IMAGE_JPEG_VALUE,
       null,
@@ -153,7 +153,7 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
         "dina.jpg",
         acDerivedFrom.getUuid(),
         MediaType.IMAGE_JPEG_VALUE,
-        UUID.randomUUID(),
+        UUIDHelper.generateUUIDv7(),
         true,
         acDerivedFrom.getPubliclyReleasable()));
   }
@@ -165,7 +165,7 @@ public class DerivativeServiceIT extends BaseIntegrationTest {
       () -> derivativeGenerationService.generateThumbnail(
         "test",
         "dina.jpg",
-        UUID.randomUUID(),
+        UUIDHelper.generateUUIDv7(),
         MediaType.IMAGE_JPEG_VALUE,
         null,
         true,

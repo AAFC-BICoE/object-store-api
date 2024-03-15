@@ -1,6 +1,7 @@
 package ca.gc.aafc.objectstore.api.file;
 
 import ca.gc.aafc.dina.testsupport.security.WithMockKeycloakUser;
+import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.dina.workbook.WorkbookRow;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
@@ -131,7 +132,7 @@ public class FileControllerIT extends BaseIntegrationTest {
 
     // test non-existing file
     assertThrows(ResponseStatusException.class, () ->
-      fileController.getObjectInfo(bucketUnderTest, UUID.randomUUID() + "." + TEST_UPLOAD_FILE_EXT));
+      fileController.getObjectInfo(bucketUnderTest, UUIDHelper.generateUUIDv7() + "." + TEST_UPLOAD_FILE_EXT));
   }
 
   @Test
@@ -258,7 +259,7 @@ public class FileControllerIT extends BaseIntegrationTest {
   @Test
   public void downloadDerivative_WhenDerivativeDoesNotExist_ThrowsNotFound() {
     assertThrows(ResponseStatusException.class,
-        () -> fileController.downloadDerivative(bucketUnderTest, UUID.randomUUID()));
+        () -> fileController.downloadDerivative(bucketUnderTest, UUIDHelper.generateUUIDv7()));
   }
 
   @Test

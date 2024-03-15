@@ -1,6 +1,5 @@
 package ca.gc.aafc.objectstore.api.validation;
 
-import java.util.UUID;
 import javax.inject.Inject;
 
 import org.apache.commons.lang3.RandomStringUtils;
@@ -11,8 +10,10 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 
+import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 
 public class ObjectStoreMetadataValidatorTest extends BaseIntegrationTest {
   
@@ -31,8 +32,8 @@ public class ObjectStoreMetadataValidatorTest extends BaseIntegrationTest {
   @Test
   void validate_fileIdentifierSet_NoErrorReturned() {
     // Create an object with both file identifier and external resource.
-    ObjectStoreMetadata objectStoreMetadata = createMetadata();
-    objectStoreMetadata.setFileIdentifier(UUID.randomUUID());
+    ObjectStoreMetadata objectStoreMetadata = ObjectStoreMetadataFactory.newEmptyObjectStoreMetadata();
+    objectStoreMetadata.setFileIdentifier(UUIDHelper.generateUUIDv7());
 
     Errors errors = new BeanPropertyBindingResult(objectStoreMetadata, objectStoreMetadata.getUuid().toString());
     validator.validate(objectStoreMetadata, errors);
@@ -42,7 +43,7 @@ public class ObjectStoreMetadataValidatorTest extends BaseIntegrationTest {
   @Test
   void validate_externalResourceIdentifierSet_NoErrorReturned() {
     // Create an object with both file identifier and external resource.
-    ObjectStoreMetadata objectStoreMetadata = createMetadata();
+    ObjectStoreMetadata objectStoreMetadata = ObjectStoreMetadataFactory.newEmptyObjectStoreMetadata();
     objectStoreMetadata.setResourceExternalURL("https://www." + RandomStringUtils.randomAlphabetic(10) + ".com");
 
     Errors errors = new BeanPropertyBindingResult(objectStoreMetadata, objectStoreMetadata.getUuid().toString());
@@ -55,8 +56,8 @@ public class ObjectStoreMetadataValidatorTest extends BaseIntegrationTest {
     String expectedErrorMessage = getExpectedErrorMessage(ObjectStoreMetadataValidator.VALID_FILE_ID_OR_RESOURCE_EXTERNAL);
 
     // Create an object with both file identifier and external resource.
-    ObjectStoreMetadata objectStoreMetadata = createMetadata();
-    objectStoreMetadata.setFileIdentifier(UUID.randomUUID());
+    ObjectStoreMetadata objectStoreMetadata = ObjectStoreMetadataFactory.newEmptyObjectStoreMetadata();
+    objectStoreMetadata.setFileIdentifier(UUIDHelper.generateUUIDv7());
     objectStoreMetadata.setResourceExternalURL("https://www." + RandomStringUtils.randomAlphabetic(10) + ".com");
 
     Errors errors = new BeanPropertyBindingResult(objectStoreMetadata, objectStoreMetadata.getUuid().toString());
@@ -70,7 +71,7 @@ public class ObjectStoreMetadataValidatorTest extends BaseIntegrationTest {
     String expectedErrorMessage = getExpectedErrorMessage(ObjectStoreMetadataValidator.NO_FILE_ID_OR_RESOURCE_EXTERNAL);
 
     // Create a blank object.
-    ObjectStoreMetadata objectStoreMetadata = createMetadata();
+    ObjectStoreMetadata objectStoreMetadata = ObjectStoreMetadataFactory.newEmptyObjectStoreMetadata();
 
     Errors errors = new BeanPropertyBindingResult(objectStoreMetadata, objectStoreMetadata.getUuid().toString());
     validator.validate(objectStoreMetadata, errors);
@@ -82,7 +83,4 @@ public class ObjectStoreMetadataValidatorTest extends BaseIntegrationTest {
     return messageSource.getMessage(key, null, LocaleContextHolder.getLocale());
   }
 
-  private static ObjectStoreMetadata createMetadata() {
-    return ObjectStoreMetadata.builder().uuid(UUID.randomUUID()).build();
-  }
 }

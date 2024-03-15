@@ -1,5 +1,6 @@
 package ca.gc.aafc.objectstore.api.rest;
 
+import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.dina.vocabulary.TypedVocabularyElement;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
@@ -48,7 +49,7 @@ public class ObjectStoreManagedAttributeAuditingIT extends BaseIntegrationTest {
 
     ObjectStoreManagedAttributeDto managed = new ObjectStoreManagedAttributeDto();
     managed.setName("name");
-    managed.setUuid(UUID.randomUUID());
+    managed.setUuid(UUIDHelper.generateUUIDv7());
     managed.setMultilingualDescription(MultilingualDescriptionFactory.newMultilingualDescription().build());
     managed.setVocabularyElementType(TypedVocabularyElement.VocabularyElementType.STRING);
   }

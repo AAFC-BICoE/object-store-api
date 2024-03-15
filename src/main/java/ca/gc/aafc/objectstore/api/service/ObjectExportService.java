@@ -7,6 +7,7 @@ import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Service;
 
 import ca.gc.aafc.dina.messaging.message.ObjectExportNotification;
+import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.objectstore.api.entities.AbstractObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
@@ -59,7 +60,7 @@ public class ObjectExportService {
    * @throws IOException
    */
   public ExportResult export(String username, List<UUID> fileIdentifiers) throws IOException {
-    UUID exportUUID = UUID.randomUUID();
+    UUID exportUUID = UUIDHelper.generateUUIDv7();
 
     String filename = exportUUID + EXPORT_EXT;
     Path zipFile = toaCtrl.generatePath(filename);

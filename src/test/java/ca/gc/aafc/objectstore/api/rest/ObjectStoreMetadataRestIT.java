@@ -3,6 +3,7 @@ package ca.gc.aafc.objectstore.api.rest;
 import ca.gc.aafc.dina.testsupport.BaseRestAssuredTest;
 import ca.gc.aafc.dina.testsupport.PostgresTestContainerInitializer;
 import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
+import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.objectstore.api.ObjectStoreApiLauncher;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
@@ -14,8 +15,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
 import java.time.OffsetDateTime;
-
-import java.util.UUID;
 
 import javax.transaction.Transactional;
 
@@ -59,7 +58,7 @@ public class ObjectStoreMetadataRestIT extends BaseRestAssuredTest {
   @Test
   public void sendInvalidFileIdentifier() {
     ObjectStoreMetadataDto osMetadata = buildObjectStoreMetadataDto();
-    osMetadata.setFileIdentifier(UUID.randomUUID());
+    osMetadata.setFileIdentifier(UUIDHelper.generateUUIDv7());
     sendPost(RESOURCE_UNDER_TEST,  
     JsonAPITestHelper.toJsonAPIMap(RESOURCE_UNDER_TEST, 
     JsonAPITestHelper.toAttributeMap(osMetadata)),
