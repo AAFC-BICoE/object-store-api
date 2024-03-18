@@ -1,22 +1,9 @@
 package ca.gc.aafc.objectstore.api.file;
 
-import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
-import ca.gc.aafc.dina.workbook.WorkbookGenerator;
-import ca.gc.aafc.objectstore.api.config.MediaTypeConfiguration;
-import ca.gc.aafc.objectstore.api.minio.MinioFileService;
-import ca.gc.aafc.objectstore.api.security.FileControllerAuthorizationService;
-import ca.gc.aafc.objectstore.api.service.DerivativeService;
-import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
-import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
-import static ca.gc.aafc.objectstore.api.file.FileController.buildHttpHeaders;
-
-import java.io.ByteArrayOutputStream;
-
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.tika.config.TikaConfig;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.metadata.TikaCoreProperties;
-import org.springframework.context.MessageSource;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,28 +11,23 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import javax.inject.Inject;
+
+import ca.gc.aafc.dina.workbook.WorkbookGenerator;
+
+import static ca.gc.aafc.objectstore.api.file.FileController.buildHttpHeaders;
+
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1")
-public class WorkbookTemplateController {
+@RequestMapping("/api/v1/workbook")
+public class WorkbookController {
 
-  public static final String DIGEST_ALGORITHM = "SHA-1";
+  private static final String TEMPLATE_FILENAME = "template.xlsx";
   private static final TikaConfig TIKA_CONFIG = TikaConfig.getDefaultConfig();
 
-  @Inject
-  public WorkbookTemplateController(
-      FileControllerAuthorizationService authorizationService,
-      MinioFileService minioService,
-      ObjectUploadService objectUploadService,
-      DerivativeService derivativeService,
-      ObjectStoreMetaDataService objectStoreMetaDataService,
-      MediaTypeDetectionStrategy mediaTypeDetectionStrategy,
-      DinaAuthenticatedUser authenticatedUser,
-      MessageSource messageSource,
-      MediaTypeConfiguration mediaTypeConfiguration) {
+  public WorkbookController() {
   }
 
   /**
@@ -55,7 +37,7 @@ public class WorkbookTemplateController {
    * @return the Workbook template
    * @throws IOException
    */
-  @PostMapping("workbook/generation")
+  @PostMapping("generation")
   public ResponseEntity<ByteArrayResource> generateWorkbookTemplateFromColumns(
       @RequestAttribute("columns") List<String> columns)
       throws IOException {
@@ -69,7 +51,7 @@ public class WorkbookTemplateController {
     }
 
     return new ResponseEntity<>(new ByteArrayResource(content),
-        buildHttpHeaders("template.xlsx", getMediaTypeForFilename("template.xlsx").toString(), content.length),
+        buildHttpHeaders(TEMPLATE_FILENAME, getMediaTypeForFilename(TEMPLATE_FILENAME).toString(), content.length),
         HttpStatus.CREATED);
   }
 
