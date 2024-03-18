@@ -30,7 +30,7 @@ public class ObjectExportRepository implements ResourceRepository<ObjectExportDt
   public <S extends ObjectExportDto> S create(S s) {
     try {
       ObjectExportService.ExportResult exportResult =
-        objectExportService.export(authenticatedUser.getUsername(), s.getFileIdentifiers());
+        objectExportService.export(authenticatedUser.getUsername(), s.getFileIdentifiers(), s.getName());
       s.setUuid(exportResult.uuid());
     } catch (IOException e) {
       throw new IllegalStateException(e);

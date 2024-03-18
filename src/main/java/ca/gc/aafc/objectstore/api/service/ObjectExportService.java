@@ -59,10 +59,10 @@ public class ObjectExportService {
    * @param fileIdentifiers
    * @throws IOException
    */
-  public ExportResult export(String username, List<UUID> fileIdentifiers) throws IOException {
+  public ExportResult export(String username, List<UUID> fileIdentifiers, String name) throws IOException {
     UUID exportUUID = UUIDHelper.generateUUIDv7();
 
-    String filename = exportUUID + EXPORT_EXT;
+    String filename = name.trim().isEmpty() ? exportUUID + EXPORT_EXT : name + EXPORT_EXT;
     Path zipFile = toaCtrl.generatePath(filename);
     try (ArchiveOutputStream o = new ZipArchiveOutputStream(zipFile)) {
       for (UUID fileIdentifier : fileIdentifiers) {
@@ -104,6 +104,7 @@ public class ObjectExportService {
     ObjectExportNotification oen = ObjectExportNotification.builder()
       .uuid(exportUUID)
       .username(username)
+      .name(filename)
       .toa(toaKey)
       .build();
 

@@ -24,5 +24,6 @@ public class ObjectExportDto {
   private UUID uuid;
 
   private List<UUID> fileIdentifiers;
+  private String name;
 
 }
