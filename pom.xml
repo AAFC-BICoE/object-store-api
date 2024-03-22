@@ -37,8 +37,12 @@
     <jcip-annotations.version>1.0</jcip-annotations.version>
     <dependency-check.version>9.0.8</dependency-check.version>
     <jacoco-maven-plugin.version>0.8.8</jacoco-maven-plugin.version>
+
+    <!-- Checkstyle-->
     <maven-checkstyle-plugin.version>3.1.2</maven-checkstyle-plugin.version>
     <checkstyle.version>9.3</checkstyle.version>
+    <checkstyle-antlr.version>4.9.3</checkstyle-antlr.version>
+
     <asciidoctor-maven-plugin.version>2.1.0</asciidoctor-maven-plugin.version>
     <asciidoctorj.diagram.version>2.0.2</asciidoctorj.diagram.version>
     <dina-base-api.version>0.119.1</dina-base-api.version>
@@ -217,6 +221,11 @@
             <groupId>com.puppycrawl.tools</groupId>
             <artifactId>checkstyle</artifactId>
             <version>${checkstyle.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr4-runtime</artifactId>
+            <version>${checkstyle-antlr.version}</version>
           </dependency>
         </dependencies>
         <configuration>
