@@ -63,7 +63,7 @@ public class ObjectExportService {
   public ExportResult export(String username, List<UUID> fileIdentifiers, String name) throws IOException {
     UUID exportUUID = UUIDHelper.generateUUIDv7();
 
-    String filename = (StringUtils.isBlank(name) ? exportUUID.toString() : name) + EXPORT_EXT;
+    String filename = exportUUID + EXPORT_EXT;
     Path zipFile = toaCtrl.generatePath(filename);
     try (ArchiveOutputStream o = new ZipArchiveOutputStream(zipFile)) {
       for (UUID fileIdentifier : fileIdentifiers) {
@@ -102,14 +102,17 @@ public class ObjectExportService {
     String toaKey = toaCtrl.registerObject(filename);
     log.info("Generated toaKey {}", () -> toaKey);
 
-    ObjectExportNotification oen = ObjectExportNotification.builder()
+    ObjectExportNotification.ObjectExportNotificationBuilder oenBuilder = ObjectExportNotification.builder()
       .uuid(exportUUID)
       .username(username)
       .name(filename)
-      .toa(toaKey)
-      .build();
+      .toa(toaKey);
 
-    objectExportMessageProducer.send(oen);
+    if (StringUtils.isNotBlank(name)) {
+      oenBuilder.name(name);
+    }
+
+    objectExportMessageProducer.send(oenBuilder.build());
 
     return new ExportResult(exportUUID, toaKey);
   }
