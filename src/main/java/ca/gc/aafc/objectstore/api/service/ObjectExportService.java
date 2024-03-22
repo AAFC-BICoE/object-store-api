@@ -4,6 +4,7 @@ import org.apache.commons.compress.archivers.ArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import ca.gc.aafc.dina.messaging.message.ObjectExportNotification;
@@ -62,7 +63,7 @@ public class ObjectExportService {
   public ExportResult export(String username, List<UUID> fileIdentifiers, String name) throws IOException {
     UUID exportUUID = UUIDHelper.generateUUIDv7();
 
-    String filename = name == null || name.isBlank() ? exportUUID + EXPORT_EXT : name + EXPORT_EXT;
+    String filename = (StringUtils.isBlank(name) ? exportUUID.toString() : name) + EXPORT_EXT;
     Path zipFile = toaCtrl.generatePath(filename);
     try (ArchiveOutputStream o = new ZipArchiveOutputStream(zipFile)) {
       for (UUID fileIdentifier : fileIdentifiers) {
