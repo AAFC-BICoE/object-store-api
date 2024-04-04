@@ -4,6 +4,7 @@ import org.apache.commons.compress.archivers.ArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import ca.gc.aafc.dina.messaging.message.ObjectExportNotification;
@@ -59,7 +60,7 @@ public class ObjectExportService {
    * @param fileIdentifiers
    * @throws IOException
    */
-  public ExportResult export(String username, List<UUID> fileIdentifiers) throws IOException {
+  public ExportResult export(String username, List<UUID> fileIdentifiers, String name) throws IOException {
     UUID exportUUID = UUIDHelper.generateUUIDv7();
 
     String filename = exportUUID + EXPORT_EXT;
@@ -101,13 +102,17 @@ public class ObjectExportService {
     String toaKey = toaCtrl.registerObject(filename);
     log.info("Generated toaKey {}", () -> toaKey);
 
-    ObjectExportNotification oen = ObjectExportNotification.builder()
+    ObjectExportNotification.ObjectExportNotificationBuilder oenBuilder = ObjectExportNotification.builder()
       .uuid(exportUUID)
       .username(username)
-      .toa(toaKey)
-      .build();
+      .name(filename)
+      .toa(toaKey);
 
-    objectExportMessageProducer.send(oen);
+    if (StringUtils.isNotBlank(name)) {
+      oenBuilder.name(name);
+    }
+
+    objectExportMessageProducer.send(oenBuilder.build());
 
     return new ExportResult(exportUUID, toaKey);
   }

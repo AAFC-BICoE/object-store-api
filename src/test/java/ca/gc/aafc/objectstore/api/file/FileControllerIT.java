@@ -40,10 +40,8 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ContextConfiguration(initializers = MinioTestContainerInitializer.class)
 @SpringBootTest(properties = "keycloak.enabled = true")

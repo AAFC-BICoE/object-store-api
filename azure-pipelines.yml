@@ -11,36 +11,16 @@ pool:
 
 steps:
 
-- task: DownloadSecureFile@1
-  name: secureMavenSettingsFile
-  inputs:
-    secureFile: 'nvd-api-settings.xml'
+- powershell: |
+     $nvdcachepath = $(get-childitem "$(Agent.WorkFolder)\_tasks\dependency-check-build-task*\*.*.*\dependency-check\data").FullName
+     echo "##vso[task.setvariable variable=nvdcachepath;]$nvdcachepath"
+  displayName: Get NVD Cache path
 
-- task: Maven@4
-  name: maven
+- task: Cache@2
   inputs:
-    mavenPomFile: 'pom.xml'
-    publishJUnitResults: false
-    javaHomeOption: 'JDKVersion'
-    jdkVersionOption: '1.17'
-    mavenVersionOption: 'Default'
-    mavenAuthenticateFeed: false
-    effectivePomSkip: false
-    sonarQubeRunAnalysis: false
-
-- task: Bash@3
-  inputs:
-    targetType: 'inline'
-    script: |
-      echo "Copying settings.xml"
-      cp $(secureMavenSettingsFile.secureFilePath) $HOME/.m2/settings.xml
-
-- task: Maven@4
-  name: UpdateNVDdata
-  inputs:
-    mavenPomFile: 'pom.xml'
-    publishJUnitResults: false
-    goals: dependency-check:update-only
+    key: '"NVDDataCache"'
+    path: $(nvdcachepath)
+  displayName: NVD Data Cache
 
 - task: dependency-check-build-task@6
   inputs:
