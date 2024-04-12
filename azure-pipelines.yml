@@ -29,6 +29,7 @@ steps:
     format: 'HTML, JUNIT'
     failOnCVSS: '8'
     suppressionPath: 'owasp-suppression.xml'
+    nvdApiKey: '$(NVD_API_KEY)'
 
 - task: PublishTestResults@2
   displayName: 'Publish OWASP Dependency Check results'
