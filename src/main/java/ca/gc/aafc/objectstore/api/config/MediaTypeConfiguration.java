@@ -35,6 +35,8 @@ public class MediaTypeConfiguration {
 
   public static final Map<String, Set<MediaType>> SUPPORTED_MEDIA_TYPE = initSupportedMediaType();
 
+  public static final MediaType FREEMARKER_TEMPLATE_MIME_TYPE = new MediaType("text", "x-freemarker-template");
+
   /**
    * init the supported MediaType from Tika but removed unsupported MediaType.
    * Also group them by the base type.
