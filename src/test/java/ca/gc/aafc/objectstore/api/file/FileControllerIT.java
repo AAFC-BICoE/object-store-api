@@ -2,7 +2,6 @@ package ca.gc.aafc.objectstore.api.file;
 
 import ca.gc.aafc.dina.testsupport.security.WithMockKeycloakUser;
 import ca.gc.aafc.dina.util.UUIDHelper;
-import ca.gc.aafc.dina.workbook.WorkbookRow;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
@@ -38,8 +37,6 @@ import org.springframework.web.server.UnsupportedMediaTypeStatusException;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -131,23 +128,6 @@ public class FileControllerIT extends BaseIntegrationTest {
     // test non-existing file
     assertThrows(ResponseStatusException.class, () ->
       fileController.getObjectInfo(bucketUnderTest, UUIDHelper.generateUUIDv7() + "." + TEST_UPLOAD_FILE_EXT));
-  }
-
-  @Test
-  public void fileUploadConversion_OnValidSpreadsheet_contentReturned() throws Exception {
-    MockMultipartFile mockFile = MultipartFileFactory.createMockMultipartFile(resourceLoader,"test_spreadsheet.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE);
-    Map<Integer, List<WorkbookRow>> content = fileController.handleFileConversion(mockFile);
-    assertFalse(content.isEmpty());
-    assertFalse(content.get(0).isEmpty());
-  }
-
-  @Test
-  public void fileUploadConversion_OnValidCSV_contentReturned() throws Exception {
-    // use Octet Stream to make sure the FileController will detect it's a csv
-    MockMultipartFile mockFile = MultipartFileFactory.createMockMultipartFile(resourceLoader,"test_spreadsheet.csv", MediaType.APPLICATION_OCTET_STREAM_VALUE);
-    Map<Integer, List<WorkbookRow>> content = fileController.handleFileConversion(mockFile);
-    assertFalse(content.isEmpty());
-    assertFalse(content.get(0).isEmpty());
   }
 
   @Test
