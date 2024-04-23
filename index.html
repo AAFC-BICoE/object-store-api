@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.16">
-<title>object-store-api Developer Documentation</title>
+<title>DINA object-store-api Developer Guide</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -436,10 +436,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 #footer-text{color:rgba(0,0,0,.6);font-size:.9em}}
 @media amzn-kf8{#header,#content,#footnotes,#footer{padding:0}}
 </style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/styles/github.min.css">
 </head>
 <body class="article toc2 toc-left">
 <div id="header">
-<h1>object-store-api Developer Documentation</h1>
+<h1>DINA object-store-api Developer Guide</h1>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
@@ -463,7 +465,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_media_type_detection">3. Media Type Detection</a>
 <ul class="sectlevel2">
 <li><a href="#_library">3.1. Library</a></li>
-<li><a href="#_expected_behavior">3.2. Expected behavior</a></li>
+<li><a href="#_expected_behavior">3.2. Expected behavior</a>
+<ul class="sectlevel3">
+<li><a href="#_content_type_provided">3.2.1. Content-Type provided</a></li>
+<li><a href="#_no_content_type_provided">3.2.2. No Content-Type provided</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="#_temporary_object_access">4. Temporary Object Access</a>
@@ -485,6 +492,23 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Developer documentation specific to the object-store-api.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>General developer documentation for DINA API/module can be found in <a href="https://aafc-bicoe.github.io/dina-documentation/developer/">DINA Developer Guide</a>.</p>
+</li>
+<li>
+<p>Documentation about modules implementation can be found in <a href="https://aafc-bicoe.github.io/dina-base-api/">dina-base-api</a>.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
 <div class="sect1">
 <h2 id="_object_storage">1. Object Storage</h2>
 <div class="sectionbody">
@@ -538,7 +562,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-sh" data-lang="sh">curl -i http://localhost:8081/api/v1/file/mybucket -F file=@./my-image.png;type=image/png</code></pre>
+<pre class="highlightjs highlight"><code class="language-sh hljs" data-lang="sh">curl -i http://localhost:8081/api/v1/file/mybucket -F file=@./my-image.png;type=image/png</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -546,7 +570,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-sh" data-lang="sh">{
+<pre class="highlightjs highlight"><code class="language-sh hljs" data-lang="sh">{
 	"fileIdentifier": "0050559c-beae-48d6-a2b0-91f5a666fad1",
 	"metaFileEntryVersion": "1.0",
 	"originalFilename": "example-png.png",
@@ -571,7 +595,7 @@ object, using the fileIdentifier from the upload response.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-sh" data-lang="sh">curl -X POST http://localhost:8081/api/v1/metadata \
+<pre class="highlightjs highlight"><code class="language-sh hljs" data-lang="sh">curl -X POST http://localhost:8081/api/v1/metadata \
 -H "Content-Type: application/vnd.api+json" \
 -H "Accept: application/vnd.api+json" \
 --data-binary @- &lt;&lt; EOF
@@ -607,7 +631,7 @@ EOF</code></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-sh" data-lang="sh">curl --request POST \
+<pre class="highlightjs highlight"><code class="language-sh hljs" data-lang="sh">curl --request POST \
   --url http://localhost:8081/api/v1/file/dev-group/derivative \
   --header 'Content-Type: multipart/form-data; boundary=---011000010111000001101001' \
   --form file=@/home/jon/object-store-api/src/test/resources/drawing.png</code></pre>
@@ -622,7 +646,7 @@ EOF</code></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-json" data-lang="json">{
+<pre class="highlightjs highlight"><code class="language-json hljs" data-lang="json">{
   "id": 2,
   "fileIdentifier": "5c158d6e-09eb-4272-88b6-3349b638100d",
   "dcType": "IMAGE",
@@ -665,7 +689,7 @@ EOF</code></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-sh" data-lang="sh">curl --request POST \
+<pre class="highlightjs highlight"><code class="language-sh hljs" data-lang="sh">curl --request POST \
   --url http://localhost:8081/api/v1/derivative/ \
   --header 'Content-Type: application/vnd.api+json' \
   --data '{
@@ -715,7 +739,7 @@ EOF</code></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-sh" data-lang="sh">curl --request POST \
+<pre class="highlightjs highlight"><code class="language-sh hljs" data-lang="sh">curl --request POST \
   --url http://localhost:8081/api/v1/derivative/ \
   --header 'Content-Type: application/vnd.api+json' \
   --data '{
@@ -742,7 +766,7 @@ EOF</code></pre>
 <table>
 <tr>
 <td class="icon">
-<div class="title">Warning</div>
+<i class="fa icon-warning" title="Warning"></i>
 </td>
 <td class="content">
 this does not resize the image! If you want an image to be resized and used as a thumbnail, submit the image as a regular derivative with a provided <code>acDerivedFrom</code> and a thumbnail will be generated for this image and associated with the given <code>acDerivedFrom</code>.
@@ -761,7 +785,7 @@ this does not resize the image! If you want an image to be resized and used as a
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-sh" data-lang="sh">curl http:/localhost:8081/api/v1/file/mybucket/0050559c-beae-48d6-a2b0-91f5a666fad1 &gt; my-downloaded-image.png</code></pre>
+<pre class="highlightjs highlight"><code class="language-sh hljs" data-lang="sh">curl http:/localhost:8081/api/v1/file/mybucket/0050559c-beae-48d6-a2b0-91f5a666fad1 &gt; my-downloaded-image.png</code></pre>
 </div>
 </div>
 </div>
@@ -775,7 +799,7 @@ this does not resize the image! If you want an image to be resized and used as a
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-sh" data-lang="sh">curl --request GET \
+<pre class="highlightjs highlight"><code class="language-sh hljs" data-lang="sh">curl --request GET \
   --url http://localhost:8081/api/v1/file/dev-group/derivative/cbb9484a-67f1-4112-accd-829bdfa0ad9e</code></pre>
 </div>
 </div>
@@ -872,7 +896,7 @@ The key is communicated using an event (message).</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code>{
+<pre class="highlightjs highlight"><code class="language-none hljs">{
   "data": {
     "type": "derivative-generation",
     "attributes": {
@@ -905,7 +929,7 @@ use the original object as a source.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-properties" data-lang="properties">orphan-removal.expiration.objectMaxAge="20d"
+<pre class="highlightjs highlight"><code class="language-properties hljs" data-lang="properties">orphan-removal.expiration.objectMaxAge="20d"
 orphan-removal.cron.expression="0 0 * * * *"</code></pre>
 </div>
 </div>
@@ -940,8 +964,15 @@ orphan-removal.cron.expression="0 0 * * * *"</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-04-23 14:16:15 UTC
+Last updated 2024-04-23 14:28:27 UTC
 </div>
 </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
+<script>
+if (!hljs.initHighlighting.called) {
+  hljs.initHighlighting.called = true
+  ;[].slice.call(document.querySelectorAll('pre.highlight > code')).forEach(function (el) { hljs.highlightBlock(el) })
+}
+</script>
 </body>
 </html>
