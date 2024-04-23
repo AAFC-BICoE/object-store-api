@@ -49,7 +49,7 @@ public class ReportTemplateUploadRepository
       authorizationService.authorizeCreate(objectUpload);
 
       if(!MediaTypeConfiguration.FREEMARKER_TEMPLATE_MIME_TYPE.getType().equals(objectUpload.getEvaluatedMediaType())) {
-        throw new UnsupportedMediaTypeStatusException("Only " + MediaTypeConfiguration.FREEMARKER_TEMPLATE_MIME_TYPE.getType() + " is accepted.");
+        throw new UnsupportedMediaTypeStatusException("Only " + MediaTypeConfiguration.FREEMARKER_TEMPLATE_MIME_TYPE + " is accepted.");
       }
 
       UUID reportTemplateUUID = reportTemplateUploadService.handleTemplateUpload(s.getFileIdentifier());
