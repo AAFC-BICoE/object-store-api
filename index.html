@@ -476,22 +476,16 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_regenerate_thumbnails">5.1. Regenerate Thumbnails</a></li>
 </ul>
 </li>
-<li><a href="#_filtering_api_response_data">6. Filtering API response data</a>
+<li><a href="#_lazy_logging">6. Lazy Logging</a></li>
+<li><a href="#_auditing">7. Auditing</a>
 <ul class="sectlevel2">
-<li><a href="#_rsql">6.1. RSQL</a></li>
-<li><a href="#_crnk_example">6.2. Crnk Example</a></li>
+<li><a href="#_configure_a_dto_to_be_audited">7.1. Configure a DTO to be audited:</a></li>
+<li><a href="#_query_the_stored_snapshots">7.2. Query the stored snapshots:</a></li>
 </ul>
 </li>
-<li><a href="#_lazy_logging">7. Lazy Logging</a></li>
-<li><a href="#_auditing">8. Auditing</a>
+<li><a href="#_orphan_removal_configuration">8. Orphan Removal Configuration</a>
 <ul class="sectlevel2">
-<li><a href="#_configure_a_dto_to_be_audited">8.1. Configure a DTO to be audited:</a></li>
-<li><a href="#_query_the_stored_snapshots">8.2. Query the stored snapshots:</a></li>
-</ul>
-</li>
-<li><a href="#_orphan_removal_configuration">9. Orphan Removal Configuration</a>
-<ul class="sectlevel2">
-<li><a href="#_configuration_properties">9.1. Configuration Properties</a></li>
+<li><a href="#_configuration_properties">8.1. Configuration Properties</a></li>
 </ul>
 </li>
 </ul>
@@ -902,55 +896,14 @@ The key is communicated using an event (message).</p>
 original object can not be used to create the thumbnails (like raw image files). Otherwise, <code>derivedFromType</code> should simply be omitted to
 use the original object as a source.</p>
 </div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_filtering_api_response_data">6. Filtering API response data</h2>
-<div class="sectionbody">
-<div class="sect2">
-<h3 id="_rsql">6.1. RSQL</h3>
 <div class="paragraph">
-<p>objectstore-api supports <a href="https://github.com/jirutka/rsql-parser">RSQL (REST query language)</a> for
-more complex filter queries.</p>
-</div>
-<div class="paragraph">
-<p>Example:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code>localhost:8080/api/v1/managed-attribute?filter[rsql]=( name=='attr1' or name=='attr2' )</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>This would return all managed-attributes with the name "attr1" or "attr2".</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_crnk_example">6.2. Crnk Example</h3>
-<div class="sect4">
-<h5 id="_returning_all_derivitives_of_a_metadata">Returning all derivitives of a metadata</h5>
-<div class="paragraph">
-<p>A metadata can derive from other metadata. To find all derivitives of the metadata with UUID  <strong>44b62cbc-5e7f-4e68-86d2-2819e3f5e9e7</strong> we could use the following.</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code>/metadata?filter[acDerivedFrom.id][EQ]={UUID}
-
-/metadata?filter[acDerivedFrom.id][EQ]=44b62cbc-5e7f-4e68-86d2-2819e3f5e9e7
-
-will return all metadatas which derive from 44b62cbc-5e7f-4e68-86d2-2819e3f5e9e7.</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p><a href="https://www.crnk.io/releases/stable/documentation/#_basic_filtering">Crnk Documentation for filtering</a></p>
-</div>
+<p>Unresolved directive in index.adoc - include::filtering.adoc[]</p>
 </div>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_lazy_logging">7. Lazy Logging</h2>
+<h2 id="_lazy_logging">6. Lazy Logging</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>We can avoid the calculation of log messages for log levels that are not enabled through the use of lazy logging.</p>
@@ -985,13 +938,13 @@ will return all metadatas which derive from 44b62cbc-5e7f-4e68-86d2-2819e3f5e9e7
 </div>
 </div>
 <div class="sect1">
-<h2 id="_auditing">8. Auditing</h2>
+<h2 id="_auditing">7. Auditing</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p><a href="https://javers.org/">JaVers</a> is used to save snapshots of DTOs on create, update and delete events.</p>
 </div>
 <div class="sect2">
-<h3 id="_configure_a_dto_to_be_audited">8.1. Configure a DTO to be audited:</h3>
+<h3 id="_configure_a_dto_to_be_audited">7.1. Configure a DTO to be audited:</h3>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
@@ -1046,7 +999,7 @@ create/update/delete operations.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_query_the_stored_snapshots">8.2. Query the stored snapshots:</h3>
+<h3 id="_query_the_stored_snapshots">7.2. Query the stored snapshots:</h3>
 <div class="paragraph">
 <p>JSONAPI endpoint at /api/v1/audit-snapshot , implemented by the AuditSnapshotRepository class.</p>
 </div>
@@ -1074,13 +1027,13 @@ create/update/delete operations.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_orphan_removal_configuration">9. Orphan Removal Configuration</h2>
+<h2 id="_orphan_removal_configuration">8. Orphan Removal Configuration</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>The orphan removal cron job is responsible for identifying and removing orphan objects. Orphan objects are <code>object uploads</code> that do not have any matching file identifiers associated with <code>derivatives</code> or <code>metadata</code> objects.</p>
 </div>
 <div class="sect2">
-<h3 id="_configuration_properties">9.1. Configuration Properties</h3>
+<h3 id="_configuration_properties">8.1. Configuration Properties</h3>
 <div class="paragraph">
 <p>The following environment variables can be configured:</p>
 </div>
@@ -1121,7 +1074,7 @@ orphan-removal.cron.expression="0 0 * * * *"</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-04-23 13:49:46 UTC
+Last updated 2024-04-23 13:57:29 UTC
 </div>
 </div>
 </body>
