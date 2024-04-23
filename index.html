@@ -477,15 +477,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </ul>
 </li>
 <li><a href="#_lazy_logging">6. Lazy Logging</a></li>
-<li><a href="#_auditing">7. Auditing</a>
+<li><a href="#_orphan_removal_configuration">7. Orphan Removal Configuration</a>
 <ul class="sectlevel2">
-<li><a href="#_configure_a_dto_to_be_audited">7.1. Configure a DTO to be audited:</a></li>
-<li><a href="#_query_the_stored_snapshots">7.2. Query the stored snapshots:</a></li>
-</ul>
-</li>
-<li><a href="#_orphan_removal_configuration">8. Orphan Removal Configuration</a>
-<ul class="sectlevel2">
-<li><a href="#_configuration_properties">8.1. Configuration Properties</a></li>
+<li><a href="#_configuration_properties">7.1. Configuration Properties</a></li>
 </ul>
 </li>
 </ul>
@@ -932,105 +926,19 @@ use the original object as a source.</p>
 <div class="paragraph">
 <p>See <a href="https://www.baeldung.com/log4j-2-lazy-logging"> This Guide</a> for more information.</p>
 </div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_auditing">7. Auditing</h2>
-<div class="sectionbody">
 <div class="paragraph">
-<p><a href="https://javers.org/">JaVers</a> is used to save snapshots of DTOs on create, update and delete events.</p>
-</div>
-<div class="sect2">
-<h3 id="_configure_a_dto_to_be_audited">7.1. Configure a DTO to be audited:</h3>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Add the Javers annotations to the DTO:</p>
-<div class="ulist">
-<ul>
-<li>
-<p>@TypeName should be added to the class for JaVers to know the type.</p>
-</li>
-<li>
-<p>@Id and @PropertyName("id") should be added to the ID field, which JaVers uses to track multiple versions of
-the same entity.</p>
-</li>
-<li>
-<p>@ShallowReference should be added to relation fields (along with Crnk&#8217;s @JsonApiRelation).
-This prevents a problem where the referenced resource is re-audited with all fields null.</p>
-</li>
-<li>
-<p>@Value should be added to embedded objects, like other DTOs that are considered values of a parent DTO.
-e.g. "AddressDto" is an embedded Value in "PersonDto", not a standalone entity.</p>
-<div class="ulist">
-<ul>
-<li>
-<p>When a child value
-is changed, the parent object should also be updated (via timestamp update). This can be done using
-@PrePersist, @PreUpdate and @PreDelete annotations on the JPA Entity.</p>
-</li>
-<li>
-<p>Child values should not be audited separately, regardless of database structure.</p>
-</li>
-</ul>
-</div>
-</li>
-<li>
-<p>@DiffIgnore should be added to any fields not needed in the snapshots, like derived DTO fields.</p>
-</li>
-</ul>
-</div>
-</li>
-<li>
-<p>Add a snapshot loader function in the SnapshotLoader class, which stores snapshots on JPA Entity
-create/update/delete operations.</p>
-<div class="ulist">
-<ul>
-<li>
-<p>Make sure to use "include" in the QuerySpec to include embedded DTOs or foreign-key related DTOs.</p>
-</li>
-</ul>
-</div>
-</li>
-</ol>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_query_the_stored_snapshots">7.2. Query the stored snapshots:</h3>
-<div class="paragraph">
-<p>JSONAPI endpoint at /api/v1/audit-snapshot , implemented by the AuditSnapshotRepository class.</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>Page results using query parameters page[limit] and page[offset].</p>
-</li>
-<li>
-<p>Filter the results:</p>
-<div class="ulist">
-<ul>
-<li>
-<p>By author: <code>filter[author]=authorname</code></p>
-</li>
-<li>
-<p>By instance: <code>filter[instanceId]=metadata/0fc10c52-91b6-4a9b-be98-e3f75b9928f7</code></p>
-</li>
-</ul>
-</div>
-</li>
-</ul>
-</div>
+<p>Unresolved directive in index.adoc - include::auditing.adoc[]</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_orphan_removal_configuration">8. Orphan Removal Configuration</h2>
+<h2 id="_orphan_removal_configuration">7. Orphan Removal Configuration</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>The orphan removal cron job is responsible for identifying and removing orphan objects. Orphan objects are <code>object uploads</code> that do not have any matching file identifiers associated with <code>derivatives</code> or <code>metadata</code> objects.</p>
 </div>
 <div class="sect2">
-<h3 id="_configuration_properties">8.1. Configuration Properties</h3>
+<h3 id="_configuration_properties">7.1. Configuration Properties</h3>
 <div class="paragraph">
 <p>The following environment variables can be configured:</p>
 </div>
@@ -1071,7 +979,7 @@ orphan-removal.cron.expression="0 0 * * * *"</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-04-23 13:57:44 UTC
+Last updated 2024-04-23 14:11:42 UTC
 </div>
 </div>
 </body>
