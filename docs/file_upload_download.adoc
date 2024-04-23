@@ -1,4 +1,4 @@
-= File/Derivative Upload and Download
+= File Upload/Download
 
 == Upload a file
 
@@ -55,9 +55,9 @@ EOF
 
 Uploading a Derivative is similar to uploading a regular file.
 
-*1. Upload the derivative file by sending a post request to: `/api/v1/file/{bucket}/derivative` with the file as multipart/form-data.*
+1. Upload the derivative file by sending a post request to: `/api/v1/file/{bucket}/derivative` with the file as multipart/form-data.
 
-> Example Request: POST /api/v1/file/{bucket}/derivative
+Example Request: POST /api/v1/file/{bucket}/derivative
 ```sh
 curl --request POST \
   --url http://localhost:8081/api/v1/file/dev-group/derivative \
@@ -65,7 +65,7 @@ curl --request POST \
   --form file=@/home/jon/object-store-api/src/test/resources/drawing.png
 ```
 
-> Example response:
+Example response:
 ```json
 {
   "id": 2,
@@ -89,7 +89,7 @@ curl --request POST \
 }
 ```
 
-*2. Upload the derivative resource for that file at: `api/v1/derivative/`*
+2. Upload the derivative resource for that file at: `api/v1/derivative/`
 
 A derivative will be expected to derive from an existing file with an existing metadata for the original file.
 
@@ -97,7 +97,7 @@ The fileIdentifier in the following example points to the returned file Identifi
 
 The acDerivedFrom object in the following example represents the original resource (of type metadata) this derivative will derive from.
 
-> Example Request: POST /api/v1/derivative/
+Example Request: POST /api/v1/derivative/
 ```sh
 curl --request POST \
   --url http://localhost:8081/api/v1/derivative/ \
