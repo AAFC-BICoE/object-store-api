@@ -14,8 +14,6 @@ include::toa.adoc[]
 
 include::administrative_endpoints.adoc[]
 
-include::filtering.adoc[]
-
 include::lazy_logging.adoc[]
 
 include::auditing.adoc[]
