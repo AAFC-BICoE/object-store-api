@@ -10,6 +10,8 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.UUID;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.UnsupportedMediaTypeStatusException;
 
@@ -33,6 +35,7 @@ public class ReportTemplateUploadRepository
   }
 
   @Override
+  @Transactional(readOnly = true)
   public <S extends ReportTemplateUploadDto> S create(S s) {
     try {
 
