@@ -452,7 +452,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_expected_sequence">1.3. Expected Sequence</a></li>
 </ul>
 </li>
-<li><a href="#_filederivative_upload_and_download">2. File/Derivative Upload and Download</a>
+<li><a href="#_file_uploaddownload">2. File Upload/Download</a>
 <ul class="sectlevel2">
 <li><a href="#_upload_a_file">2.1. Upload a file</a></li>
 <li><a href="#_upload_a_derivative">2.2. Upload a Derivative</a></li>
@@ -546,7 +546,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 <div class="sect1">
-<h2 id="_filederivative_upload_and_download">2. File/Derivative Upload and Download</h2>
+<h2 id="_file_uploaddownload">2. File Upload/Download</h2>
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="_upload_a_file">2.1. Upload a file</h3>
@@ -619,15 +619,15 @@ EOF</code></pre>
 <div class="paragraph">
 <p>Uploading a Derivative is similar to uploading a regular file.</p>
 </div>
-<div class="paragraph">
-<p><strong>1. Upload the derivative file by sending a post request to: <code>/api/v1/file/{bucket}/derivative</code> with the file as multipart/form-data.</strong></p>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Upload the derivative file by sending a post request to: <code>/api/v1/file/{bucket}/derivative</code> with the file as multipart/form-data.</p>
+</li>
+</ol>
 </div>
-<div class="quoteblock">
-<blockquote>
 <div class="paragraph">
 <p>Example Request: POST /api/v1/file/{bucket}/derivative</p>
-</div>
-</blockquote>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -637,12 +637,8 @@ EOF</code></pre>
   --form file=@/home/jon/object-store-api/src/test/resources/drawing.png</code></pre>
 </div>
 </div>
-<div class="quoteblock">
-<blockquote>
 <div class="paragraph">
 <p>Example response:</p>
-</div>
-</blockquote>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -668,8 +664,12 @@ EOF</code></pre>
 }</code></pre>
 </div>
 </div>
-<div class="paragraph">
-<p><strong>2. Upload the derivative resource for that file at: <code>api/v1/derivative/</code></strong></p>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Upload the derivative resource for that file at: <code>api/v1/derivative/</code></p>
+</li>
+</ol>
 </div>
 <div class="paragraph">
 <p>A derivative will be expected to derive from an existing file with an existing metadata for the original file.</p>
@@ -680,12 +680,8 @@ EOF</code></pre>
 <div class="paragraph">
 <p>The acDerivedFrom object in the following example represents the original resource (of type metadata) this derivative will derive from.</p>
 </div>
-<div class="quoteblock">
-<blockquote>
 <div class="paragraph">
 <p>Example Request: POST /api/v1/derivative/</p>
-</div>
-</blockquote>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -964,7 +960,7 @@ orphan-removal.cron.expression="0 0 * * * *"</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-04-23 14:28:27 UTC
+Last updated 2024-04-23 14:46:28 UTC
 </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
