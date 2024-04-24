@@ -1,6 +1,7 @@
 package ca.gc.aafc.objectstore.api.file;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
@@ -19,6 +20,7 @@ import org.springframework.web.util.NestedServletException;
 
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
+import ca.gc.aafc.objectstore.api.config.MediaTypeConfiguration;
 import ca.gc.aafc.objectstore.api.minio.MinioTestContainerInitializer;
 
 @ContextConfiguration(initializers = MinioTestContainerInitializer.class)
@@ -43,6 +45,21 @@ public class FileUploadIT extends BaseIntegrationTest {
     webAppContextSetup(this.wac).build()
         .perform(MockMvcRequestBuilders.multipart("/api/v1/file/" + bucketUnderTest).file(file))
         .andExpect(status().is(200));
+  }
+
+  @Test
+  @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
+  public void fileUpload_onMultipartRequestFtl_acceptFile() throws Exception {
+
+    MockMultipartFile file = new MockMultipartFile("file", "testfile.ftlh",
+      MediaTypeConfiguration.FREEMARKER_TEMPLATE_MIME_TYPE.toString(),
+      "<html></html>".getBytes());
+
+    String response = webAppContextSetup(this.wac).build()
+      .perform(MockMvcRequestBuilders.multipart("/api/v1/file/" + bucketUnderTest).file(file))
+      .andReturn().getResponse().getContentAsString();
+
+    assertTrue(response.contains("\"receivedMediaType\":\"text/x-freemarker-template\""));
   }
 
   @Test
