@@ -562,7 +562,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-sh hljs" data-lang="sh">curl -i http://localhost:8081/api/v1/file/mybucket -F file=@./my-image.png;type=image/png</code></pre>
+<pre class="highlightjs highlight"><code class="language-sh hljs" data-lang="sh">curl -i http://localhost:8081/api/v1/file/mybucket -F "file=@./my-image.png;type=image/png"</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -622,19 +622,13 @@ EOF</code></pre>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Upload the derivative file by sending a post request to: <code>/api/v1/file/{bucket}/derivative</code> with the file as multipart/form-data.</p>
+<p>Upload the derivative file by sending a POST (mutlipart) request to: <code>/api/v1/file/{bucket}/derivative</code></p>
 </li>
 </ol>
 </div>
-<div class="paragraph">
-<p>Example Request: POST /api/v1/file/{bucket}/derivative</p>
-</div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-sh hljs" data-lang="sh">curl --request POST \
-  --url http://localhost:8081/api/v1/file/dev-group/derivative \
-  --header 'Content-Type: multipart/form-data; boundary=---011000010111000001101001' \
-  --form file=@/home/jon/object-store-api/src/test/resources/drawing.png</code></pre>
+<pre class="highlightjs highlight"><code class="language-sh hljs" data-lang="sh">curl -i http://localhost:8081/api/v1/file/mybucket/derivative -F "file=@./my-image.png;type=image/png"</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -648,7 +642,7 @@ EOF</code></pre>
   "dcType": "IMAGE",
   "createdBy": "dev",
   "createdOn": null,
-  "originalFilename": "drawing.png",
+  "originalFilename": "my-image.png",
   "sha1Hex": "3a37e3546074b6a67afef2fc1b402bf9233a1eb7",
   "receivedMediaType": "image/png",
   "detectedMediaType": "image/png",
@@ -656,7 +650,7 @@ EOF</code></pre>
   "evaluatedMediaType": "image/png",
   "evaluatedFileExtension": ".png",
   "sizeInBytes": 6091,
-  "bucket": "dev-group",
+  "bucket": "mybucket",
   "exif": {},
   "dateTimeDigitized": null,
   "isDerivative": true,
@@ -960,7 +954,7 @@ orphan-removal.cron.expression="0 0 * * * *"</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-04-24 16:27:12 UTC
+Last updated 2024-04-24 16:33:49 UTC
 </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
