@@ -48,7 +48,7 @@ public class ReportTemplateUploadRepository
       // we are using authorizeCreate but, it's only to check the object ownership
       authorizationService.authorizeCreate(objectUpload);
 
-      if(!MediaTypeConfiguration.FREEMARKER_TEMPLATE_MIME_TYPE.getType().equals(objectUpload.getEvaluatedMediaType())) {
+      if(!MediaTypeConfiguration.FREEMARKER_TEMPLATE_MIME_TYPE.toString().equals(objectUpload.getEvaluatedMediaType())) {
         throw new UnsupportedMediaTypeStatusException("Only " + MediaTypeConfiguration.FREEMARKER_TEMPLATE_MIME_TYPE + " is accepted.");
       }
 
