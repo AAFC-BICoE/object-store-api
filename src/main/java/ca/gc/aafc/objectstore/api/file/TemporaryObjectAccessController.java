@@ -41,7 +41,7 @@ import ca.gc.aafc.dina.file.FileCleaner;
 @Log4j2
 public class TemporaryObjectAccessController {
 
-  private static final Set<String> SUPPORTED_FILE_EXT = Set.of("txt", "zip");
+  private static final Set<String> SUPPORTED_FILE_EXT = Set.of("txt", "zip", "ftlh");
 
   private static final Path WORKING_FOLDER = assignWorkingDir();
   private static final long MAX_AGE_MINUTES = 60;
