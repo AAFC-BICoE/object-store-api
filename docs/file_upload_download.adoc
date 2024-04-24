@@ -7,7 +7,7 @@
 Example request:
 
 ```sh
-curl -i http://localhost:8081/api/v1/file/mybucket -F file=@./my-image.png;type=image/png
+curl -i http://localhost:8081/api/v1/file/mybucket -F "file=@./my-image.png;type=image/png"
 ```
 
 Example response:
@@ -55,14 +55,10 @@ EOF
 
 Uploading a Derivative is similar to uploading a regular file.
 
-1. Upload the derivative file by sending a post request to: `/api/v1/file/{bucket}/derivative` with the file as multipart/form-data.
+1. Upload the derivative file by sending a POST (mutlipart) request to: `/api/v1/file/{bucket}/derivative`
 
-Example Request: POST /api/v1/file/{bucket}/derivative
 ```sh
-curl --request POST \
-  --url http://localhost:8081/api/v1/file/dev-group/derivative \
-  --header 'Content-Type: multipart/form-data; boundary=---011000010111000001101001' \
-  --form file=@/home/jon/object-store-api/src/test/resources/drawing.png
+curl -i http://localhost:8081/api/v1/file/mybucket/derivative -F "file=@./my-image.png;type=image/png"
 ```
 
 Example response:
@@ -73,7 +69,7 @@ Example response:
   "dcType": "IMAGE",
   "createdBy": "dev",
   "createdOn": null,
-  "originalFilename": "drawing.png",
+  "originalFilename": "my-image.png",
   "sha1Hex": "3a37e3546074b6a67afef2fc1b402bf9233a1eb7",
   "receivedMediaType": "image/png",
   "detectedMediaType": "image/png",
@@ -81,7 +77,7 @@ Example response:
   "evaluatedMediaType": "image/png",
   "evaluatedFileExtension": ".png",
   "sizeInBytes": 6091,
-  "bucket": "dev-group",
+  "bucket": "mybucket",
   "exif": {},
   "dateTimeDigitized": null,
   "isDerivative": true,
