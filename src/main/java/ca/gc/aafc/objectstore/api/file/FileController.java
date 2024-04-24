@@ -1,35 +1,5 @@
 package ca.gc.aafc.objectstore.api.file;
 
-import ca.gc.aafc.dina.entity.DinaEntity;
-import ca.gc.aafc.dina.mapper.DinaMapper;
-import ca.gc.aafc.dina.mapper.DinaMappingLayer;
-import ca.gc.aafc.dina.repository.meta.AttributeMetaInfoProvider;
-import ca.gc.aafc.dina.repository.meta.AttributeMetaInfoProvider.DinaJsonMetaInfo;
-import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
-import ca.gc.aafc.dina.util.UUIDHelper;
-import ca.gc.aafc.dina.workbook.DelimiterSeparatedConverter;
-import ca.gc.aafc.dina.workbook.WorkbookConverter;
-import ca.gc.aafc.dina.workbook.WorkbookRow;
-import ca.gc.aafc.objectstore.api.config.MediaTypeConfiguration;
-import ca.gc.aafc.objectstore.api.dto.ObjectUploadDto;
-import ca.gc.aafc.objectstore.api.entities.Derivative;
-import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
-import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
-import ca.gc.aafc.objectstore.api.exif.ExifParser;
-import ca.gc.aafc.objectstore.api.minio.MinioFileService;
-import ca.gc.aafc.objectstore.api.security.FileControllerAuthorizationService;
-import ca.gc.aafc.objectstore.api.service.DerivativeService;
-import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
-import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
-import ca.gc.aafc.objectstore.api.storage.FileStorage;
-
-import java.io.BufferedInputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Optional;
-import lombok.NonNull;
-import lombok.extern.log4j.Log4j2;
-
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -51,18 +21,43 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.UnsupportedMediaTypeStatusException;
 
-import javax.inject.Inject;
-import javax.transaction.Transactional;
+import ca.gc.aafc.dina.entity.DinaEntity;
+import ca.gc.aafc.dina.mapper.DinaMapper;
+import ca.gc.aafc.dina.mapper.DinaMappingLayer;
+import ca.gc.aafc.dina.repository.meta.AttributeMetaInfoProvider;
+import ca.gc.aafc.dina.repository.meta.AttributeMetaInfoProvider.DinaJsonMetaInfo;
+import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
+import ca.gc.aafc.dina.util.UUIDHelper;
+import ca.gc.aafc.objectstore.api.config.MediaTypeConfiguration;
+import ca.gc.aafc.objectstore.api.dto.ObjectUploadDto;
+import ca.gc.aafc.objectstore.api.entities.Derivative;
+import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
+import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
+import ca.gc.aafc.objectstore.api.exif.ExifParser;
+import ca.gc.aafc.objectstore.api.minio.MinioFileService;
+import ca.gc.aafc.objectstore.api.security.FileControllerAuthorizationService;
+import ca.gc.aafc.objectstore.api.service.DerivativeService;
+import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
+import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
+import ca.gc.aafc.objectstore.api.storage.FileStorage;
+
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+import lombok.NonNull;
+import lombok.extern.log4j.Log4j2;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -128,34 +123,6 @@ public class FileController {
     @PathVariable String bucket
   ) throws NoSuchAlgorithmException, MimeTypeException, IOException {
     return handleUpload(file, bucket, false);
-  }
-
-  /**
-   * Converts Workbooks (Excel files) or CSV/TSV (handled as Workbook with 1 sheet) to a
-   * generic row-based JSON structure.
-   *
-   * @param file
-   * @return the content of the workbook per sheets
-   * @throws IOException
-   * @throws MimeTypeException
-   */
-  @PostMapping("/conversion/workbook")
-  public Map<Integer, List<WorkbookRow>> handleFileConversion(
-          @RequestParam("file") MultipartFile file
-  ) throws IOException, MimeTypeException {
-    MediaTypeDetectionStrategy.MediaTypeDetectionResult mtdr = mediaTypeDetectionStrategy
-            .detectMediaType(file.getInputStream(), file.getContentType(), file.getOriginalFilename());
-    MediaType detectedMediaType = mtdr.getDetectedMediaType();
-
-    if (DelimiterSeparatedConverter.isSupported(detectedMediaType.toString())) {
-      return Map.of(0,
-        DelimiterSeparatedConverter.convert(file.getInputStream(), detectedMediaType.toString()));
-    } else if (WorkbookConverter.isSupported(detectedMediaType.toString())) {
-      return WorkbookConverter.convertWorkbook(file.getInputStream());
-    }
-
-    throw new UnsupportedMediaTypeStatusException(messageSource.getMessage(
-      "upload.invalid_media_type", new String[]{detectedMediaType.toString()}, LocaleContextHolder.getLocale()));
   }
 
   private ObjectUploadDto handleUpload(
