@@ -69,6 +69,7 @@ public class ReportTemplateUploadService {
     ReportTemplateUploadNotification reportTemplateUploadNotification =
       ReportTemplateUploadNotification.builder()
         .uuid(reportTemplateUUID)
+        .username(objectUpload.getCreatedBy())
         .toa(toaKey)
         .build();
     dinaMessageProducer.send(reportTemplateUploadNotification);
