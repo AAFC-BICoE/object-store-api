@@ -14,7 +14,7 @@ import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.file.FileObjectInfo;
 import ca.gc.aafc.objectstore.api.file.TemporaryObjectAccessController;
-import ca.gc.aafc.objectstore.api.messaging.ObjectExportMessageProducer;
+import ca.gc.aafc.objectstore.api.messaging.DinaMessageProducer;
 import ca.gc.aafc.objectstore.api.security.FileControllerAuthorizationService;
 import ca.gc.aafc.objectstore.api.storage.FileStorage;
 
@@ -38,20 +38,20 @@ public class ObjectExportService {
   private final DerivativeService derivativeService;
   private final TemporaryObjectAccessController toaCtrl;
 
-  private final ObjectExportMessageProducer objectExportMessageProducer;
+  private final DinaMessageProducer dinaMessageProducer;
 
   public ObjectExportService(FileControllerAuthorizationService authorizationService,
                              FileStorage fileStorage,
                              ObjectStoreMetaDataService objectMetadataService,
                              DerivativeService derivativeService,
                              TemporaryObjectAccessController toaCtrl,
-                             ObjectExportMessageProducer objectExportMessageProducer) {
+                             DinaMessageProducer dinaMessageProducer) {
     this.authorizationService = authorizationService;
     this.fileStorage = fileStorage;
     this.objectMetadataService = objectMetadataService;
     this.derivativeService = derivativeService;
     this.toaCtrl = toaCtrl;
-    this.objectExportMessageProducer = objectExportMessageProducer;
+    this.dinaMessageProducer = dinaMessageProducer;
   }
 
   /**
@@ -112,7 +112,7 @@ public class ObjectExportService {
       oenBuilder.name(name);
     }
 
-    objectExportMessageProducer.send(oenBuilder.build());
+    dinaMessageProducer.send(oenBuilder.build());
 
     return new ExportResult(exportUUID, toaKey);
   }

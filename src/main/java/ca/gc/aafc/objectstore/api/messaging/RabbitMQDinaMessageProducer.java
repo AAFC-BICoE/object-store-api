@@ -6,7 +6,6 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
-import ca.gc.aafc.dina.messaging.message.ObjectExportNotification;
 import ca.gc.aafc.dina.messaging.producer.RabbitMQMessageProducer;
 import ca.gc.aafc.objectstore.api.config.ObjectExportQueueProperties;
 
@@ -17,10 +16,10 @@ import ca.gc.aafc.objectstore.api.config.ObjectExportQueueProperties;
 @Log4j2
 @Service
 @ConditionalOnProperty(prefix = "dina.messaging", name = "isProducer", havingValue = "true")
-public class RabbitMQObjectExportMessageProducer extends RabbitMQMessageProducer<ObjectExportNotification> implements
-  ObjectExportMessageProducer {
+public class RabbitMQDinaMessageProducer extends RabbitMQMessageProducer implements
+  DinaMessageProducer {
 
-  public RabbitMQObjectExportMessageProducer(RabbitTemplate rabbitTemplate, ObjectExportQueueProperties queueProperties) {
+  public RabbitMQDinaMessageProducer(RabbitTemplate rabbitTemplate, ObjectExportQueueProperties queueProperties) {
     super(rabbitTemplate, queueProperties);
     log.info( "Using RabbitMQ queue {}", queueProperties::getQueue);
   }
