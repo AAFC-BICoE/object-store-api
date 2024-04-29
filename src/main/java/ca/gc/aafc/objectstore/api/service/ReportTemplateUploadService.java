@@ -16,7 +16,7 @@ import ca.gc.aafc.dina.messaging.message.ReportTemplateUploadNotification;
 import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.file.TemporaryObjectAccessController;
-import ca.gc.aafc.objectstore.api.messaging.DinaMessageProducer;
+import ca.gc.aafc.dina.messaging.producer.DinaMessageProducer;
 import ca.gc.aafc.objectstore.api.storage.FileStorage;
 
 @Log4j2

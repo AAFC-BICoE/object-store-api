@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.stereotype.Service;
 
 import ca.gc.aafc.dina.messaging.DinaMessage;
+import ca.gc.aafc.dina.messaging.producer.DinaMessageProducer;
 
 /**
  * Log4j2 based {@link DinaMessageProducer} used mostly to run in dev mode.
