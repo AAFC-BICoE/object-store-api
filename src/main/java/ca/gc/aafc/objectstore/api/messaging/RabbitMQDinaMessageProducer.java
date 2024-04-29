@@ -6,6 +6,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
+import ca.gc.aafc.dina.messaging.producer.DinaMessageProducer;
 import ca.gc.aafc.dina.messaging.producer.RabbitMQMessageProducer;
 import ca.gc.aafc.objectstore.api.config.ObjectExportQueueProperties;
 
