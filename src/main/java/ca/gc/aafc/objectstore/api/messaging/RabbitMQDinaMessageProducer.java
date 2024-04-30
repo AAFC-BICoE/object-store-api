@@ -17,8 +17,7 @@ import ca.gc.aafc.objectstore.api.config.ObjectExportQueueProperties;
 @Log4j2
 @Service
 @ConditionalOnProperty(prefix = "dina.messaging", name = "isProducer", havingValue = "true")
-public class RabbitMQDinaMessageProducer extends RabbitMQMessageProducer implements
-  DinaMessageProducer {
+public class RabbitMQDinaMessageProducer extends RabbitMQMessageProducer implements DinaMessageProducer {
 
   public RabbitMQDinaMessageProducer(RabbitTemplate rabbitTemplate, ObjectExportQueueProperties queueProperties) {
     super(rabbitTemplate, queueProperties);

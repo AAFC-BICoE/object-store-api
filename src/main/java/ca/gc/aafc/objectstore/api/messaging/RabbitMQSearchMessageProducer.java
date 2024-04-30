@@ -21,10 +21,11 @@ import ca.gc.aafc.objectstore.api.config.SearchQueueProperties;
 public class RabbitMQSearchMessageProducer extends RabbitMQMessageProducer implements
   DocumentOperationNotificationMessageProducer {
 
-  public RabbitMQSearchMessageProducer(RabbitTemplate rabbitTemplate, @Named("searchQueueProperties")
-  SearchQueueProperties queueProperties) {
+  public RabbitMQSearchMessageProducer(RabbitTemplate rabbitTemplate,
+                                       @Named("searchQueueProperties")
+                                       SearchQueueProperties queueProperties) {
     super(rabbitTemplate, queueProperties);
-    log.info( "Using RabbitMQ queue {}", queueProperties::getQueue);
+    log.info("Using RabbitMQ queue {}", queueProperties::getQueue);
   }
 
   @Override
