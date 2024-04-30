@@ -12,9 +12,11 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Service;
 
+import ca.gc.aafc.dina.messaging.message.ReportTemplateUploadNotification;
 import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.file.TemporaryObjectAccessController;
+import ca.gc.aafc.dina.messaging.producer.DinaMessageProducer;
 import ca.gc.aafc.objectstore.api.storage.FileStorage;
 
 @Log4j2
@@ -24,13 +26,16 @@ public class ReportTemplateUploadService {
   private final FileStorage fileStorage;
   private final ObjectUploadService objectUploadService;
   private final TemporaryObjectAccessController toaCtrl;
+  private final DinaMessageProducer dinaMessageProducer;
 
   public ReportTemplateUploadService(FileStorage fileStorage,
                                      ObjectUploadService objectUploadService,
-                                     TemporaryObjectAccessController toaCtrl) {
+                                     TemporaryObjectAccessController toaCtrl,
+                                     DinaMessageProducer dinaMessageProducer) {
     this.fileStorage = fileStorage;
     this.objectUploadService = objectUploadService;
     this.toaCtrl = toaCtrl;
+    this.dinaMessageProducer = dinaMessageProducer;
   }
 
   public ObjectUpload findOneObjectUpload(UUID fileIdentifier) {
@@ -43,7 +48,7 @@ public class ReportTemplateUploadService {
    * @param fileIdentifier uuid of the ObjectUpload.
    * @return new generated template uuid
    */
-  public UUID handleTemplateUpload(UUID fileIdentifier) throws IOException {
+  public ReportTemplateUploadResult handleTemplateUpload(UUID fileIdentifier) throws IOException {
 
     ObjectUpload objectUpload = findOneObjectUpload(fileIdentifier);
     UUID reportTemplateUUID = UUIDHelper.generateUUIDv7();
@@ -60,8 +65,18 @@ public class ReportTemplateUploadService {
     }
 
     String toaKey = toaCtrl.registerObject(filename);
-    log.info("Generated toaKey {}", () -> toaKey);
 
-    return reportTemplateUUID;
+    ReportTemplateUploadNotification reportTemplateUploadNotification =
+      ReportTemplateUploadNotification.builder()
+        .uuid(reportTemplateUUID)
+        .username(objectUpload.getCreatedBy())
+        .toa(toaKey)
+        .build();
+    dinaMessageProducer.send(reportTemplateUploadNotification);
+
+    return new ReportTemplateUploadResult(reportTemplateUUID, toaKey);
+  }
+
+  public record ReportTemplateUploadResult(UUID uuid, String toaKey) {
   }
 }
