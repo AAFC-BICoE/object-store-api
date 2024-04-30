@@ -8,13 +8,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import ca.gc.aafc.dina.messaging.message.ObjectExportNotification;
+import ca.gc.aafc.dina.messaging.producer.DinaMessageProducer;
 import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.objectstore.api.entities.AbstractObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.file.FileObjectInfo;
 import ca.gc.aafc.objectstore.api.file.TemporaryObjectAccessController;
-import ca.gc.aafc.objectstore.api.messaging.ObjectExportMessageProducer;
 import ca.gc.aafc.objectstore.api.security.FileControllerAuthorizationService;
 import ca.gc.aafc.objectstore.api.storage.FileStorage;
 
@@ -38,20 +38,20 @@ public class ObjectExportService {
   private final DerivativeService derivativeService;
   private final TemporaryObjectAccessController toaCtrl;
 
-  private final ObjectExportMessageProducer objectExportMessageProducer;
+  private final DinaMessageProducer messageProducer;
 
   public ObjectExportService(FileControllerAuthorizationService authorizationService,
                              FileStorage fileStorage,
                              ObjectStoreMetaDataService objectMetadataService,
                              DerivativeService derivativeService,
                              TemporaryObjectAccessController toaCtrl,
-                             ObjectExportMessageProducer objectExportMessageProducer) {
+                             DinaMessageProducer messageProducer) {
     this.authorizationService = authorizationService;
     this.fileStorage = fileStorage;
     this.objectMetadataService = objectMetadataService;
     this.derivativeService = derivativeService;
     this.toaCtrl = toaCtrl;
-    this.objectExportMessageProducer = objectExportMessageProducer;
+    this.messageProducer = messageProducer;
   }
 
   /**
@@ -112,7 +112,7 @@ public class ObjectExportService {
       oenBuilder.name(name);
     }
 
-    objectExportMessageProducer.send(oenBuilder.build());
+    messageProducer.send(oenBuilder.build());
 
     return new ExportResult(exportUUID, toaKey);
   }
