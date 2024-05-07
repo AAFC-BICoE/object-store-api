@@ -207,7 +207,7 @@ public class FileController {
 
     // For the download of an object use the originalFilename provided (if possible)
     return download(bucket, metadata.getFilename(),
-        generateDownloadFilename(metadata.getOriginalFilename(), metadata.getFilename(), metadata.getFileExtension()),
+      generateDownloadFilename(metadata.getOriginalFilename(), metadata.getFilename(), metadata.getFileExtension()),
         false, metadata.getDcFormat(), metadata);
   }
 
@@ -479,7 +479,7 @@ public class FileController {
    * @param fileExtension file extension determined by the system including the dot (.)
    * @return
    */
-  private String generateDownloadFilename(String originalFilename, String internalFilename, String fileExtension) {
+  public static String generateDownloadFilename(String originalFilename, String internalFilename, String fileExtension) {
     // if there is no original file name of the filename is just an extension
     if (StringUtils.isEmpty(originalFilename) || StringUtils.isEmpty(FilenameUtils.getBaseName(originalFilename))) {
       return internalFilename;

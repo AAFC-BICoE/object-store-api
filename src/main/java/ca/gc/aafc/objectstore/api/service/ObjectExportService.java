@@ -13,6 +13,7 @@ import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.objectstore.api.entities.AbstractObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
+import ca.gc.aafc.objectstore.api.file.FileController;
 import ca.gc.aafc.objectstore.api.file.FileObjectInfo;
 import ca.gc.aafc.objectstore.api.file.TemporaryObjectAccessController;
 import ca.gc.aafc.objectstore.api.security.FileControllerAuthorizationService;
@@ -21,8 +22,10 @@ import ca.gc.aafc.objectstore.api.storage.FileStorage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import lombok.extern.log4j.Log4j2;
 
@@ -65,6 +68,7 @@ public class ObjectExportService {
 
     String filename = exportUUID + EXPORT_EXT;
     Path zipFile = toaCtrl.generatePath(filename);
+    Set<String> filenamesIncluded = new HashSet<>();
     try (ArchiveOutputStream o = new ZipArchiveOutputStream(zipFile)) {
       for (UUID fileIdentifier : fileIdentifiers) {
 
@@ -84,7 +88,7 @@ public class ObjectExportService {
         Optional<FileObjectInfo> fileInfo = fileStorage.getFileInfo(obj.getBucket(), obj.getFilename(), derivative.isPresent());
 
         // Set zipEntry with information from fileStorage
-        ZipArchiveEntry entry = new ZipArchiveEntry(obj.getFilename());
+        ZipArchiveEntry entry = new ZipArchiveEntry(generateExportItemFilename(obj, filenamesIncluded));
         entry.setSize(fileInfo.orElseThrow(() -> new IllegalStateException("No FileInfo found")).getLength());
         o.putArchiveEntry(entry);
 
@@ -115,6 +119,30 @@ public class ObjectExportService {
     messageProducer.send(oenBuilder.build());
 
     return new ExportResult(exportUUID, toaKey);
+  }
+
+  /**
+   * Get a unique (withing the export) filename.
+   * @param obj the data about the file to add
+   * @param filenamesIncluded filenames that are already used. Will be modified by this function.
+   * @return
+   */
+  private static String generateExportItemFilename(AbstractObjectStoreMetadata obj, Set<String> filenamesIncluded) {
+    String filename;
+    if (obj instanceof ObjectStoreMetadata metadata) {
+      filename = FileController.generateDownloadFilename(metadata.getOriginalFilename(),
+        metadata.getFilename(), metadata.getFileExtension());
+    } else {
+      filename = obj.getFilename();
+    }
+
+    // if the filename is not already used we can use it
+    if(filenamesIncluded.add(filename)) {
+      return filename;
+    }
+
+    //if in used, use the uuid based filename
+    return obj.getFilename();
   }
 
   public record ExportResult(UUID uuid, String toaKey) {
