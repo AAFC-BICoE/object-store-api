@@ -22,5 +22,4 @@ public class ResourceNameIdentifierResponseDto {
   @JsonApiId
   private UUID id;
   private String name;
-
 }
