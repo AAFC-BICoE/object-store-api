@@ -462,30 +462,39 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_get_file_information">2.6. Get File Information</a></li>
 </ul>
 </li>
-<li><a href="#_media_type_detection">3. Media Type Detection</a>
+<li><a href="#_api">3. API</a>
 <ul class="sectlevel2">
-<li><a href="#_library">3.1. Library</a></li>
-<li><a href="#_expected_behavior">3.2. Expected behavior</a>
+<li><a href="#_additional_endpoints">3.1. Additional Endpoints</a>
 <ul class="sectlevel3">
-<li><a href="#_content_type_provided">3.2.1. Content-Type provided</a></li>
-<li><a href="#_no_content_type_provided">3.2.2. No Content-Type provided</a></li>
+<li><a href="#_resource_name_identifier">3.1.1. resource-name-identifier</a></li>
+</ul>
+</li>
+<li><a href="#_administrative_endpoints">3.2. Administrative Endpoints</a>
+<ul class="sectlevel3">
+<li><a href="#_regenerate_thumbnails">3.2.1. Regenerate Thumbnails</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#_temporary_object_access">4. Temporary Object Access</a>
+<li><a href="#_configuration">4. Configuration</a>
 <ul class="sectlevel2">
-<li><a href="#_sequence_of_operations">4.1. Sequence of operations</a></li>
+<li><a href="#_orphan_removal">4.1. Orphan Removal</a></li>
 </ul>
 </li>
-<li><a href="#_administrative_endpoints">5. Administrative Endpoints</a>
+<li><a href="#_media_type_detection">5. Media Type Detection</a>
 <ul class="sectlevel2">
-<li><a href="#_regenerate_thumbnails">5.1. Regenerate Thumbnails</a></li>
+<li><a href="#_library">5.1. Library</a></li>
+<li><a href="#_expected_behavior">5.2. Expected behavior</a>
+<ul class="sectlevel3">
+<li><a href="#_content_type_provided">5.2.1. Content-Type provided</a></li>
+<li><a href="#_no_content_type_provided">5.2.2. No Content-Type provided</a></li>
 </ul>
 </li>
-<li><a href="#_orphan_removal_configuration">6. Orphan Removal Configuration</a>
+</ul>
+</li>
+<li><a href="#_temporary_object_access">6. Temporary Object Access</a>
 <ul class="sectlevel2">
-<li><a href="#_configuration_properties">6.1. Configuration Properties</a></li>
+<li><a href="#_sequence_of_operations">6.1. Sequence of operations</a></li>
 </ul>
 </li>
 </ul>
@@ -810,77 +819,37 @@ The user must be SUPER_USER on the target group (bucket) and the filename (uuid)
 </div>
 </div>
 <div class="sect1">
-<h2 id="_media_type_detection">3. Media Type Detection</h2>
+<h2 id="_api">3. API</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_library">3.1. Library</h3>
-<div class="paragraph">
-<p>The Object Store module uses <a href="https://tika.apache.org/">Apache Tika</a> to try to automagically detect the media type when possible.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_expected_behavior">3.2. Expected behavior</h3>
-<div class="paragraph">
-<p>The Object Store module will behave differently depending on the information included in the multipart upload. As a general rule, the module will use the media type and the file extension (extracted from the filename) that is provided with the file upload (if available).</p>
-</div>
+<h3 id="_additional_endpoints">3.1. Additional Endpoints</h3>
 <div class="sect3">
-<h4 id="_content_type_provided">3.2.1. Content-Type provided</h4>
+<h4 id="_resource_name_identifier">3.1.1. resource-name-identifier</h4>
 <div class="paragraph">
-<p>If the Content-Type of the file is specified in the multipart upload, the Object Store will still detect the media-type but will only store it in the metadata field and return it to the user as information.</p>
+<p>Get the identifier (UUID) based on the name, the type and the group.</p>
 </div>
-</div>
-<div class="sect3">
-<h4 id="_no_content_type_provided">3.2.2. No Content-Type provided</h4>
 <div class="paragraph">
-<p>If the Content-Type of the file is NOT specified in the multipart upload, the Object Store will detect the media type. If a filename is provided the file extension will be preserved otherwise the default extension of the
-detected media type will be used.</p>
+<p>GET <code>/resource-name-identifier?filter[type][EQ]=metadata&amp;filter[name][EQ]=name1&amp;filter[group][EQ]=aafc</code></p>
 </div>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_temporary_object_access">4. Temporary Object Access</h2>
-<div class="sectionbody">
 <div class="paragraph">
-<p>The object-store can generate temporary files that can be downloaded by another service using a randomly generated key.
-The key is communicated using an event (message).</p>
+<p>Available for types :</p>
 </div>
-<div class="sect2">
-<h3 id="_sequence_of_operations">4.1. Sequence of operations</h3>
 <div class="ulist">
 <ul>
 <li>
-<p>Create a temporary file (e.g. image export)</p>
-</li>
-<li>
-<p>Register the file to get a key</p>
-</li>
-<li>
-<p>Trigger an event on the message queue to indicate a file is available</p>
-</li>
-<li>
-<p>The consumer pulls the file using the key (<code>/toa/{key}</code> endpoint)</p>
-</li>
-<li>
-<p>The key is removed from usable keys</p>
-</li>
-<li>
-<p>The temporary file is deleted from the object-store temporary storage</p>
+<p>metadata</p>
 </li>
 </ul>
 </div>
 </div>
 </div>
-</div>
-<div class="sect1">
-<h2 id="_administrative_endpoints">5. Administrative Endpoints</h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="_administrative_endpoints">3.2. Administrative Endpoints</h3>
 <div class="paragraph">
 <p>Unless explicitly mentioned administrative endpoints require <code>DINA_ADMIN</code> role.</p>
 </div>
-<div class="sect2">
-<h3 id="_regenerate_thumbnails">5.1. Regenerate Thumbnails</h3>
+<div class="sect3">
+<h4 id="_regenerate_thumbnails">3.2.1. Regenerate Thumbnails</h4>
 <div class="paragraph">
 <p>Send a POST request to <code>derivative-generation</code> with a body like:</p>
 </div>
@@ -906,16 +875,14 @@ use the original object as a source.</p>
 </div>
 </div>
 </div>
+</div>
 <div class="sect1">
-<h2 id="_orphan_removal_configuration">6. Orphan Removal Configuration</h2>
+<h2 id="_configuration">4. Configuration</h2>
 <div class="sectionbody">
+<div class="sect2">
+<h3 id="_orphan_removal">4.1. Orphan Removal</h3>
 <div class="paragraph">
 <p>The orphan removal cron job is responsible for identifying and removing orphan objects. Orphan objects are <code>object uploads</code> that do not have any matching file identifiers associated with <code>derivatives</code> or <code>metadata</code> objects.</p>
-</div>
-<div class="sect2">
-<h3 id="_configuration_properties">6.1. Configuration Properties</h3>
-<div class="paragraph">
-<p>The following environment variables can be configured:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -946,7 +913,71 @@ orphan-removal.cron.expression="0 0 * * * *"</code></pre>
 </tbody>
 </table>
 <div class="paragraph">
-<p>If the <code>orphan-removal.cron.expression</code> variable is not specified the orphan removal service will not be performed.</p>
+<p>If the <code>orphan-removal.cron.expression</code> variable is not specified (default), the orphan removal service will not be performed.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_media_type_detection">5. Media Type Detection</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_library">5.1. Library</h3>
+<div class="paragraph">
+<p>The Object Store module uses <a href="https://tika.apache.org/">Apache Tika</a> to try to automagically detect the media type when possible.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_expected_behavior">5.2. Expected behavior</h3>
+<div class="paragraph">
+<p>The Object Store module will behave differently depending on the information included in the multipart upload. As a general rule, the module will use the media type and the file extension (extracted from the filename) that is provided with the file upload (if available).</p>
+</div>
+<div class="sect3">
+<h4 id="_content_type_provided">5.2.1. Content-Type provided</h4>
+<div class="paragraph">
+<p>If the Content-Type of the file is specified in the multipart upload, the Object Store will still detect the media-type but will only store it in the metadata field and return it to the user as information.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_no_content_type_provided">5.2.2. No Content-Type provided</h4>
+<div class="paragraph">
+<p>If the Content-Type of the file is NOT specified in the multipart upload, the Object Store will detect the media type. If a filename is provided the file extension will be preserved otherwise the default extension of the
+detected media type will be used.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_temporary_object_access">6. Temporary Object Access</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The object-store can generate temporary files that can be downloaded by another service using a randomly generated key.
+The key is communicated using an event (message).</p>
+</div>
+<div class="sect2">
+<h3 id="_sequence_of_operations">6.1. Sequence of operations</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Create a temporary file (e.g. image export)</p>
+</li>
+<li>
+<p>Register the file to get a key</p>
+</li>
+<li>
+<p>Trigger an event on the message queue to indicate a file is available</p>
+</li>
+<li>
+<p>The consumer pulls the file using the key (<code>/toa/{key}</code> endpoint)</p>
+</li>
+<li>
+<p>The key is removed from usable keys</p>
+</li>
+<li>
+<p>The temporary file is deleted from the object-store temporary storage</p>
+</li>
+</ul>
 </div>
 </div>
 </div>
@@ -954,7 +985,7 @@ orphan-removal.cron.expression="0 0 * * * *"</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-05-13 18:29:35 UTC
+Last updated 2024-05-13 19:42:10 UTC
 </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
