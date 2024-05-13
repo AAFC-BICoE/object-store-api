@@ -9,7 +9,6 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ContextConfiguration;
 
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
-import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.config.AsyncOverrideConfig;
 import ca.gc.aafc.objectstore.api.dto.ObjectUploadDto;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
@@ -24,15 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import io.minio.errors.ErrorResponseException;
-import io.minio.errors.InsufficientDataException;
-import io.minio.errors.InternalException;
-import io.minio.errors.InvalidResponseException;
-import io.minio.errors.ServerException;
-import io.minio.errors.XmlParserException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -42,6 +34,7 @@ import javax.inject.Inject;
 public class MetadataServiceIT extends BaseIntegrationTest {
 
   private static final String TEST_UPLOAD_FILE_NAME = "drawing.png";
+  private final static String TEST_BUCKET_NAME = "test";
 
   @Inject
   private ResourceLoader resourceLoader;
@@ -54,23 +47,20 @@ public class MetadataServiceIT extends BaseIntegrationTest {
 
   @Test
   public void endToEndMetadataServiceTest()
-    throws IOException, ServerException, MimeTypeException, InsufficientDataException,
-    ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, XmlParserException,
-    InvalidResponseException, InternalException {
+    throws IOException, MimeTypeException, NoSuchAlgorithmException {
 
     // 1 - Upload file
     MockMultipartFile mockFile = MultipartFileFactory
       .createMockMultipartFile(resourceLoader, TEST_UPLOAD_FILE_NAME, MediaType.IMAGE_PNG_VALUE);
 
-    ObjectUploadDto uploadResponse = fileController.handleFileUpload(mockFile,
-      DinaAuthenticatedUserConfig.TEST_BUCKET);
+    ObjectUploadDto uploadResponse = fileController.handleFileUpload(mockFile, TEST_BUCKET_NAME);
     assertNotNull(uploadResponse);
     assertNotNull(uploadResponse.getFileIdentifier());
 
     // 2 - Created metadata for it
     ObjectStoreMetadata osm = ObjectStoreMetadataFactory
       .newObjectStoreMetadata()
-      .bucket(DinaAuthenticatedUserConfig.TEST_BUCKET)
+      .bucket(TEST_BUCKET_NAME)
       .fileIdentifier(uploadResponse.getFileIdentifier())
       .build();
     objectStoreMetaDataService.create(osm);
@@ -81,12 +71,12 @@ public class MetadataServiceIT extends BaseIntegrationTest {
 
     // 4 - Make sure we can load the file
     String thumbnailFilename = thumbnail.get().getFileIdentifier() + thumbnail.get().getFileExtension();
-    Optional<InputStream> file = minioFileService.retrieveFile(DinaAuthenticatedUserConfig.TEST_BUCKET, thumbnailFilename, true);
+    Optional<InputStream> file = minioFileService.retrieveFile(TEST_BUCKET_NAME, thumbnailFilename, true);
     assertTrue(file.isPresent());
 
     // Deleting the metadata should also delete the derivative and the system generated thumbnail
     objectStoreMetaDataService.delete(osm);
-    file = minioFileService.retrieveFile(DinaAuthenticatedUserConfig.TEST_BUCKET, thumbnailFilename, true);
+    file = minioFileService.retrieveFile(TEST_BUCKET_NAME, thumbnailFilename, true);
     assertFalse(file.isPresent());
   }
 

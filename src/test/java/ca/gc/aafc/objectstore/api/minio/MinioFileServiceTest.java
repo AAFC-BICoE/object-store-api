@@ -9,6 +9,7 @@ import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -17,6 +18,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 @ContextConfiguration(initializers = MinioTestContainerInitializer.class)
+@SpringBootTest(properties = "dev-user.enabled=true")
 class MinioFileServiceTest extends BaseIntegrationTest {
 
   public static final String BUCKET = "bucket";

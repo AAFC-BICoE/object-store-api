@@ -11,8 +11,6 @@ import ca.gc.aafc.objectstore.api.repository.ObjectStoreResourceRepository;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MultilingualDescriptionFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.crnk.core.queryspec.QuerySpec;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
@@ -36,9 +34,6 @@ public class ObjectStoreManagedAttributeAuditingIT extends BaseIntegrationTest {
 
   @Inject
   private Javers javers;
-
-  @Inject
-  private ObjectMapper objectMapper;
 
   private ObjectUpload objectUpload;
 

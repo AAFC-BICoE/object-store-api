@@ -11,7 +11,6 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ContextConfiguration;
 
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
-import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.config.MediaTypeConfiguration;
 import ca.gc.aafc.objectstore.api.dto.ObjectUploadDto;
 import ca.gc.aafc.objectstore.api.file.FileController;
@@ -26,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class ReportTemplateUploadServiceIT extends BaseIntegrationTest {
 
   private static final String TEST_UPLOAD_FILE_NAME = "demo.ftlh";
+  private final static String TEST_BUCKET_NAME = "test";
 
   @Inject
   private ResourceLoader resourceLoader;
@@ -46,8 +46,7 @@ public class ReportTemplateUploadServiceIT extends BaseIntegrationTest {
       .createMockMultipartFile(resourceLoader, TEST_UPLOAD_FILE_NAME,
         MediaTypeConfiguration.FREEMARKER_TEMPLATE_MIME_TYPE.toString());
 
-    ObjectUploadDto uploadResponse = fileController.handleFileUpload(mockFile,
-      DinaAuthenticatedUserConfig.TEST_BUCKET);
+    ObjectUploadDto uploadResponse = fileController.handleFileUpload(mockFile, TEST_BUCKET_NAME);
     assertNotNull(uploadResponse);
     assertNotNull(uploadResponse.getFileIdentifier());
 

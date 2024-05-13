@@ -37,7 +37,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = ObjectStoreApiLauncher.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+  classes = ObjectStoreApiLauncher.class,
+  properties = "dev-user.enabled=true")
 @TestPropertySource(properties = "spring.config.additional-location=classpath:application-test.yml")
 @Transactional
 @ContextConfiguration(initializers = { PostgresTestContainerInitializer.class })
