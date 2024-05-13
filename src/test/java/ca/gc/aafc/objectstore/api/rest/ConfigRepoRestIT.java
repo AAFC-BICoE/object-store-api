@@ -13,7 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest(
   webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-  classes = ObjectStoreApiLauncher.class
+  classes = ObjectStoreApiLauncher.class,
+  properties = "dev-user.enabled=true"
 )
 @TestPropertySource(properties = "spring.config.additional-location=classpath:application-test.yml")
 @Transactional
