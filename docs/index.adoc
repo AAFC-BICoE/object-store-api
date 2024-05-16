@@ -17,10 +17,10 @@ include::object_storage.adoc[]
 
 include::file_upload_download.adoc[]
 
+include::api.adoc[]
+
+include::configuration.adoc[]
+
 include::media_type_detection.adoc[]
 
 include::toa.adoc[]
-
-include::administrative_endpoints.adoc[]
-
-include::orphan_removal_config.adoc[]

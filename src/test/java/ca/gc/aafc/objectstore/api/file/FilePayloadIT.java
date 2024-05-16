@@ -1,7 +1,6 @@
 package ca.gc.aafc.objectstore.api.file;
 
 import ca.gc.aafc.dina.testsupport.PostgresTestContainerInitializer;
-import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.ObjectStoreApiLauncher;
 import ca.gc.aafc.objectstore.api.minio.MinioTestContainerInitializer;
 import io.restassured.RestAssured;
@@ -10,7 +9,7 @@ import io.restassured.http.Header;
 import io.restassured.specification.MultiPartSpecification;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +21,8 @@ import java.security.SecureRandom;
   classes = ObjectStoreApiLauncher.class)
 @TestPropertySource(properties = {
   "spring.config.additional-location=classpath:application-test.yml",
-  "spring.servlet.multipart.max-file-size=1KB"})
+  "spring.servlet.multipart.max-file-size=1KB",
+  "dev-user.enabled=true"})
 @Transactional
 @ContextConfiguration(initializers = {PostgresTestContainerInitializer.class, MinioTestContainerInitializer.class})
 public class FilePayloadIT {
@@ -30,10 +30,7 @@ public class FilePayloadIT {
   @LocalServerPort
   protected int testPort;
 
-  private final static String bucketUnderTest = DinaAuthenticatedUserConfig.ROLES_PER_GROUPS.keySet()
-    .stream()
-    .findFirst()
-    .get();
+  private final static String TEST_BUCKET_NAME = "test";
 
   @Test
   public void fileUpload_WhenPayloadToLarge_ReturnsPayLoadToLarge() {
@@ -50,7 +47,7 @@ public class FilePayloadIT {
       .header(new Header("content-type", "multipart/form-data"))
       .port(this.testPort)
       .multiPart(file)
-      .when().post("/api/v1/file/" + bucketUnderTest).then()
+      .when().post("/api/v1/file/" + TEST_BUCKET_NAME).then()
       .statusCode(413);
   }
 

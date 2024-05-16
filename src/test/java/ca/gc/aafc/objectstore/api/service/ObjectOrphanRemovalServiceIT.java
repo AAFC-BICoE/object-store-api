@@ -29,7 +29,8 @@ import java.util.List;
 @ContextConfiguration(initializers = MinioTestContainerInitializer.class)
 @SpringBootTest(classes = ObjectStoreApiLauncher.class, properties = {
   "orphan-removal.expiration.object_max_age=12d",
-  "orphan-removal.cron.expression=*/1 * * * * *"
+  "orphan-removal.cron.expression=*/1 * * * * *",
+  "dev-user.enabled=true"
 })
 class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
 

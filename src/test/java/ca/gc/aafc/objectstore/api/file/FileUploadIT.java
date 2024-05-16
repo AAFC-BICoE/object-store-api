@@ -19,7 +19,6 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.util.NestedServletException;
 
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
-import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.config.MediaTypeConfiguration;
 import ca.gc.aafc.objectstore.api.minio.MinioTestContainerInitializer;
 
@@ -32,23 +31,23 @@ public class FileUploadIT extends BaseIntegrationTest {
   @Autowired
   protected WebApplicationContext wac;
 
-  private final static String bucketUnderTest = DinaAuthenticatedUserConfig.ROLES_PER_GROUPS.keySet().stream()
-    .findFirst().get();
+  private final static String TEST_BUCKET_NAME = "test";
+  private final static String TEST_GROUP_NAME = TEST_BUCKET_NAME;
 
   @Test
-  @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
+  @WithMockKeycloakUser(groupRole = TEST_GROUP_NAME + ":USER")
   public void fileUpload_onMultipartRequest_acceptFile() throws Exception {
 
     MockMultipartFile file = new MockMultipartFile("file", "testfile", MediaType.TEXT_PLAIN_VALUE,
         "Test Content".getBytes());
 
     webAppContextSetup(this.wac).build()
-        .perform(MockMvcRequestBuilders.multipart("/api/v1/file/" + bucketUnderTest).file(file))
+        .perform(MockMvcRequestBuilders.multipart("/api/v1/file/" + TEST_BUCKET_NAME).file(file))
         .andExpect(status().is(200));
   }
 
   @Test
-  @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
+  @WithMockKeycloakUser(groupRole = TEST_GROUP_NAME + ":USER")
   public void fileUpload_onMultipartRequestFtl_acceptFile() throws Exception {
 
     MockMultipartFile file = new MockMultipartFile("file", "testfile.ftlh",
@@ -56,14 +55,14 @@ public class FileUploadIT extends BaseIntegrationTest {
       "<html></html>".getBytes());
 
     String response = webAppContextSetup(this.wac).build()
-      .perform(MockMvcRequestBuilders.multipart("/api/v1/file/" + bucketUnderTest).file(file))
+      .perform(MockMvcRequestBuilders.multipart("/api/v1/file/" + TEST_BUCKET_NAME).file(file))
       .andReturn().getResponse().getContentAsString();
 
     assertTrue(response.contains("\"receivedMediaType\":\"text/x-freemarker-template\""));
   }
 
   @Test
-  @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
+  @WithMockKeycloakUser(groupRole = TEST_GROUP_NAME + ":USER")
   public void fileUpload_onInvalidBucket_returnUnauthorizedException() throws Exception {
 
     MockMultipartFile file = new MockMultipartFile("file", "testfile", MediaType.TEXT_PLAIN_VALUE,

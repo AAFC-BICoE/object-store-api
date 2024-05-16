@@ -1,8 +1,21 @@
-= Administrative Endpoints
+= API
+
+== Additional Endpoints
+
+=== resource-name-identifier
+Get the identifier (UUID) based on the name, the type and the group.
+
+GET `/resource-name-identifier?filter[type][EQ]=metadata&filter[name][EQ]=name1&filter[group][EQ]=aafc`
+
+Available for types :
+
+* metadata
+
+== Administrative Endpoints
 
 Unless explicitly mentioned administrative endpoints require `DINA_ADMIN` role.
 
-== Regenerate Thumbnails
+=== Regenerate Thumbnails
 
 Send a POST request to `derivative-generation` with a body like:
 ```

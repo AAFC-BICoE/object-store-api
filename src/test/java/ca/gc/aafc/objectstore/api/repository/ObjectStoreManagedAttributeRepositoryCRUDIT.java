@@ -16,7 +16,6 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MultilingualDescriptionFactory;
@@ -30,7 +29,7 @@ public class ObjectStoreManagedAttributeRepositoryCRUDIT extends BaseIntegration
   
   private ObjectStoreManagedAttribute testManagedAttribute;
 
-  private final static String DINA_USER_NAME = DinaAuthenticatedUserConfig.USER_NAME;
+  private final static String DINA_USER_NAME = "dev";
 
   private ObjectStoreManagedAttribute createTestManagedAttribute() throws JsonProcessingException {
     testManagedAttribute = ObjectStoreManagedAttributeFactory.newManagedAttribute()

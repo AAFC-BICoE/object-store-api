@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Properties;
 import javax.inject.Inject;
 
-@SpringBootTest(classes = ObjectStoreApiLauncher.class)
+@SpringBootTest(classes = ObjectStoreApiLauncher.class, properties = "dev-user.enabled=true")
 @TestPropertySource(properties = "spring.config.additional-location=classpath:application-test.yml")
 @Transactional
 @ContextConfiguration(initializers = {PostgresTestContainerInitializer.class})
@@ -50,7 +50,7 @@ public abstract class BaseIntegrationTest {
   protected ObjectUploadService objectUploadService;
 
   @TestConfiguration
-  static class ObjectStoreModuleTestConfiguration {
+  public static class ObjectStoreModuleTestConfiguration {
     @Bean
     public BuildProperties buildProperties() {
       Properties props = new Properties();

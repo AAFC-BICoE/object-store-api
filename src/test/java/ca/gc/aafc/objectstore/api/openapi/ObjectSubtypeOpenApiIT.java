@@ -12,7 +12,6 @@ import ca.gc.aafc.dina.testsupport.PostgresTestContainerInitializer;
 import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.dina.testsupport.specs.OpenAPI3Assertions;
 import ca.gc.aafc.dina.testsupport.specs.ValidationRestrictionOptions;
-import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.ObjectStoreApiLauncher;
 import ca.gc.aafc.objectstore.api.dto.ObjectSubtypeDto;
 import ca.gc.aafc.objectstore.api.entities.DcType;
@@ -20,7 +19,8 @@ import lombok.SneakyThrows;
 
 @SpringBootTest(
   webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-  classes = ObjectStoreApiLauncher.class
+  classes = ObjectStoreApiLauncher.class,
+  properties = "dev-user.enabled=true"
 )
 @TestPropertySource(properties = "spring.config.additional-location=classpath:application-test.yml")
 @Transactional
@@ -29,7 +29,7 @@ public class ObjectSubtypeOpenApiIT extends BaseRestAssuredTest {
 
   private static final String SCHEMA_NAME = "ObjectSubtype";
   private static final String RESOURCE_UNDER_TEST = "object-subtype";
-  private static final String DINA_USER_NAME = DinaAuthenticatedUserConfig.USER_NAME;
+  private static final String DINA_USER_NAME = "dev";
 
   protected ObjectSubtypeOpenApiIT() {
     super("/api/v1/");
