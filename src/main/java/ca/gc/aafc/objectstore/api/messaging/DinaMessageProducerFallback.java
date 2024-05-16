@@ -17,6 +17,10 @@ import ca.gc.aafc.dina.messaging.producer.DinaMessageProducer;
 @Service
 public class DinaMessageProducerFallback implements DinaMessageProducer {
 
+  public DinaMessageProducerFallback() {
+    log.warn("Using DinaMessageProducerFallback");
+  }
+
   public void send(DinaMessage notification) {
     log.info("Message produced : {}", notification::toString);
   }

@@ -21,7 +21,7 @@ public class RabbitMQDinaMessageProducer extends RabbitMQMessageProducer impleme
 
   public RabbitMQDinaMessageProducer(RabbitTemplate rabbitTemplate, ObjectExportQueueProperties queueProperties) {
     super(rabbitTemplate, queueProperties);
-    log.info( "Using RabbitMQ queue {}", queueProperties::getQueue);
+    log.info( "DinaMessage: Using RabbitMQ queue {}", queueProperties::getQueue);
   }
 
 }

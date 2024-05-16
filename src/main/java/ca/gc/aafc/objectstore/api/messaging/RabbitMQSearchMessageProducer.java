@@ -25,7 +25,7 @@ public class RabbitMQSearchMessageProducer extends RabbitMQMessageProducer imple
                                        @Named("searchQueueProperties")
                                        SearchQueueProperties queueProperties) {
     super(rabbitTemplate, queueProperties);
-    log.info("Using RabbitMQ queue {}", queueProperties::getQueue);
+    log.info("DocumentOperationNotification: Using RabbitMQ queue {}", queueProperties::getQueue);
   }
 
   @Override
