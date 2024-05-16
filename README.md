@@ -18,6 +18,9 @@ Features :
 ## Container Image
 The Docker Image is available on [DockerHub](https://hub.docker.com/r/aafcbicoe/object-store-api/tags).
 
+## Documentation
+See [documentation](https://aafc-bicoe.github.io/object-store-api/) page.
+
 ## Required
 
 ### To build and run tests
@@ -56,10 +59,6 @@ Cleanup:
 ```
 docker compose down
 ```
-
-## Documentation
-
-See [documentation](https://github.com/AAFC-BICoE/object-store-api/tree/master/docs) folder.
 
 ## Testing
 Run tests using `mvn verify`. Docker is required, so the integration tests can launch an embedded Postgres test container.

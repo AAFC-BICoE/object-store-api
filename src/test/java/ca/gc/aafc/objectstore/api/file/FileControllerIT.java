@@ -2,9 +2,7 @@ package ca.gc.aafc.objectstore.api.file;
 
 import ca.gc.aafc.dina.testsupport.security.WithMockKeycloakUser;
 import ca.gc.aafc.dina.util.UUIDHelper;
-import ca.gc.aafc.dina.workbook.WorkbookRow;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
-import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectUploadDto;
 import ca.gc.aafc.objectstore.api.entities.DcType;
@@ -38,8 +36,6 @@ import org.springframework.web.server.UnsupportedMediaTypeStatusException;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -64,8 +60,8 @@ public class FileControllerIT extends BaseIntegrationTest {
   @Inject
   private TransactionTemplate transactionTemplate;
 
-  private final static String bucketUnderTest = DinaAuthenticatedUserConfig.ROLES_PER_GROUPS.keySet().stream()
-      .findFirst().get();
+  private final static String TEST_BUCKET_NAME = "test";
+  private final static String TEST_GROUP_NAME = TEST_BUCKET_NAME;
 
   @AfterEach
   public void cleanup() {
@@ -74,31 +70,31 @@ public class FileControllerIT extends BaseIntegrationTest {
     // asynchronously outside the test's transaction:
     transactionTemplate.execute(
         transactionStatus -> {
-          service.deleteByProperty(ObjectUpload.class, "bucket", bucketUnderTest);
+          service.deleteByProperty(ObjectUpload.class, "bucket", TEST_BUCKET_NAME);
           return null;
         });
   }
 
   @Test
-  @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
+  @WithMockKeycloakUser(groupRole = TEST_GROUP_NAME + ":USER")
   public void fileUpload_OnValidUpload_testRoundTrip() throws Exception {
     MockMultipartFile mockFile = getFileUnderTest();
 
-    ObjectUploadDto uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
+    ObjectUploadDto uploadResponse = fileController.handleFileUpload(mockFile, TEST_BUCKET_NAME);
     assertNotNull(uploadResponse);
 
     // file can only be downloaded if we attach metadata to it
     ObjectStoreMetadataDto metadataForFile = new ObjectStoreMetadataDto();
-    metadataForFile.setBucket(bucketUnderTest);
+    metadataForFile.setBucket(TEST_BUCKET_NAME);
 
     metadataForFile.setFileIdentifier(uploadResponse.getFileIdentifier());
     objectStoreResourceRepository.create(metadataForFile);
 
     // dina-admin role required
     assertThrows(AccessDeniedException.class, () ->
-      fileController.getObjectInfo(bucketUnderTest, uploadResponse.getFileIdentifier()+ "." + TEST_UPLOAD_FILE_EXT));
+      fileController.getObjectInfo(TEST_BUCKET_NAME, uploadResponse.getFileIdentifier()+ "." + TEST_UPLOAD_FILE_EXT));
 
-    ResponseEntity<InputStreamResource> response = fileController.downloadObject(bucketUnderTest,
+    ResponseEntity<InputStreamResource> response = fileController.downloadObject(TEST_BUCKET_NAME,
         uploadResponse.getFileIdentifier());
 
     // on download, the original file name should be returned
@@ -106,58 +102,41 @@ public class FileControllerIT extends BaseIntegrationTest {
   }
 
   @Test
-  @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":DINA_ADMIN")
+  @WithMockKeycloakUser(groupRole = TEST_GROUP_NAME + ":DINA_ADMIN")
   public void fileInfo_onValidUpload_fileInfoReturned() throws Exception {
     MockMultipartFile mockFile = getFileUnderTest();
 
-    ObjectUploadDto uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
+    ObjectUploadDto uploadResponse = fileController.handleFileUpload(mockFile, TEST_BUCKET_NAME);
     assertNotNull(uploadResponse);
 
-    ResponseEntity<FileObjectInfo> foi = fileController.getObjectInfo(bucketUnderTest, uploadResponse.getFileIdentifier()+ "." + TEST_UPLOAD_FILE_EXT);
+    ResponseEntity<FileObjectInfo> foi = fileController.getObjectInfo(TEST_BUCKET_NAME, uploadResponse.getFileIdentifier()+ "." + TEST_UPLOAD_FILE_EXT);
     assertEquals(HttpStatus.OK, foi.getStatusCode());
     assertNotNull(foi.getBody());
     assertTrue(foi.getBody().getLength() > 0);
 
     //Test derivative
     MockMultipartFile derivativeMockFile = getFileUnderTest();
-    ObjectUploadDto derivativeUploadResponse = fileController.handleDerivativeUpload(derivativeMockFile, bucketUnderTest);
+    ObjectUploadDto derivativeUploadResponse = fileController.handleDerivativeUpload(derivativeMockFile, TEST_BUCKET_NAME);
     assertNotNull(derivativeUploadResponse);
 
-    ResponseEntity<FileObjectInfo> dfoi = fileController.getDerivativeObjectInfo(bucketUnderTest, derivativeUploadResponse.getFileIdentifier()+ "." + TEST_UPLOAD_FILE_EXT);
+    ResponseEntity<FileObjectInfo> dfoi = fileController.getDerivativeObjectInfo(TEST_BUCKET_NAME, derivativeUploadResponse.getFileIdentifier()+ "." + TEST_UPLOAD_FILE_EXT);
     assertEquals(HttpStatus.OK, dfoi.getStatusCode());
     assertNotNull(dfoi.getBody());
     assertTrue(dfoi.getBody().getLength() > 0);
 
     // test non-existing file
     assertThrows(ResponseStatusException.class, () ->
-      fileController.getObjectInfo(bucketUnderTest, UUIDHelper.generateUUIDv7() + "." + TEST_UPLOAD_FILE_EXT));
+      fileController.getObjectInfo(TEST_BUCKET_NAME, UUIDHelper.generateUUIDv7() + "." + TEST_UPLOAD_FILE_EXT));
   }
 
   @Test
-  public void fileUploadConversion_OnValidSpreadsheet_contentReturned() throws Exception {
-    MockMultipartFile mockFile = MultipartFileFactory.createMockMultipartFile(resourceLoader,"test_spreadsheet.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE);
-    Map<Integer, List<WorkbookRow>> content = fileController.handleFileConversion(mockFile);
-    assertFalse(content.isEmpty());
-    assertFalse(content.get(0).isEmpty());
-  }
-
-  @Test
-  public void fileUploadConversion_OnValidCSV_contentReturned() throws Exception {
-    // use Octet Stream to make sure the FileController will detect it's a csv
-    MockMultipartFile mockFile = MultipartFileFactory.createMockMultipartFile(resourceLoader,"test_spreadsheet.csv", MediaType.APPLICATION_OCTET_STREAM_VALUE);
-    Map<Integer, List<WorkbookRow>> content = fileController.handleFileConversion(mockFile);
-    assertFalse(content.isEmpty());
-    assertFalse(content.get(0).isEmpty());
-  }
-
-  @Test
-  @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
+  @WithMockKeycloakUser(groupRole = TEST_GROUP_NAME + ":USER")
   public void fileUpload_InvalidMediaTypeExecutable_throwsIllegalArgumentException() throws Exception {
     MockMultipartFile mockFile = MultipartFileFactory.createMockMultipartFile(resourceLoader, "testExecutable",
         "application/x-sharedlib");
 
     UnsupportedMediaTypeStatusException error = assertThrows(UnsupportedMediaTypeStatusException.class,
-        () -> fileController.handleFileUpload(mockFile, bucketUnderTest));
+        () -> fileController.handleFileUpload(mockFile, TEST_BUCKET_NAME));
 
     String expectedMessage = "415 UNSUPPORTED_MEDIA_TYPE \"Media type application/x-sharedlib is invalid.\"";
     String actualMessage = error.getLocalizedMessage();
@@ -166,13 +145,13 @@ public class FileControllerIT extends BaseIntegrationTest {
   }
 
   @Test
-  @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
+  @WithMockKeycloakUser(groupRole = TEST_GROUP_NAME + ":USER")
   public void fileUpload_InvalidMediaTypeZIP_throwsIllegalArgumentException() throws Exception {
     MockMultipartFile mockFile = MultipartFileFactory.createMockMultipartFile(resourceLoader, "test.zip",
         "application/zip");
 
     UnsupportedMediaTypeStatusException error = assertThrows(UnsupportedMediaTypeStatusException.class,
-        () -> fileController.handleFileUpload(mockFile, bucketUnderTest));
+        () -> fileController.handleFileUpload(mockFile, TEST_BUCKET_NAME));
 
     String expectedMessage = "415 UNSUPPORTED_MEDIA_TYPE \"Media type application/zip is invalid.\"";
     String actualMessage = error.getLocalizedMessage();
@@ -181,30 +160,30 @@ public class FileControllerIT extends BaseIntegrationTest {
   }
 
   @Test
-  @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":SUPER_USER")
+  @WithMockKeycloakUser(groupRole = TEST_GROUP_NAME + ":SUPER_USER")
   public void fileUpload_gzipUpload_ObjectUploadEntryCreated() throws Exception {
     MockMultipartFile mockFile = MultipartFileFactory.createMockMultipartFile(resourceLoader, "testfile.txt.gz",
         "application/gzip");
 
-    ObjectUploadDto uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
+    ObjectUploadDto uploadResponse = fileController.handleFileUpload(mockFile, TEST_BUCKET_NAME);
     ObjectUpload objUploaded = objectUploadService.findOne(uploadResponse.getFileIdentifier(), ObjectUpload.class);
     assertNotNull(objUploaded);
-    fileController.getObjectInfo(DinaAuthenticatedUserConfig.TEST_BUCKET, objUploaded.getUuid() + ".gz");
+    fileController.getObjectInfo(TEST_BUCKET_NAME, objUploaded.getUuid() + ".gz");
   }
 
   @Test
-  @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":SUPER_USER")
+  @WithMockKeycloakUser(groupRole = TEST_GROUP_NAME + ":SUPER_USER")
   public void fileUpload_emptyFile_ExceptionThrown() throws Exception {
     MockMultipartFile mockFile = new MockMultipartFile("file", "testfile.txt" , MediaType.TEXT_PLAIN_VALUE, new byte[]{});
     assertThrows(IllegalStateException.class,
-      () -> fileController.handleFileUpload(mockFile, bucketUnderTest));
+      () -> fileController.handleFileUpload(mockFile, TEST_BUCKET_NAME));
   }
 
   @Test
-  @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
+  @WithMockKeycloakUser(groupRole = TEST_GROUP_NAME + ":USER")
   public void fileUpload_OnValidUpload_ObjectUploadEntryCreated() throws Exception {
     MockMultipartFile mockFile = getFileUnderTest();
-    ObjectUploadDto uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
+    ObjectUploadDto uploadResponse = fileController.handleFileUpload(mockFile, TEST_BUCKET_NAME);
     ObjectUpload objUploaded = objectUploadService.findOne(uploadResponse.getFileIdentifier(), ObjectUpload.class);
     assertEquals(TEST_UPLOAD_FILE_SHA1HEX, uploadResponse.getSha1Hex());
 
@@ -214,7 +193,7 @@ public class FileControllerIT extends BaseIntegrationTest {
   }
 
   @Test
-  @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
+  @WithMockKeycloakUser(groupRole = TEST_GROUP_NAME + ":USER")
   public void upload_UnAuthorizedBucket_ThrowsUnauthorizedException() throws IOException {
     MockMultipartFile mockFile = getFileUnderTest();
 
@@ -223,13 +202,13 @@ public class FileControllerIT extends BaseIntegrationTest {
   }
 
   @Test
-  @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
+  @WithMockKeycloakUser(groupRole = TEST_GROUP_NAME + ":USER")
   public void fileUpload_SameSha1Hex_ObjectUploadEntryCreatedWithWarning() throws Exception {
     MockMultipartFile mockFile = getFileUnderTest();
     MockMultipartFile sameMockFile = getFileUnderTest();
 
-    fileController.handleFileUpload(mockFile, bucketUnderTest);
-    ObjectUploadDto sameUploadResponse = fileController.handleFileUpload(sameMockFile, bucketUnderTest);
+    fileController.handleFileUpload(mockFile, TEST_BUCKET_NAME);
+    ObjectUploadDto sameUploadResponse = fileController.handleFileUpload(sameMockFile, TEST_BUCKET_NAME);
 
     String expectedKey = "duplicate_found";
     String expectedValue = "A file with the same content already exists";
@@ -244,11 +223,11 @@ public class FileControllerIT extends BaseIntegrationTest {
    * @throws Exception
    */
   @Test
-  @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
+  @WithMockKeycloakUser(groupRole = TEST_GROUP_NAME + ":USER")
   public void fileUpload_OnValidLargerUpload_ObjectUploadEntryCreated() throws Exception {
     MockMultipartFile mockFile = MultipartFileFactory.createMockMultipartFile(resourceLoader, "cc0_test_image.jpg",
         MediaType.IMAGE_JPEG_VALUE);
-    ObjectUploadDto uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
+    ObjectUploadDto uploadResponse = fileController.handleFileUpload(mockFile, TEST_BUCKET_NAME);
     ObjectUpload objUploaded = objectUploadService.findOne(uploadResponse.getFileIdentifier(), ObjectUpload.class);
 
     assertNotNull(objUploaded);
@@ -257,14 +236,14 @@ public class FileControllerIT extends BaseIntegrationTest {
   @Test
   public void downloadDerivative_WhenDerivativeDoesNotExist_ThrowsNotFound() {
     assertThrows(ResponseStatusException.class,
-        () -> fileController.downloadDerivative(bucketUnderTest, UUIDHelper.generateUUIDv7()));
+        () -> fileController.downloadDerivative(TEST_BUCKET_NAME, UUIDHelper.generateUUIDv7()));
   }
 
   @Test
-  @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
+  @WithMockKeycloakUser(groupRole = TEST_GROUP_NAME + ":USER")
   public void downloadDerivative() throws IOException, NoSuchAlgorithmException, MimeTypeException{
     MockMultipartFile mockFile = getFileUnderTest();
-    ObjectUploadDto uploadResponse = fileController.handleDerivativeUpload(mockFile, bucketUnderTest);
+    ObjectUploadDto uploadResponse = fileController.handleDerivativeUpload(mockFile, TEST_BUCKET_NAME);
     ObjectUpload objectUpload = ObjectUploadFactory.newObjectUpload().build();
 
     objectUploadService.create(objectUpload);
@@ -281,7 +260,7 @@ public class FileControllerIT extends BaseIntegrationTest {
         .build());
 
     ResponseEntity<InputStreamResource> result = fileController.downloadDerivative(
-        bucketUnderTest,
+      TEST_BUCKET_NAME,
         uploadResponse.getFileIdentifier());
     // Assert Response
     assertEquals(200, result.getStatusCode().value());
@@ -300,25 +279,25 @@ public class FileControllerIT extends BaseIntegrationTest {
 
     assertThrows(AccessDeniedException.class,
         () -> fileController.downloadDerivative(
-            bucketUnderTest,
+          TEST_BUCKET_NAME,
             uploadResponse.getFileIdentifier()));
 
     // Assert can download - wrong bucket but publicly releasable
     derivative.setPubliclyReleasable(true);
     derivativeService.update(derivative);
     ResponseEntity<InputStreamResource> response = fileController.downloadDerivative(
-        bucketUnderTest,
+      TEST_BUCKET_NAME,
         uploadResponse.getFileIdentifier());
     // expected to work since (publiclyReleasable)
     assertEquals(200, response.getStatusCode().value());
   }
 
   @Test
-  @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
+  @WithMockKeycloakUser(groupRole = TEST_GROUP_NAME + ":USER")
   public void derivativeUpload_OnValidUpload() throws Exception {
     MockMultipartFile mockFile = getFileUnderTest();
 
-    ObjectUploadDto uploadResponse = fileController.handleDerivativeUpload(mockFile, bucketUnderTest);
+    ObjectUploadDto uploadResponse = fileController.handleDerivativeUpload(mockFile, TEST_BUCKET_NAME);
     assertNotNull(uploadResponse);
 
     // Assert object upload created
@@ -326,16 +305,16 @@ public class FileControllerIT extends BaseIntegrationTest {
   }
 
   @Test
-  @WithMockKeycloakUser(groupRole = DinaAuthenticatedUserConfig.TEST_BUCKET + ":USER")
+  @WithMockKeycloakUser(groupRole = TEST_GROUP_NAME + ":USER")
   public void fileDownload_onUnauthorized() throws Exception {
     MockMultipartFile mockFile = getFileUnderTest();
 
-    ObjectUploadDto uploadResponse = fileController.handleFileUpload(mockFile, bucketUnderTest);
+    ObjectUploadDto uploadResponse = fileController.handleFileUpload(mockFile, TEST_BUCKET_NAME);
     assertNotNull(uploadResponse);
 
     // file can only be downloaded if we attach metadata to it
     ObjectStoreMetadataDto metadataForFile = new ObjectStoreMetadataDto();
-    metadataForFile.setBucket(bucketUnderTest);
+    metadataForFile.setBucket(TEST_BUCKET_NAME);
 
     metadataForFile.setFileIdentifier(uploadResponse.getFileIdentifier());
     metadataForFile = objectStoreResourceRepository.create(metadataForFile);
@@ -346,7 +325,7 @@ public class FileControllerIT extends BaseIntegrationTest {
     metadataEntity.setPubliclyReleasable(true);
     metadataEntity.setBucket("abc");
     objectStoreMetaDataService.update(metadataEntity);
-    ResponseEntity<InputStreamResource> response = fileController.downloadObject(bucketUnderTest,
+    ResponseEntity<InputStreamResource> response = fileController.downloadObject(TEST_BUCKET_NAME,
         uploadResponse.getFileIdentifier());
     // expected to work since (publiclyReleasable)
     assertEquals(200, response.getStatusCode().value());
@@ -354,7 +333,7 @@ public class FileControllerIT extends BaseIntegrationTest {
     metadataEntity.setPubliclyReleasable(false);
     objectStoreMetaDataService.update(metadataEntity);
     assertThrows(AccessDeniedException.class,
-        () -> fileController.downloadObject(bucketUnderTest, uploadResponse.getFileIdentifier()));
+        () -> fileController.downloadObject(TEST_BUCKET_NAME, uploadResponse.getFileIdentifier()));
   }
 
   private MockMultipartFile getFileUnderTest() throws IOException {

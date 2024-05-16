@@ -12,20 +12,31 @@ import com.google.common.collect.ImmutableMap;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.server.LocalServerPort;
 
 import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
 import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
-import ca.gc.aafc.objectstore.api.BaseHttpIntegrationTest;
+import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
+import ca.gc.aafc.objectstore.api.ObjectStoreApiLauncher;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import io.crnk.core.engine.http.HttpStatus;
 import io.restassured.response.Response;
 
-public class DcTypeJsonSerializationIT extends BaseHttpIntegrationTest {
+@SpringBootTest(
+  webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+  classes = ObjectStoreApiLauncher.class,
+  properties = "dev-user.enabled=true"
+)
+public class DcTypeJsonSerializationIT extends BaseIntegrationTest {
 
   private static final String RESOURCE_UNDER_TEST = "object-subtype";
   private static final String JSON_API_CONTENT_TYPE = "application/vnd.api+json";
   private static final String API_BASE_PATH = "/api/v1/";
   private static final String AC_SUB_TYPE = TestableEntityFactory.generateRandomNameLettersOnly(5);
+
+  @LocalServerPort
+  protected int testPort;
 
   @AfterEach
   public void tearDown() {

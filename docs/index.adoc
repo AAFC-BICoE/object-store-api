@@ -1,6 +1,15 @@
 :sectnums:
+:source-highlighter: highlight.js
 
-= object-store-api Developer Documentation
+= DINA object-store-api Developer Guide
+:toclevels: 3
+:leveloffset: 1
+:icons: font
+
+Developer documentation specific to the object-store-api.
+
+* General developer documentation for DINA API/module can be found in https://aafc-bicoe.github.io/dina-documentation/developer/[DINA Developer Guide].
+* Documentation about modules implementation can be found in https://aafc-bicoe.github.io/dina-base-api/[dina-base-api].
 
 :leveloffset: 1
 
@@ -8,18 +17,10 @@ include::object_storage.adoc[]
 
 include::file_upload_download.adoc[]
 
+include::api.adoc[]
+
+include::configuration.adoc[]
+
 include::media_type_detection.adoc[]
 
 include::toa.adoc[]
-
-include::administrative_endpoints.adoc[]
-
-include::design.adoc[]
-
-include::filtering.adoc[]
-
-include::lazy_logging.adoc[]
-
-include::auditing.adoc[]
-
-include::orphan_removal_config.adoc[]

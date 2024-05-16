@@ -9,7 +9,6 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ContextConfiguration;
 
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
-import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.config.AsyncOverrideConfig;
 import ca.gc.aafc.objectstore.api.dto.ObjectUploadDto;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
@@ -36,6 +35,7 @@ import javax.inject.Inject;
 public class ObjectExportServiceIT extends BaseIntegrationTest {
 
   private static final String TEST_UPLOAD_FILE_NAME = "drawing.png";
+  private final static String TEST_BUCKET_NAME = "test";
 
   @Inject
   private ResourceLoader resourceLoader;
@@ -60,15 +60,14 @@ public class ObjectExportServiceIT extends BaseIntegrationTest {
     MockMultipartFile mockFile = MultipartFileFactory
       .createMockMultipartFile(resourceLoader, TEST_UPLOAD_FILE_NAME, MediaType.IMAGE_PNG_VALUE);
 
-    ObjectUploadDto uploadResponse = fileController.handleFileUpload(mockFile,
-      DinaAuthenticatedUserConfig.TEST_BUCKET);
+    ObjectUploadDto uploadResponse = fileController.handleFileUpload(mockFile, TEST_BUCKET_NAME);
     assertNotNull(uploadResponse);
     assertNotNull(uploadResponse.getFileIdentifier());
 
     // 2 - Created metadata for it
     ObjectStoreMetadata osm = ObjectStoreMetadataFactory
       .newObjectStoreMetadata()
-      .bucket(DinaAuthenticatedUserConfig.TEST_BUCKET)
+      .bucket(TEST_BUCKET_NAME)
       .fileIdentifier(uploadResponse.getFileIdentifier())
       .build();
     objectStoreMetaDataService.create(osm);

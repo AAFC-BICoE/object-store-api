@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.MediaType;
@@ -16,6 +17,7 @@ import org.springframework.validation.Errors;
 
 import javax.inject.Inject;
 
+@SpringBootTest(properties = "dev-user.enabled=true")
 class DerivativeValidatorTest extends BaseIntegrationTest {
 
   @Inject

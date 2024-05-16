@@ -1,7 +1,10 @@
 package ca.gc.aafc.objectstore.api;
 
 import ca.gc.aafc.dina.DinaBaseApiAutoConfiguration;
+import ca.gc.aafc.dina.config.ResourceNameIdentifierConfig;
 import ca.gc.aafc.dina.service.JaversDataService;
+import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
+
 import io.minio.MinioClient;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Value;
@@ -53,6 +56,13 @@ public class MainConfiguration {
     executor.setThreadNamePrefix("AsyncExecutor-");
     executor.initialize();
     return executor;
+  }
+
+  @Bean
+  public ResourceNameIdentifierConfig provideResourceNameIdentifierConfig() {
+    return ResourceNameIdentifierConfig.builder().
+      config(ObjectStoreMetadata.class, new ResourceNameIdentifierConfig.ResourceNameConfig("originalFilename", "bucket"))
+      .build();
   }
 
 }

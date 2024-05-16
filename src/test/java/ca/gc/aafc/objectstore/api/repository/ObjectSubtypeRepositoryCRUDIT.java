@@ -10,7 +10,6 @@ import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.dto.ObjectSubtypeDto;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
@@ -24,7 +23,7 @@ public class ObjectSubtypeRepositoryCRUDIT extends BaseIntegrationTest {
   
   private ObjectSubtype testObjectSubtype;
 
-  private final static String DINA_USER_NAME = DinaAuthenticatedUserConfig.USER_NAME;
+  private final static String DINA_USER_NAME = "dev";
   
   private ObjectSubtype createTestAcSubtype() {
     testObjectSubtype = ObjectSubtypeFactory.newObjectSubtype()

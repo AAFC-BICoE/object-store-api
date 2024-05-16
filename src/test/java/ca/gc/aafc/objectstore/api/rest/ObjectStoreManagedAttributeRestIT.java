@@ -13,7 +13,6 @@ import ca.gc.aafc.dina.testsupport.BaseRestAssuredTest;
 import ca.gc.aafc.dina.testsupport.PostgresTestContainerInitializer;
 import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
 import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
-import ca.gc.aafc.objectstore.api.DinaAuthenticatedUserConfig;
 import ca.gc.aafc.objectstore.api.ObjectStoreApiLauncher;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MultilingualDescriptionFactory;
@@ -24,7 +23,8 @@ import static org.hamcrest.Matchers.not;
 
 @SpringBootTest(
   webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-  classes = ObjectStoreApiLauncher.class
+  classes = ObjectStoreApiLauncher.class,
+  properties = "dev-user.enabled=true"
 )
 @TestPropertySource(properties = "spring.config.additional-location=classpath:application-test.yml")
 @Transactional
@@ -37,7 +37,7 @@ public class ObjectStoreManagedAttributeRestIT extends BaseRestAssuredTest {
 
   private static final String RESOURCE_UNDER_TEST = "managed-attribute";
 
-  private final static String DINA_USER_NAME = DinaAuthenticatedUserConfig.USER_NAME;
+  private final static String DINA_USER_NAME = "dev";
 
   protected ObjectStoreManagedAttributeDto buildObjectStoreManagedAttributeDto() {
     String[] acceptedValues  = new String[] {"CataloguedObject"};

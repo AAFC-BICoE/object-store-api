@@ -7,6 +7,7 @@ import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.objectstore.api.ObjectStoreApiLauncher;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
+import ca.gc.aafc.objectstore.api.testsupport.fixtures.ObjectStoreMetadataTestFixture;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,7 +21,8 @@ import javax.transaction.Transactional;
 
 @SpringBootTest(
   webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-  classes = ObjectStoreApiLauncher.class
+  classes = ObjectStoreApiLauncher.class,
+  properties = "dev-user.enabled=true"
 )
 @TestPropertySource(properties = "spring.config.additional-location=classpath:application-test.yml")
 @Transactional
@@ -36,9 +38,8 @@ public class ObjectStoreMetadataRestIT extends BaseRestAssuredTest {
   private ObjectStoreMetadataDto buildObjectStoreMetadataDto() {
     OffsetDateTime dateTime4Test = OffsetDateTime.now();
     // file related data has to match what is set by TestConfiguration
-    ObjectStoreMetadataDto osMetadata = new ObjectStoreMetadataDto();
+    ObjectStoreMetadataDto osMetadata = ObjectStoreMetadataTestFixture.newObjectStoreMetadata();
     osMetadata.setUuid(null);
-    osMetadata.setAcHashFunction("SHA-1");
     osMetadata.setDcType(null); //on creation null should be accepted
     osMetadata.setXmpRightsWebStatement(null); // default value from configuration should be used
     osMetadata.setDcRights(null); // default value from configuration should be used

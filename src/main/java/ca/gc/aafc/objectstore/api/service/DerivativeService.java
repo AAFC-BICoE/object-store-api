@@ -7,7 +7,7 @@ import org.springframework.validation.SmartValidator;
 
 import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.dina.messaging.EntityChanged;
-import ca.gc.aafc.dina.search.messaging.types.DocumentOperationType;
+import ca.gc.aafc.dina.messaging.message.DocumentOperationType;
 import ca.gc.aafc.dina.service.MessageProducingService;
 import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.objectstore.api.dto.DerivativeDto;

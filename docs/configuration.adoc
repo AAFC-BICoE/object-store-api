@@ -1,10 +1,8 @@
-= Orphan Removal Configuration
+= Configuration
+
+== Orphan Removal
 
 The orphan removal cron job is responsible for identifying and removing orphan objects. Orphan objects are `object uploads` that do not have any matching file identifiers associated with `derivatives` or `metadata` objects.
-
-== Configuration Properties
-
-The following environment variables can be configured:
 
 [source,properties]
 ----
@@ -15,11 +13,11 @@ orphan-removal.cron.expression="0 0 * * * *"
 |===
 |Property |Description
 
-|`orphan-removal.expiration.objectMaxAge` 
+|`orphan-removal.expiration.objectMaxAge`
 |The maximum age of objects to be considered for removal based on the `object upload` created on date. Objects older than this duration will be checked for orphan status. The duration should be specified using the ISO-8601 duration format, e.g., "20d" represents 20 days.
 
-|`orphan-removal.cron.expression` 
+|`orphan-removal.cron.expression`
 |The cron expression to schedule the orphan removal process. The process will run based on this cron expression to check for orphan objects if they have expired. The expression follows the cron format, e.g., "0 0 * * * *" represents running this check every hour of every day.
 |===
 
-If the `orphan-removal.cron.expression` variable is not specified the orphan removal service will not be performed.
+If the `orphan-removal.cron.expression` variable is not specified (default), the orphan removal service will not be performed.
