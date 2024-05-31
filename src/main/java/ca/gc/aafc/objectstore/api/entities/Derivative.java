@@ -28,7 +28,7 @@ public class Derivative extends AbstractObjectStoreMetadata {
   public enum DerivativeType {
     THUMBNAIL_IMAGE("thumbnail"), LARGE_IMAGE("large");
 
-    final String suffix;
+    private final String suffix;
 
     DerivativeType(String suffix) {
       this.suffix = suffix;

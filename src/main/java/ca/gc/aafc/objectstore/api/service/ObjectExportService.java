@@ -66,8 +66,7 @@ public class ObjectExportService {
    * @param fileIdentifiers
    * @throws IOException
    */
-  public ExportResult export(String username, List<UUID> fileIdentifiers, String name)
-    throws IOException {
+  public ExportResult export(String username, List<UUID> fileIdentifiers, String name) throws IOException {
     UUID exportUUID = UUIDHelper.generateUUIDv7();
 
     String filename = exportUUID + EXPORT_EXT;
