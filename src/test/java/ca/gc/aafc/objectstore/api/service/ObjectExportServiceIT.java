@@ -1,10 +1,14 @@
 package ca.gc.aafc.objectstore.api.service;
 
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.apache.tika.mime.MimeTypeException;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -23,11 +27,18 @@ import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFacto
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.zip.ZipOutputStream;
 import javax.inject.Inject;
 
 @ContextConfiguration(initializers = MinioTestContainerInitializer.class)
@@ -53,7 +64,7 @@ public class ObjectExportServiceIT extends BaseIntegrationTest {
   private TemporaryObjectAccessController toaController;
 
   @Test
-  public void endToEndMetadataServiceTest()
+  public void exportObjects_onExport_ZipContentValid()
     throws IOException, MimeTypeException, NoSuchAlgorithmException {
 
     // 1 - Upload file
@@ -76,11 +87,28 @@ public class ObjectExportServiceIT extends BaseIntegrationTest {
     Optional<Derivative> thumbnail = derivativeService.findThumbnailDerivativeForMetadata(osm);
     assertTrue(thumbnail.isPresent());
 
-    var result = objectExportService.export("testuser", List.of(osm.getFileIdentifier()), "testname");
+    // 4 - request the file and its derivative
+    var result = objectExportService.export("testuser",
+      List.of(osm.getFileIdentifier(), thumbnail.get().getFileIdentifier()), "testname");
 
     // make sure we can get the export file using the toa key
-    assertEquals(200, toaController.downloadObject(result.toaKey()).getStatusCode().value());
+    ResponseEntity<InputStreamResource> response = toaController.downloadObject(result.toaKey());
+    assertEquals(200, response.getStatusCode().value());
 
+    Set<String> filenamesInZip = new HashSet<>();
+    try (ZipArchiveInputStream archive = new ZipArchiveInputStream(
+      response.getBody().getInputStream())) {
+      ZipArchiveEntry entry;
+      while ((entry = archive.getNextZipEntry()) != null) {
+        filenamesInZip.add(entry.getName());
+      }
+    } catch (IOException e) {
+      fail();
+    }
+
+    assertEquals(2, filenamesInZip.size());
+    assertTrue(filenamesInZip.contains("testfile.png"));
+    assertTrue(filenamesInZip.contains("testfile_thumbnail.jpg"));
   }
 
 }
