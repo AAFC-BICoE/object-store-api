@@ -26,7 +26,17 @@ import java.util.UUID;
 public class Derivative extends AbstractObjectStoreMetadata {
 
   public enum DerivativeType {
-    THUMBNAIL_IMAGE, LARGE_IMAGE
+    THUMBNAIL_IMAGE("thumbnail"), LARGE_IMAGE("large");
+
+    private final String suffix;
+
+    DerivativeType(String suffix) {
+      this.suffix = suffix;
+    }
+
+    public String getSuffix() {
+      return suffix;
+    }
   }
 
   public static final String AC_DERIVED_FROM_PROP = "acDerivedFrom";
