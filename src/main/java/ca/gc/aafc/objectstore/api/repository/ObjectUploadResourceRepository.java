@@ -15,6 +15,8 @@ import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
 import java.util.Optional;
 import lombok.NonNull;
 
+// CHECKSTYLE:OFF NoFinalizer
+// CHECKSTYLE:OFF SuperFinalize
 @Component
 public class ObjectUploadResourceRepository
   extends DinaRepository<ObjectUploadDto, ObjectUpload> {
@@ -41,7 +43,7 @@ public class ObjectUploadResourceRepository
    * Protection against CT_CONSTRUCTOR_THROW
    */
   @Override
-  protected final void finalize(){
+  protected final void finalize() {
     // no-op
   }
 }

@@ -27,6 +27,8 @@ import javax.persistence.criteria.Root;
 import javax.validation.ValidationException;
 import lombok.NonNull;
 
+// CHECKSTYLE:OFF NoFinalizer
+// CHECKSTYLE:OFF SuperFinalize
 @Service
 public class DerivativeService extends MessageProducingService<Derivative> {
 
@@ -164,7 +166,7 @@ public class DerivativeService extends MessageProducingService<Derivative> {
    * Protection against CT_CONSTRUCTOR_THROW
    */
   @Override
-  protected final void finalize(){
+  protected final void finalize() {
     // no-op
   }
 

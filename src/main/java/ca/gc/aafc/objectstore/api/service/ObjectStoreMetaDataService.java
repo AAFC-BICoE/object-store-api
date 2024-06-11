@@ -36,6 +36,8 @@ import lombok.extern.log4j.Log4j2;
  * This service will trigger thumbnail creation (if required) and delete the
  * thumbnails on deletion.
  */
+// CHECKSTYLE:OFF NoFinalizer
+// CHECKSTYLE:OFF SuperFinalize
 @Service
 @Log4j2
 public class ObjectStoreMetaDataService extends MessageProducingService<ObjectStoreMetadata> {
@@ -216,7 +218,7 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
    * Protection against CT_CONSTRUCTOR_THROW
    */
   @Override
-  protected final void finalize(){
+  protected final void finalize() {
     // no-op
   }
 

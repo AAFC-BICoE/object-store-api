@@ -36,6 +36,8 @@ import ca.gc.aafc.dina.file.FileCleaner;
  * Files are stored in specific folder that should only be used for temporary object access.
  * Once used or expired, the file will be deleted.
  */
+// CHECKSTYLE:OFF NoFinalizer
+// CHECKSTYLE:OFF SuperFinalize
 @RestController
 @RequestMapping("/api/v1")
 @Log4j2
@@ -110,11 +112,11 @@ public class TemporaryObjectAccessController {
     cleanExpiredFile();
 
     // make sure the object exists
-    if(!WORKING_FOLDER.resolve(filename).toFile().exists()) {
+    if (!WORKING_FOLDER.resolve(filename).toFile().exists()) {
       throw new IllegalArgumentException("the file must exist");
     }
 
-    if(!SUPPORTED_FILE_EXT.contains(FilenameUtils.getExtension(filename))) {
+    if (!SUPPORTED_FILE_EXT.contains(FilenameUtils.getExtension(filename))) {
       throw new IllegalArgumentException("unsupported file extension");
     }
 
@@ -136,12 +138,12 @@ public class TemporaryObjectAccessController {
   ) throws IOException {
     TemporaryObjectAccess toa = ACCESS_MAP.remove(key);
 
-    if(toa == null) {
+    if (toa == null) {
       return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     // make sure the toa is not expired
-    if(Instant.now().isAfter(toa.createdOn.plus(MAX_AGE))) {
+    if (Instant.now().isAfter(toa.createdOn.plus(MAX_AGE))) {
       log.warn("toa expired");
       cleanExpiredFile();
       return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -179,7 +181,7 @@ public class TemporaryObjectAccessController {
    * Protection against CT_CONSTRUCTOR_THROW
    */
   @Override
-  protected final void finalize(){
+  protected final void finalize() {
     // no-op
   }
 }

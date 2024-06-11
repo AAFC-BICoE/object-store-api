@@ -9,6 +9,8 @@ import lombok.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.SmartValidator;
 
+// CHECKSTYLE:OFF NoFinalizer
+// CHECKSTYLE:OFF SuperFinalize
 @Service
 public class ObjectStoreManagedAttributeService extends ca.gc.aafc.dina.service.ManagedAttributeService<ObjectStoreManagedAttribute> {
 
@@ -57,7 +59,7 @@ public class ObjectStoreManagedAttributeService extends ca.gc.aafc.dina.service.
    * Protection against CT_CONSTRUCTOR_THROW
    */
   @Override
-  protected final void finalize(){
+  protected final void finalize() {
     // no-op
   }
 }

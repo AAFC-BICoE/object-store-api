@@ -47,7 +47,7 @@ public class DerivativeGenerationRepository implements
 
     authorizationService.authorizeCreate(s);
 
-    if(s.getDerivativeType() != Derivative.DerivativeType.THUMBNAIL_IMAGE) {
+    if (s.getDerivativeType() != Derivative.DerivativeType.THUMBNAIL_IMAGE) {
       throw new IllegalArgumentException("DerivativeType can only be THUMBNAIL_IMAGE");
     }
 
@@ -64,14 +64,14 @@ public class DerivativeGenerationRepository implements
       .findFirst();
 
     // if the thumbnail entity exists, try to fix and return.
-    if(existingThumbnail.isPresent()) {
+    if (existingThumbnail.isPresent()) {
       derivativeGenerationService.fixIncompleteThumbnail(existingThumbnail.get());
       s.setUuid(existingThumbnail.get().getUuid());
       return s;
     }
 
     // Check the source to use for the thumbnail
-    if(s.getDerivedFromType() != null) {
+    if (s.getDerivedFromType() != null) {
       Derivative derivative = metadata.getDerivatives().stream()
         .filter(d -> d.getDerivativeType().equals(s.getDerivedFromType()))
         .findFirst().orElseThrow(() -> new IllegalStateException("DerivedFromType not found for metadata"));

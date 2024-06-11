@@ -1,6 +1,7 @@
 package ca.gc.aafc.objectstore.api.file;
 
 import ca.gc.aafc.objectstore.api.config.MediaTypeConfiguration;
+
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
@@ -30,6 +31,8 @@ import java.io.InputStream;
  * be used (if provided).
  *
  */
+// CHECKSTYLE:OFF NoFinalizer
+// CHECKSTYLE:OFF SuperFinalize
 @Service
 public class MediaTypeDetectionStrategy {
 
@@ -136,8 +139,8 @@ public class MediaTypeDetectionStrategy {
     }
 
     // if the received type is generic but we detect something more specific and the extension is matching
-    if(MediaType.OCTET_STREAM.toString().equals(receivedMediaType) && !MediaType.OCTET_STREAM.equals(detectedMediaType)) {
-      if(isKnownExtensionForMediaType(receivedFilename, detectedMimeType)) {
+    if (MediaType.OCTET_STREAM.toString().equals(receivedMediaType) && !MediaType.OCTET_STREAM.equals(detectedMediaType)) {
+      if (isKnownExtensionForMediaType(receivedFilename, detectedMimeType)) {
         return detectedMediaType.toString();
       }
     }
@@ -149,7 +152,7 @@ public class MediaTypeDetectionStrategy {
    * Protection against CT_CONSTRUCTOR_THROW
    */
   @Override
-  protected final void finalize(){
+  protected final void finalize() {
     // no-op
   }
 
