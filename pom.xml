@@ -32,8 +32,8 @@
     <pdfbox.version>2.0.28</pdfbox.version>
     <imageio.version>3.9.3</imageio.version>
 
-    <spotbugs-maven-plugin.version>4.6.0.0</spotbugs-maven-plugin.version>
-    <spotbugs.version>4.7.1</spotbugs.version>
+    <spotbugs-maven-plugin.version>4.8.5.0</spotbugs-maven-plugin.version>
+    <spotbugs.version>4.8.5</spotbugs.version>
     <jcip-annotations.version>1.0</jcip-annotations.version>
     <dependency-check.version>9.0.8</dependency-check.version>
     <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
