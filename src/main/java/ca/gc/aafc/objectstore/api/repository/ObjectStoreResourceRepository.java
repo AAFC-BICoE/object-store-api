@@ -23,6 +23,8 @@ import javax.transaction.Transactional;
 import java.util.Optional;
 import java.util.function.Predicate;
 
+// CHECKSTYLE:OFF NoFinalizer
+// CHECKSTYLE:OFF SuperFinalize
 @Repository
 @Transactional
 public class ObjectStoreResourceRepository
@@ -88,7 +90,7 @@ public class ObjectStoreResourceRepository
     //remove managedAttributes to allow OCR data
     convertedObj.remove("managedAttributes");
 
-    if(!JsonDocumentInspector.testPredicateOnValues(convertedObj, supplyCheckSubmittedDataPredicate())) {
+    if (!JsonDocumentInspector.testPredicateOnValues(convertedObj, supplyCheckSubmittedDataPredicate())) {
       throw new IllegalArgumentException("Unaccepted value detected in attributes");
     }
   }
@@ -96,6 +98,14 @@ public class ObjectStoreResourceRepository
   @Override
   protected Predicate<String> supplyCheckSubmittedDataPredicate() {
     return txt -> TextHtmlSanitizer.isSafeText(txt) || TextHtmlSanitizer.isAcceptableText(txt);
+  }
+
+  /**
+   * Protection against CT_CONSTRUCTOR_THROW
+   */
+  @Override
+  protected final void finalize() {
+    // no-op
   }
 
 }

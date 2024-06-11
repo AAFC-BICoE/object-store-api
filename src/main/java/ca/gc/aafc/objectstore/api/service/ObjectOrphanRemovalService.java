@@ -67,12 +67,8 @@ public class ObjectOrphanRemovalService {
       "LEFT JOIN " + Derivative.class.getCanonicalName() + " d ON ou.fileIdentifier = d.fileIdentifier " +
       "WHERE m.fileIdentifier IS NULL AND d.fileIdentifier IS NULL";
 
-    return baseDAO.resultListFromQuery(
-        ObjectUpload.class,
-        sql,
-        0,
-        MAX_ORPHAN_QUERY_LIMIT,
-        null);
+    return baseDAO.findAllByQuery(ObjectUpload.class, sql, null,
+      MAX_ORPHAN_QUERY_LIMIT, 0);
   }
 
   private boolean isExpired(ObjectUpload upload) {

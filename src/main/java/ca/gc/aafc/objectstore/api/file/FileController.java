@@ -174,7 +174,7 @@ public class FileController {
     String filename = uuid + mtdr.getEvaluatedExtension();
     Optional<FileObjectInfo> foInfo = fileStorage.getFileInfo(bucket, filename, isDerivative);
 
-    if(foInfo.isEmpty() || foInfo.get().getLength() != file.getSize()) {
+    if (foInfo.isEmpty() || foInfo.get().getLength() != file.getSize()) {
       throw new IllegalStateException("Can't find the file uploaded to Minio. filename: " + filename);
     }
 

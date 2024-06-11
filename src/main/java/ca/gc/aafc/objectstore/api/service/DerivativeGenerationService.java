@@ -25,6 +25,8 @@ import ca.gc.aafc.objectstore.api.storage.FileStorage;
 /**
  * Service responsible for automatic derivative generation (only thumbnail for now)
  */
+// CHECKSTYLE:OFF NoFinalizer
+// CHECKSTYLE:OFF SuperFinalize
 @Log4j2
 @Service
 public class DerivativeGenerationService extends DefaultDinaService<Derivative> {
@@ -150,14 +152,14 @@ public class DerivativeGenerationService extends DefaultDinaService<Derivative> 
    */
   public void fixIncompleteThumbnail(Derivative thumbnailDerivative) {
 
-    if(thumbnailDerivative.getDerivativeType() != Derivative.DerivativeType.THUMBNAIL_IMAGE) {
+    if (thumbnailDerivative.getDerivativeType() != Derivative.DerivativeType.THUMBNAIL_IMAGE) {
       throw new IllegalStateException("DerivativeType needs to be THUMBNAIL_IMAGE");
     }
 
     try {
       Optional<?> file =
         fileStorage.getFileInfo(thumbnailDerivative.getBucket(), thumbnailDerivative.getFilename(), true);
-      if(file.isPresent()) {
+      if (file.isPresent()) {
         log.info("Thumbnail file already present, skipping");
         return;
       }
@@ -266,5 +268,13 @@ public class DerivativeGenerationService extends DefaultDinaService<Derivative> 
     return
       Derivative.DerivativeType.THUMBNAIL_IMAGE.equals(derivative.getDerivativeType()) &&
         ThumbnailGenerator.SYSTEM_GENERATED.equals(derivative.getCreatedBy());
+  }
+
+  /**
+   * Protection against CT_CONSTRUCTOR_THROW
+   */
+  @Override
+  protected final void finalize() {
+    // no-op
   }
 }

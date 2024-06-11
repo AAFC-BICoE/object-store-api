@@ -12,6 +12,8 @@ import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import lombok.NonNull;
 import org.springframework.validation.SmartValidator;
 
+// CHECKSTYLE:OFF NoFinalizer
+// CHECKSTYLE:OFF SuperFinalize
 @Service
 public class ObjectSubtypeService extends DefaultDinaService<ObjectSubtype> {
 
@@ -33,6 +35,14 @@ public class ObjectSubtypeService extends DefaultDinaService<ObjectSubtype> {
   @Override
   protected void preCreate(ObjectSubtype entity) {
     entity.setUuid(UUIDHelper.generateUUIDv7());
+  }
+
+  /**
+   * Protection against CT_CONSTRUCTOR_THROW
+   */
+  @Override
+  protected final void finalize() {
+    // no-op
   }
 
 }

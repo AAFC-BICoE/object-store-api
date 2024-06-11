@@ -96,7 +96,7 @@ public class ThumbnailGenerator {
 
   public static boolean isSupported(String fileType) {
 
-    if(StringUtils.isBlank(fileType)) {
+    if (StringUtils.isBlank(fileType)) {
       return false;
     }
 

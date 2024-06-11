@@ -10,6 +10,8 @@ import org.springframework.validation.SmartValidator;
 
 import java.time.format.DateTimeFormatter;
 
+// CHECKSTYLE:OFF NoFinalizer
+// CHECKSTYLE:OFF SuperFinalize
 @Service
 public class ObjectUploadService extends DefaultDinaService<ObjectUpload> {
 
@@ -36,6 +38,14 @@ public class ObjectUploadService extends DefaultDinaService<ObjectUpload> {
 
   public boolean existsByProperty(String property, Object value) {
     return existsByProperty(ObjectUpload.class, property, value);
+  }
+
+  /**
+   * Protection against CT_CONSTRUCTOR_THROW
+   */
+  @Override
+  protected final void finalize() {
+    // no-op
   }
 
 }

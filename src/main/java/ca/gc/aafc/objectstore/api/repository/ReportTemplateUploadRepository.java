@@ -41,14 +41,14 @@ public class ReportTemplateUploadRepository
 
       ObjectUpload objectUpload = reportTemplateUploadService.findOneObjectUpload(s.getFileIdentifier());
 
-      if(objectUpload == null) {
+      if (objectUpload == null) {
         throw new ResourceNotFoundException("ObjectUpload with ID " + s.getFileIdentifier() + " Not Found.");
       }
 
       // we are using authorizeCreate but, it's only to check the object ownership
       authorizationService.authorizeCreate(objectUpload);
 
-      if(!MediaTypeConfiguration.FREEMARKER_TEMPLATE_MIME_TYPE.toString().equals(objectUpload.getEvaluatedMediaType())) {
+      if (!MediaTypeConfiguration.FREEMARKER_TEMPLATE_MIME_TYPE.toString().equals(objectUpload.getEvaluatedMediaType())) {
         throw new UnsupportedMediaTypeStatusException("Only " + MediaTypeConfiguration.FREEMARKER_TEMPLATE_MIME_TYPE + " is accepted.");
       }
 
