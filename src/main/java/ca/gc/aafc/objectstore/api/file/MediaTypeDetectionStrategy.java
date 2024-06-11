@@ -145,4 +145,12 @@ public class MediaTypeDetectionStrategy {
     return receivedMediaType;
   }
 
+  /**
+   * Protection against CT_CONSTRUCTOR_THROW
+   */
+  @Override
+  protected final void finalize(){
+    // no-op
+  }
+
 }

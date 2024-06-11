@@ -98,4 +98,12 @@ public class ObjectStoreResourceRepository
     return txt -> TextHtmlSanitizer.isSafeText(txt) || TextHtmlSanitizer.isAcceptableText(txt);
   }
 
+  /**
+   * Protection against CT_CONSTRUCTOR_THROW
+   */
+  @Override
+  protected final void finalize(){
+    // no-op
+  }
+
 }

@@ -267,4 +267,12 @@ public class DerivativeGenerationService extends DefaultDinaService<Derivative> 
       Derivative.DerivativeType.THUMBNAIL_IMAGE.equals(derivative.getDerivativeType()) &&
         ThumbnailGenerator.SYSTEM_GENERATED.equals(derivative.getCreatedBy());
   }
+
+  /**
+   * Protection against CT_CONSTRUCTOR_THROW
+   */
+  @Override
+  protected final void finalize(){
+    // no-op
+  }
 }

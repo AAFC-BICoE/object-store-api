@@ -54,4 +54,12 @@ public class DerivativeRepository extends DinaRepository<DerivativeDto, Derivati
 
     return super.create(resource);
   }
+
+  /**
+   * Protection against CT_CONSTRUCTOR_THROW
+   */
+  @Override
+  protected final void finalize(){
+    // no-op
+  }
 }

@@ -19,5 +19,13 @@ public class ObjectStoreManagedAttributeValueValidator extends ManagedAttributeV
   ) {
     super(baseMessageSource, dinaService);
   }
+
+  /**
+   * Protection against CT_CONSTRUCTOR_THROW
+   */
+  @Override
+  protected final void finalize(){
+    // no-op
+  }
   
 }

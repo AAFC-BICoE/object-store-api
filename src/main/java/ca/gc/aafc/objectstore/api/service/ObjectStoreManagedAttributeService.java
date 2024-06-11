@@ -52,4 +52,12 @@ public class ObjectStoreManagedAttributeService extends ca.gc.aafc.dina.service.
       throw new IllegalStateException("Managed attribute key: " + key + ", is currently in use.");
     }
   }
+
+  /**
+   * Protection against CT_CONSTRUCTOR_THROW
+   */
+  @Override
+  protected final void finalize(){
+    // no-op
+  }
 }

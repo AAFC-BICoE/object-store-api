@@ -160,4 +160,12 @@ public class DerivativeService extends MessageProducingService<Derivative> {
     return this.findAll(Derivative.class, crit, null, 0, 1).stream().findFirst();
   }
 
+  /**
+   * Protection against CT_CONSTRUCTOR_THROW
+   */
+  @Override
+  protected final void finalize(){
+    // no-op
+  }
+
 }

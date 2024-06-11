@@ -174,4 +174,12 @@ public class TemporaryObjectAccessController {
 
   record TemporaryObjectAccess(String filename, Instant createdOn) {
   }
+
+  /**
+   * Protection against CT_CONSTRUCTOR_THROW
+   */
+  @Override
+  protected final void finalize(){
+    // no-op
+  }
 }

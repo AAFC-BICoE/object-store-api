@@ -35,4 +35,12 @@ public class ObjectSubtypeService extends DefaultDinaService<ObjectSubtype> {
     entity.setUuid(UUIDHelper.generateUUIDv7());
   }
 
+  /**
+   * Protection against CT_CONSTRUCTOR_THROW
+   */
+  @Override
+  protected final void finalize(){
+    // no-op
+  }
+
 }

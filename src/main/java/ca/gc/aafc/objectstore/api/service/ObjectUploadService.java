@@ -38,4 +38,12 @@ public class ObjectUploadService extends DefaultDinaService<ObjectUpload> {
     return existsByProperty(ObjectUpload.class, property, value);
   }
 
+  /**
+   * Protection against CT_CONSTRUCTOR_THROW
+   */
+  @Override
+  protected final void finalize(){
+    // no-op
+  }
+
 }
