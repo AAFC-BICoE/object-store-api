@@ -27,8 +27,6 @@ import javax.persistence.criteria.Root;
 import javax.validation.ValidationException;
 import lombok.NonNull;
 
-// CHECKSTYLE:OFF NoFinalizer
-// CHECKSTYLE:OFF SuperFinalize
 @Service
 public class DerivativeService extends MessageProducingService<Derivative> {
 
@@ -161,13 +159,4 @@ public class DerivativeService extends MessageProducingService<Derivative> {
     @NonNull BiFunction<CriteriaBuilder, Root<Derivative>, Predicate[]> crit) {
     return this.findAll(Derivative.class, crit, null, 0, 1).stream().findFirst();
   }
-
-  /**
-   * Protection against CT_CONSTRUCTOR_THROW
-   */
-  @Override
-  protected final void finalize() {
-    // no-op
-  }
-
 }

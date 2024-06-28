@@ -10,8 +10,6 @@ import ca.gc.aafc.dina.validation.ManagedAttributeValueValidator;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import lombok.NonNull;
 
-// CHECKSTYLE:OFF NoFinalizer
-// CHECKSTYLE:OFF SuperFinalize
 @Component
 public class ObjectStoreManagedAttributeValueValidator extends ManagedAttributeValueValidator<ObjectStoreManagedAttribute> {
 
@@ -20,13 +18,5 @@ public class ObjectStoreManagedAttributeValueValidator extends ManagedAttributeV
     @NonNull ManagedAttributeService<ObjectStoreManagedAttribute> dinaService
   ) {
     super(baseMessageSource, dinaService);
-  }
-
-  /**
-   * Protection against CT_CONSTRUCTOR_THROW
-   */
-  @Override
-  protected final void finalize() {
-    // no-op
   }
 }

@@ -17,8 +17,6 @@ import javax.validation.ValidationException;
 import java.util.Optional;
 import java.util.UUID;
 
-// CHECKSTYLE:OFF NoFinalizer
-// CHECKSTYLE:OFF SuperFinalize
 @Repository
 public class DerivativeRepository extends DinaRepository<DerivativeDto, Derivative> {
 
@@ -55,13 +53,5 @@ public class DerivativeRepository extends DinaRepository<DerivativeDto, Derivati
     resource.setCreatedBy(authenticatedUser.getUsername());
 
     return super.create(resource);
-  }
-
-  /**
-   * Protection against CT_CONSTRUCTOR_THROW
-   */
-  @Override
-  protected final void finalize() {
-    // no-op
   }
 }

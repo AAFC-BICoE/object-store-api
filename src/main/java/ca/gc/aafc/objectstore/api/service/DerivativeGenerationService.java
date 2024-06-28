@@ -25,8 +25,6 @@ import ca.gc.aafc.objectstore.api.storage.FileStorage;
 /**
  * Service responsible for automatic derivative generation (only thumbnail for now)
  */
-// CHECKSTYLE:OFF NoFinalizer
-// CHECKSTYLE:OFF SuperFinalize
 @Log4j2
 @Service
 public class DerivativeGenerationService extends DefaultDinaService<Derivative> {
@@ -268,13 +266,5 @@ public class DerivativeGenerationService extends DefaultDinaService<Derivative> 
     return
       Derivative.DerivativeType.THUMBNAIL_IMAGE.equals(derivative.getDerivativeType()) &&
         ThumbnailGenerator.SYSTEM_GENERATED.equals(derivative.getCreatedBy());
-  }
-
-  /**
-   * Protection against CT_CONSTRUCTOR_THROW
-   */
-  @Override
-  protected final void finalize() {
-    // no-op
   }
 }
