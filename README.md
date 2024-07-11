@@ -24,7 +24,7 @@ See [documentation](https://aafc-bicoe.github.io/object-store-api/) page.
 ## Required
 
 ### To build and run tests
-* Java 17
+* Java 21
 * Maven 3.8 (tested)
 * Docker 20+ (for running integration tests)
 
