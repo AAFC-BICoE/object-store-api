@@ -559,15 +559,11 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="_upload_a_file">2.1. Upload a file</h3>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
+<div class="paragraph">
 <p>Send a POST request to the <code>/api/v1/file/{bucket}</code> endpoint.</p>
-</li>
-</ol>
 </div>
 <div class="paragraph">
-<p>Example request:</p>
+<p>Example request using <code>curl</code>:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -581,7 +577,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-sh hljs" data-lang="sh">{
 	"fileIdentifier": "0050559c-beae-48d6-a2b0-91f5a666fad1",
-	"metaFileEntryVersion": "1.0",
 	"originalFilename": "example-png.png",
 	"sha1Hex": "c0c1d898ed827d6db02a03df941225184277d9e5",
 	"receivedMediaType": "image/png",
@@ -594,13 +589,21 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 }</code></pre>
 </div>
 </div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Send a POST request to the <code>/api/v1/metadata</code> endpoint to create a Metadata record for the stored
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+If the file already exists based on the sha1hex, a warning will be returned in the <code>meta</code> section of the response.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Secondly, send a POST request to the <code>/api/v1/metadata</code> endpoint to create a Metadata record for the stored
 object, using the fileIdentifier from the upload response.</p>
-</li>
-</ol>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -650,7 +653,6 @@ EOF</code></pre>
   "fileIdentifier": "5c158d6e-09eb-4272-88b6-3349b638100d",
   "dcType": "IMAGE",
   "createdBy": "dev",
-  "createdOn": null,
   "originalFilename": "my-image.png",
   "sha1Hex": "3a37e3546074b6a67afef2fc1b402bf9233a1eb7",
   "receivedMediaType": "image/png",
@@ -660,10 +662,7 @@ EOF</code></pre>
   "evaluatedFileExtension": ".png",
   "sizeInBytes": 6091,
   "bucket": "mybucket",
-  "exif": {},
-  "dateTimeDigitized": null,
   "isDerivative": true,
-  "group": null
 }</code></pre>
 </div>
 </div>
@@ -985,7 +984,7 @@ The key is communicated using an event (message).</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-07-05 14:06:32 UTC
+Last updated 2024-07-11 14:57:32 UTC
 </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
