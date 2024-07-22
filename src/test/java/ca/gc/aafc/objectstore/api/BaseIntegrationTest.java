@@ -2,8 +2,10 @@ package ca.gc.aafc.objectstore.api;
 
 import ca.gc.aafc.dina.testsupport.DatabaseSupportService;
 import ca.gc.aafc.dina.testsupport.PostgresTestContainerInitializer;
+import ca.gc.aafc.objectstore.api.async.AsyncConsumer;
 import ca.gc.aafc.objectstore.api.service.DerivativeGenerationService;
 import ca.gc.aafc.objectstore.api.service.DerivativeService;
+import ca.gc.aafc.objectstore.api.service.ObjectExportService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreManagedAttributeService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
 import ca.gc.aafc.objectstore.api.service.ObjectSubtypeService;
@@ -19,6 +21,8 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Properties;
+import java.util.UUID;
+import java.util.concurrent.Future;
 import javax.inject.Inject;
 
 @SpringBootTest(classes = ObjectStoreApiLauncher.class, properties = "dev-user.enabled=true")
@@ -56,6 +60,11 @@ public abstract class BaseIntegrationTest {
       Properties props = new Properties();
       props.setProperty("version", "object-store-module-version");
       return new BuildProperties(props);
+    }
+
+    @Bean
+    public AsyncConsumer<Future<ObjectExportService.ExportResult>> futureExportResultConsumer() {
+      return new AsyncConsumer<>();
     }
   }
 
