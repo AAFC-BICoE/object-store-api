@@ -13,7 +13,6 @@ import ca.gc.aafc.objectstore.api.file.ObjectExportGenerator;
 import ca.gc.aafc.objectstore.api.file.TemporaryObjectAccessController;
 import ca.gc.aafc.objectstore.api.security.FileControllerAuthorizationService;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,18 +61,19 @@ public class ObjectExportService {
    * From a list of identifiers, package all the files into a single zip file.
    * Authorization will be checked on every file, if unauthorized is triggered the package will not be created.
    *
-   * @param fileIdentifiers
-   * @throws IOException
+   * @param username the username of the user requesting the export
+   * @param fileIdentifiers list of files identifier to export
+   * @param name optional name of the export
+   * @return the uuid generated for the export
    */
-  public UUID export(String username, List<UUID> fileIdentifiers, String name) throws IOException {
+  public UUID export(String username, List<UUID> fileIdentifiers, String name) {
     UUID exportUUID = UUIDHelper.generateUUIDv7();
 
     String filename = exportUUID + EXPORT_EXT;
     Path zipFile = toaCtrl.generatePath(filename);
-    List<AbstractObjectStoreMetadata> toExport = new ArrayList<>();
+    List<AbstractObjectStoreMetadata> toExport = new ArrayList<>(fileIdentifiers.size());
 
     for (UUID fileIdentifier : fileIdentifiers) {
-
       AbstractObjectStoreMetadata obj;
       Optional<Derivative> derivative = derivativeService.findByFileId(fileIdentifier);
 
