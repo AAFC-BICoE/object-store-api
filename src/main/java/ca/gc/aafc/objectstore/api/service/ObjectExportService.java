@@ -92,7 +92,7 @@ public class ObjectExportService {
 
     // then complete the export
     CompletableFuture<ExportResult> completableFuture =
-      objectExportGenerator.export(exportUUID, toExport, zipFile).thenApply((uuid) -> {
+      objectExportGenerator.export(exportUUID, toExport, zipFile).thenApply(uuid -> {
         String toaKey = toaCtrl.registerObject(filename);
         log.info("Generated toaKey {}", () -> toaKey);
 
@@ -116,7 +116,7 @@ public class ObjectExportService {
         return null;
       });
 
-    if(asyncConsumer != null) {
+    if (asyncConsumer != null) {
       asyncConsumer.accept(completableFuture);
     }
 
