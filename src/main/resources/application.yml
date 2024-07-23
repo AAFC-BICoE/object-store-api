@@ -83,6 +83,8 @@ dina:
   messaging:
     export:
       queue: dina.export.queue
+  export:
+    maxObjectExportSize: 2GB
 
 rabbitmq:
   queue: dina.search.queue
