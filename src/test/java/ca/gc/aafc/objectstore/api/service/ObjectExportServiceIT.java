@@ -13,6 +13,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ContextConfiguration;
 
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
+import ca.gc.aafc.objectstore.api.async.AsyncConsumer;
 import ca.gc.aafc.objectstore.api.config.AsyncOverrideConfig;
 import ca.gc.aafc.objectstore.api.dto.ObjectUploadDto;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
@@ -29,16 +30,14 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.zip.ZipOutputStream;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import javax.inject.Inject;
 
 @ContextConfiguration(initializers = MinioTestContainerInitializer.class)
@@ -59,6 +58,9 @@ public class ObjectExportServiceIT extends BaseIntegrationTest {
 
   @Inject
   private ObjectExportService objectExportService;
+
+  @Inject
+  private AsyncConsumer<Future<ObjectExportService.ExportResult>> asyncConsumer;
 
   @Inject
   private TemporaryObjectAccessController toaController;
@@ -88,10 +90,18 @@ public class ObjectExportServiceIT extends BaseIntegrationTest {
     assertTrue(thumbnail.isPresent());
 
     // 4 - request the file and its derivative
-    var result = objectExportService.export("testuser",
+    objectExportService.export("testuser",
       List.of(osm.getFileIdentifier(), thumbnail.get().getFileIdentifier()), "testname");
 
-    // make sure we can get the export file using the toa key
+    // 5 - Wait for completion
+    ObjectExportService.ExportResult result;
+    try {
+      result = asyncConsumer.getAccepted().get(0).get();
+    } catch (InterruptedException | ExecutionException e) {
+      throw new RuntimeException(e);
+    }
+
+    // 6 - Make sure we can get the export file using the toa key
     ResponseEntity<InputStreamResource> response = toaController.downloadObject(result.toaKey());
     assertEquals(200, response.getStatusCode().value());
 
