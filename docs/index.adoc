@@ -23,4 +23,6 @@ include::configuration.adoc[]
 
 include::media_type_detection.adoc[]
 
+include::export_objects.adoc[]
+
 include::toa.adoc[]

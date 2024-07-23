@@ -1,3 +1,4 @@
+[#_temporary_object_access]
 = Temporary Object Access
 
 The object-store can generate temporary files that can be downloaded by another service using a randomly generated key.
