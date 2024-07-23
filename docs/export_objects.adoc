@@ -1,0 +1,27 @@
+= Object Export
+
+The object-store-api can export objects in a compressed (zip) file.
+
+== Request an export
+
+Send a POST request to `object-export` with a body like:
+```
+{
+  "data": {
+    "type": "object-export",
+    "attributes": {
+      "name": "my export",
+      "fileIdentifiers": ["fileUUID"]
+    }
+  }
+}
+```
+
+The response will include the export UUID.
+
+== Export processing
+
+* Assemble the export and compress the content in an archive
+* Emit a message on the messaging system including a <<_temporary_object_access, toa>>
+* export-api downloads the archive
+* The archive is deleted and available in the export-api
