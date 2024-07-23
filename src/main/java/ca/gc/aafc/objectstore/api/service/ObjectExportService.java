@@ -33,7 +33,7 @@ public class ObjectExportService {
 
   private static final String EXPORT_EXT = ".zip";
 
-  private final long MAX_OBJECT_EXPORT_SIZE_IN_BYTES;
+  private final long maxObjectExportSizeInBytes;
   private final FileStorage fileStorage;
   private final ObjectExportGenerator objectExportGenerator;
   private final Consumer<Future<ExportResult>> asyncConsumer;
@@ -55,7 +55,7 @@ public class ObjectExportService {
                              TemporaryObjectAccessController toaCtrl,
                              DinaMessageProducer messageProducer) {
 
-    MAX_OBJECT_EXPORT_SIZE_IN_BYTES = objectExportConfiguration.getMaxObjectExportSize().toBytes();
+    maxObjectExportSizeInBytes = objectExportConfiguration.getMaxObjectExportSize().toBytes();
     this.objectExportGenerator = objectExportGenerator;
     this.asyncConsumer = asyncConsumer.orElse(null);
 
@@ -103,7 +103,7 @@ public class ObjectExportService {
       try {
         Optional<FileObjectInfo> fileInfo =
           fileStorage.getFileInfo(obj.getBucket(), obj.getFilename(), obj instanceof Derivative);
-        if(fileInfo.isPresent()) {
+        if (fileInfo.isPresent()) {
           totalSizeInBytes += fileInfo.get().getLength();
         } else {
           throwIllegalStateFileNotFound(fileIdentifier);
@@ -113,8 +113,8 @@ public class ObjectExportService {
       }
 
       // validate total size
-      if(totalSizeInBytes > MAX_OBJECT_EXPORT_SIZE_IN_BYTES) {
-        throw new IllegalStateException("Maximum export size exceeded. Max: " + MAX_OBJECT_EXPORT_SIZE_IN_BYTES + " bytes");
+      if (totalSizeInBytes > maxObjectExportSizeInBytes) {
+        throw new IllegalStateException("Maximum export size exceeded. Max: " + maxObjectExportSizeInBytes + " bytes");
       }
 
       toExport.add(obj);
