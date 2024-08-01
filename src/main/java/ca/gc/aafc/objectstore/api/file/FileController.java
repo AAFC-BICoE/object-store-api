@@ -244,8 +244,9 @@ public class FileController {
   ) throws IOException {
     Derivative derivative = derivativeService.findByFileId(fileId)
       .orElseThrow(() -> buildNotFoundException(bucket, Objects.toString(fileId)));
-    String fileName = derivative.getFilename();
-    return download(bucket, fileName, fileName, true, derivative.getDcFormat(), derivative);
+
+    return download(bucket, derivative.getFilename(), 
+      ObjectFilenameUtils.generateDerivativeFilename(derivative), true, derivative.getDcFormat(), derivative);
   }
 
   @GetMapping("/file/{bucket}/{fileId}/thumbnail")
