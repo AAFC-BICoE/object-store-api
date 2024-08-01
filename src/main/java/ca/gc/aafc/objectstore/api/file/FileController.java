@@ -1,8 +1,6 @@
 package ca.gc.aafc.objectstore.api.file;
 
 import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MediaType;
 import org.apache.tika.mime.MimeTypeException;
 import org.springframework.context.MessageSource;
@@ -40,6 +38,7 @@ import ca.gc.aafc.objectstore.api.service.DerivativeService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
 import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
 import ca.gc.aafc.objectstore.api.storage.FileStorage;
+import ca.gc.aafc.objectstore.api.util.ObjectFilenameUtils;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -207,7 +206,7 @@ public class FileController {
 
     // For the download of an object use the originalFilename provided (if possible)
     return download(bucket, metadata.getFilename(),
-      generateDownloadFilename(metadata.getOriginalFilename(), metadata.getFilename(), metadata.getFileExtension()),
+      ObjectFilenameUtils.generateMainObjectFilename(metadata),
         false, metadata.getDcFormat(), metadata);
   }
 
@@ -470,22 +469,4 @@ public class FileController {
   private ObjectUploadDto mapObjectUpload(ObjectUpload objectUpload) {
     return mappingLayer.toDtoSimpleMapping(objectUpload);
   }
-
-  /**
-   * Make sure a valid filename is generated for the download.
-   *
-   * @param originalFilename filename provided by the client at upload time
-   * @param internalFilename name internal to the system made from the identifier
-   * @param fileExtension file extension determined by the system including the dot (.)
-   * @return
-   */
-  public static String generateDownloadFilename(String originalFilename, String internalFilename, String fileExtension) {
-    // if there is no original file name of the filename is just an extension
-    if (StringUtils.isEmpty(originalFilename) || StringUtils.isEmpty(FilenameUtils.getBaseName(originalFilename))) {
-      return internalFilename;
-    }
-    // use the internal extension since we are also returning the internal media type
-    return FilenameUtils.getBaseName(originalFilename) + fileExtension;
-  }
-
 }
