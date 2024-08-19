@@ -19,8 +19,6 @@ import io.crnk.core.exception.ResourceNotFoundException;
 import io.crnk.core.queryspec.QuerySpec;
 import lombok.NonNull;
 
-// CHECKSTYLE:OFF NoFinalizer
-// CHECKSTYLE:OFF SuperFinalize
 @Repository
 public class ObjectStoreManagedAttributeResourceRepository
   extends DinaRepository<ObjectStoreManagedAttributeDto, ObjectStoreManagedAttribute> {
@@ -77,14 +75,4 @@ public class ObjectStoreManagedAttributeResourceRepository
       throw new ResourceNotFoundException("Managed Attribute not found: " + id);
     }
   }
-
-  /**
-   * Protection against CT_CONSTRUCTOR_THROW
-   */
-  @SuppressWarnings("checkstyle:NoFinalizer")
-  @Override
-  protected final void finalize() {
-    // no-op
-  }
-
 }
