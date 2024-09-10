@@ -28,7 +28,7 @@ public final class ObjectFilenameUtils {
    * @return
    */
   public static String standardizeFilename(String userSubmittedFilename) {
-    if(StringUtils.isBlank(userSubmittedFilename)) {
+    if (StringUtils.isBlank(userSubmittedFilename)) {
       return userSubmittedFilename;
     }
     return FILENAME_PATTERN.matcher(userSubmittedFilename).replaceAll("_");

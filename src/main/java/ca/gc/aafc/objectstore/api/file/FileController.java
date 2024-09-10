@@ -53,7 +53,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.regex.Pattern;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import lombok.NonNull;
