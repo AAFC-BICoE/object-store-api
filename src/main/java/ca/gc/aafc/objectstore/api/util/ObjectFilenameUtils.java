@@ -1,6 +1,7 @@
 package ca.gc.aafc.objectstore.api.util;
 
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -13,8 +14,24 @@ import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
  */
 public final class ObjectFilenameUtils {
 
+  // Accepted : alphanumerical (with Unicode) and _ - [] () .
+  public static final Pattern FILENAME_PATTERN = Pattern.compile("[^\\p{L}\\p{N}_\\-\\[\\](). ]");
+
   private ObjectFilenameUtils() {
     // utility class
+  }
+
+  /**
+   * Standardize filename to make sure we can download the file in all known operating systems.
+   * The regex accepts less than what is technically accepted to keep things simple.
+   * @param userSubmittedFilename
+   * @return
+   */
+  public static String standardizeFilename(String userSubmittedFilename) {
+    if(StringUtils.isBlank(userSubmittedFilename)) {
+      return userSubmittedFilename;
+    }
+    return FILENAME_PATTERN.matcher(userSubmittedFilename).replaceAll("_");
   }
 
   /**
