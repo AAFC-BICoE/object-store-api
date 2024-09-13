@@ -414,7 +414,7 @@ public class FileController {
     ObjectUpload objectUpload = objectUploadService.create(ObjectUpload.builder()
       .fileIdentifier(uuid)
       .createdBy(authenticatedUser.getUsername())
-      .originalFilename(file.getOriginalFilename())
+      .originalFilename(ObjectFilenameUtils.standardizeFilename(file.getOriginalFilename()))
       .sha1Hex(sha1Hex)
       .receivedMediaType(file.getContentType())
       .detectedMediaType(Objects.toString(mtdr.getDetectedMediaType()))
