@@ -64,10 +64,10 @@ public class ObjectExportGenerator {
         o.closeArchiveEntry();
       }
       o.finish();
-    } catch (IOException e) {
+    } catch (IOException | IllegalStateException e) {
       return CompletableFuture.failedFuture(e);
     }
-
+    
     return CompletableFuture.completedFuture(exportUUID);
   }
 
