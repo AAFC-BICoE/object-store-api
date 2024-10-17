@@ -22,7 +22,7 @@ import org.springframework.web.server.UnsupportedMediaTypeStatusException;
 import ca.gc.aafc.dina.workbook.DelimiterSeparatedConverter;
 import ca.gc.aafc.dina.workbook.WorkbookConverter;
 import ca.gc.aafc.dina.workbook.WorkbookGenerator;
-import ca.gc.aafc.dina.workbook.WorkbookRow;
+import ca.gc.aafc.dina.workbook.WorkbookSheet;
 
 import static ca.gc.aafc.objectstore.api.file.FileController.buildHttpHeaders;
 
@@ -57,7 +57,7 @@ public class WorkbookController {
    * @throws MimeTypeException
    */
   @PostMapping("conversion")
-  public Map<Integer, List<WorkbookRow>> handleFileConversion(
+  public Map<Integer, WorkbookSheet> handleFileConversion(
     @RequestParam("file") MultipartFile file
   ) throws IOException, MimeTypeException {
     MediaTypeDetectionStrategy.MediaTypeDetectionResult mtdr = mediaTypeDetectionStrategy
