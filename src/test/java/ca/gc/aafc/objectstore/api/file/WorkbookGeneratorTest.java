@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 
 import ca.gc.aafc.dina.workbook.WorkbookConverter;
-import ca.gc.aafc.dina.workbook.WorkbookRow;
+import ca.gc.aafc.dina.workbook.WorkbookSheet;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MultipartFileFactory;
 
@@ -35,18 +35,18 @@ public class WorkbookGeneratorTest extends BaseIntegrationTest {
   public void fileUploadConversion_OnValidSpreadsheet_contentReturned() throws Exception {
     MockMultipartFile
       mockFile = MultipartFileFactory.createMockMultipartFile(resourceLoader,"test_spreadsheet.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE);
-    Map<Integer, List<WorkbookRow>> content = workbookTemplateController.handleFileConversion(mockFile);
-    assertFalse(content.isEmpty());
-    assertFalse(content.get(0).isEmpty());
+    Map<Integer, WorkbookSheet> workbook = workbookTemplateController.handleFileConversion(mockFile);
+    assertFalse(workbook.isEmpty());
+    assertFalse(workbook.get(0).rows().isEmpty());
   }
 
   @Test
   public void fileUploadConversion_OnValidCSV_contentReturned() throws Exception {
     // use Octet Stream to make sure the FileController will detect it's a csv
     MockMultipartFile mockFile = MultipartFileFactory.createMockMultipartFile(resourceLoader,"test_spreadsheet.csv", MediaType.APPLICATION_OCTET_STREAM_VALUE);
-    Map<Integer, List<WorkbookRow>> content = workbookTemplateController.handleFileConversion(mockFile);
-    assertFalse(content.isEmpty());
-    assertFalse(content.get(0).isEmpty());
+    Map<Integer, WorkbookSheet> workbook = workbookTemplateController.handleFileConversion(mockFile);
+    assertFalse(workbook.isEmpty());
+    assertFalse(workbook.get(0).rows().isEmpty());
   }
 
   @Test
@@ -56,7 +56,6 @@ public class WorkbookGeneratorTest extends BaseIntegrationTest {
     assertEquals(response.getStatusCode(), HttpStatus.CREATED);
     assertNotNull(response.getBody());
     var result = WorkbookConverter.convertWorkbook(response.getBody().getInputStream());
-    assertEquals("col 1", result.get(0).get(0).content()[0]);
+    assertEquals("col 1", result.get(0).rows().getFirst().content()[0]);
   }
-
 }
