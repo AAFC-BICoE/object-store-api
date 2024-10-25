@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import ca.gc.aafc.dina.workbook.WorkbookConverter;
 import ca.gc.aafc.dina.workbook.WorkbookSheet;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
+import ca.gc.aafc.objectstore.api.dto.WorkbookGenerationDto;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MultipartFileFactory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -51,7 +53,8 @@ public class WorkbookGeneratorTest extends BaseIntegrationTest {
 
   @Test
   public void generateWorkbookTemplateFromColumns_OnValidColumns_contentReturned() throws Exception {
-    ResponseEntity<ByteArrayResource> response = workbookTemplateController.generateWorkbookTemplateFromColumns(List.of("col 1", "col 2"));
+    ResponseEntity<ByteArrayResource> response = workbookTemplateController.generateWorkbookTemplateFromColumns(
+      EntityModel.of(WorkbookGenerationDto.builder().columns(List.of("col 1", "col 2")).build()));
     assertNotNull(response.getHeaders());
     assertEquals(response.getStatusCode(), HttpStatus.CREATED);
     assertNotNull(response.getBody());
