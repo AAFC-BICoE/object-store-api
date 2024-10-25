@@ -16,7 +16,6 @@ import ca.gc.aafc.dina.dto.ExternalRelationDto;
 import ca.gc.aafc.dina.dto.JsonApiDto;
 import ca.gc.aafc.dina.dto.JsonApiExternalResource;
 import ca.gc.aafc.dina.repository.DinaRepositoryV2;
-import ca.gc.aafc.dina.repository.external.ExternalResourceProvider;
 import ca.gc.aafc.dina.service.AuditService;
 import ca.gc.aafc.dina.service.DinaService;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
@@ -45,14 +44,13 @@ public class ObjectStoreMetadataRepositoryV2 extends DinaRepositoryV2<ObjectStor
     @NonNull DinaService<ObjectStoreMetadata> dinaService,
     @NonNull MetadataAuthorizationService authorizationService,
     @NonNull Optional<AuditService> auditService,
-    ExternalResourceProvider externalResourceProvider,
     @NonNull BuildProperties buildProperties,
     ObjectMapper objMapper) {
     super(dinaService, authorizationService, auditService,
       ObjectStoreMetadataMapper.INSTANCE,
       ObjectStoreMetadataDto.class,
       ObjectStoreMetadata.class,
-      externalResourceProvider, buildProperties, objMapper);
+      buildProperties, objMapper);
   }
 
   @Override
