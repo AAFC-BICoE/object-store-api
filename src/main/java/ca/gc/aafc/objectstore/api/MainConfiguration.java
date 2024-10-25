@@ -20,6 +20,10 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.concurrent.Executor;
 
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.toedter.spring.hateoas.jsonapi.JsonApiConfiguration;
+
 @Configuration
 @EntityScan("ca.gc.aafc.objectstore.api.entities")
 @ComponentScan(basePackageClasses = DinaBaseApiAutoConfiguration.class)
@@ -63,6 +67,15 @@ public class MainConfiguration {
     return ResourceNameIdentifierConfig.builder().
       config(ObjectStoreMetadata.class, new ResourceNameIdentifierConfig.ResourceNameConfig("originalFilename", "bucket"))
       .build();
+  }
+
+  @Bean
+  public JsonApiConfiguration jsonApiConfiguration() {
+    return new JsonApiConfiguration()
+      .withObjectMapperCustomizer(objectMapper -> {
+        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        objectMapper.registerModule(new JavaTimeModule());
+      });
   }
 
 }

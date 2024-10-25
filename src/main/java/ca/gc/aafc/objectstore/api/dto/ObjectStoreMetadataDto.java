@@ -10,8 +10,12 @@ import ca.gc.aafc.dina.repository.meta.JsonApiExternalRelation;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.toedter.spring.hateoas.jsonapi.JsonApiTypeForClass;
+
 import io.crnk.core.resource.annotations.JsonApiField;
 import io.crnk.core.resource.annotations.JsonApiId;
 import io.crnk.core.resource.annotations.JsonApiRelation;
@@ -39,6 +43,7 @@ import java.util.function.Supplier;
 @JsonApiResource(type = ObjectStoreMetadataDto.TYPENAME)
 @TypeName(ObjectStoreMetadataDto.TYPENAME)
 @CustomFieldAdapter(adapters = ObjectStoreMetadataDto.AcSubtypeAdapter.class)
+@JsonApiTypeForClass(ObjectStoreMetadataDto.TYPENAME)
 public class ObjectStoreMetadataDto extends AttributeMetaInfoProvider {
 
   public static final String TYPENAME = "metadata";
@@ -46,7 +51,9 @@ public class ObjectStoreMetadataDto extends AttributeMetaInfoProvider {
   @JsonApiId
   @Id
   @PropertyName("id")
+  @com.toedter.spring.hateoas.jsonapi.JsonApiId
   private UUID uuid;
+
   private String createdBy;
   private OffsetDateTime createdOn;
   private String bucket;
@@ -88,6 +95,7 @@ public class ObjectStoreMetadataDto extends AttributeMetaInfoProvider {
 
   @JsonApiRelation
   @DiffIgnore
+  @JsonIgnore
   private List<DerivativeDto> derivatives = List.of();
 
   @JsonApiExternalRelation(type = "person")
