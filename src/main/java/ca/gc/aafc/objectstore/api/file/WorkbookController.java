@@ -9,10 +9,11 @@ import org.apache.tika.mime.MimeTypeException;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,13 +23,13 @@ import org.springframework.web.server.UnsupportedMediaTypeStatusException;
 import ca.gc.aafc.dina.workbook.DelimiterSeparatedConverter;
 import ca.gc.aafc.dina.workbook.WorkbookConverter;
 import ca.gc.aafc.dina.workbook.WorkbookGenerator;
-import ca.gc.aafc.dina.workbook.WorkbookRow;
+import ca.gc.aafc.dina.workbook.WorkbookSheet;
+import ca.gc.aafc.objectstore.api.dto.WorkbookGenerationDto;
 
 import static ca.gc.aafc.objectstore.api.file.FileController.buildHttpHeaders;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -57,7 +58,7 @@ public class WorkbookController {
    * @throws MimeTypeException
    */
   @PostMapping("conversion")
-  public Map<Integer, List<WorkbookRow>> handleFileConversion(
+  public Map<Integer, WorkbookSheet> handleFileConversion(
     @RequestParam("file") MultipartFile file
   ) throws IOException, MimeTypeException {
     MediaTypeDetectionStrategy.MediaTypeDetectionResult mtdr = mediaTypeDetectionStrategy
@@ -76,21 +77,26 @@ public class WorkbookController {
   }
 
   /**
-   * Generates Workbook template from given columns
+   * Generates Workbook template from given columns and aliases (optional)
    *
-   * @param columns
+   * @param workbookGenerationModel
    * @return the Workbook template
    * @throws IOException
    */
   @PostMapping("generation")
   public ResponseEntity<ByteArrayResource> generateWorkbookTemplateFromColumns(
-      @RequestAttribute("columns") List<String> columns)
-      throws IOException {
+    @RequestBody EntityModel<WorkbookGenerationDto> workbookGenerationModel) throws IOException {
+
+    WorkbookGenerationDto workbookGenerationDto = workbookGenerationModel.getContent();
+    if (workbookGenerationDto == null) {
+      return ResponseEntity.badRequest().build();
+    }
 
     // size is quite small, load in memory to make it easier
     byte[] content;
-    try (Workbook wb = WorkbookGenerator.generate(columns);
-        ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+    try (Workbook wb = WorkbookGenerator.generate(workbookGenerationDto.getColumns(),
+      workbookGenerationDto.getAliases());
+         ByteArrayOutputStream os = new ByteArrayOutputStream()) {
       wb.write(os);
       content = os.toByteArray();
     }
