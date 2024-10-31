@@ -44,7 +44,7 @@ import java.util.function.Supplier;
 @TypeName(ObjectStoreMetadataDto.TYPENAME)
 @CustomFieldAdapter(adapters = ObjectStoreMetadataDto.AcSubtypeAdapter.class)
 @JsonApiTypeForClass(ObjectStoreMetadataDto.TYPENAME)
-public class ObjectStoreMetadataDto extends AttributeMetaInfoProvider {
+public class ObjectStoreMetadataDto extends AttributeMetaInfoProvider implements ca.gc.aafc.dina.dto.JsonApiResource {
 
   public static final String TYPENAME = "metadata";
 
@@ -95,7 +95,6 @@ public class ObjectStoreMetadataDto extends AttributeMetaInfoProvider {
 
   @JsonApiRelation
   @DiffIgnore
-  @JsonIgnore
   private List<DerivativeDto> derivatives = List.of();
 
   @JsonApiExternalRelation(type = "person")
@@ -119,6 +118,16 @@ public class ObjectStoreMetadataDto extends AttributeMetaInfoProvider {
 
   public String getGroup() {
     return bucket;
+  }
+
+  @Override
+  public String getJsonApiType() {
+    return TYPENAME;
+  }
+
+  @Override
+  public UUID getJsonApiId() {
+    return uuid;
   }
 
   public void applyObjectSubtype(ObjectSubtype objectSubtype) {

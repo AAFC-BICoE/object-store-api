@@ -3,6 +3,8 @@ package ca.gc.aafc.objectstore.api;
 import ca.gc.aafc.dina.DinaBaseApiAutoConfiguration;
 import ca.gc.aafc.dina.config.ResourceNameIdentifierConfig;
 import ca.gc.aafc.dina.service.JaversDataService;
+import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
+import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDtoMixin;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 
 import io.minio.MinioClient;
@@ -74,6 +76,7 @@ public class MainConfiguration {
     return new JsonApiConfiguration()
       .withObjectMapperCustomizer(objectMapper -> {
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        objectMapper.addMixIn(ObjectStoreMetadataDto.class, ObjectStoreMetadataDtoMixin.class);
         objectMapper.registerModule(new JavaTimeModule());
       });
   }
