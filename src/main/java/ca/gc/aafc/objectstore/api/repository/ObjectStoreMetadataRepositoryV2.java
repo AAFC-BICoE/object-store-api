@@ -1,7 +1,6 @@
 package ca.gc.aafc.objectstore.api.repository;
 
 import org.springframework.boot.info.BuildProperties;
-import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,7 +23,6 @@ import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.mapper.ObjectStoreMetadataMapper;
 import ca.gc.aafc.objectstore.api.security.MetadataAuthorizationService;
 
-import static com.toedter.spring.hateoas.jsonapi.JsonApiModelBuilder.jsonApiModel;
 import static com.toedter.spring.hateoas.jsonapi.MediaTypes.JSON_API_VALUE;
 
 import java.util.Optional;
@@ -83,14 +81,14 @@ public class ObjectStoreMetadataRepositoryV2 extends DinaRepositoryV2<ObjectStor
   public ResponseEntity<RepresentationModel<?>> handleFindAll(HttpServletRequest req) {
     String queryString = decodeQueryString(req);
 
-    PagedResource<ObjectStoreMetadataDto> dtos;
+    PagedResource<JsonApiDto<ObjectStoreMetadataDto>> dtos;
     try {
       dtos = getAll(queryString);
     } catch (IllegalArgumentException iaEx) {
       return ResponseEntity.badRequest().build();
     }
 
-    JsonApiModelBuilder builder = jsonApiModel().model(CollectionModel.of(dtos.resourceList()));
+    JsonApiModelBuilder builder = createJsonApiModelCollectionBuilder(dtos);
 
     return ResponseEntity.ok(builder.build());
   }
