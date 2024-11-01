@@ -27,8 +27,6 @@ import ca.gc.aafc.objectstore.api.security.MetadataAuthorizationService;
 import static com.toedter.spring.hateoas.jsonapi.JsonApiModelBuilder.jsonApiModel;
 import static com.toedter.spring.hateoas.jsonapi.MediaTypes.JSON_API_VALUE;
 
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
@@ -69,7 +67,7 @@ public class ObjectStoreMetadataRepositoryV2 extends DinaRepositoryV2<ObjectStor
 
   @GetMapping(TMP_V2_TYPE + "/{id}")
   public ResponseEntity<RepresentationModel<?>> handleFindOne(@PathVariable UUID id, HttpServletRequest req) {
-    String queryString = URLDecoder.decode(req.getQueryString(), StandardCharsets.UTF_8);
+    String queryString = decodeQueryString(req);
 
     JsonApiDto<ObjectStoreMetadataDto> jsonApiDto = getOne(id, queryString);
     if (jsonApiDto == null) {
@@ -83,8 +81,8 @@ public class ObjectStoreMetadataRepositoryV2 extends DinaRepositoryV2<ObjectStor
 
   @GetMapping(TMP_V2_TYPE)
   public ResponseEntity<RepresentationModel<?>> handleFindAll(HttpServletRequest req) {
+    String queryString = decodeQueryString(req);
 
-    String queryString = URLDecoder.decode(req.getQueryString(), StandardCharsets.UTF_8);
     PagedResource<ObjectStoreMetadataDto> dtos;
     try {
       dtos = getAll(queryString);

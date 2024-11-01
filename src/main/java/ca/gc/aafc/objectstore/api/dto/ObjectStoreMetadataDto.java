@@ -121,11 +121,13 @@ public class ObjectStoreMetadataDto extends AttributeMetaInfoProvider implements
   }
 
   @Override
+  @JsonIgnore
   public String getJsonApiType() {
     return TYPENAME;
   }
 
   @Override
+  @JsonIgnore
   public UUID getJsonApiId() {
     return uuid;
   }
