@@ -3,6 +3,8 @@ package ca.gc.aafc.objectstore.api;
 import ca.gc.aafc.dina.DinaBaseApiAutoConfiguration;
 import ca.gc.aafc.dina.config.ResourceNameIdentifierConfig;
 import ca.gc.aafc.dina.service.JaversDataService;
+import ca.gc.aafc.objectstore.api.dto.DerivativeDto;
+import ca.gc.aafc.objectstore.api.dto.DerivativeDtoMixin;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDtoMixin;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
@@ -77,6 +79,7 @@ public class MainConfiguration {
       .withObjectMapperCustomizer(objectMapper -> {
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         objectMapper.addMixIn(ObjectStoreMetadataDto.class, ObjectStoreMetadataDtoMixin.class);
+        objectMapper.addMixIn(DerivativeDto.class, DerivativeDtoMixin.class);
         objectMapper.registerModule(new JavaTimeModule());
       });
   }
