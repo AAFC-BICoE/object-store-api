@@ -88,7 +88,7 @@ public class ObjectStoreMetadataRepositoryV2 extends DinaRepositoryV2<ObjectStor
       return ResponseEntity.badRequest().build();
     }
 
-    JsonApiModelBuilder builder = createJsonApiModelCollectionBuilder(dtos);
+    JsonApiModelBuilder builder = createJsonApiModelBuilder(dtos);
 
     return ResponseEntity.ok(builder.build());
   }
