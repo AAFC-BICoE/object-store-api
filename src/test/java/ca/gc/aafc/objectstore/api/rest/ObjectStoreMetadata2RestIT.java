@@ -24,11 +24,14 @@ import ca.gc.aafc.objectstore.api.testsupport.fixtures.ObjectStoreMetadataTestFi
 import io.restassured.RestAssured;
 import io.restassured.builder.MultiPartSpecBuilder;
 import io.restassured.http.Header;
+import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.MultiPartSpecification;
 import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.UUID;
 import javax.transaction.Transactional;
+
+import static org.hamcrest.Matchers.equalTo;
 
 @SpringBootTest(
   webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -112,7 +115,7 @@ public class ObjectStoreMetadata2RestIT  extends BaseRestAssuredTest {
   }
 
   @Test
-  public void sendGet() throws Exception {
+  public void onFindAll_expectedResultReturned() throws Exception {
 
     UUID fileIdentifier = UUID.fromString(uploadFile());
     UUID fileIdentifierDerivative = UUID.fromString(uploadDerivative());
@@ -123,21 +126,17 @@ public class ObjectStoreMetadata2RestIT  extends BaseRestAssuredTest {
     String metadataUUID = JsonAPITestHelper.extractId(sendPost(ObjectStoreMetadataDto.TYPENAME,
       JsonAPITestHelper.toJsonAPIMap(ObjectStoreMetadataDto.TYPENAME,
         JsonAPITestHelper.toAttributeMap(osMetadata),
-        JsonAPITestHelper.toRelationshipMap(
-          JsonAPIRelationship.of("acMetadataCreator", "person", UUID.randomUUID().toString())), null
+null, null
       )));
 
     DerivativeDto derivativeDto = DerivativeTestFixture.newDerivative(fileIdentifierDerivative);
-    JsonAPITestHelper.extractId(
-      sendPost(DerivativeDto.TYPENAME,
-        JsonAPITestHelper.toJsonAPIMap(DerivativeDto.TYPENAME,
-          JsonAPITestHelper.toAttributeMap(derivativeDto),
-          JsonAPITestHelper.toRelationshipMap(
-            JsonAPIRelationship.of("acDerivedFrom", "metadata", metadataUUID)), null)));
+    sendPost(DerivativeDto.TYPENAME,
+      JsonAPITestHelper.toJsonAPIMap(DerivativeDto.TYPENAME,
+        JsonAPITestHelper.toAttributeMap(derivativeDto),
+        JsonAPITestHelper.toRelationshipMap(
+          JsonAPIRelationship.of("acDerivedFrom", "metadata", metadataUUID)), null));
 
-    System.out.println(sendGet(RESOURCE_UNDER_TEST, metadataUUID, Map.of("include", "derivatives,acMetadataCreator"), 200).extract().body().asPrettyString());
-
+    ValidatableResponse response = sendGet(RESOURCE_UNDER_TEST, "", Map.of("include", "derivatives,acMetadataCreator"), 200);
+    response.body("data[0].id", equalTo(metadataUUID));
   }
-
 }
-
