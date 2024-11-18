@@ -16,11 +16,11 @@ import com.toedter.spring.hateoas.jsonapi.JsonApiTypeForClass;
 @JsonApiTypeForClass(IndexRefreshDto.TYPE)
 public class IndexRefreshDto {
 
-    public static final String TYPE = "index-refresh";
+  public static final String TYPE = "index-refresh";
 
-    @JsonApiId
-    private UUID id;
+  @JsonApiId
+  private UUID id;
 
-    private String docType;
+  private String docType;
 
 }

@@ -11,7 +11,8 @@ import ca.gc.aafc.dina.messaging.producer.DocumentOperationNotificationMessagePr
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 
 /**
- * Service used to send a notification to refresh a document in the search index.
+ * Service used to send a notification to refresh a document in the search
+ * index.
  */
 @Service
 @ConditionalOnProperty(prefix = "dina.messaging", name = "isProducer", havingValue = "true")
@@ -34,9 +35,9 @@ public class IndexRefreshService {
     }
 
     DocumentOperationNotification don = DocumentOperationNotification.builder()
-      .documentId(docId)
-      .documentType(type)
-      .operationType(DocumentOperationType.UPDATE).build();
+        .documentId(docId)
+        .documentType(type)
+        .operationType(DocumentOperationType.UPDATE).build();
     searchRabbitMQMessageProducer.send(don);
   }
 }
