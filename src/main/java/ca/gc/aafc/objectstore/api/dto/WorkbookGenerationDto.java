@@ -2,14 +2,17 @@ package ca.gc.aafc.objectstore.api.dto;
 
 import java.util.List;
 import java.util.UUID;
+
 import lombok.Builder;
 import lombok.Data;
+import lombok.extern.jackson.Jacksonized;
 
 import com.toedter.spring.hateoas.jsonapi.JsonApiId;
 import com.toedter.spring.hateoas.jsonapi.JsonApiTypeForClass;
 
 @Data
 @Builder
+@Jacksonized
 @JsonApiTypeForClass(WorkbookGenerationDto.TYPE)
 public class WorkbookGenerationDto {
 
