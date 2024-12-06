@@ -34,3 +34,21 @@ Send a POST request to `derivative-generation` with a body like:
 That will instruct the api to generate a thumbnail from the large image derivative. This should be used in cases where the
 original object can not be used to create the thumbnails (like raw image files). Otherwise, `derivedFromType` should simply be omitted to
 use the original object as a source.
+
+=== Index Refresh
+
+Trigger a message to (re)index a resource.
+
+POST `/index-refresh`
+
+```json
+{
+  "data": {
+    "type": "index-refresh",
+    "id": "c9e66a08-8b59-4183-8346-e2298af32bfe",
+    "attributes": {
+      "docType": "metadata"
+    }
+  }
+}
+```
