@@ -3,6 +3,10 @@ package ca.gc.aafc.objectstore.api;
 import ca.gc.aafc.dina.DinaBaseApiAutoConfiguration;
 import ca.gc.aafc.dina.config.ResourceNameIdentifierConfig;
 import ca.gc.aafc.dina.service.JaversDataService;
+import ca.gc.aafc.objectstore.api.dto.DerivativeDto;
+import ca.gc.aafc.objectstore.api.dto.DerivativeDtoMixin;
+import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
+import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDtoMixin;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 
 import io.minio.MinioClient;
@@ -19,6 +23,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.concurrent.Executor;
+
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.toedter.spring.hateoas.jsonapi.JsonApiConfiguration;
 
 @Configuration
 @EntityScan("ca.gc.aafc.objectstore.api.entities")
@@ -63,6 +71,19 @@ public class MainConfiguration {
     return ResourceNameIdentifierConfig.builder().
       config(ObjectStoreMetadata.class, new ResourceNameIdentifierConfig.ResourceNameConfig("originalFilename", "bucket"))
       .build();
+  }
+
+  @Bean
+  public JsonApiConfiguration jsonApiConfiguration() {
+    return new JsonApiConfiguration()
+      .withPluralizedTypeRendered(false)
+      .withPageMetaAutomaticallyCreated(false)
+      .withObjectMapperCustomizer(objectMapper -> {
+        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        objectMapper.addMixIn(ObjectStoreMetadataDto.class, ObjectStoreMetadataDtoMixin.class);
+        objectMapper.addMixIn(DerivativeDto.class, DerivativeDtoMixin.class);
+        objectMapper.registerModule(new JavaTimeModule());
+      });
   }
 
 }

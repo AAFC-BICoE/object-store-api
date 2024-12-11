@@ -11,18 +11,23 @@ import lombok.Data;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.toedter.spring.hateoas.jsonapi.JsonApiTypeForClass;
 
 @RelatedEntity(Derivative.class)
 @Data
 @JsonApiResource(type = DerivativeDto.TYPENAME)
-public class DerivativeDto {
+@JsonApiTypeForClass(DerivativeDto.TYPENAME)
+public class DerivativeDto implements ca.gc.aafc.dina.dto.JsonApiResource {
 
   public static final String TYPENAME = "derivative";
 
   @JsonApiId
+  @com.toedter.spring.hateoas.jsonapi.JsonApiId
   private UUID uuid;
+
   private String bucket;
   private UUID fileIdentifier;
   private String fileExtension;
@@ -42,4 +47,17 @@ public class DerivativeDto {
 
   @JsonApiRelation
   private ObjectStoreMetadataDto acDerivedFrom;
+
+  @Override
+  @JsonIgnore
+  public String getJsonApiType() {
+    return TYPENAME;
+  }
+
+  @Override
+  @JsonIgnore
+  public UUID getJsonApiId() {
+    return uuid;
+  }
+
 }
