@@ -65,8 +65,7 @@ public class ObjectStoreMetadataRepositoryV2 extends DinaRepositoryV2<ObjectStor
   }
 
   @GetMapping(TMP_V2_TYPE + "/{id}")
-  public ResponseEntity<RepresentationModel<?>> handleFindOne(@PathVariable UUID id, HttpServletRequest req)
-    throws ResourceNotFoundException {
+  public ResponseEntity<RepresentationModel<?>> handleFindOne(@PathVariable UUID id, HttpServletRequest req) throws ResourceNotFoundException {
     String queryString = decodeQueryString(req);
 
     JsonApiDto<ObjectStoreMetadataDto> jsonApiDto = getOne(id, queryString);
