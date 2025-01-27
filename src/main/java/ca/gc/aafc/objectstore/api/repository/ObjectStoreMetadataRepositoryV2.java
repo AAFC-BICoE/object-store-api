@@ -14,6 +14,7 @@ import com.toedter.spring.hateoas.jsonapi.JsonApiModelBuilder;
 import ca.gc.aafc.dina.dto.ExternalRelationDto;
 import ca.gc.aafc.dina.dto.JsonApiDto;
 import ca.gc.aafc.dina.dto.JsonApiExternalResource;
+import ca.gc.aafc.dina.exception.ResourceNotFoundException;
 import ca.gc.aafc.dina.repository.DinaRepositoryV2;
 import ca.gc.aafc.dina.service.AuditService;
 import ca.gc.aafc.dina.service.DinaService;
@@ -64,7 +65,7 @@ public class ObjectStoreMetadataRepositoryV2 extends DinaRepositoryV2<ObjectStor
   }
 
   @GetMapping(TMP_V2_TYPE + "/{id}")
-  public ResponseEntity<RepresentationModel<?>> handleFindOne(@PathVariable UUID id, HttpServletRequest req) {
+  public ResponseEntity<RepresentationModel<?>> handleFindOne(@PathVariable UUID id, HttpServletRequest req) throws ResourceNotFoundException {
     String queryString = decodeQueryString(req);
 
     JsonApiDto<ObjectStoreMetadataDto> jsonApiDto = getOne(id, queryString);

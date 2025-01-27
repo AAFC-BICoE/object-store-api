@@ -30,6 +30,9 @@ public interface ObjectStoreMetadataMapper
   @Mapping(target = "acSubtype", ignore = true)
   ObjectStoreMetadata toEntity(ObjectStoreMetadataDto dto, @Context Set<String> provided, @Context String scope);
 
+  @Mapping(target = "acSubtype", ignore = true)
+  void patchEntity(@MappingTarget ObjectStoreMetadata entity, ObjectStoreMetadataDto dto, @Context Set<String> provided, @Context String scope);
+
   /**
    * Default method to intercept the mapping and set the context to the relationship
    * @param dto
@@ -53,7 +56,6 @@ public interface ObjectStoreMetadataMapper
   }
 
   // Specific type mapping
-
   default String objectSubtypeToString(ObjectSubtype objectSubtype) {
     if (objectSubtype != null &&
       objectSubtype.getDcType() != null &&
