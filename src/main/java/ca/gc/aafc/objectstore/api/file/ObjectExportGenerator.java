@@ -15,9 +15,7 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.compress.archivers.ArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -99,7 +97,6 @@ public class ObjectExportGenerator {
 
     // Do we have an export layout to consider ?
     if (layoutByFileIdentifier.containsKey(obj.getFileIdentifier())) {
-      // avoid absolute path
       String folderName = ObjectFilenameUtils.standardizeFolderName(layoutByFileIdentifier.get(obj.getFileIdentifier()));
       filename = folderName + filename;
     }

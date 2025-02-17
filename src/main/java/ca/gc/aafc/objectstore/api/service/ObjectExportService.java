@@ -79,8 +79,9 @@ public class ObjectExportService {
    */
   public UUID export(ExportArgs exportArgs) {
 
-    Objects.requireNonNull(exportArgs.username());
-    Objects.requireNonNull(exportArgs.fileIdentifiers());
+    if (StringUtils.isBlank(exportArgs.username()) || exportArgs.fileIdentifiers() == null) {
+      throw new IllegalArgumentException("username and fileIdentifiers must be provided");
+    }
 
     UUID exportUUID = UUIDHelper.generateUUIDv7();
 

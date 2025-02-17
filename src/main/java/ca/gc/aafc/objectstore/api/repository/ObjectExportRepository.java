@@ -33,7 +33,7 @@ public class ObjectExportRepository implements ResourceRepository<ObjectExportDt
       objectExportService.export(ObjectExportService.ExportArgs.builder()
         .username(authenticatedUser.getUsername())
         .fileIdentifiers(s.getFileIdentifiers())
-        .username(s.getName())
+        .name(s.getName())
         .build());
 
     s.setUuid(exportUUID);
