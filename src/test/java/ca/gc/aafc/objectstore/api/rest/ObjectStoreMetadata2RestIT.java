@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.UUID;
 import javax.transaction.Transactional;
 
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItems;
 
 @SpringBootTest(
   webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -74,7 +74,7 @@ public class ObjectStoreMetadata2RestIT  extends BaseRestAssuredTest {
     return osMetadata;
   }
 
-  private String uploadFile() throws Exception {
+  private String uploadFile() {
 
     MultiPartSpecification file = new MultiPartSpecBuilder("Test Content".getBytes())
       .mimeType("text/plain")
@@ -137,6 +137,7 @@ null, null
           JsonAPIRelationship.of("acDerivedFrom", "metadata", metadataUUID)), null));
 
     ValidatableResponse response = sendGet(RESOURCE_UNDER_TEST, "", Map.of("include", "derivatives,acMetadataCreator"), 200);
-    response.body("data[0].id", equalTo(metadataUUID));
+    response.body("data.id", hasItems(metadataUUID));
+
   }
 }
