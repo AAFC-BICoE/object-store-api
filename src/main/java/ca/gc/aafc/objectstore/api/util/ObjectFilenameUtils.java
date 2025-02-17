@@ -17,6 +17,12 @@ public final class ObjectFilenameUtils {
   // Accepted : alphanumerical (with Unicode) and _ - [] () .
   public static final Pattern FILENAME_PATTERN = Pattern.compile("[^\\p{L}\\p{N}_\\-\\[\\](). ]");
 
+
+  public static final String FOLDER_FIRST_CHARS_TO_REMOVE = "^[^a-zA-Z0-9]+";
+
+  // Accepted : alphanumerical and _ - [] () /
+  public static final Pattern FOLDERNAME_PATTERN = Pattern.compile("[^\\w\\-\\[\\]()/]");
+
   private ObjectFilenameUtils() {
     // utility class
   }
@@ -32,6 +38,31 @@ public final class ObjectFilenameUtils {
       return userSubmittedFilename;
     }
     return FILENAME_PATTERN.matcher(userSubmittedFilename).replaceAll("_");
+  }
+
+  /**
+   * Standardize folder name to make sure we can extract the file in most operating systems.
+   * The regex accepts less than what is technically accepted to keep things simple.
+   * @param userSubmittedFolderName
+   * @return
+   */
+  public static String standardizeFolderName(String userSubmittedFolderName) {
+    if (StringUtils.isBlank(userSubmittedFolderName)) {
+      return userSubmittedFolderName;
+    }
+
+    // make sure the folder name doesn't start with an invalid char (e.g. / or ~) so we have a
+    // relative path
+    String noInvalidLeadingChar =
+      userSubmittedFolderName.replaceFirst(FOLDER_FIRST_CHARS_TO_REMOVE, "");
+
+    if (StringUtils.isBlank(noInvalidLeadingChar)) {
+      return "";
+    }
+
+    return
+      StringUtils.appendIfMissing(
+        FOLDERNAME_PATTERN.matcher(noInvalidLeadingChar).replaceAll("_"), "/");
   }
 
   /**

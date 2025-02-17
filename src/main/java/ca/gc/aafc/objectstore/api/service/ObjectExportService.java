@@ -20,11 +20,14 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
+import lombok.Builder;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
@@ -71,20 +74,22 @@ public class ObjectExportService {
    * From a list of identifiers, package all the files into a single zip file.
    * Authorization will be checked on every file, if unauthorized is triggered the package will not be created.
    *
-   * @param username the username of the user requesting the export
-   * @param fileIdentifiers list of files identifier to export
-   * @param name optional name of the export
+   *
    * @return the uuid generated for the export
    */
-  public UUID export(String username, List<UUID> fileIdentifiers, String name) {
+  public UUID export(ExportArgs exportArgs) {
+
+    Objects.requireNonNull(exportArgs.username());
+    Objects.requireNonNull(exportArgs.fileIdentifiers());
+
     UUID exportUUID = UUIDHelper.generateUUIDv7();
 
     String filename = exportUUID + EXPORT_EXT;
     Path zipFile = toaCtrl.generatePath(filename);
-    List<AbstractObjectStoreMetadata> toExport = new ArrayList<>(fileIdentifiers.size());
+    List<AbstractObjectStoreMetadata> toExport = new ArrayList<>(exportArgs.fileIdentifiers().size());
     long totalSizeInBytes = 0;
 
-    for (UUID fileIdentifier : fileIdentifiers) {
+    for (UUID fileIdentifier : exportArgs.fileIdentifiers()) {
       AbstractObjectStoreMetadata obj;
       Optional<Derivative> derivative = derivativeService.findByFileId(fileIdentifier);
 
@@ -122,29 +127,30 @@ public class ObjectExportService {
 
     // then complete the export
     CompletableFuture<ExportResult> completableFuture =
-      objectExportGenerator.export(exportUUID, toExport, zipFile).thenApply(uuid -> {
-        String toaKey = toaCtrl.registerObject(filename);
-        log.info("Generated toaKey {}", () -> toaKey);
+      objectExportGenerator.export(exportUUID, toExport, exportArgs.exportLayout(), zipFile)
+        .thenApply(uuid -> {
+          String toaKey = toaCtrl.registerObject(filename);
+          log.info("Generated toaKey {}", () -> toaKey);
 
-        ObjectExportNotification.ObjectExportNotificationBuilder oenBuilder =
-          ObjectExportNotification.builder()
-            .uuid(exportUUID)
-            .username(username)
-            .name(filename)
-            .toa(toaKey);
+          ObjectExportNotification.ObjectExportNotificationBuilder oenBuilder =
+            ObjectExportNotification.builder()
+              .uuid(exportUUID)
+              .username(exportArgs.username())
+              .name(filename)
+              .toa(toaKey);
 
-        if (StringUtils.isNotBlank(name)) {
-          oenBuilder.name(name);
-        }
+          if (StringUtils.isNotBlank(exportArgs.name())) {
+            oenBuilder.name(exportArgs.name());
+          }
 
-        messageProducer.send(oenBuilder.build());
-        return new ExportResult(exportUUID, toaKey);
-      })
-      // if exception
-      .exceptionally(ex -> {
-        log.error("Async exception:", ex);
-        return null;
-      });
+          messageProducer.send(oenBuilder.build());
+          return new ExportResult(exportUUID, toaKey);
+        })
+        // if exception
+        .exceptionally(ex -> {
+          log.error("Async exception:", ex);
+          return null;
+        });
 
     if (asyncConsumer != null) {
       asyncConsumer.accept(completableFuture);
@@ -155,6 +161,18 @@ public class ObjectExportService {
 
   private static void throwIllegalStateFileNotFound(UUID fileIdentifier) throws IllegalStateException {
     throw new IllegalStateException("File " + fileIdentifier + " not found");
+  }
+
+  /**
+   * @param username        the username of the user requesting the export
+   * @param fileIdentifiers list of files identifier to export
+   * @param exportLayout    folder structure of the export (optional)
+   * @param name            optional name of the export (optional)
+   */
+  @Builder
+  public record ExportArgs(String username, List<UUID> fileIdentifiers,
+                           Map<String, List<UUID>> exportLayout, String name) {
+
   }
 
   public record ExportResult(UUID uuid, String toaKey) {

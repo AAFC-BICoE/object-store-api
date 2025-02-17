@@ -30,7 +30,12 @@ public class ObjectExportRepository implements ResourceRepository<ObjectExportDt
   public <S extends ObjectExportDto> S create(S s) {
 
     UUID exportUUID =
-      objectExportService.export(authenticatedUser.getUsername(), s.getFileIdentifiers(), s.getName());
+      objectExportService.export(ObjectExportService.ExportArgs.builder()
+        .username(authenticatedUser.getUsername())
+        .fileIdentifiers(s.getFileIdentifiers())
+        .username(s.getName())
+        .build());
+
     s.setUuid(exportUUID);
     return s;
   }
