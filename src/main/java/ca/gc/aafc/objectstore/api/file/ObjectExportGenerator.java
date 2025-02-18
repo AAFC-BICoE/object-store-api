@@ -11,6 +11,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.compress.archivers.ArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
@@ -38,7 +39,10 @@ public class ObjectExportGenerator {
   }
 
   @Async(MainConfiguration.DINA_THREAD_POOL_BEAN_NAME)
-  public CompletableFuture<UUID> export(UUID exportUUID, List<AbstractObjectStoreMetadata> objectsToExport, Path zipFile) {
+  public CompletableFuture<UUID> export(UUID exportUUID, List<AbstractObjectStoreMetadata> objectsToExport,
+                                        Map<String, List<UUID>> exportLayout, Path zipFile) {
+
+    Map<UUID, String> layoutByFileIdentifier = invertExportLayout(exportLayout);
     Map<String, AtomicInteger> filenamesIncluded = new HashMap<>();
 
     try (ArchiveOutputStream<ZipArchiveEntry> o = new ZipArchiveOutputStream(zipFile)) {
@@ -49,7 +53,7 @@ public class ObjectExportGenerator {
 
         // Set zipEntry with information from fileStorage
         ZipArchiveEntry entry =
-          new ZipArchiveEntry(generateExportItemFilename(currObj, filenamesIncluded));
+          new ZipArchiveEntry(generateExportItemFilename(currObj, layoutByFileIdentifier, filenamesIncluded));
         entry.setSize(
           fileInfo.orElseThrow(() -> new IllegalStateException("No FileInfo found")).getLength());
         o.putArchiveEntry(entry);
@@ -79,6 +83,7 @@ public class ObjectExportGenerator {
    * @return
    */
   private static String generateExportItemFilename(AbstractObjectStoreMetadata obj,
+                                                   Map<UUID, String> layoutByFileIdentifier,
                                                    Map<String, AtomicInteger> usedFilenames) {
     String filename;
 
@@ -88,6 +93,12 @@ public class ObjectExportGenerator {
       filename = ObjectFilenameUtils.generateDerivativeFilename(derivative);
     } else {
       filename = obj.getFilename();
+    }
+
+    // Do we have an export layout to consider ?
+    if (layoutByFileIdentifier.containsKey(obj.getFileIdentifier())) {
+      String folderName = ObjectFilenameUtils.standardizeFolderName(layoutByFileIdentifier.get(obj.getFileIdentifier()));
+      filename = folderName + filename;
     }
 
     // if the filename is already used make sure to add a (1) at the end of the name
@@ -104,5 +115,23 @@ public class ObjectExportGenerator {
       usedFilenames.put(filename, new AtomicInteger(0));
     }
     return filename;
+  }
+
+  private static Map<UUID, String> invertExportLayout(Map<String, List<UUID>> exportLayout) {
+
+    if (MapUtils.isEmpty(exportLayout)) {
+      return Map.of();
+    }
+
+    Map<UUID, String> layoutByFileIdentifier = new HashMap<>();
+    for (var entry : exportLayout.entrySet()) {
+      for (var uuid : entry.getValue()) {
+        if (layoutByFileIdentifier.containsKey(uuid)) {
+          throw new IllegalArgumentException("fileIdentifiers should be unique in exportLayout");
+        }
+        layoutByFileIdentifier.put(uuid, entry.getKey());
+      }
+    }
+    return layoutByFileIdentifier;
   }
 }

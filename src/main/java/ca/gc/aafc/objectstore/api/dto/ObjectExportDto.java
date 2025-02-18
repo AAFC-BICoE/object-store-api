@@ -3,6 +3,7 @@ package ca.gc.aafc.objectstore.api.dto;
 import io.crnk.core.resource.annotations.JsonApiId;
 import io.crnk.core.resource.annotations.JsonApiResource;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,6 +25,7 @@ public class ObjectExportDto {
   private UUID uuid;
 
   private List<UUID> fileIdentifiers;
+  private Map<String, List<UUID>> exportLayout;
   private String name;
 
 }
