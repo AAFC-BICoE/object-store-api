@@ -19,12 +19,12 @@ public class ObjectUploadAuthorizationService extends PermissionAuthorizationSer
   }
 
   @Override
-  @PreAuthorize("hasDinaRole(@currentUser, 'DINA_ADMIN')")
+  @PreAuthorize("hasAdminRole(@currentUser, 'DINA_ADMIN')")
   public void authorizeUpdate(Object entity) {
   }
 
   @Override
-  @PreAuthorize("hasDinaRole(@currentUser, 'DINA_ADMIN')")
+  @PreAuthorize("hasAdminRole(@currentUser, 'DINA_ADMIN')")
   public void authorizeDelete(Object entity) {
   }
 
