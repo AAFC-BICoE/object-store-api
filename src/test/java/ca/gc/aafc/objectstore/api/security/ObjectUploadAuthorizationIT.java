@@ -37,7 +37,7 @@ public class ObjectUploadAuthorizationIT extends BaseIntegrationTest {
   }
 
   @Test
-  @WithMockKeycloakUser(groupRole = {"CNC:DINA_ADMIN"})
+  @WithMockKeycloakUser(adminRole = {"DINA_ADMIN"})
   void save_isAdmin_Allowed() {
     ObjectUpload testObjectUpload = ObjectUploadFactory.newObjectUpload()
       .build();
@@ -47,5 +47,4 @@ public class ObjectUploadAuthorizationIT extends BaseIntegrationTest {
     dto.setOriginalFilename("hello.txt");
     repo.save(dto);
   }
-
 }
