@@ -19,6 +19,13 @@ Send a POST request to `object-export` with a body like:
 
 The response will include the export UUID.
 
+To include files in folder(s) it is possible to add the following attributes:
+
+```
+"exportLayout": { "subfolder/" : ["fileUUID"] }
+```
+
+
 == Export processing
 
 * Assemble the export and compress the content in an archive

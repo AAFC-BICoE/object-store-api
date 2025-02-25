@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -90,13 +91,16 @@ public class ObjectExportServiceIT extends BaseIntegrationTest {
     assertTrue(thumbnail.isPresent());
 
     // 4 - request the file and its derivative
-    objectExportService.export("testuser",
-      List.of(osm.getFileIdentifier(), thumbnail.get().getFileIdentifier()), "testname");
+    objectExportService.export(ObjectExportService.ExportArgs.builder()
+      .username("testuser")
+      .fileIdentifiers(List.of(osm.getFileIdentifier(), thumbnail.get().getFileIdentifier()))
+      .exportLayout(Map.of("thumb/", List.of(thumbnail.get().getFileIdentifier())))
+      .username("testname").build());
 
     // 5 - Wait for completion
     ObjectExportService.ExportResult result;
     try {
-      result = asyncConsumer.getAccepted().get(0).get();
+      result = asyncConsumer.getAccepted().getFirst().get();
     } catch (InterruptedException | ExecutionException e) {
       throw new RuntimeException(e);
     }
@@ -118,7 +122,7 @@ public class ObjectExportServiceIT extends BaseIntegrationTest {
 
     assertEquals(2, filenamesInZip.size());
     assertTrue(filenamesInZip.contains("testfile.png"));
-    assertTrue(filenamesInZip.contains("testfile_thumbnail.jpg"));
+    assertTrue(filenamesInZip.contains("thumb/testfile_thumbnail.jpg"));
   }
 
 }
