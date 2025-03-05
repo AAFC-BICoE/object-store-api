@@ -95,6 +95,7 @@ public class ObjectExportServiceIT extends BaseIntegrationTest {
       .username("testuser")
       .fileIdentifiers(List.of(osm.getFileIdentifier(), thumbnail.get().getFileIdentifier()))
       .exportLayout(Map.of("thumb/", List.of(thumbnail.get().getFileIdentifier())))
+      .filenameAliases(Map.of(osm.getFileIdentifier(), "testFileAlias"))
       .username("testname").build());
 
     // 5 - Wait for completion
@@ -121,7 +122,7 @@ public class ObjectExportServiceIT extends BaseIntegrationTest {
     }
 
     assertEquals(2, filenamesInZip.size());
-    assertTrue(filenamesInZip.contains("testfile.png"));
+    assertTrue(filenamesInZip.contains("testFileAlias.png"));
     assertTrue(filenamesInZip.contains("thumb/testfile_thumbnail.jpg"));
   }
 
