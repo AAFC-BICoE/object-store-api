@@ -33,6 +33,7 @@ public class ObjectExportRepository implements ResourceRepository<ObjectExportDt
       objectExportService.export(ObjectExportService.ExportArgs.builder()
         .username(authenticatedUser.getUsername())
         .fileIdentifiers(s.getFileIdentifiers())
+        .filenameAliases(s.getFilenameAliases())
         .exportLayout(s.getExportLayout())
         .name(s.getName())
         .build());

@@ -25,6 +25,10 @@ To include files in folder(s) it is possible to add the following attributes:
 "exportLayout": { "subfolder/" : ["fileUUID"] }
 ```
 
+It is also possible to use an alternative name (alias) for files:
+```
+"filenameAliases": { "fileUUID" : "myFileAlias" }
+```
 
 == Export processing
 

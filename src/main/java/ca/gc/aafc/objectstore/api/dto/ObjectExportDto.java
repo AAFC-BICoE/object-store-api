@@ -25,6 +25,7 @@ public class ObjectExportDto {
   private UUID uuid;
 
   private List<UUID> fileIdentifiers;
+  private Map<UUID, String> filenameAliases;
   private Map<String, List<UUID>> exportLayout;
   private String name;
 
