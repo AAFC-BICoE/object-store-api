@@ -127,7 +127,8 @@ public class ObjectExportService {
 
     // then complete the export
     CompletableFuture<ExportResult> completableFuture =
-      objectExportGenerator.export(exportUUID, toExport, exportArgs.exportLayout(), zipFile)
+      objectExportGenerator.export(exportUUID, toExport, exportArgs.filenameAliases(),
+          exportArgs.exportLayout(), zipFile)
         .thenApply(uuid -> {
           String toaKey = toaCtrl.registerObject(filename);
           log.info("Generated toaKey {}", () -> toaKey);
@@ -166,11 +167,13 @@ public class ObjectExportService {
   /**
    * @param username        the username of the user requesting the export
    * @param fileIdentifiers list of files identifier to export
+   * @param filenameAliases map of fileIdentifier to optional filename alias
    * @param exportLayout    folder structure of the export (optional)
    * @param name            optional name of the export (optional)
    */
   @Builder
   public record ExportArgs(String username, List<UUID> fileIdentifiers,
+                           Map<UUID, String> filenameAliases,
                            Map<String, List<UUID>> exportLayout, String name) {
 
   }

@@ -69,9 +69,10 @@ public final class ObjectFilenameUtils {
    * Generate a filename (with file extension) for a derivative. Since Derivatives don't have a name we are trying to use the name
    * of the derivedFrom and add the derivative type as suffix. We will use a fallback on derivative's uuid.
    * @param derivative non null
+   * @param filenameAlias optional, an alias to use instead of the originalFilename of the derivedFrom
    * @return a filename like myUploadedImage_thumbnail.jpg
    */
-  public static String generateDerivativeFilename(Derivative derivative) {
+  public static String generateDerivativeFilename(Derivative derivative, String filenameAlias) {
     Objects.requireNonNull(derivative);
 
     ObjectStoreMetadata derivedFrom = derivative.getAcDerivedFrom();
@@ -80,8 +81,12 @@ public final class ObjectFilenameUtils {
       String derivativeSuffix =
         derivative.getDerivativeType() != null ? derivative.getDerivativeType().getSuffix() :
           "derivative";
+
+      String filename = StringUtils.isBlank(filenameAlias) ? derivedFrom.getOriginalFilename() :
+        standardizeFilename(filenameAlias);
+
       // generate a name from the originalFilename + the generated suffix + the derivative file extension (since it might be different from the original)
-      return FilenameUtils.getBaseName(derivedFrom.getOriginalFilename()) + "_" + derivativeSuffix + derivative.getFileExtension();
+      return FilenameUtils.getBaseName(filename) + "_" + derivativeSuffix + derivative.getFileExtension();
     }
     //fallback, use the internal name
     return derivative.getFilename();
@@ -91,19 +96,21 @@ public final class ObjectFilenameUtils {
    * Make sure a valid filename is generated for the download.
    *
    * @param mainObject
-   * @return
+   * @param filenameAlias optional, an alias to use instead of the originalFilename
+   * @return generated filename including file extension
    */
-  public static String generateMainObjectFilename(ObjectStoreMetadata mainObject) {
+  public static String generateMainObjectFilename(ObjectStoreMetadata mainObject, String filenameAlias) {
     Objects.requireNonNull(mainObject);
 
-    String originalFilename = mainObject.getOriginalFilename();
+    String filename = StringUtils.isBlank(filenameAlias) ? mainObject.getOriginalFilename() :
+      standardizeFilename(filenameAlias);
 
     // if there is no original file name of the filename is just an extension
-    if (StringUtils.isEmpty(originalFilename) || StringUtils.isEmpty(FilenameUtils.getBaseName(originalFilename))) {
+    if (StringUtils.isEmpty(filename) || StringUtils.isEmpty(FilenameUtils.getBaseName(filename))) {
       return mainObject.getFilename();
     }
     // use the internal extension since we are also returning the internal media type
-    return FilenameUtils.getBaseName(originalFilename) + mainObject.getFileExtension();
+    return FilenameUtils.getBaseName(filename) + mainObject.getFileExtension();
   }
 
   /**

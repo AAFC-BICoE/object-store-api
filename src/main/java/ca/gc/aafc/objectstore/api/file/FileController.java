@@ -206,7 +206,7 @@ public class FileController {
 
     // For the download of an object use the originalFilename provided (if possible)
     return download(bucket, metadata.getFilename(),
-      ObjectFilenameUtils.generateMainObjectFilename(metadata),
+      ObjectFilenameUtils.generateMainObjectFilename(metadata, null),
         false, metadata.getDcFormat(), metadata);
   }
 
@@ -246,7 +246,7 @@ public class FileController {
       .orElseThrow(() -> buildNotFoundException(bucket, Objects.toString(fileId)));
 
     return download(bucket, derivative.getFilename(), 
-      ObjectFilenameUtils.generateDerivativeFilename(derivative), true, derivative.getDcFormat(), derivative);
+      ObjectFilenameUtils.generateDerivativeFilename(derivative, null), true, derivative.getDcFormat(), derivative);
   }
 
   @GetMapping("/file/{bucket}/{fileId}/thumbnail")

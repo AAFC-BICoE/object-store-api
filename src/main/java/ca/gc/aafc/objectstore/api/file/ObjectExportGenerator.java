@@ -16,6 +16,7 @@ import org.apache.commons.compress.archivers.ArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -40,9 +41,11 @@ public class ObjectExportGenerator {
 
   @Async(MainConfiguration.DINA_THREAD_POOL_BEAN_NAME)
   public CompletableFuture<UUID> export(UUID exportUUID, List<AbstractObjectStoreMetadata> objectsToExport,
+                                        Map<UUID, String> aliases,
                                         Map<String, List<UUID>> exportLayout, Path zipFile) {
 
     Map<UUID, String> layoutByFileIdentifier = invertExportLayout(exportLayout);
+    Map<UUID, String> filenameAliases = aliases == null ? Map.of() : aliases;
     Map<String, AtomicInteger> filenamesIncluded = new HashMap<>();
 
     try (ArchiveOutputStream<ZipArchiveEntry> o = new ZipArchiveOutputStream(zipFile)) {
@@ -53,7 +56,8 @@ public class ObjectExportGenerator {
 
         // Set zipEntry with information from fileStorage
         ZipArchiveEntry entry =
-          new ZipArchiveEntry(generateExportItemFilename(currObj, layoutByFileIdentifier, filenamesIncluded));
+          new ZipArchiveEntry(generateExportItemFilename(currObj, filenameAliases.get(currObj.getFileIdentifier()),
+            layoutByFileIdentifier.get(currObj.getFileIdentifier()), filenamesIncluded));
         entry.setSize(
           fileInfo.orElseThrow(() -> new IllegalStateException("No FileInfo found")).getLength());
         o.putArchiveEntry(entry);
@@ -79,25 +83,26 @@ public class ObjectExportGenerator {
    * Get a unique (withing the export) filename.
    *
    * @param obj           the data about the file to add
+   * @param filenameAlias use an alternative name for the filename
+   * @param folder        folder to which the file should be stored under
    * @param usedFilenames filenames that are already used with a counter. Will be modified by this function.
    * @return
    */
   private static String generateExportItemFilename(AbstractObjectStoreMetadata obj,
-                                                   Map<UUID, String> layoutByFileIdentifier,
+                                                   String filenameAlias, String folder,
                                                    Map<String, AtomicInteger> usedFilenames) {
     String filename;
-
     if (obj instanceof ObjectStoreMetadata metadata) {
-      filename = ObjectFilenameUtils.generateMainObjectFilename(metadata);
+      filename = ObjectFilenameUtils.generateMainObjectFilename(metadata, filenameAlias);
     } else if (obj instanceof Derivative derivative) {
-      filename = ObjectFilenameUtils.generateDerivativeFilename(derivative);
+      filename = ObjectFilenameUtils.generateDerivativeFilename(derivative, filenameAlias);
     } else {
       filename = obj.getFilename();
     }
 
     // Do we have an export layout to consider ?
-    if (layoutByFileIdentifier.containsKey(obj.getFileIdentifier())) {
-      String folderName = ObjectFilenameUtils.standardizeFolderName(layoutByFileIdentifier.get(obj.getFileIdentifier()));
+    if (StringUtils.isNotBlank(folder)) {
+      String folderName = ObjectFilenameUtils.standardizeFolderName(folder);
       filename = folderName + filename;
     }
 
