@@ -85,6 +85,7 @@ dina:
       queue: dina.export.queue
   export:
     maxObjectExportSize: 2GB
+  apiPrefix: /api/v1
 
 rabbitmq:
   queue: dina.search.queue
