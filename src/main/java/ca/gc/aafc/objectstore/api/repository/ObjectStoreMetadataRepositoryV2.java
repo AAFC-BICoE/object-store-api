@@ -65,7 +65,7 @@ public class ObjectStoreMetadataRepositoryV2 extends DinaRepositoryV2<ObjectStor
 
   @GetMapping(TMP_V2_TYPE + "/{id}")
   public ResponseEntity<RepresentationModel<?>> onFindOne(@PathVariable UUID id, HttpServletRequest req)
-    throws ResourceNotFoundException, ResourceGoneException {
+      throws ResourceNotFoundException, ResourceGoneException {
     return handleFindOne(id, req);
   }
 

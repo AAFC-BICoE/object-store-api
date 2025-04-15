@@ -11,7 +11,6 @@ import javax.persistence.criteria.Root;
 import javax.validation.ValidationException;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.SmartValidator;
 
