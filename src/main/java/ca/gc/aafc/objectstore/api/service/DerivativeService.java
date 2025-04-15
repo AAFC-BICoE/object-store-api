@@ -1,11 +1,11 @@
 package ca.gc.aafc.objectstore.api.service;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.SmartValidator;
 
 import ca.gc.aafc.dina.jpa.BaseDAO;
+import ca.gc.aafc.dina.messaging.DinaEventPublisher;
 import ca.gc.aafc.dina.messaging.EntityChanged;
 import ca.gc.aafc.dina.messaging.message.DocumentOperationType;
 import ca.gc.aafc.dina.service.MessageProducingService;
@@ -39,7 +39,7 @@ public class DerivativeService extends MessageProducingService<Derivative> {
     DerivativeGenerationService derivativeGenerationService,
     @NonNull DerivativeValidator validator,
     @NonNull SmartValidator smartValidator,
-    ApplicationEventPublisher eventPublisher
+    DinaEventPublisher<EntityChanged> eventPublisher
   ) {
     super(baseDAO, smartValidator, DerivativeDto.TYPENAME, eventPublisher);
     this.derivativeGenerationService = derivativeGenerationService;
