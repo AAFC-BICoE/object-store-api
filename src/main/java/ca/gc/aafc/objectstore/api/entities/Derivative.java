@@ -26,7 +26,7 @@ import java.util.UUID;
 public class Derivative extends AbstractObjectStoreMetadata {
 
   public enum DerivativeType {
-    THUMBNAIL_IMAGE("thumbnail"), LARGE_IMAGE("large");
+    THUMBNAIL_IMAGE("thumbnail"), LARGE_IMAGE("large"), CROPPED_IMAGE("cropped");
 
     private final String suffix;
 
