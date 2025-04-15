@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.SmartValidator;
 
 import ca.gc.aafc.dina.jpa.BaseDAO;
+import ca.gc.aafc.dina.messaging.DinaEventPublisher;
+import ca.gc.aafc.dina.messaging.EntityChanged;
 import ca.gc.aafc.dina.service.MessageProducingService;
 import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
@@ -53,7 +55,7 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
       @NonNull SmartValidator smartValidator,
       @NonNull ObjectStoreManagedAttributeValueValidator objectStoreManagedAttributeValueValidator,
       @NonNull ObjectStoreMetadataValidator objectStoreMetadataValidator,
-      ApplicationEventPublisher eventPublisher) {
+      DinaEventPublisher<EntityChanged> eventPublisher) {
     super(baseDAO, smartValidator, ObjectStoreMetadataDto.TYPENAME, eventPublisher);
     this.baseDAO = baseDAO;
     this.defaultValueSetterService = defaultValueSetterService;
