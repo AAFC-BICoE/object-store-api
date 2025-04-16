@@ -23,6 +23,7 @@ public class DerivativeTestFixture {
     dto.setCreatedBy(CREATED_BY);
     dto.setPubliclyReleasable(true);
     dto.setNotPubliclyReleasableReason("Classified");
+    dto.setAcTags(new String[] {"tag 1"});
     return dto;
   }
 }
