@@ -21,6 +21,7 @@ import javax.validation.ValidationException;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DerivativeRepositoryCRUDIT extends BaseIntegrationTest {
@@ -109,6 +110,7 @@ public class DerivativeRepositoryCRUDIT extends BaseIntegrationTest {
       resource.getUuid(),
       new QuerySpec(DerivativeDto.class));
     assertTrue(result.getPubliclyReleasable());
+    assertNotNull(result.getAcTags());
   }
 
   private DerivativeDto newDerivative(UUID fileIdentifier) {

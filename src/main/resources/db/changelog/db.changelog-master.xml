@@ -20,4 +20,5 @@
     <include file="db/changelog/migrations/15-Add_publiclyReleasable_To_Derivative.xml"/>
     <include file="db/changelog/migrations/data/1-Reset_ObjectUpload_sha1hex.xml"/>
     <include file="db/changelog/migrations/16-Add_CROPPED_IMAGE_to_derivative_type.xml"/>
+    <include file="db/changelog/migrations/17-Add_acTags_to_Derivative.xml"/>
 </databaseChangeLog>
