@@ -9,11 +9,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.toedter.spring.hateoas.jsonapi.JsonApiModelBuilder;
 
 import ca.gc.aafc.dina.dto.ExternalRelationDto;
-import ca.gc.aafc.dina.dto.JsonApiDto;
 import ca.gc.aafc.dina.dto.JsonApiExternalResource;
+import ca.gc.aafc.dina.exception.ResourceGoneException;
 import ca.gc.aafc.dina.exception.ResourceNotFoundException;
 import ca.gc.aafc.dina.repository.DinaRepositoryV2;
 import ca.gc.aafc.dina.service.AuditService;
@@ -65,33 +64,14 @@ public class ObjectStoreMetadataRepositoryV2 extends DinaRepositoryV2<ObjectStor
   }
 
   @GetMapping(TMP_V2_TYPE + "/{id}")
-  public ResponseEntity<RepresentationModel<?>> handleFindOne(@PathVariable UUID id, HttpServletRequest req) throws ResourceNotFoundException {
-    String queryString = decodeQueryString(req);
-
-    JsonApiDto<ObjectStoreMetadataDto> jsonApiDto = getOne(id, queryString);
-    if (jsonApiDto == null) {
-      return ResponseEntity.notFound().build();
-    }
-
-    JsonApiModelBuilder builder = createJsonApiModelBuilder(jsonApiDto);
-
-    return ResponseEntity.ok(builder.build());
+  public ResponseEntity<RepresentationModel<?>> onFindOne(@PathVariable UUID id, HttpServletRequest req)
+      throws ResourceNotFoundException, ResourceGoneException {
+    return handleFindOne(id, req);
   }
 
   @GetMapping(TMP_V2_TYPE)
-  public ResponseEntity<RepresentationModel<?>> handleFindAll(HttpServletRequest req) {
-    String queryString = decodeQueryString(req);
-
-    PagedResource<JsonApiDto<ObjectStoreMetadataDto>> dtos;
-    try {
-      dtos = getAll(queryString);
-    } catch (IllegalArgumentException iaEx) {
-      return ResponseEntity.badRequest().build();
-    }
-
-    JsonApiModelBuilder builder = createJsonApiModelBuilder(dtos);
-
-    return ResponseEntity.ok(builder.build());
+  public ResponseEntity<RepresentationModel<?>> onFindAll(HttpServletRequest req) {
+    return handleFindAll(req);
   }
 
 }

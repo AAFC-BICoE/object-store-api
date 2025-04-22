@@ -1,0 +1,12 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no" ?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://local.xsd/dbchangelog-4.4.xsd"
+                   objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+
+  <changeSet id="16-Add_CROPPED_IMAGE_to_derivative_type" context="schema-change" author="cgendreau" runInTransaction="false">
+    <sql>
+      ALTER TYPE derivative_type ADD VALUE 'CROPPED_IMAGE';
+    </sql>
+  </changeSet>
+</databaseChangeLog>
