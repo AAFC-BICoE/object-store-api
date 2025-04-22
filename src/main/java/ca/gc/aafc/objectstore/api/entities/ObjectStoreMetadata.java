@@ -56,8 +56,6 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
 
   private String originalFilename;
 
-  private String[] acTags;
-
   private Map<String, String> managedAttributes;
 
   private UUID acMetadataCreator;
@@ -120,7 +118,8 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
         createdOn,
         dcFormat,
         publiclyReleasable,
-        notPubliclyReleasableReason);
+        notPubliclyReleasableReason,
+        acTags);
     this.id = id;
     this.acCaption = acCaption;
     this.acDigitizationDate = acDigitizationDate;
@@ -130,7 +129,6 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
     this.xmpRightsOwner = xmpRightsOwner;
     this.xmpRightsUsageTerms = xmpRightsUsageTerms;
     this.originalFilename = originalFilename;
-    this.acTags = acTags;
     this.managedAttributes = MapUtils.isNotEmpty(managedAttributeValues) ? managedAttributeValues : new HashMap<>();
     this.acMetadataCreator = acMetadataCreator;
     this.dcCreator = dcCreator;
@@ -188,16 +186,6 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
 
   public void setOriginalFilename(String originalFilename) {
     this.originalFilename = originalFilename;
-  }
-
-  @Type(type = "string-array")
-  @Column(name = "ac_tags", columnDefinition = "text[]")
-  public String[] getAcTags() {
-    return acTags;
-  }
-
-  public void setAcTags(String[] acTags) {
-    this.acTags = acTags;
   }
 
   @NotNull

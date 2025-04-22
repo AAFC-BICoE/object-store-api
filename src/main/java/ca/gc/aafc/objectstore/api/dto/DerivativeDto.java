@@ -42,6 +42,9 @@ public class DerivativeDto implements ca.gc.aafc.dina.dto.JsonApiResource {
   @JsonInclude(Include.NON_EMPTY)
   private String notPubliclyReleasableReason;
 
+  @JsonInclude(Include.NON_EMPTY)
+  private String[] acTags;
+
   @JsonApiRelation
   private DerivativeDto generatedFromDerivative;
 

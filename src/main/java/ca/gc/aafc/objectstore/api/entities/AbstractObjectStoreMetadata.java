@@ -39,6 +39,8 @@ public abstract class AbstractObjectStoreMetadata implements DinaEntity {
   private Boolean publiclyReleasable;
   private String notPubliclyReleasableReason;
 
+  private String[] acTags;
+
   @NaturalId
   @NotNull
   @Column(name = "uuid", unique = true)
@@ -168,6 +170,16 @@ public abstract class AbstractObjectStoreMetadata implements DinaEntity {
 
   public void setNotPubliclyReleasableReason(String notPubliclyReleasableReason) {
     this.notPubliclyReleasableReason = notPubliclyReleasableReason;
+  }
+
+  @Type(type = "string-array")
+  @Column(name = "ac_tags", columnDefinition = "text[]")
+  public String[] getAcTags() {
+    return acTags;
+  }
+
+  public void setAcTags(String[] acTags) {
+    this.acTags = acTags;
   }
 
   /**
