@@ -7,7 +7,6 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.tika.mime.MediaType;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -60,7 +59,6 @@ public class ObjectExportGenerator {
     Map<UUID, String> layoutByFileIdentifier = invertExportLayout(exportOptions.exportLayout());
     Map<UUID, String> filenameAliases = exportOptions.aliases() == null ? Map.of() : exportOptions.aliases();
     Map<String, AtomicInteger> filenamesIncluded = new HashMap<>();
-    boolean functionUsed = CollectionUtils.isNotEmpty(exportOptions.functions());
 
     try (ArchiveOutputStream<ZipArchiveEntry> o = new ZipArchiveOutputStream(zipFile)) {
       for (AbstractObjectStoreMetadata currObj: objectsToExport) {
@@ -77,9 +75,8 @@ public class ObjectExportGenerator {
         try (InputStream is = optIs.orElseThrow(
           () -> new IllegalStateException("No InputStream available"))) {
 
-          if (functionUsed && "image".equals(MediaType.parse(currObj.getDcFormat()).getType())) {
-            handleImageFunction(is, o, exportOptions.functions());
-          } else {
+          //If there is no function(s) handling the stream copy it
+          if (!handleImageFunction(is, currObj.getDcFormat(), o, exportOptions.functions())) {
             IOUtils.copy(is, o);
           }
         }
@@ -97,7 +94,7 @@ public class ObjectExportGenerator {
    * Handles the first specified export function to an image read from a source stream
    * and writes the result to an output stream.
    * <p>
-   * This method currently only supports the {@link ExportFunction.FunctionName#IMG_RESIZE} function.
+   * This method currently only supports the {@link ExportFunction.FunctionDef#IMG_RESIZE} function.
    * If the first function in the list is not {@code IMG_RESIZE}, a warning is logged and no operation
    * is performed.
    * <p>
@@ -106,31 +103,37 @@ public class ObjectExportGenerator {
    * it is the caller's responsibility to manage their lifecycle.
    *
    * @param source    The input stream containing the image data. Must be a format supported by {@link ImageIO#read}.
+   * @param sourceMediaType the media type of the source
    * @param out       The output stream where the processed image will be written.
    * @param functions A list of functions to apply to the image. Only the first function in the list
    *                  is currently processed.
+   * @return Was the function applied ?
    */
-  private void handleImageFunction(InputStream source, OutputStream out, List<ExportFunction> functions)
+  private boolean handleImageFunction(InputStream source, String sourceMediaType, OutputStream out, List<ExportFunction> functions)
     throws IOException {
 
     if (CollectionUtils.isEmpty(functions)) {
-      log.warn("No export functions provided. Skipping operation.");
-      return;
+      log.debug("No export functions provided. Skipping operation.");
+      return false;
     }
 
     ExportFunction exportFct = functions.getFirst();
 
-    // we only support IMG_RESIZE for now
-    if (exportFct.functionName() == ExportFunction.FunctionName.IMG_RESIZE) {
+    // Make sure the media type is supported and parameters are valid
+    if (exportFct.isMediaTypeSupported(sourceMediaType) && exportFct.areParamsValid()) {
       BufferedImage buffImgIn = ImageIO.read(source);
       BufferedImage buffImgOut =
         imageOperationService.resize(buffImgIn, Float.parseFloat(exportFct.params().getFirst()));
       ImageOutputStream output = ImageIO.createImageOutputStream(out);
       ImageUtils.writeJpeg(buffImgOut, output);
       output.close();
+      return true;
     } else {
-      log.warn("Ignoring unsupported export function {}", exportFct.functionName());
+      log.warn("Ignoring export function {} for media type {}",
+        exportFct.functionDef().name(), sourceMediaType);
     }
+
+    return false;
   }
 
   /**

@@ -162,7 +162,7 @@ public class ObjectExportServiceIT extends BaseIntegrationTest {
       .fileIdentifiers(List.of(osm.getFileIdentifier()))
       .objectExportOption(ObjectExportOption.builder()
         .functions(
-          List.of(ExportFunction.builder().functionName(ExportFunction.FunctionName.IMG_RESIZE)
+          List.of(ExportFunction.builder().functionDef(ExportFunction.FunctionDef.IMG_RESIZE)
             .params(List.of("0.5")).build()))
         .build())
       .username("testname")
