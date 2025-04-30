@@ -38,6 +38,7 @@ public class ObjectExportRepository implements ResourceRepository<ObjectExportDt
         .objectExportOption(ObjectExportOption.builder()
           .aliases(s.getFilenameAliases())
           .exportLayout(s.getExportLayout())
+          .functions(s.getExportFunctions())
           .build())
         .build());
 
