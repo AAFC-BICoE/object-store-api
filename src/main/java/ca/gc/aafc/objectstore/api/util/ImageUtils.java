@@ -23,7 +23,7 @@ public final class ImageUtils {
   }
 
   public static void writeJpeg(BufferedImage imgContent, ImageOutputStream output)
-    throws IOException {
+      throws IOException {
 
     Iterator<ImageWriter> jpegWriters = ImageIO.getImageWritersBySuffix("jpg");
     if (jpegWriters.hasNext()) {

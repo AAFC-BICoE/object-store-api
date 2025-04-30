@@ -47,9 +47,9 @@ public class ObjectExportGenerator {
   private final FileStorage fileStorage;
   private final ImageOperationService imageOperationService;
 
-  public ObjectExportGenerator(FileStorage fileStorage, ImageOperationService ImageOperationService) {
+  public ObjectExportGenerator(FileStorage fileStorage, ImageOperationService imageOperationService) {
     this.fileStorage = fileStorage;
-    this.imageOperationService = ImageOperationService;
+    this.imageOperationService = imageOperationService;
   }
 
   @Async(MainConfiguration.DINA_THREAD_POOL_BEAN_NAME)
@@ -110,7 +110,7 @@ public class ObjectExportGenerator {
    * @return Was the function applied ?
    */
   private boolean handleImageFunction(InputStream source, String sourceMediaType, OutputStream out, List<ExportFunction> functions)
-    throws IOException {
+      throws IOException {
 
     if (CollectionUtils.isEmpty(functions)) {
       log.debug("No export functions provided. Skipping operation.");
