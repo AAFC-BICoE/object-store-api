@@ -1000,7 +1000,7 @@ detected media type will be used.</p>
 <p>The response will include the export UUID.</p>
 </div>
 <div class="paragraph">
-<p>To include files in folder(s) it is possible to add the following attributes:</p>
+<p>To include files in folder(s), add the following attributes:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -1008,11 +1008,21 @@ detected media type will be used.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>It is also possible to use an alternative name (alias) for files:</p>
+<p>To use an alternative name (alias) for files:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-none hljs">"filenameAliases": { "fileUUID" : "myFileAlias" }</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To apply a function to the object before the export (jpeg image only):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">{
+"exportFunctions":[{"functionDef":"IMG_RESIZE","params":["0.5"]}]
+}</code></pre>
 </div>
 </div>
 </div>
@@ -1074,7 +1084,7 @@ The key is communicated using an event (message).</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-04-30 19:20:19 UTC
+Last updated 2025-04-30 20:05:13 UTC
 </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
