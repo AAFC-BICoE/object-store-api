@@ -134,8 +134,7 @@ public class ObjectExportGenerator {
       output.close();
       return true;
     } else {
-      log.warn("Ignoring export function {} for media type {}",
-        exportFunction.functionDef().name(), sourceMediaType);
+      log.debug("Skipping export function. Not provided or not valid.");
     }
 
     return false;
