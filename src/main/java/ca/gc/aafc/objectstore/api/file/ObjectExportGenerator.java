@@ -165,8 +165,10 @@ public class ObjectExportGenerator {
 
     // Is there a valid function that will be applied ?
     // Add function related suffix but only if there is no alias provided
-    if(isFunctionPresentAndValid(obj.getDcFormat(), exportFunction) && StringUtils.isBlank(filenameAlias)) {
-      filename = ObjectFilenameUtils.insertBeforeFileExtension(filename, "_" + exportFunction.functionDef().getSuffix());
+    if (isFunctionPresentAndValid(obj.getDcFormat(), exportFunction) &&
+      StringUtils.isBlank(filenameAlias)) {
+      filename = ObjectFilenameUtils.insertBeforeFileExtension(filename,
+        "_" + exportFunction.functionDef().getSuffix());
     }
 
     // Do we have an export layout to consider ?
