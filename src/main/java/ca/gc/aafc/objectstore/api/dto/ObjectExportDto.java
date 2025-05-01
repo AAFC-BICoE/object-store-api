@@ -29,7 +29,7 @@ public class ObjectExportDto {
   private List<UUID> fileIdentifiers;
   private Map<UUID, String> filenameAliases;
   private Map<String, List<UUID>> exportLayout;
-  private List<ExportFunction> exportFunctions;
+  private ExportFunction exportFunction;
   private String name;
 
 }

@@ -118,6 +118,7 @@ public class ObjectExportService {
       }
 
       // validate total size
+      // Note: this is not considering potential functions like image resize
       if (totalSizeInBytes > maxObjectExportSizeInBytes) {
         throw new IllegalStateException("Maximum export size exceeded. Max: " + maxObjectExportSizeInBytes + " bytes");
       }

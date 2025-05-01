@@ -16,14 +16,16 @@ import org.springframework.http.MediaType;
 public record ExportFunction(FunctionDef functionDef, List<String> params) {
 
   public enum FunctionDef {
-    IMG_RESIZE(Set.of(MediaType.IMAGE_JPEG_VALUE), ExportFunction::imageResizeParamValidator);
+    IMG_RESIZE(Set.of(MediaType.IMAGE_JPEG_VALUE), ExportFunction::imageResizeParamValidator, "resized");
 
     private final Set<String> supportedMediaType;
     private final Predicate<List<String>> paramsValidator;
+    private final String suffix;
 
-    FunctionDef(Set<String> supportedMediaType, Predicate<List<String>> paramsValidator) {
+    FunctionDef(Set<String> supportedMediaType, Predicate<List<String>> paramsValidator, String suffix) {
       this.supportedMediaType = supportedMediaType;
       this.paramsValidator = paramsValidator;
+      this.suffix = suffix;
     }
 
     public boolean isMediaTypeSupported(String mediaType) {
@@ -33,9 +35,11 @@ public record ExportFunction(FunctionDef functionDef, List<String> params) {
     public boolean areParamsValid(List<String> params) {
       return paramsValidator.test(params);
     }
+
+    public String getSuffix() {
+      return suffix;
+    }
   }
-
-
 
   /**
    * Checks if the function can be applied on the provided media type.

@@ -161,9 +161,8 @@ public class ObjectExportServiceIT extends BaseIntegrationTest {
       .username("testuser")
       .fileIdentifiers(List.of(osm.getFileIdentifier()))
       .objectExportOption(ObjectExportOption.builder()
-        .functions(
-          List.of(ExportFunction.builder().functionDef(ExportFunction.FunctionDef.IMG_RESIZE)
-            .params(List.of("0.5")).build()))
+        .exportFunction(ExportFunction.builder().functionDef(ExportFunction.FunctionDef.IMG_RESIZE)
+            .params(List.of("0.5")).build())
         .build())
       .username("testname")
       .build());
@@ -193,7 +192,7 @@ public class ObjectExportServiceIT extends BaseIntegrationTest {
     }
 
     assertEquals(1, filenamesInZip.size());
-    assertTrue(filenamesInZip.contains("testfile.jpg"));
+    assertTrue(filenamesInZip.contains("testfile_resized.jpg"));
   }
 
 }
