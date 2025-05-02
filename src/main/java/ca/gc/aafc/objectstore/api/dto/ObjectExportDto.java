@@ -11,6 +11,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import ca.gc.aafc.objectstore.api.config.ExportFunction;
+
 @Getter
 @Setter
 @Builder
@@ -27,6 +29,7 @@ public class ObjectExportDto {
   private List<UUID> fileIdentifiers;
   private Map<UUID, String> filenameAliases;
   private Map<String, List<UUID>> exportLayout;
+  private ExportFunction exportFunction;
   private String name;
 
 }

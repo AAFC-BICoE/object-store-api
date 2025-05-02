@@ -11,6 +11,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Repository;
 
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
+import ca.gc.aafc.objectstore.api.config.ObjectExportOption;
 import ca.gc.aafc.objectstore.api.dto.ObjectExportDto;
 import ca.gc.aafc.objectstore.api.service.ObjectExportService;
 
@@ -33,9 +34,12 @@ public class ObjectExportRepository implements ResourceRepository<ObjectExportDt
       objectExportService.export(ObjectExportService.ExportArgs.builder()
         .username(authenticatedUser.getUsername())
         .fileIdentifiers(s.getFileIdentifiers())
-        .filenameAliases(s.getFilenameAliases())
-        .exportLayout(s.getExportLayout())
         .name(s.getName())
+        .objectExportOption(ObjectExportOption.builder()
+          .aliases(s.getFilenameAliases())
+          .exportLayout(s.getExportLayout())
+          .exportFunction(s.getExportFunction())
+          .build())
         .build());
 
     s.setUuid(exportUUID);

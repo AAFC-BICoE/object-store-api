@@ -19,15 +19,22 @@ Send a POST request to `object-export` with a body like:
 
 The response will include the export UUID.
 
-To include files in folder(s) it is possible to add the following attributes:
+To include files in folder(s), add the following attributes:
 
 ```
 "exportLayout": { "subfolder/" : ["fileUUID"] }
 ```
 
-It is also possible to use an alternative name (alias) for files:
+To use an alternative name (alias) for files:
 ```
 "filenameAliases": { "fileUUID" : "myFileAlias" }
+```
+
+To apply a function to the object before the export (jpeg image only):
+```
+{
+"exportFunction": { "functionDef" : "IMG_RESIZE", "params" : ["0.5"] }
+}
 ```
 
 == Export processing
