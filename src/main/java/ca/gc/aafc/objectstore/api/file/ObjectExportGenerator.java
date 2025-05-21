@@ -1,16 +1,5 @@
 package ca.gc.aafc.objectstore.api.file;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.compress.archivers.ArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
@@ -21,45 +10,68 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import ca.gc.aafc.objectstore.api.MainConfiguration;
+import ca.gc.aafc.objectstore.api.config.ExportFunction;
+import ca.gc.aafc.objectstore.api.config.ObjectExportOption;
 import ca.gc.aafc.objectstore.api.entities.AbstractObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
+import ca.gc.aafc.objectstore.api.service.ImageOperationService;
 import ca.gc.aafc.objectstore.api.storage.FileStorage;
+import ca.gc.aafc.objectstore.api.util.ImageUtils;
 import ca.gc.aafc.objectstore.api.util.ObjectFilenameUtils;
+
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicInteger;
+import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageOutputStream;
+import lombok.extern.log4j.Log4j2;
 
 /**
  * Responsible to generate the export archive asynchronously.
  */
+@Log4j2
 @Service
 public class ObjectExportGenerator {
 
-  private final FileStorage fileStorage;
+  private static final Set<ExportFunction.FunctionDef> SUPPORTED_FUNCTIONS = Set.of(
+    ExportFunction.FunctionDef.IMG_RESIZE);
 
-  public ObjectExportGenerator(FileStorage fileStorage) {
+  private final FileStorage fileStorage;
+  private final ImageOperationService imageOperationService;
+
+  public ObjectExportGenerator(FileStorage fileStorage, ImageOperationService imageOperationService) {
     this.fileStorage = fileStorage;
+    this.imageOperationService = imageOperationService;
   }
 
   @Async(MainConfiguration.DINA_THREAD_POOL_BEAN_NAME)
   public CompletableFuture<UUID> export(UUID exportUUID, List<AbstractObjectStoreMetadata> objectsToExport,
-                                        Map<UUID, String> aliases,
-                                        Map<String, List<UUID>> exportLayout, Path zipFile) {
+                                        Path zipFile, ObjectExportOption exportOptions) {
 
-    Map<UUID, String> layoutByFileIdentifier = invertExportLayout(exportLayout);
-    Map<UUID, String> filenameAliases = aliases == null ? Map.of() : aliases;
+    Map<UUID, String> layoutByFileIdentifier = invertExportLayout(exportOptions.exportLayout());
+    Map<UUID, String> filenameAliases = exportOptions.aliases() == null ? Map.of() : exportOptions.aliases();
     Map<String, AtomicInteger> filenamesIncluded = new HashMap<>();
 
     try (ArchiveOutputStream<ZipArchiveEntry> o = new ZipArchiveOutputStream(zipFile)) {
       for (AbstractObjectStoreMetadata currObj: objectsToExport) {
 
-        Optional<FileObjectInfo> fileInfo =
-          fileStorage.getFileInfo(currObj.getBucket(), currObj.getFilename(), currObj instanceof Derivative);
+        String entryFilename = generateExportItemFilename(currObj, filenameAliases.get(currObj.getFileIdentifier()),
+          layoutByFileIdentifier.get(currObj.getFileIdentifier()), filenamesIncluded, exportOptions.exportFunction());
 
-        // Set zipEntry with information from fileStorage
+        // Set zipEntry
         ZipArchiveEntry entry =
-          new ZipArchiveEntry(generateExportItemFilename(currObj, filenameAliases.get(currObj.getFileIdentifier()),
-            layoutByFileIdentifier.get(currObj.getFileIdentifier()), filenamesIncluded));
-        entry.setSize(
-          fileInfo.orElseThrow(() -> new IllegalStateException("No FileInfo found")).getLength());
+          new ZipArchiveEntry(entryFilename);
         o.putArchiveEntry(entry);
 
         // Get and copy the stream into the zip
@@ -67,7 +79,10 @@ public class ObjectExportGenerator {
           fileStorage.retrieveFile(currObj.getBucket(), currObj.getFilename(), currObj instanceof Derivative);
         try (InputStream is = optIs.orElseThrow(
           () -> new IllegalStateException("No InputStream available"))) {
-          IOUtils.copy(is, o);
+          //If there is no function(s) handling the stream copy it
+          if (!handleImageFunction(is, currObj.getDcFormat(), o, exportOptions.exportFunction())) {
+            IOUtils.copy(is, o);
+          }
         }
         o.closeArchiveEntry();
       }
@@ -79,6 +94,52 @@ public class ObjectExportGenerator {
     return CompletableFuture.completedFuture(exportUUID);
   }
 
+  private static boolean isFunctionPresentAndValid(String sourceMediaType,
+                                                   ExportFunction exportFunction) {
+    if (exportFunction == null) {
+      return false;
+    }
+    return
+      SUPPORTED_FUNCTIONS.contains(exportFunction.functionDef()) &&
+        exportFunction.isMediaTypeSupported(sourceMediaType) && exportFunction.areParamsValid();
+  }
+
+  /**
+   * Handles the specified export function to an image read from a source stream
+   * and writes the result to an output stream.
+   * <p>
+   * If the first function in the list is not {@code IMG_RESIZE}, a warning is logged and no operation
+   * is performed.
+   * <p>
+   * If a supported function is applied, it creates an {@link ImageOutputStream} from the provided output stream and writes the result as JPEG.
+   * The original {@code source} and {@code out} streams are NOT closed by this method;
+   * it is the caller's responsibility to manage their lifecycle.
+   *
+   * @param source    The input stream containing the image data. Must be a format supported by {@link ImageIO#read}.
+   * @param sourceMediaType the media type of the source
+   * @param out       The output stream where the processed image will be written.
+   * @param exportFunction  A function to apply to the image.
+   * @return Was the function applied ?
+   */
+  private boolean handleImageFunction(InputStream source, String sourceMediaType, OutputStream out, ExportFunction exportFunction)
+      throws IOException {
+
+    // Make sure the media type is supported and parameters are valid
+    if (isFunctionPresentAndValid(sourceMediaType, exportFunction)) {
+      BufferedImage buffImgIn = ImageIO.read(source);
+      BufferedImage buffImgOut =
+        imageOperationService.resize(buffImgIn, Float.parseFloat(exportFunction.params().getFirst()));
+      ImageOutputStream output = ImageIO.createImageOutputStream(out);
+      ImageUtils.writeJpeg(buffImgOut, output);
+      output.close();
+      return true;
+    } else {
+      log.debug("Skipping export function. Not provided or not valid.");
+    }
+
+    return false;
+  }
+
   /**
    * Get a unique (withing the export) filename.
    *
@@ -86,11 +147,13 @@ public class ObjectExportGenerator {
    * @param filenameAlias use an alternative name for the filename
    * @param folder        folder to which the file should be stored under
    * @param usedFilenames filenames that are already used with a counter. Will be modified by this function.
+   * @param exportFunction optional export function provided for the export
    * @return
    */
   private static String generateExportItemFilename(AbstractObjectStoreMetadata obj,
                                                    String filenameAlias, String folder,
-                                                   Map<String, AtomicInteger> usedFilenames) {
+                                                   Map<String, AtomicInteger> usedFilenames,
+                                                   ExportFunction exportFunction) {
     String filename;
     if (obj instanceof ObjectStoreMetadata metadata) {
       filename = ObjectFilenameUtils.generateMainObjectFilename(metadata, filenameAlias);
@@ -98,6 +161,14 @@ public class ObjectExportGenerator {
       filename = ObjectFilenameUtils.generateDerivativeFilename(derivative, filenameAlias);
     } else {
       filename = obj.getFilename();
+    }
+
+    // Is there a valid function that will be applied ?
+    // Add function related suffix but only if there is no alias provided
+    if (isFunctionPresentAndValid(obj.getDcFormat(), exportFunction) &&
+      StringUtils.isBlank(filenameAlias)) {
+      filename = ObjectFilenameUtils.insertBeforeFileExtension(filename,
+        "_" + exportFunction.functionDef().getSuffix());
     }
 
     // Do we have an export layout to consider ?
