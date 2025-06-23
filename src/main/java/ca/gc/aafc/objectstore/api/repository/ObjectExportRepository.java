@@ -1,86 +1,68 @@
 package ca.gc.aafc.objectstore.api.repository;
 
-import io.crnk.core.exception.MethodNotAllowedException;
-import io.crnk.core.queryspec.QuerySpec;
-import io.crnk.core.repository.ResourceRepository;
-import io.crnk.core.resource.list.ResourceList;
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.UUID;
+import org.springframework.boot.info.BuildProperties;
+import org.springframework.hateoas.IanaLinkRelations;
+import org.springframework.hateoas.RepresentationModel;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import org.springframework.stereotype.Repository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.toedter.spring.hateoas.jsonapi.JsonApiModelBuilder;
 
+import ca.gc.aafc.dina.dto.JsonApiDto;
+import ca.gc.aafc.dina.jsonapi.JsonApiDocument;
+import ca.gc.aafc.dina.repository.JsonApiModelAssistant;
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
-import ca.gc.aafc.objectstore.api.config.ObjectExportOption;
 import ca.gc.aafc.objectstore.api.dto.ObjectExportDto;
+import ca.gc.aafc.objectstore.api.mapper.ObjectExportMapper;
 import ca.gc.aafc.objectstore.api.service.ObjectExportService;
 
-@Repository
-public class ObjectExportRepository implements ResourceRepository<ObjectExportDto, Serializable> {
+import static com.toedter.spring.hateoas.jsonapi.MediaTypes.JSON_API_VALUE;
+
+import java.net.URI;
+import java.util.UUID;
+
+@RestController
+@RequestMapping(value = "${dina.apiPrefix:}", produces = JSON_API_VALUE)
+public class ObjectExportRepository {
 
   private final ObjectExportService objectExportService;
+  private final ObjectExportMapper mapper;
+
+  private final JsonApiModelAssistant<ObjectExportDto> jsonApiModelAssistant;
+  private final ObjectMapper objMapper;
+
   private final DinaAuthenticatedUser authenticatedUser;
 
   public ObjectExportRepository(ObjectExportService objectExportService,
-                                DinaAuthenticatedUser authenticatedUser) {
+                                DinaAuthenticatedUser authenticatedUser,
+                                BuildProperties buildProperties,
+                                ObjectMapper objMapper) {
     this.objectExportService = objectExportService;
+    this.objMapper = objMapper;
     this.authenticatedUser = authenticatedUser;
+    this.mapper = ObjectExportMapper.INSTANCE;
+    this.jsonApiModelAssistant = new JsonApiModelAssistant<>(buildProperties.getVersion());
   }
 
-  @Override
-  public <S extends ObjectExportDto> S create(S s) {
+  @PostMapping(ObjectExportDto.TYPENAME)
+  public ResponseEntity<RepresentationModel<?>> onCreate(@RequestBody JsonApiDocument postedDocument) {
 
-    UUID exportUUID =
-      objectExportService.export(ObjectExportService.ExportArgs.builder()
-        .username(authenticatedUser.getUsername())
-        .fileIdentifiers(s.getFileIdentifiers())
-        .name(s.getName())
-        .objectExportOption(ObjectExportOption.builder()
-          .aliases(s.getFilenameAliases())
-          .exportLayout(s.getExportLayout())
-          .exportFunction(s.getExportFunction())
-          .build())
-        .build());
+    ObjectExportDto dto = this.objMapper.convertValue(postedDocument.getAttributes(), ObjectExportDto.class);
+    dto.setUsername(authenticatedUser.getUsername());
+    ObjectExportService.ExportArgs exportArgs = mapper.toEntity(dto);
 
-    s.setUuid(exportUUID);
-    return s;
-  }
+    UUID exportUUID = objectExportService.export(exportArgs);
 
-  @Override
-  public Class<ObjectExportDto> getResourceClass() {
-    return ObjectExportDto.class;
-  }
-
-  @Override
-  public ObjectExportDto findOne(Serializable serializable, QuerySpec querySpec) {
-    return null;
-  }
-
-  @Override
-  public ResourceList<ObjectExportDto> findAll(QuerySpec querySpec) {
-    throw new MethodNotAllowedException("GET");
-  }
-
-  @Override
-  public ResourceList<ObjectExportDto> findAll(Collection<Serializable> collection, QuerySpec querySpec) {
-    throw new MethodNotAllowedException("GET");
-  }
-
-  @Override
-  public <S extends ObjectExportDto> S save(S s) {
-    throw new MethodNotAllowedException("PUT/PATCH");
-  }
-
-//  protected <S extends ReportRequestDto> void checkSubmittedData(S resource) {
-//    Objects.requireNonNull(objMapper);
-//    Map<String, Object> convertedObj = objMapper.convertValue(resource, MAP_TYPEREF);
-//    if (!JsonDocumentInspector.testPredicateOnValues(convertedObj, TextHtmlSanitizer::isSafeText)) {
-//      throw new IllegalArgumentException("Unaccepted value detected in attributes");
-//    }
-//  }
-
-  @Override
-  public void delete(Serializable serializable) {
-    throw new MethodNotAllowedException("DELETE");
+    dto.setUuid(exportUUID);
+    JsonApiDto<ObjectExportDto> jsonApiDto = JsonApiDto.<ObjectExportDto>builder()
+      .dto(dto).build();
+    JsonApiModelBuilder builder = this.jsonApiModelAssistant.createJsonApiModelBuilder(jsonApiDto);
+    RepresentationModel<?> model = builder.build();
+    URI uri = model.getRequiredLink(IanaLinkRelations.SELF).toUri();
+    return ResponseEntity.created(uri).body(model);
   }
 }

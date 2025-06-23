@@ -4,8 +4,10 @@ import java.util.List;
 import javax.inject.Inject;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.dao.InvalidDataAccessApiUsageException;
 
+import ca.gc.aafc.dina.jsonapi.JsonApiDocument;
+import ca.gc.aafc.dina.jsonapi.JsonApiDocuments;
+import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.dina.testsupport.security.WithMockKeycloakUser;
 import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
@@ -23,6 +25,11 @@ public class ObjectExportRepositoryIT extends BaseIntegrationTest {
   public void objectExport_onNonExistingUUID_exceptionThrown() {
     ObjectExportDto dto = ObjectExportDto.builder()
       .fileIdentifiers(List.of(UUIDHelper.generateUUIDv7())).build();
-    assertThrows(InvalidDataAccessApiUsageException.class, () -> repository.create(dto));
+
+    JsonApiDocument docToCreate = JsonApiDocuments.createJsonApiDocument(
+      null, ObjectExportDto.TYPENAME,
+      JsonAPITestHelper.toAttributeMap(dto));
+
+    assertThrows(IllegalArgumentException.class, () -> repository.onCreate(docToCreate));
   }
 }
