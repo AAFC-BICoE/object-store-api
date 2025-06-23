@@ -1,7 +1,6 @@
 package ca.gc.aafc.objectstore.api.repository;
 
 import org.springframework.boot.info.BuildProperties;
-import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -55,6 +54,7 @@ public class ObjectExportRepository {
     dto.setUsername(authenticatedUser.getUsername());
     ObjectExportService.ExportArgs exportArgs = mapper.toEntity(dto);
 
+
     UUID exportUUID = objectExportService.export(exportArgs);
 
     dto.setUuid(exportUUID);
@@ -62,7 +62,8 @@ public class ObjectExportRepository {
       .dto(dto).build();
     JsonApiModelBuilder builder = this.jsonApiModelAssistant.createJsonApiModelBuilder(jsonApiDto);
     RepresentationModel<?> model = builder.build();
-    URI uri = model.getRequiredLink(IanaLinkRelations.SELF).toUri();
+    // this will be available in data-export using that same uuid
+    URI uri = URI.create("data-export/" + exportUUID);
     return ResponseEntity.created(uri).body(model);
   }
 }
