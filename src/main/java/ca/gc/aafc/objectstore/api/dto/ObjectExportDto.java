@@ -1,7 +1,5 @@
 package ca.gc.aafc.objectstore.api.dto;
 
-import io.crnk.core.resource.annotations.JsonApiId;
-import io.crnk.core.resource.annotations.JsonApiResource;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -11,6 +9,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.toedter.spring.hateoas.jsonapi.JsonApiId;
+import com.toedter.spring.hateoas.jsonapi.JsonApiTypeForClass;
+
 import ca.gc.aafc.objectstore.api.config.ExportFunction;
 
 @Getter
@@ -18,8 +20,8 @@ import ca.gc.aafc.objectstore.api.config.ExportFunction;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonApiResource(type = ObjectExportDto.TYPENAME)
-public class ObjectExportDto {
+@JsonApiTypeForClass(ObjectExportDto.TYPENAME)
+public class ObjectExportDto implements ca.gc.aafc.dina.dto.JsonApiResource {
 
   public static final String TYPENAME = "object-export";
 
@@ -32,4 +34,18 @@ public class ObjectExportDto {
   private ExportFunction exportFunction;
   private String name;
 
+  @JsonIgnore
+  private String username;
+
+  @JsonIgnore
+  @Override
+  public String getJsonApiType() {
+    return TYPENAME;
+  }
+
+  @JsonIgnore
+  @Override
+  public UUID getJsonApiId() {
+    return uuid;
+  }
 }
