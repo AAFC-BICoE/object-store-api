@@ -1,15 +1,21 @@
 package ca.gc.aafc.objectstore.api.dto;
 
-import io.crnk.core.resource.annotations.JsonApiId;
-import io.crnk.core.resource.annotations.JsonApiResource;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.apache.tika.mime.MediaType;
 
-@JsonApiResource(type = "media-type")
+import com.toedter.spring.hateoas.jsonapi.JsonApiId;
+import com.toedter.spring.hateoas.jsonapi.JsonApiTypeForClass;
+
+import ca.gc.aafc.dina.dto.JsonApiResource;
+
+@JsonApiTypeForClass(MediaTypeDto.TYPENAME)
 @Data
 @AllArgsConstructor
-public class MediaTypeDto {
+public class MediaTypeDto implements JsonApiResource {
+
+  public static final String TYPENAME = "media-type";
 
   @JsonApiId
   private String id;
@@ -20,4 +26,13 @@ public class MediaTypeDto {
     return new MediaTypeDto(mt.toString(), mt.toString());
   }
 
+  @Override
+  public String getJsonApiType() {
+    return TYPENAME;
+  }
+
+  @Override
+  public UUID getJsonApiId() {
+    return null;
+  }
 }
