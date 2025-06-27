@@ -63,7 +63,7 @@ public class DerivativeGenerationRepository {
   @PostMapping(DerivativeGenerationDto.TYPENAME)
   @Transactional
   public ResponseEntity<RepresentationModel<?>> onCreate(@RequestBody JsonApiDocument postedDocument)
-    throws ResourceNotFoundException {
+      throws ResourceNotFoundException {
 
     DerivativeGenerationDto dto = this.objMapper.convertValue(postedDocument.getAttributes(), DerivativeGenerationDto.class);
 
