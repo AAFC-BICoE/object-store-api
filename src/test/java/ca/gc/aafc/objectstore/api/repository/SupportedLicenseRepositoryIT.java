@@ -22,7 +22,7 @@ public class SupportedLicenseRepositoryIT extends BaseIntegrationTest {
     List<LicenseDto> licenseList = supportedLicenseRepository
         .findAll("");
     assertNotNull(licenseList);
-    assertNotNull(licenseList.get(0));
+    assertNotNull(licenseList.getFirst());
   }
 
   @Test
