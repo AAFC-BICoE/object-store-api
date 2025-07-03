@@ -8,7 +8,9 @@ import org.springframework.http.MediaType;
 import javax.inject.Inject;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 public class MediaTypeRepositoryIT extends BaseIntegrationTest {
 
@@ -24,7 +26,6 @@ public class MediaTypeRepositoryIT extends BaseIntegrationTest {
 
   @Test
   public void findMediaTypeList_onFilter_MediaTypeReturned() {
-    // dina-base 0.144 required
     List<MediaTypeDto> mediaTypeList = mediaTypeRepository.findAll("filter[mediaType][LIKE]=%jpeg%");
     assertTrue(mediaTypeList.stream()
             .anyMatch(mt -> MediaType.IMAGE_JPEG_VALUE.equals(mt.getMediaType())));
