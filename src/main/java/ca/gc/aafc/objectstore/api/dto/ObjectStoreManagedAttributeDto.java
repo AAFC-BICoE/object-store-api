@@ -11,14 +11,17 @@ import ca.gc.aafc.dina.dto.RelatedEntity;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.dina.i18n.MultilingualDescription;
 import io.crnk.core.resource.annotations.JsonApiField;
-import io.crnk.core.resource.annotations.JsonApiId;
-import io.crnk.core.resource.annotations.JsonApiResource;
 import lombok.Data;
+
+import com.toedter.spring.hateoas.jsonapi.JsonApiId;
+import com.toedter.spring.hateoas.jsonapi.JsonApiTypeForClass;
 
 @RelatedEntity(ObjectStoreManagedAttribute.class)
 @Data
-@JsonApiResource(type = "managed-attribute") 
-public class ObjectStoreManagedAttributeDto {
+@JsonApiTypeForClass(ObjectStoreManagedAttributeDto.TYPENAME)
+public class ObjectStoreManagedAttributeDto implements ca.gc.aafc.dina.dto.JsonApiResource {
+
+  public static final String TYPENAME = "managed-attribute";
 
   @JsonApiId
   @Id
@@ -37,4 +40,13 @@ public class ObjectStoreManagedAttributeDto {
   private String createdBy;
   private MultilingualDescription multilingualDescription;
 
+  @Override
+  public String getJsonApiType() {
+    return TYPENAME;
+  }
+
+  @Override
+  public UUID getJsonApiId() {
+    return uuid;
+  }
 }
