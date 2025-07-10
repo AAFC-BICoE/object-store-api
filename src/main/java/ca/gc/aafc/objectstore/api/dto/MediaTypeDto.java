@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.apache.tika.mime.MediaType;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.toedter.spring.hateoas.jsonapi.JsonApiId;
 import com.toedter.spring.hateoas.jsonapi.JsonApiTypeForClass;
 
@@ -27,11 +28,13 @@ public class MediaTypeDto implements JsonApiResource {
   }
 
   @Override
+  @JsonIgnore
   public String getJsonApiType() {
     return TYPENAME;
   }
 
   @Override
+  @JsonIgnore
   public UUID getJsonApiId() {
     return null;
   }
