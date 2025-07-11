@@ -1,23 +1,16 @@
 package ca.gc.aafc.objectstore.api.repository;
 
-import ca.gc.aafc.dina.exception.UnknownAttributeException;
-
-import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
-import ca.gc.aafc.objectstore.api.dto.LicenseDto;
-import ca.gc.aafc.objectstore.api.repository.SupportedLicenseRepository;
-import io.crnk.core.queryspec.Direction;
-import io.crnk.core.queryspec.QuerySpec;
-import io.crnk.core.queryspec.SortSpec;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import javax.inject.Inject;
-
-import java.util.Collections;
-import java.util.List;
+import ca.gc.aafc.dina.exception.UnknownAttributeException;
+import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
+import ca.gc.aafc.objectstore.api.dto.LicenseDto;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import java.util.List;
+import javax.inject.Inject;
 
 public class SupportedLicenseRepositoryIT extends BaseIntegrationTest {
 
@@ -27,22 +20,16 @@ public class SupportedLicenseRepositoryIT extends BaseIntegrationTest {
   @Test
   public void findAllLicense_whenFindAll_licensesReturned() {
     List<LicenseDto> licenseList = supportedLicenseRepository
-        .findAll(new QuerySpec(LicenseDto.class));
+        .findAll("");
     assertNotNull(licenseList);
-    assertNotNull(licenseList.get(0));
+    assertNotNull(licenseList.getFirst());
   }
 
   @Test
-  public void findAllLicense_withNonExistantField_UnknownAttributeExceptionThrown() {
-    QuerySpec querySpec = new QuerySpec(LicenseDto.class);
-    querySpec.setSort(Collections.singletonList(
-      new SortSpec(Collections.singletonList("createdOn"), Direction.ASC)));
-
-    Assertions.assertThrows(UnknownAttributeException.class, 
+  public void findAllLicense_withNonExistentField_UnknownAttributeExceptionThrown() {
+    Assertions.assertThrows(UnknownAttributeException.class,
       () -> supportedLicenseRepository
-      .findAll(querySpec)); 
-   
+      .findAll("sort=createdOn"));
   }
-
 
 }

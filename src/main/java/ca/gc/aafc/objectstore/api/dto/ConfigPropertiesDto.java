@@ -3,8 +3,9 @@ package ca.gc.aafc.objectstore.api.dto;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.crnk.core.resource.annotations.JsonApiId;
-import io.crnk.core.resource.annotations.JsonApiResource;
+import com.toedter.spring.hateoas.jsonapi.JsonApiId;
+import com.toedter.spring.hateoas.jsonapi.JsonApiTypeForClass;
+
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,8 +14,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Builder
-@JsonApiResource(type = "config")
+@JsonApiTypeForClass(ConfigPropertiesDto.TYPENAME)
 public class ConfigPropertiesDto {
+
+  public static final String TYPENAME = "config";
 
   @JsonApiId
   @Getter

@@ -1,14 +1,17 @@
 package ca.gc.aafc.objectstore.api.dto;
 
-import io.crnk.core.resource.annotations.JsonApiId;
-import io.crnk.core.resource.annotations.JsonApiResource;
 import lombok.Data;
 
 import java.util.Map;
 
+import com.toedter.spring.hateoas.jsonapi.JsonApiId;
+import com.toedter.spring.hateoas.jsonapi.JsonApiTypeForClass;
+
 @Data
-@JsonApiResource(type = "license")
+@JsonApiTypeForClass(LicenseDto.TYPENAME)
 public class LicenseDto {
+
+  public static final String TYPENAME = "license";
 
   @JsonApiId
   private String id;
