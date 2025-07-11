@@ -88,7 +88,7 @@ public class ObjectStoreManagedAttributeResourceRepository
   @GetMapping(ObjectStoreManagedAttributeDto.TYPENAME + "/{id}")
   public ResponseEntity<RepresentationModel<?>> onFindOne(@PathVariable String id,
                                                           HttpServletRequest req)
-    throws ResourceNotFoundException, ResourceGoneException {
+      throws ResourceNotFoundException, ResourceGoneException {
 
     boolean idIsUuid = true;
     try {
