@@ -1,35 +1,51 @@
 package ca.gc.aafc.objectstore.api.repository;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
-import java.util.UUID;
-
-import javax.inject.Inject;
-
-import ca.gc.aafc.dina.vocabulary.TypedVocabularyElement;
-import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
-import ca.gc.aafc.objectstore.api.testsupport.fixtures.ObjectStoreManagedAttributeFixture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
+import ca.gc.aafc.dina.exception.ResourceGoneException;
+import ca.gc.aafc.dina.exception.ResourceNotFoundException;
+import ca.gc.aafc.dina.jsonapi.JsonApiDocument;
+import ca.gc.aafc.dina.vocabulary.TypedVocabularyElement;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MultilingualDescriptionFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreManagedAttributeFactory;
-import io.crnk.core.queryspec.QuerySpec;
+import ca.gc.aafc.objectstore.api.testsupport.fixtures.ObjectStoreManagedAttributeFixture;
 
-public class ObjectStoreManagedAttributeRepositoryCRUDIT extends BaseIntegrationTest {
-  
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import javax.inject.Inject;
+
+public class ObjectStoreManagedAttributeRepositoryCRUDIT extends ObjectStoreModuleBaseRepositoryIT {
+
+  private static final String BASE_URL = "/api/v1/" + ObjectStoreManagedAttributeDto.TYPENAME;
+  private final static String DINA_USER_NAME = "dev";
+
+  @Autowired
+  private WebApplicationContext wac;
+
+  private MockMvc mockMvc;
+
   @Inject
   private ObjectStoreManagedAttributeResourceRepository managedResourceRepository;
   
   private ObjectStoreManagedAttribute testManagedAttribute;
 
-  private final static String DINA_USER_NAME = "dev";
+
+  @Autowired
+  protected ObjectStoreManagedAttributeRepositoryCRUDIT(ObjectMapper objMapper) {
+    super(BASE_URL, objMapper);
+  }
 
   private ObjectStoreManagedAttribute createTestManagedAttribute() throws JsonProcessingException {
     testManagedAttribute = ObjectStoreManagedAttributeFactory.newManagedAttribute()
@@ -39,16 +55,26 @@ public class ObjectStoreManagedAttributeRepositoryCRUDIT extends BaseIntegration
 
     return managedAttributeService.create(testManagedAttribute);
   }
-  
+
+  @Override
+  protected MockMvc getMockMvc() {
+    return mockMvc;
+  }
+
   @BeforeEach
   public void setup() throws JsonProcessingException { 
-    createTestManagedAttribute();    
+    createTestManagedAttribute();
+    this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
   }  
 
   @Test
-  public void findManagedAttribute_whenNoFieldsAreSelected_manageAttributeReturnedWithAllFields() {
-    ObjectStoreManagedAttributeDto managedAttributeDto = managedResourceRepository
-        .findOne(testManagedAttribute.getUuid(), new QuerySpec(ObjectStoreManagedAttributeDto.class));
+  public void findManagedAttribute_whenNoFieldsAreSelected_manageAttributeReturnedWithAllFields()
+    throws ResourceGoneException, ResourceNotFoundException {
+
+    ObjectStoreManagedAttributeDto managedAttributeDto = managedResourceRepository.getOne(
+      testManagedAttribute.getUuid(), null
+    ).getDto();
+
     assertNotNull(managedAttributeDto);
     assertEquals(testManagedAttribute.getUuid(), managedAttributeDto.getUuid());
     assertArrayEquals(testManagedAttribute.getAcceptedValues(),
@@ -56,40 +82,45 @@ public class ObjectStoreManagedAttributeRepositoryCRUDIT extends BaseIntegration
     assertEquals(testManagedAttribute.getVocabularyElementType(),
         managedAttributeDto.getVocabularyElementType());
     assertEquals(testManagedAttribute.getName(), managedAttributeDto.getName());
-    assertEquals(testManagedAttribute.getMultilingualDescription().getDescriptions().get(0),
-        managedAttributeDto.getMultilingualDescription().getDescriptions().get(0));
+    assertEquals(testManagedAttribute.getMultilingualDescription().getDescriptions().getFirst(),
+        managedAttributeDto.getMultilingualDescription().getDescriptions().getFirst());
   }
 
   @Test
-  public void create_WithAuthenticatedUser_SetsCreatedBy() {
+  public void create_WithAuthenticatedUser_SetsCreatedBy()
+    throws Exception {
     ObjectStoreManagedAttributeDto ma = ObjectStoreManagedAttributeFixture
         .newObjectStoreManagedAttribute();
     ma.setName("name");
     ma.setVocabularyElementType(TypedVocabularyElement.VocabularyElementType.STRING);
     ma.setAcceptedValues(new String[] { "dosal" });
 
-    ObjectStoreManagedAttributeDto result = managedResourceRepository.findOne(
-      managedResourceRepository.create(ma).getUuid(),
-      new QuerySpec(ObjectStoreManagedAttributeDto.class));
+    JsonApiDocument docToCreate = dtoToJsonApiDocument(ma);
+
+    var postResponse = sendPost(docToCreate);
+    JsonApiDocument createdApiDoc = toJsonApiDocument(postResponse);
+
+    ObjectStoreManagedAttributeDto result = managedResourceRepository.getOne(
+      createdApiDoc.getId(), null
+    ).getDto();
     assertEquals(DINA_USER_NAME, result.getCreatedBy());
   }
 
   @Test
-  void findOneByKey_whenKeyProvided_managedAttributeFetched() {
+  void findOneByKey_whenKeyProvided_managedAttributeFetched() throws Exception {
     ObjectStoreManagedAttributeDto newAttribute = ObjectStoreManagedAttributeFixture
         .newObjectStoreManagedAttribute();
     newAttribute.setName("Object Store Attribute 1");
     newAttribute.setVocabularyElementType(TypedVocabularyElement.VocabularyElementType.INTEGER);
 
-    UUID newAttributeUuid = managedResourceRepository.create(newAttribute).getUuid();
-
-    QuerySpec querySpec = new QuerySpec(ObjectStoreManagedAttributeDto.class);
+    JsonApiDocument docToCreate = dtoToJsonApiDocument(newAttribute);
+    var createdDto = managedResourceRepository.create(docToCreate, null);
 
     // Fetch using the key instead of the UUID:
-    ObjectStoreManagedAttributeDto fetchedAttribute = managedResourceRepository
-      .findOne("object_store_attribute_1", querySpec);
+    var findOneResponse = sendGet("object_store_attribute_1");
+    JsonApiDocument apiDoc = toJsonApiDocument(findOneResponse);
 
-    assertEquals(newAttributeUuid, fetchedAttribute.getUuid());
+    assertEquals(createdDto.getDto().getUuid(), apiDoc.getId());
   }
-    
+
 }

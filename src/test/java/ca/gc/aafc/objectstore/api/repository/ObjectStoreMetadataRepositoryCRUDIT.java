@@ -1,5 +1,8 @@
 package ca.gc.aafc.objectstore.api.repository;
 
+import ca.gc.aafc.dina.jsonapi.JsonApiDocument;
+import ca.gc.aafc.dina.jsonapi.JsonApiDocuments;
+import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.dina.vocabulary.TypedVocabularyElement;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
@@ -283,7 +286,12 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
     ObjectStoreManagedAttributeDto newAttribute = ObjectStoreManagedAttributeFixture.newObjectStoreManagedAttribute();
     newAttribute.setVocabularyElementType(TypedVocabularyElement.VocabularyElementType.DATE);
     newAttribute.setAcceptedValues(null);
-    newAttribute = managedResourceRepository.create(newAttribute);
+
+    JsonApiDocument docToCreate = JsonApiDocuments.createJsonApiDocument(
+      null, ObjectStoreManagedAttributeDto.TYPENAME,
+      JsonAPITestHelper.toAttributeMap(newAttribute)
+    );
+    newAttribute = managedResourceRepository.create(docToCreate, null).getDto();
 
     ObjectStoreMetadata testMetadata = createTestObjectStoreMetadata();
     ObjectStoreMetadataDto testMetadataDto = fetchMetaById(testMetadata.getUuid());
