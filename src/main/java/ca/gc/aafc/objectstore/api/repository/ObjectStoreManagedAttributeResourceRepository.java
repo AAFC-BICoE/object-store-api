@@ -129,5 +129,4 @@ public class ObjectStoreManagedAttributeResourceRepository
   public ResponseEntity<RepresentationModel<?>> onDelete(@PathVariable UUID id) throws ResourceNotFoundException, ResourceGoneException {
     return handleDelete(id);
   }
-
 }

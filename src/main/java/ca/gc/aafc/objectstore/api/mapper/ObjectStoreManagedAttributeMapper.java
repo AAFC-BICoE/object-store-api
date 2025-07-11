@@ -3,6 +3,7 @@ package ca.gc.aafc.objectstore.api.mapper;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.factory.Mappers;
@@ -21,8 +22,7 @@ public interface ObjectStoreManagedAttributeMapper extends
 
   ObjectStoreManagedAttributeDto toDto(ObjectStoreManagedAttribute entity, @Context Set<String> provided, @Context String scope);
 
-  ObjectStoreManagedAttribute toEntity(ObjectStoreManagedAttributeDto dto, @Context
-  Set<String> provided, @Context String scope);
+  ObjectStoreManagedAttribute toEntity(ObjectStoreManagedAttributeDto dto, @Context Set<String> provided, @Context String scope);
 
   @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
   void patchEntity(@MappingTarget ObjectStoreManagedAttribute entity, ObjectStoreManagedAttributeDto dto, @Context Set<String> provided, @Context String scope);

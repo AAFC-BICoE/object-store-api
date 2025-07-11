@@ -11,10 +11,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import ca.gc.aafc.dina.dto.JsonApiResource;
+import ca.gc.aafc.dina.jsonapi.JsonApiDocument;
+import ca.gc.aafc.dina.jsonapi.JsonApiDocuments;
 import ca.gc.aafc.dina.testsupport.PostgresTestContainerInitializer;
+import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.dina.testsupport.repository.MockMvcBasedRepository;
 import ca.gc.aafc.objectstore.api.ObjectStoreApiLauncher;
 import ca.gc.aafc.objectstore.api.async.AsyncConsumer;
+import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.service.ObjectExportService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreManagedAttributeService;
 
@@ -36,6 +41,13 @@ public abstract class ObjectStoreModuleBaseRepositoryIT extends MockMvcBasedRepo
   protected ObjectStoreModuleBaseRepositoryIT(String baseUrl,
                                              ObjectMapper objMapper) {
     super(baseUrl, objMapper);
+  }
+
+  JsonApiDocument dtoToJsonApiDocument(JsonApiResource jsonApiResource) {
+    return JsonApiDocuments.createJsonApiDocument(
+      jsonApiResource.getJsonApiId(), jsonApiResource.getJsonApiType(),
+      JsonAPITestHelper.toAttributeMap(jsonApiResource)
+    );
   }
 
   @TestConfiguration

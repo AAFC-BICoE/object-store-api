@@ -13,8 +13,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import ca.gc.aafc.dina.exception.ResourceGoneException;
 import ca.gc.aafc.dina.exception.ResourceNotFoundException;
 import ca.gc.aafc.dina.jsonapi.JsonApiDocument;
-import ca.gc.aafc.dina.jsonapi.JsonApiDocuments;
-import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.dina.vocabulary.TypedVocabularyElement;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
@@ -30,6 +28,9 @@ import javax.inject.Inject;
 
 public class ObjectStoreManagedAttributeRepositoryCRUDIT extends ObjectStoreModuleBaseRepositoryIT {
 
+  private static final String BASE_URL = "/api/v1/" + ObjectStoreManagedAttributeDto.TYPENAME;
+  private final static String DINA_USER_NAME = "dev";
+
   @Autowired
   private WebApplicationContext wac;
 
@@ -40,12 +41,10 @@ public class ObjectStoreManagedAttributeRepositoryCRUDIT extends ObjectStoreModu
   
   private ObjectStoreManagedAttribute testManagedAttribute;
 
-  private final static String DINA_USER_NAME = "dev";
 
   @Autowired
-  protected ObjectStoreManagedAttributeRepositoryCRUDIT(String baseUrl,
-                                                        ObjectMapper objMapper) {
-    super(baseUrl, objMapper);
+  protected ObjectStoreManagedAttributeRepositoryCRUDIT(ObjectMapper objMapper) {
+    super(BASE_URL, objMapper);
   }
 
   private ObjectStoreManagedAttribute createTestManagedAttribute() throws JsonProcessingException {
@@ -89,21 +88,20 @@ public class ObjectStoreManagedAttributeRepositoryCRUDIT extends ObjectStoreModu
 
   @Test
   public void create_WithAuthenticatedUser_SetsCreatedBy()
-    throws ResourceGoneException, ResourceNotFoundException {
+    throws Exception {
     ObjectStoreManagedAttributeDto ma = ObjectStoreManagedAttributeFixture
         .newObjectStoreManagedAttribute();
     ma.setName("name");
     ma.setVocabularyElementType(TypedVocabularyElement.VocabularyElementType.STRING);
     ma.setAcceptedValues(new String[] { "dosal" });
 
-    JsonApiDocument docToCreate = JsonApiDocuments.createJsonApiDocument(
-      null, ObjectStoreManagedAttributeDto.TYPENAME,
-      JsonAPITestHelper.toAttributeMap(ma)
-    );
-    var createdDto = managedResourceRepository.create(docToCreate, null);
+    JsonApiDocument docToCreate = dtoToJsonApiDocument(ma);
+
+    var postResponse = sendPost(docToCreate);
+    JsonApiDocument createdApiDoc = toJsonApiDocument(postResponse);
 
     ObjectStoreManagedAttributeDto result = managedResourceRepository.getOne(
-      createdDto.getDto().getUuid(), null
+      createdApiDoc.getId(), null
     ).getDto();
     assertEquals(DINA_USER_NAME, result.getCreatedBy());
   }
@@ -115,10 +113,7 @@ public class ObjectStoreManagedAttributeRepositoryCRUDIT extends ObjectStoreModu
     newAttribute.setName("Object Store Attribute 1");
     newAttribute.setVocabularyElementType(TypedVocabularyElement.VocabularyElementType.INTEGER);
 
-    JsonApiDocument docToCreate = JsonApiDocuments.createJsonApiDocument(
-      null, ObjectStoreManagedAttributeDto.TYPENAME,
-      JsonAPITestHelper.toAttributeMap(newAttribute)
-    );
+    JsonApiDocument docToCreate = dtoToJsonApiDocument(newAttribute);
     var createdDto = managedResourceRepository.create(docToCreate, null);
 
     // Fetch using the key instead of the UUID:
