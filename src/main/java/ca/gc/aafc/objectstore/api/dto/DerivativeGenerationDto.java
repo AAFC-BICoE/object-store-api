@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.toedter.spring.hateoas.jsonapi.JsonApiId;
 import com.toedter.spring.hateoas.jsonapi.JsonApiTypeForClass;
 
@@ -31,11 +32,13 @@ public class DerivativeGenerationDto implements ca.gc.aafc.dina.dto.JsonApiResou
   private Derivative.DerivativeType derivedFromType;
 
   @Override
+  @JsonIgnore
   public String getJsonApiType() {
     return TYPENAME;
   }
 
   @Override
+  @JsonIgnore
   public UUID getJsonApiId() {
     return uuid;
   }
