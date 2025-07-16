@@ -16,6 +16,10 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ContextConfiguration;
 
+import ca.gc.aafc.dina.exception.ResourceNotFoundException;
+import ca.gc.aafc.dina.jsonapi.JsonApiDocument;
+import ca.gc.aafc.dina.jsonapi.JsonApiDocuments;
+import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.config.AsyncOverrideConfig;
 import ca.gc.aafc.objectstore.api.dto.DerivativeGenerationDto;
@@ -51,7 +55,8 @@ public class DerivativeGenerationRepositoryIT extends BaseIntegrationTest {
   private DerivativeGenerationRepository derivativeGenerationRepository;
 
   @Test
-  public void derivativeGeneration_generatedFromDerivativeThumbnailMissing_generationSucceed() throws IOException, MimeTypeException, NoSuchAlgorithmException {
+  public void derivativeGeneration_generatedFromDerivativeThumbnailMissing_generationSucceed()
+    throws IOException, MimeTypeException, NoSuchAlgorithmException, ResourceNotFoundException {
 
     // setup original file (txt file)
     MockMultipartFile originalMultipart = MultipartFileFactory.createMockMultipartFile(
@@ -77,10 +82,14 @@ public class DerivativeGenerationRepositoryIT extends BaseIntegrationTest {
     // delete the file directly in the FileStorage but keep the entity
     fileStorage.deleteFile(thumbResult.getBucket(), thumbResult.getFilename(), true);
 
-    derivativeGenerationRepository.create(DerivativeGenerationDto.builder()
-      .metadataUuid(acDerivedFrom.getUuid())
-      .derivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE)
-      .derivedFromType(Derivative.DerivativeType.LARGE_IMAGE).build());
+    JsonApiDocument docToCreate = JsonApiDocuments.createJsonApiDocument(
+      null, DerivativeGenerationDto.TYPENAME,
+      JsonAPITestHelper.toAttributeMap(DerivativeGenerationDto.builder()
+        .metadataUuid(acDerivedFrom.getUuid())
+        .derivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE)
+        .derivedFromType(Derivative.DerivativeType.LARGE_IMAGE).build()));
+
+    derivativeGenerationRepository.onCreate(docToCreate);
 
     assertTrue(fileStorage.getFileInfo(thumbResult.getBucket(), thumbResult.getFilename(), true).isPresent());
 
@@ -90,10 +99,15 @@ public class DerivativeGenerationRepositoryIT extends BaseIntegrationTest {
     derivativeService.refresh(derivative);
     assertTrue(findThumbnailByGeneratedFromDerivative(derivative).isEmpty());
 
-    derivativeGenerationRepository.create(DerivativeGenerationDto.builder()
+
+    docToCreate = JsonApiDocuments.createJsonApiDocument(
+      null, DerivativeGenerationDto.TYPENAME,
+      JsonAPITestHelper.toAttributeMap(DerivativeGenerationDto.builder()
       .metadataUuid(acDerivedFrom.getUuid())
       .derivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE)
-      .derivedFromType(Derivative.DerivativeType.LARGE_IMAGE).build());
+      .derivedFromType(Derivative.DerivativeType.LARGE_IMAGE).build()));
+
+      derivativeGenerationRepository.onCreate(docToCreate);
 
     Derivative thumbResult2 = findThumbnailByGeneratedFromDerivative(derivative)
       .orElseGet(() -> Assertions.fail("A derivative for a thumbnail should of been generated"));
@@ -102,7 +116,8 @@ public class DerivativeGenerationRepositoryIT extends BaseIntegrationTest {
   }
 
   @Test
-  public void derivativeGeneration_ThumbnailMissing_generationSucceed() throws IOException, MimeTypeException, NoSuchAlgorithmException {
+  public void derivativeGeneration_ThumbnailMissing_generationSucceed()
+    throws IOException, MimeTypeException, NoSuchAlgorithmException, ResourceNotFoundException {
 
     MockMultipartFile multipartUpload = MultipartFileFactory.createMockMultipartFile(
       resourceLoader, "testfile.jpg", MediaType.IMAGE_JPEG_VALUE);
@@ -121,10 +136,13 @@ public class DerivativeGenerationRepositoryIT extends BaseIntegrationTest {
     // delete the file directly in the FileStorage but keep the entity
     fileStorage.deleteFile(thumbResult.getBucket(), thumbResult.getFilename(), true);
 
-    derivativeGenerationRepository.create(DerivativeGenerationDto.builder()
-      .metadataUuid(osMetadata.getUuid())
-      .derivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE)
-      .build());
+    JsonApiDocument docToCreate = JsonApiDocuments.createJsonApiDocument(
+      null, DerivativeGenerationDto.TYPENAME,
+      JsonAPITestHelper.toAttributeMap(DerivativeGenerationDto.builder()
+        .metadataUuid(osMetadata.getUuid())
+        .derivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE)
+        .build()));
+    derivativeGenerationRepository.onCreate(docToCreate);
 
     assertTrue(fileStorage.getFileInfo(thumbResult.getBucket(), thumbResult.getFilename(), true).isPresent());
 
@@ -134,10 +152,13 @@ public class DerivativeGenerationRepositoryIT extends BaseIntegrationTest {
     derivativeService.refresh(osMetadata);
     assertTrue(derivativeGenerationService.findThumbnailDerivativeForMetadata(osMetadata).isEmpty());
 
-    derivativeGenerationRepository.create(DerivativeGenerationDto.builder()
-      .metadataUuid(osMetadata.getUuid())
-      .derivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE)
-      .build());
+    docToCreate = JsonApiDocuments.createJsonApiDocument(
+      null, DerivativeGenerationDto.TYPENAME,
+      JsonAPITestHelper.toAttributeMap(DerivativeGenerationDto.builder()
+        .metadataUuid(osMetadata.getUuid())
+        .derivativeType(Derivative.DerivativeType.THUMBNAIL_IMAGE)
+        .build()));
+    derivativeGenerationRepository.onCreate(docToCreate);
 
     Derivative thumbResult2 = derivativeGenerationService.findThumbnailDerivativeForMetadata(osMetadata)
       .orElseGet(() -> Assertions.fail("A derivative for a thumbnail should of been generated"));
