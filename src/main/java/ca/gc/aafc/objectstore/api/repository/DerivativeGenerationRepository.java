@@ -1,61 +1,83 @@
 package ca.gc.aafc.objectstore.api.repository;
 
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.boot.info.BuildProperties;
+import org.springframework.hateoas.RepresentationModel;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.toedter.spring.hateoas.jsonapi.JsonApiModelBuilder;
+
+import ca.gc.aafc.dina.dto.JsonApiDto;
+import ca.gc.aafc.dina.exception.ResourceNotFoundException;
+import ca.gc.aafc.dina.jsonapi.JsonApiDocument;
+import ca.gc.aafc.dina.repository.JsonApiModelAssistant;
 import ca.gc.aafc.dina.security.auth.DinaAdminCUDAuthorizationService;
+import ca.gc.aafc.objectstore.api.dto.DerivativeDto;
 import ca.gc.aafc.objectstore.api.dto.DerivativeGenerationDto;
+import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.service.DerivativeGenerationService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
 
-import io.crnk.core.exception.MethodNotAllowedException;
-import io.crnk.core.exception.ResourceNotFoundException;
-import io.crnk.core.queryspec.QuerySpec;
-import io.crnk.core.repository.ResourceRepository;
-import io.crnk.core.resource.list.ResourceList;
-import java.io.Serializable;
-import java.util.Collection;
+import static com.toedter.spring.hateoas.jsonapi.MediaTypes.JSON_API_VALUE;
+
+import java.net.URI;
 import java.util.Optional;
 import java.util.Set;
+import javax.transaction.Transactional;
 
 /**
  * Administrative repository.
  * DINA_ADMIN role required.
  */
-@Repository
-public class DerivativeGenerationRepository implements
-  ResourceRepository<DerivativeGenerationDto, Serializable> {
+@RestController
+@RequestMapping(value = "${dina.apiPrefix:}", produces = JSON_API_VALUE)
+public class DerivativeGenerationRepository {
 
   private final DinaAdminCUDAuthorizationService authorizationService;
   private final ObjectStoreMetaDataService metadataService;
   private final DerivativeGenerationService derivativeGenerationService;
 
+  private final JsonApiModelAssistant<DerivativeGenerationDto> jsonApiModelAssistant;
+  private final ObjectMapper objMapper;
+
   public DerivativeGenerationRepository(DinaAdminCUDAuthorizationService authorizationService,
                                         ObjectStoreMetaDataService metadataService,
-                                        DerivativeGenerationService derivativeGenerationService) {
+                                        DerivativeGenerationService derivativeGenerationService,
+                                        BuildProperties buildProperties,
+                                        ObjectMapper objMapper) {
 
     this.authorizationService = authorizationService;
     this.metadataService = metadataService;
     this.derivativeGenerationService = derivativeGenerationService;
+
+    this.objMapper = objMapper;
+    this.jsonApiModelAssistant = new JsonApiModelAssistant<>(buildProperties.getVersion());
   }
 
+  @PostMapping(DerivativeGenerationDto.TYPENAME)
   @Transactional
-  @Override
-  public <S extends DerivativeGenerationDto> S create(S s) {
+  public ResponseEntity<RepresentationModel<?>> onCreate(@RequestBody JsonApiDocument postedDocument)
+      throws ResourceNotFoundException {
 
-    authorizationService.authorizeCreate(s);
+    DerivativeGenerationDto dto = this.objMapper.convertValue(postedDocument.getAttributes(), DerivativeGenerationDto.class);
 
-    if (s.getDerivativeType() != Derivative.DerivativeType.THUMBNAIL_IMAGE) {
+    authorizationService.authorizeCreate(dto);
+
+    if (dto.getDerivativeType() != Derivative.DerivativeType.THUMBNAIL_IMAGE) {
       throw new IllegalArgumentException("DerivativeType can only be THUMBNAIL_IMAGE");
     }
 
-    ObjectStoreMetadata metadata = metadataService.findOne(s.getMetadataUuid(),
+    ObjectStoreMetadata metadata = metadataService.findOne(dto.getMetadataUuid(),
       ObjectStoreMetadata.class, Set.of(ObjectStoreMetadata.DERIVATIVES_PROP));
 
     if (metadata == null) {
-      throw new ResourceNotFoundException("Object not found: " + s.getMetadataUuid());
+      throw ResourceNotFoundException.create(ObjectStoreMetadataDto.TYPENAME, dto.getMetadataUuid());
     }
 
     // Check if we have a thumbnail entity already
@@ -66,14 +88,14 @@ public class DerivativeGenerationRepository implements
     // if the thumbnail entity exists, try to fix and return.
     if (existingThumbnail.isPresent()) {
       derivativeGenerationService.fixIncompleteThumbnail(existingThumbnail.get());
-      s.setUuid(existingThumbnail.get().getUuid());
-      return s;
+      dto.setUuid(existingThumbnail.get().getUuid());
+      return createResponse(dto);
     }
 
     // Check the source to use for the thumbnail
-    if (s.getDerivedFromType() != null) {
+    if (dto.getDerivedFromType() != null) {
       Derivative derivative = metadata.getDerivatives().stream()
-        .filter(d -> d.getDerivativeType().equals(s.getDerivedFromType()))
+        .filter(d -> d.getDerivativeType().equals(dto.getDerivedFromType()))
         .findFirst().orElseThrow(() -> new IllegalStateException("DerivedFromType not found for metadata"));
       derivativeGenerationService.handleThumbnailGeneration(derivative);
     } else {
@@ -86,38 +108,17 @@ public class DerivativeGenerationRepository implements
       .filter(d -> d.getDerivativeType().equals(Derivative.DerivativeType.THUMBNAIL_IMAGE))
       .findFirst();
 
-    s.setUuid(createdThumbnail.map(Derivative::getUuid).orElse(null));
-    return s;
+    dto.setUuid(createdThumbnail.map(Derivative::getUuid).orElse(null));
+    return createResponse(dto);
   }
 
-  @Override
-  public Class<DerivativeGenerationDto> getResourceClass() {
-    return DerivativeGenerationDto.class;
-  }
-
-  @Override
-  public DerivativeGenerationDto findOne(Serializable serializable, QuerySpec querySpec) {
-    return null;
-  }
-
-  @Override
-  public ResourceList<DerivativeGenerationDto> findAll(QuerySpec querySpec) {
-    throw new MethodNotAllowedException("GET");
-  }
-
-  @Override
-  public ResourceList<DerivativeGenerationDto> findAll(Collection<Serializable> collection, QuerySpec querySpec) {
-    throw new MethodNotAllowedException("GET");
-  }
-
-  @Override
-  public <S extends DerivativeGenerationDto> S save(S s) {
-    throw new MethodNotAllowedException("PUT/PATCH");
-  }
-
-  @Override
-  public void delete(Serializable serializable) {
-    throw new MethodNotAllowedException("DELETE");
+  private ResponseEntity<RepresentationModel<?>> createResponse(DerivativeGenerationDto dto) {
+    JsonApiDto<DerivativeGenerationDto> jsonApiDto = JsonApiDto.<DerivativeGenerationDto>builder()
+      .dto(dto).build();
+    JsonApiModelBuilder builder = this.jsonApiModelAssistant.createJsonApiModelBuilder(jsonApiDto);
+    RepresentationModel<?> model = builder.build();
+    // this will be available in data-export using that same uuid
+    URI uri = URI.create(DerivativeDto.TYPENAME + "/" + dto.getUuid());
+    return ResponseEntity.created(uri).body(model);
   }
 }
-

@@ -65,13 +65,14 @@ public class ObjectStoreManagedAttributeRestIT extends BaseRestAssuredTest {
       JsonAPITestHelper.toAttributeMap(originalAttribute)))
       .extract().body().jsonPath().get("data.id");
     ObjectStoreManagedAttributeDto updatedAttribute = originalAttribute;
+
     updatedAttribute.setName("updatedName");
     updatedAttribute.setKey("updatedKey");
     
     // update the resource
     sendPatch(RESOURCE_UNDER_TEST, id, JsonAPITestHelper.toJsonAPIMap(
       RESOURCE_UNDER_TEST, 
-      JsonAPITestHelper.toAttributeMap(updatedAttribute)));
+      JsonAPITestHelper.toAttributeMap(updatedAttribute), id));
 
     ValidatableResponse responseUpdate = sendGet(RESOURCE_UNDER_TEST, id);
 

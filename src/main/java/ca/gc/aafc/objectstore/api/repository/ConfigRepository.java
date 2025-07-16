@@ -1,33 +1,62 @@
 package ca.gc.aafc.objectstore.api.repository;
 
-import ca.gc.aafc.objectstore.api.DefaultValueConfiguration;
-import ca.gc.aafc.objectstore.api.config.FileUploadConfiguration;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.RepresentationModel;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.toedter.spring.hateoas.jsonapi.JsonApiModelBuilder;
+
+import ca.gc.aafc.dina.repository.ReadOnlyDinaRepositoryV2;
 import ca.gc.aafc.objectstore.api.dto.ConfigPropertiesDto;
-import io.crnk.core.queryspec.QuerySpec;
-import io.crnk.core.repository.ReadOnlyResourceRepositoryBase;
-import io.crnk.core.resource.list.ResourceList;
-import org.springframework.stereotype.Component;
+import ca.gc.aafc.objectstore.api.service.ConfigService;
 
+import static com.toedter.spring.hateoas.jsonapi.JsonApiModelBuilder.jsonApiModel;
+import static com.toedter.spring.hateoas.jsonapi.MediaTypes.JSON_API_VALUE;
+
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 
-@Component
-public class ConfigRepository extends ReadOnlyResourceRepositoryBase<ConfigPropertiesDto, String> {
+@RestController
+@RequestMapping(value = "${dina.apiPrefix:}", produces = JSON_API_VALUE)
+public class ConfigRepository extends ReadOnlyDinaRepositoryV2<String, ConfigPropertiesDto> {
 
-  private final List<ConfigPropertiesDto> resources;
-
-  protected ConfigRepository(
-    FileUploadConfiguration fileConfig,
-    DefaultValueConfiguration defaultConfig
-  ) {
-    super(ConfigPropertiesDto.class);
-    this.resources = List.of(
-      ConfigPropertiesDto.builder().id("file-upload").properties(fileConfig.getMultipart()).build(),
-      ConfigPropertiesDto.builder().id("default-values").properties(defaultConfig.getProperties()).build()
-    );
+  protected ConfigRepository(ConfigService configService) {
+    super(configService);
   }
 
-  @Override
-  public ResourceList<ConfigPropertiesDto> findAll(QuerySpec querySpec) {
-    return querySpec.apply(resources);
+  @GetMapping(ConfigPropertiesDto.TYPENAME + "/{id}")
+  public ResponseEntity<RepresentationModel<?>> handleFindOne(@PathVariable String id) {
+
+    ConfigPropertiesDto dto = findOne(id);
+    if (dto == null) {
+      return ResponseEntity.notFound().build();
+    }
+
+    JsonApiModelBuilder builder = jsonApiModel().model(RepresentationModel.of(dto));
+    return ResponseEntity.ok(builder.build());
+  }
+
+  @GetMapping(ConfigPropertiesDto.TYPENAME)
+  public ResponseEntity<RepresentationModel<?>> handleFindAll(HttpServletRequest req) {
+
+    String queryString = StringUtils.isBlank(req.getQueryString()) ? "" :
+      URLDecoder.decode(req.getQueryString(), StandardCharsets.UTF_8);
+
+    List<ConfigPropertiesDto> dtos ;
+    try {
+      dtos = findAll(queryString);
+    } catch (IllegalArgumentException iaEx) {
+      return ResponseEntity.badRequest().build();
+    }
+
+    JsonApiModelBuilder builder = jsonApiModel().model(CollectionModel.of(dtos));
+    return ResponseEntity.ok(builder.build());
   }
 }

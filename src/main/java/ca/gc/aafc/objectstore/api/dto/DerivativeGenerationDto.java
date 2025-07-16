@@ -1,13 +1,15 @@
 package ca.gc.aafc.objectstore.api.dto;
 
-import io.crnk.core.resource.annotations.JsonApiId;
-import io.crnk.core.resource.annotations.JsonApiResource;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.toedter.spring.hateoas.jsonapi.JsonApiId;
+import com.toedter.spring.hateoas.jsonapi.JsonApiTypeForClass;
 
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 
@@ -16,8 +18,8 @@ import ca.gc.aafc.objectstore.api.entities.Derivative;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonApiResource(type = DerivativeGenerationDto.TYPENAME)
-public class DerivativeGenerationDto {
+@JsonApiTypeForClass(DerivativeGenerationDto.TYPENAME)
+public class DerivativeGenerationDto implements ca.gc.aafc.dina.dto.JsonApiResource {
 
   public static final String TYPENAME = "derivative-generation";
 
@@ -29,4 +31,15 @@ public class DerivativeGenerationDto {
 
   private Derivative.DerivativeType derivedFromType;
 
+  @Override
+  @JsonIgnore
+  public String getJsonApiType() {
+    return TYPENAME;
+  }
+
+  @Override
+  @JsonIgnore
+  public UUID getJsonApiId() {
+    return uuid;
+  }
 }

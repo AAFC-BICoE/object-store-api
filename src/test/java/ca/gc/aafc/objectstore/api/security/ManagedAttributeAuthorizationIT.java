@@ -1,5 +1,15 @@
 package ca.gc.aafc.objectstore.api.security;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.access.AccessDeniedException;
+
+import ca.gc.aafc.dina.exception.ResourceGoneException;
+import ca.gc.aafc.dina.exception.ResourceNotFoundException;
+import ca.gc.aafc.dina.jsonapi.JsonApiDocument;
+import ca.gc.aafc.dina.jsonapi.JsonApiDocuments;
+import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.dina.testsupport.security.WithMockKeycloakUser;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
@@ -7,12 +17,10 @@ import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.objectstore.api.repository.ObjectStoreManagedAttributeResourceRepository;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.fixtures.ObjectStoreManagedAttributeFixture;
-import io.crnk.core.queryspec.QuerySpec;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.access.AccessDeniedException;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import javax.inject.Inject;
 
@@ -36,56 +44,87 @@ public class ManagedAttributeAuthorizationIT extends BaseIntegrationTest {
   @WithMockKeycloakUser(groupRole = {"group 1:USER"})
   @Test
   void create_unauthorizedUser_ThrowsAccessDenied() {
-    Assertions.assertThrows(
-      AccessDeniedException.class,
-      () -> repoUnderTest.create(new ObjectStoreManagedAttributeDto()));
+    JsonApiDocument docToCreate = JsonApiDocuments.createJsonApiDocument(
+      null, ObjectStoreManagedAttributeDto.TYPENAME,
+      JsonAPITestHelper.toAttributeMap(new ObjectStoreManagedAttributeDto())
+    );
+
+    assertThrows(AccessDeniedException.class,
+      () -> repoUnderTest.create(docToCreate, null));
   }
 
   @WithMockKeycloakUser(groupRole = {"group 1:SUPER_USER"})
   @Test
   void create_authorizedUser_DoesNotThrowAccessDenied() {
-    Assertions.assertDoesNotThrow(() -> repoUnderTest.create(ObjectStoreManagedAttributeFixture.newObjectStoreManagedAttribute()));
+
+    JsonApiDocument docToCreate = JsonApiDocuments.createJsonApiDocument(
+      null, ObjectStoreManagedAttributeDto.TYPENAME,
+      JsonAPITestHelper.toAttributeMap(ObjectStoreManagedAttributeFixture.newObjectStoreManagedAttribute())
+    );
+    assertDoesNotThrow(() -> repoUnderTest.create(docToCreate, null));
   }
 
   @WithMockKeycloakUser(groupRole = {"group 1:DINA_ADMIN"})
   @Test
   void create_Admin_DoesNotThrowAccessDenied() {
-    Assertions.assertDoesNotThrow(() -> repoUnderTest.create(ObjectStoreManagedAttributeFixture.newObjectStoreManagedAttribute()));
+    JsonApiDocument docToCreate = JsonApiDocuments.createJsonApiDocument(
+      null, ObjectStoreManagedAttributeDto.TYPENAME,
+      JsonAPITestHelper.toAttributeMap(ObjectStoreManagedAttributeFixture.newObjectStoreManagedAttribute())
+    );
+
+    assertDoesNotThrow(() -> repoUnderTest.create(docToCreate, null));
   }
 
   @WithMockKeycloakUser(groupRole = {"group 1:USER"})
   @Test
-  void delete_unauthorizedUser_ThrowsAccessDeniedException() {
-    Assertions.assertNotNull(repoUnderTest.findOne(managedAttribute.getUuid(), new QuerySpec(ObjectStoreManagedAttributeDto.class)));
-    Assertions.assertThrows(AccessDeniedException.class, () -> repoUnderTest.delete(managedAttribute.getUuid()));
+  void delete_unauthorizedUser_ThrowsAccessDeniedException()
+    throws ResourceGoneException, ResourceNotFoundException {
+    assertNotNull(repoUnderTest.onFindOne(managedAttribute.getUuid().toString(), null));
+    assertThrows(AccessDeniedException.class, () -> repoUnderTest.delete(managedAttribute.getUuid()));
   }
 
   @WithMockKeycloakUser(groupRole = {"group 1:SUPER_USER"})
   @Test
-  void delete_authorizedUser_DoesNotThrowAccessDenied() {
-    Assertions.assertNotNull(repoUnderTest.findOne(managedAttribute.getUuid(), new QuerySpec(ObjectStoreManagedAttributeDto.class)));
-    Assertions.assertDoesNotThrow(
+  void delete_authorizedUser_DoesNotThrowAccessDenied()
+    throws ResourceGoneException, ResourceNotFoundException {
+    assertNotNull(repoUnderTest.onFindOne(managedAttribute.getUuid().toString(), null));
+    assertDoesNotThrow(
       () -> repoUnderTest.delete(managedAttribute.getUuid()));
   }
 
   @WithMockKeycloakUser(groupRole = {"group 1:USER"})
   @Test
-  void update_unauthorizedUser_ThrowAccessDenied() {
-    var dto = repoUnderTest.findOne(managedAttribute.getUuid(), new QuerySpec(ObjectStoreManagedAttributeDto.class));
- 
-    Assertions.assertNotNull(dto);
-    Assertions.assertThrows(AccessDeniedException.class, () -> repoUnderTest.save(dto));
+  void update_unauthorizedUser_ThrowAccessDenied()
+    throws ResourceGoneException, ResourceNotFoundException {
+    var dto = repoUnderTest.getOne(managedAttribute.getUuid(), null).getDto();
+
+    JsonApiDocument docToUpdate = JsonApiDocuments.createJsonApiDocument(
+      dto.getUuid(), ObjectStoreManagedAttributeDto.TYPENAME,
+      JsonAPITestHelper.toAttributeMap(dto)
+    );
+
+    assertThrows(AccessDeniedException.class, () -> repoUnderTest.onUpdate(docToUpdate, dto.getUuid()));
   }
 
   @WithMockKeycloakUser(groupRole = {"group 1:SUPER_USER"})
   @Test
-  void update_authorizedUser_DoesNotThrowAccessDenied() {
-    ObjectStoreManagedAttributeDto dto = repoUnderTest.create(ObjectStoreManagedAttributeFixture.newObjectStoreManagedAttribute());
+  void update_authorizedUser_DoesNotThrowAccessDenied()
+    throws ResourceGoneException, ResourceNotFoundException {
+    JsonApiDocument docToCreate = JsonApiDocuments.createJsonApiDocument(
+      null, ObjectStoreManagedAttributeDto.TYPENAME,
+      JsonAPITestHelper.toAttributeMap(ObjectStoreManagedAttributeFixture.newObjectStoreManagedAttribute())
+    );
 
-    ObjectStoreManagedAttributeDto persistedDto = repoUnderTest.findOne(
-      dto.getUuid(),
-      new QuerySpec(ObjectStoreManagedAttributeDto.class));
-    Assertions.assertDoesNotThrow(() -> repoUnderTest.save(persistedDto));
+    ObjectStoreManagedAttributeDto dto = repoUnderTest.create(docToCreate, null).getDto();
+
+    JsonApiDocument docToUpdate = JsonApiDocuments.createJsonApiDocument(
+      dto.getUuid(), ObjectStoreManagedAttributeDto.TYPENAME,
+      JsonAPITestHelper.toAttributeMap(dto)
+    );
+
+    ObjectStoreManagedAttributeDto persistedDto = repoUnderTest.getOne(
+      dto.getUuid(), null).getDto();
+    assertDoesNotThrow(() -> repoUnderTest.onUpdate(docToUpdate, dto.getUuid()));
   }
 
 }
