@@ -19,9 +19,9 @@ import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.dina.testsupport.repository.MockMvcBasedRepository;
 import ca.gc.aafc.objectstore.api.ObjectStoreApiLauncher;
 import ca.gc.aafc.objectstore.api.async.AsyncConsumer;
-import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.service.ObjectExportService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreManagedAttributeService;
+import ca.gc.aafc.objectstore.api.service.ObjectSubtypeService;
 
 import java.util.Properties;
 import java.util.concurrent.Future;
@@ -37,6 +37,8 @@ public abstract class ObjectStoreModuleBaseRepositoryIT extends MockMvcBasedRepo
   @Inject
   protected ObjectStoreManagedAttributeService managedAttributeService;
 
+  @Inject
+  protected ObjectSubtypeService objectSubtypeService;
 
   protected ObjectStoreModuleBaseRepositoryIT(String baseUrl,
                                              ObjectMapper objMapper) {
