@@ -4,19 +4,20 @@ import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.UUID;
 
+import ca.gc.aafc.dina.dto.JsonApiResource;
 import ca.gc.aafc.dina.dto.RelatedEntity;
-import ca.gc.aafc.dina.repository.meta.AttributeMetaInfoProvider;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
-import io.crnk.core.resource.annotations.JsonApiId;
-import io.crnk.core.resource.annotations.JsonApiResource;
 import lombok.Data;
 import org.javers.core.metamodel.annotation.ShallowReference;
 
+import com.toedter.spring.hateoas.jsonapi.JsonApiId;
+import com.toedter.spring.hateoas.jsonapi.JsonApiTypeForClass;
+
 @RelatedEntity(ObjectUpload.class)
 @Data
-@JsonApiResource(type = ObjectUploadDto.TYPENAME)
-public class ObjectUploadDto extends AttributeMetaInfoProvider {
+@JsonApiTypeForClass(ObjectSubtypeDto.TYPENAME)
+public class ObjectUploadDto implements JsonApiResource {
 
   public static final String TYPENAME = "object-upload";
 
@@ -53,4 +54,13 @@ public class ObjectUploadDto extends AttributeMetaInfoProvider {
     return fileIdentifier;
   }
 
+  @Override
+  public String getJsonApiType() {
+    return TYPENAME;
+  }
+
+  @Override
+  public UUID getJsonApiId() {
+    return fileIdentifier;
+  }
 }
