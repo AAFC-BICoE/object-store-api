@@ -52,7 +52,7 @@ public class ObjectStoreManagedAttributeRepositoryCRUDIT extends ObjectStoreModu
   @BeforeEach
   public void setup() throws JsonProcessingException {
     this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
-  }  
+  }
 
   @Test
   public void findManagedAttribute_whenNoFieldsAreSelected_manageAttributeReturnedWithAllFields()
