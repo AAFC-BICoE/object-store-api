@@ -8,19 +8,17 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.Root;
 
-import com.google.common.collect.ImmutableMap;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.http.HttpStatus;
 
 import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
 import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.ObjectStoreApiLauncher;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
-import io.crnk.core.engine.http.HttpStatus;
 import io.restassured.response.Response;
 
 @SpringBootTest(
@@ -52,18 +50,17 @@ public class DcTypeJsonSerializationIT extends BaseIntegrationTest {
   @Test
   public void ValidDcType_ReturnsCreated_201() {
     Response response = sendPostWithDcType("image");
-    response.then().statusCode(HttpStatus.CREATED_201);
+    response.then().statusCode(HttpStatus.CREATED.value());
   }
 
   @Test
   public void InValidDcType_ReturnsBadRequest_400() {
     Response response = sendPostWithDcType("Invalid-type");
-    response.then().statusCode(HttpStatus.BAD_REQUEST_400);
+    response.then().statusCode(HttpStatus.BAD_REQUEST.value());
   }
 
   private Response sendPostWithDcType(String dcType) {
     return given()
-        .header("crnk-compact", "true")
         .port(testPort)
         .basePath(API_BASE_PATH)
         .contentType(JSON_API_CONTENT_TYPE)
@@ -73,11 +70,8 @@ public class DcTypeJsonSerializationIT extends BaseIntegrationTest {
   }
 
   private static Map<String, Object> getPostBody(String dcType) {
-    ImmutableMap.Builder<String, Object> objAttribMap = new ImmutableMap.Builder<>();
-    objAttribMap.put("dcType", dcType);
-    objAttribMap.put("acSubtype", AC_SUB_TYPE);
-
-    return JsonAPITestHelper.toJsonAPIMap(RESOURCE_UNDER_TEST, objAttribMap.build(), null, null);
+    Map<String, Object> objAttribMap = Map.of("dcType", dcType, "acSubtype", AC_SUB_TYPE);
+    return JsonAPITestHelper.toJsonAPIMap(RESOURCE_UNDER_TEST, objAttribMap, null, null);
   }
 
 }
