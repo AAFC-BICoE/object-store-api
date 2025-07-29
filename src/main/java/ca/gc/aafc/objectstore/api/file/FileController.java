@@ -3,9 +3,13 @@ package ca.gc.aafc.objectstore.api.file;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.tika.mime.MediaType;
 import org.apache.tika.mime.MimeTypeException;
+import org.springframework.boot.info.BuildProperties;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.hateoas.IanaLinkRelations;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.RepresentationModel;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,20 +23,29 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.UnsupportedMediaTypeStatusException;
 
+import ca.gc.aafc.dina.dto.JsonApiDto;
+import ca.gc.aafc.dina.dto.JsonApiDtoMeta;
+import ca.gc.aafc.dina.dto.JsonApiResource;
 import ca.gc.aafc.dina.entity.DinaEntity;
+import ca.gc.aafc.dina.exception.ResourceGoneException;
+import ca.gc.aafc.dina.exception.ResourceNotFoundException;
 import ca.gc.aafc.dina.mapper.DinaMapper;
 import ca.gc.aafc.dina.mapper.DinaMappingLayer;
+import ca.gc.aafc.dina.repository.JsonApiModelAssistant;
 import ca.gc.aafc.dina.repository.meta.AttributeMetaInfoProvider;
 import ca.gc.aafc.dina.repository.meta.AttributeMetaInfoProvider.DinaJsonMetaInfo;
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.objectstore.api.config.MediaTypeConfiguration;
+import ca.gc.aafc.objectstore.api.dto.ObjectSubtypeDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectUploadDto;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.exif.ExifParser;
 import ca.gc.aafc.objectstore.api.minio.MinioFileService;
+import ca.gc.aafc.objectstore.api.repository.ObjectSubtypeResourceRepository;
+import ca.gc.aafc.objectstore.api.repository.ObjectUploadResourceRepository;
 import ca.gc.aafc.objectstore.api.security.FileControllerAuthorizationService;
 import ca.gc.aafc.objectstore.api.service.DerivativeService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
@@ -43,6 +56,7 @@ import ca.gc.aafc.objectstore.api.util.ObjectFilenameUtils;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.DigestInputStream;
@@ -58,6 +72,12 @@ import javax.transaction.Transactional;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 
+import com.toedter.spring.hateoas.jsonapi.JsonApiModelBuilder;
+
+import static com.toedter.spring.hateoas.jsonapi.MediaTypes.JSON_API_VALUE;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 @RestController
 @RequestMapping("/api/v1")
 @Log4j2
@@ -68,13 +88,17 @@ public class FileController {
 
   private final FileControllerAuthorizationService authorizationService;
   private final DinaMappingLayer<ObjectUploadDto, ObjectUpload> mappingLayer;
+
   private final ObjectUploadService objectUploadService;
   private final DerivativeService derivativeService;
   private final FileStorage fileStorage;
+
   private final ObjectStoreMetaDataService objectStoreMetaDataService;
   private final MediaTypeDetectionStrategy mediaTypeDetectionStrategy;
   private final MessageSource messageSource;
   private final MediaTypeConfiguration mediaTypeConfiguration;
+
+  private final JsonApiModelAssistant<ObjectUploadDto> jsonApiModelAssistant;
 
   // request scoped bean
   private final DinaAuthenticatedUser authenticatedUser;
@@ -89,7 +113,8 @@ public class FileController {
     MediaTypeDetectionStrategy mediaTypeDetectionStrategy,
     DinaAuthenticatedUser authenticatedUser,
     MessageSource messageSource,
-    MediaTypeConfiguration mediaTypeConfiguration
+    MediaTypeConfiguration mediaTypeConfiguration,
+    BuildProperties buildProperties
   ) {
     this.authorizationService = authorizationService;
     this.fileStorage = minioService;
@@ -104,27 +129,50 @@ public class FileController {
     this.mappingLayer = new DinaMappingLayer<>(
       ObjectUploadDto.class, objectUploadService,
       new DinaMapper<>(ObjectUploadDto.class));
+
+    this.jsonApiModelAssistant = new JsonApiModelAssistant<>(buildProperties.getVersion());
   }
 
   @PostMapping("/file/{bucket}/derivative")
   @Transactional
-  public ObjectUploadDto handleDerivativeUpload(
+  public ResponseEntity<RepresentationModel<?>> handleDerivativeUpload(
     @RequestParam("file") MultipartFile file,
     @PathVariable String bucket
   ) throws IOException, MimeTypeException, NoSuchAlgorithmException {
-    return handleUpload(file, bucket, true);
+    JsonApiDto<ObjectUploadDto> jsonApiDto = handleUpload(file, bucket, true);
+
+    JsonApiModelBuilder builder = this.jsonApiModelAssistant.createJsonApiModelBuilder(jsonApiDto);
+    builder.link(this.generateLinkToResource(jsonApiDto.getDto()));
+    RepresentationModel<?> model = builder.build();
+    URI uri = model.getRequiredLink(IanaLinkRelations.SELF).toUri();
+    return ResponseEntity.created(uri).body(model);
   }
 
-  @PostMapping("/file/{bucket}")
+  @PostMapping(value = "/file/{bucket}", produces = JSON_API_VALUE)
   @Transactional
-  public ObjectUploadDto handleFileUpload(
+  public ResponseEntity<RepresentationModel<?>> handleFileUpload(
     @RequestParam("file") MultipartFile file,
     @PathVariable String bucket
   ) throws NoSuchAlgorithmException, MimeTypeException, IOException {
-    return handleUpload(file, bucket, false);
+
+    JsonApiDto<ObjectUploadDto> jsonApiDto = handleUpload(file, bucket, false);
+
+    JsonApiModelBuilder builder = this.jsonApiModelAssistant.createJsonApiModelBuilder(jsonApiDto);
+    builder.link(this.generateLinkToResource(jsonApiDto.getDto()));
+    RepresentationModel<?> model = builder.build();
+    URI uri = model.getRequiredLink(IanaLinkRelations.SELF).toUri();
+    return ResponseEntity.created(uri).body(model);
   }
 
-  private ObjectUploadDto handleUpload(
+  protected Link generateLinkToResource(ObjectUploadDto dto) {
+    try {
+      return linkTo(methodOn(ObjectUploadResourceRepository.class).onFindOne(dto.getUuid(), null)).withSelfRel();
+    } catch (ResourceNotFoundException | ResourceGoneException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private JsonApiDto<ObjectUploadDto> handleUpload(
     @NonNull MultipartFile file,
     @NonNull String bucket,
     boolean isDerivative
@@ -395,7 +443,7 @@ public class FileController {
    * @param isDerivative boolean indicating if the object was a derivative.
    * @return the persisted object upload
    */
-  private ObjectUploadDto createObjectUpload(
+  private JsonApiDto<ObjectUploadDto> createObjectUpload(
     MultipartFile file,
     String bucket,
     MediaTypeDetectionStrategy.MediaTypeDetectionResult mtdr,
@@ -404,12 +452,11 @@ public class FileController {
     Map<String, String> exifData,
     boolean isDerivative
   ) {
-    DinaJsonMetaInfo meta = null;
+    Map<String, String> warnings = null;
     if (objectUploadService.existsByProperty("sha1Hex", sha1Hex)) {
-      meta =
-        AttributeMetaInfoProvider.DinaJsonMetaInfo.builder()
-        .warnings(Collections.singletonMap("duplicate_found", messageSource.getMessage("warnings.duplicate.Sha1Hex", null, LocaleContextHolder.getLocale())))
-        .build();
+      warnings = Map.of("duplicate_found",
+        messageSource.getMessage("warnings.duplicate.Sha1Hex", null,
+          LocaleContextHolder.getLocale()));
     }
     ObjectUpload objectUpload = objectUploadService.create(ObjectUpload.builder()
       .fileIdentifier(uuid)
@@ -427,8 +474,15 @@ public class FileController {
       .isDerivative(isDerivative)
       .build());
     ObjectUploadDto dto = mapObjectUpload(objectUpload);
-    dto.setMeta(meta);
-    return dto;
+
+    var jsonApiDtoBuilder = JsonApiDto.<ObjectUploadDto>builder()
+      .dto(dto);
+
+    if(warnings != null) {
+      jsonApiDtoBuilder.meta(JsonApiDtoMeta.builder().warnings(warnings).build());
+    }
+
+    return jsonApiDtoBuilder.build();
   }
 
   /**
