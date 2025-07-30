@@ -17,7 +17,7 @@ import com.toedter.spring.hateoas.jsonapi.JsonApiTypeForClass;
 
 @RelatedEntity(ObjectUpload.class)
 @Data
-@JsonApiTypeForClass(ObjectSubtypeDto.TYPENAME)
+@JsonApiTypeForClass(ObjectUploadDto.TYPENAME)
 public class ObjectUploadDto implements JsonApiResource {
 
   public static final String TYPENAME = "object-upload";
