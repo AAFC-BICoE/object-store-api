@@ -127,7 +127,7 @@ public class FileController {
     this.jsonApiModelAssistant = new JsonApiModelAssistant<>(buildProperties.getVersion());
   }
 
-  @PostMapping(value ="/file/{bucket}/derivative", produces = JSON_API_VALUE)
+  @PostMapping(value = "/file/{bucket}/derivative", produces = JSON_API_VALUE)
   @Transactional
   public ResponseEntity<RepresentationModel<?>> handleDerivativeUpload(
     @RequestParam("file") MultipartFile file,
@@ -472,7 +472,7 @@ public class FileController {
     var jsonApiDtoBuilder = JsonApiDto.<ObjectUploadDto>builder()
       .dto(dto);
 
-    if(warnings != null) {
+    if (warnings != null) {
       jsonApiDtoBuilder.meta(JsonApiDtoMeta.builder().warnings(warnings).build());
     }
 
