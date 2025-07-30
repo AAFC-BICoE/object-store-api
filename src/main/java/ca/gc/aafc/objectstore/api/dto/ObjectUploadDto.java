@@ -11,6 +11,7 @@ import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import lombok.Data;
 import org.javers.core.metamodel.annotation.ShallowReference;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.toedter.spring.hateoas.jsonapi.JsonApiId;
 import com.toedter.spring.hateoas.jsonapi.JsonApiTypeForClass;
 
@@ -50,16 +51,14 @@ public class ObjectUploadDto implements JsonApiResource {
     isDerivative = derivative;
   }
 
-  public UUID getUuid() {
-    return fileIdentifier;
-  }
-
   @Override
+  @JsonIgnore
   public String getJsonApiType() {
     return TYPENAME;
   }
 
   @Override
+  @JsonIgnore
   public UUID getJsonApiId() {
     return fileIdentifier;
   }

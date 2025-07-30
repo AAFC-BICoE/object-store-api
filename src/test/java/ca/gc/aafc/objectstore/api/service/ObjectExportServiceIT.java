@@ -12,12 +12,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ContextConfiguration;
 
+import ca.gc.aafc.dina.repository.JsonApiModelAssistant;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.async.AsyncConsumer;
 import ca.gc.aafc.objectstore.api.config.AsyncOverrideConfig;
 import ca.gc.aafc.objectstore.api.config.ExportFunction;
 import ca.gc.aafc.objectstore.api.config.ObjectExportOption;
-import ca.gc.aafc.objectstore.api.dto.ObjectUploadDto;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.file.FileController;
@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.inject.Inject;
@@ -76,15 +77,15 @@ public class ObjectExportServiceIT extends BaseIntegrationTest {
     MockMultipartFile mockFile = MultipartFileFactory
       .createMockMultipartFile(resourceLoader, TEST_UPLOAD_FILE_NAME, MediaType.IMAGE_PNG_VALUE);
 
-    ObjectUploadDto uploadResponse = fileController.handleFileUpload(mockFile, TEST_BUCKET_NAME);
-    assertNotNull(uploadResponse);
-    assertNotNull(uploadResponse.getFileIdentifier());
+    var uploadResponse = fileController.handleFileUpload(mockFile, TEST_BUCKET_NAME);
+    UUID objectUploadUuid = JsonApiModelAssistant.extractUUIDFromRepresentationModelLink(uploadResponse);
+    assertNotNull(objectUploadUuid);
 
     // 2 - Created metadata for it
     ObjectStoreMetadata osm = ObjectStoreMetadataFactory
       .newObjectStoreMetadata()
       .bucket(TEST_BUCKET_NAME)
-      .fileIdentifier(uploadResponse.getFileIdentifier())
+      .fileIdentifier(objectUploadUuid)
       .build();
     objectStoreMetaDataService.create(osm);
 
@@ -140,15 +141,16 @@ public class ObjectExportServiceIT extends BaseIntegrationTest {
     MockMultipartFile mockFile = MultipartFileFactory
       .createMockMultipartFile(resourceLoader, "cc0_test_image.jpg", MediaType.IMAGE_JPEG_VALUE);
 
-    ObjectUploadDto uploadResponse = fileController.handleFileUpload(mockFile, TEST_BUCKET_NAME);
-    assertNotNull(uploadResponse);
-    assertNotNull(uploadResponse.getFileIdentifier());
+    var uploadResponse = fileController.handleFileUpload(mockFile, TEST_BUCKET_NAME);
+    UUID objectUploadUuid = JsonApiModelAssistant.extractUUIDFromRepresentationModelLink(uploadResponse);
+
+    assertNotNull(objectUploadUuid);
 
     // 2 - Created metadata for it
     ObjectStoreMetadata osm = ObjectStoreMetadataFactory
       .newObjectStoreMetadata()
       .bucket(TEST_BUCKET_NAME)
-      .fileIdentifier(uploadResponse.getFileIdentifier())
+      .fileIdentifier(objectUploadUuid)
       .build();
     objectStoreMetaDataService.create(osm);
 

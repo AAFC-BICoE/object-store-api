@@ -133,7 +133,7 @@ public class FileController {
     this.jsonApiModelAssistant = new JsonApiModelAssistant<>(buildProperties.getVersion());
   }
 
-  @PostMapping("/file/{bucket}/derivative")
+  @PostMapping(value ="/file/{bucket}/derivative", produces = JSON_API_VALUE)
   @Transactional
   public ResponseEntity<RepresentationModel<?>> handleDerivativeUpload(
     @RequestParam("file") MultipartFile file,
@@ -166,7 +166,7 @@ public class FileController {
 
   protected Link generateLinkToResource(ObjectUploadDto dto) {
     try {
-      return linkTo(methodOn(ObjectUploadResourceRepository.class).onFindOne(dto.getUuid(), null)).withSelfRel();
+      return linkTo(methodOn(ObjectUploadResourceRepository.class).onFindOne(dto.getJsonApiId(), null)).withSelfRel();
     } catch (ResourceNotFoundException | ResourceGoneException e) {
       throw new RuntimeException(e);
     }

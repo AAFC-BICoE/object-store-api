@@ -3,6 +3,7 @@ package ca.gc.aafc.objectstore.api.mapper;
 import java.util.Set;
 
 import org.mapstruct.BeanMapping;
+import org.mapstruct.CollectionMappingStrategy;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
@@ -13,7 +14,7 @@ import ca.gc.aafc.dina.mapper.DinaMapperV2;
 import ca.gc.aafc.objectstore.api.dto.ObjectUploadDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 
-@Mapper
+@Mapper(collectionMappingStrategy = CollectionMappingStrategy.TARGET_IMMUTABLE)
 public interface ObjectUploadMapper extends DinaMapperV2<ObjectUploadDto, ObjectUpload> {
 
   ObjectUploadMapper INSTANCE = Mappers.getMapper(ObjectUploadMapper.class);

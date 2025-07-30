@@ -45,7 +45,7 @@ public abstract class ObjectStoreModuleBaseRepositoryIT extends MockMvcBasedRepo
     super(baseUrl, objMapper);
   }
 
-  JsonApiDocument dtoToJsonApiDocument(JsonApiResource jsonApiResource) {
+  public static JsonApiDocument dtoToJsonApiDocument(JsonApiResource jsonApiResource) {
     return JsonApiDocuments.createJsonApiDocument(
       jsonApiResource.getJsonApiId(), jsonApiResource.getJsonApiType(),
       JsonAPITestHelper.toAttributeMap(jsonApiResource)
