@@ -19,11 +19,11 @@ import org.springframework.test.context.ContextConfiguration;
 import ca.gc.aafc.dina.exception.ResourceNotFoundException;
 import ca.gc.aafc.dina.jsonapi.JsonApiDocument;
 import ca.gc.aafc.dina.jsonapi.JsonApiDocuments;
+import ca.gc.aafc.dina.repository.JsonApiModelAssistant;
 import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.config.AsyncOverrideConfig;
 import ca.gc.aafc.objectstore.api.dto.DerivativeGenerationDto;
-import ca.gc.aafc.objectstore.api.dto.ObjectUploadDto;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.file.FileController;
@@ -61,16 +61,22 @@ public class DerivativeGenerationRepositoryIT extends BaseIntegrationTest {
     // setup original file (txt file)
     MockMultipartFile originalMultipart = MultipartFileFactory.createMockMultipartFile(
       resourceLoader, "testfile.txt", MediaType.TEXT_PLAIN_VALUE);
-    ObjectUploadDto uploadResponse = fileController.handleFileUpload(originalMultipart, BUCKET_NAME);
+
+    var uploadResponse = fileController.handleFileUpload(originalMultipart, BUCKET_NAME);
+    UUID objectUploadUuid = JsonApiModelAssistant.extractUUIDFromRepresentationModelLink(uploadResponse);
+
     ObjectStoreMetadata acDerivedFrom = ObjectStoreMetadataFactory.newObjectStoreMetadata()
-      .fileIdentifier(uploadResponse.getFileIdentifier()).build();
+      .fileIdentifier(objectUploadUuid).build();
     objectStoreMetaDataService.create(acDerivedFrom);
 
     // setup derivative (jpg of the txt file)
     MockMultipartFile derivativeMultipart = MultipartFileFactory.createMockMultipartFile(
       resourceLoader, "testfile.jpg", MediaType.IMAGE_JPEG_VALUE);
-    ObjectUploadDto derivativeUploadResponse = fileController.handleDerivativeUpload(derivativeMultipart, BUCKET_NAME);
-    Derivative derivative = DerivativeFactory.newDerivative(acDerivedFrom, derivativeUploadResponse.getFileIdentifier()).build();
+
+    var derivativeUploadResponse = fileController.handleDerivativeUpload(derivativeMultipart, BUCKET_NAME);
+    UUID derivativeObjectUploadUuid = JsonApiModelAssistant.extractUUIDFromRepresentationModelLink(derivativeUploadResponse);
+
+    Derivative derivative = DerivativeFactory.newDerivative(acDerivedFrom, derivativeObjectUploadUuid).build();
     derivativeService.create(derivative);
 
     // make sure the thumbnail exists
@@ -121,10 +127,13 @@ public class DerivativeGenerationRepositoryIT extends BaseIntegrationTest {
 
     MockMultipartFile multipartUpload = MultipartFileFactory.createMockMultipartFile(
       resourceLoader, "testfile.jpg", MediaType.IMAGE_JPEG_VALUE);
-    ObjectUploadDto uploadResponse = fileController.handleFileUpload(multipartUpload, BUCKET_NAME);
+
+    var uploadResponse = fileController.handleFileUpload(multipartUpload, BUCKET_NAME);
+    UUID objectUploadUuid = JsonApiModelAssistant.extractUUIDFromRepresentationModelLink(uploadResponse);
+
     ObjectStoreMetadata osMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata()
       .bucket(BUCKET_NAME)
-      .fileIdentifier(uploadResponse.getFileIdentifier()).build();
+      .fileIdentifier(objectUploadUuid).build();
     objectStoreMetaDataService.create(osMetadata);
 
     // make sure the thumbnail exists
