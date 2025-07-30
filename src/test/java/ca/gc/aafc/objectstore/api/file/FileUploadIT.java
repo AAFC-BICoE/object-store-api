@@ -43,7 +43,7 @@ public class FileUploadIT extends BaseIntegrationTest {
 
     webAppContextSetup(this.wac).build()
         .perform(MockMvcRequestBuilders.multipart("/api/v1/file/" + TEST_BUCKET_NAME).file(file))
-        .andExpect(status().is(200));
+        .andExpect(status().is(201));
   }
 
   @Test

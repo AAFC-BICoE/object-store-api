@@ -1,11 +1,15 @@
 package ca.gc.aafc.objectstore.api.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import javax.inject.Inject;
 
+import ca.gc.aafc.dina.dto.JsonApiDto;
+import ca.gc.aafc.dina.exception.ResourceGoneException;
+import ca.gc.aafc.dina.exception.ResourceNotFoundException;
+import ca.gc.aafc.dina.repository.DinaRepositoryV2;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,8 +18,6 @@ import org.junit.jupiter.api.Test;
 import ca.gc.aafc.objectstore.api.dto.ObjectUploadDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
-import io.crnk.core.queryspec.QuerySpec;
-import io.crnk.core.resource.list.ResourceList;
 
 public class ObjectUploadRepositoryCRUDIT extends BaseIntegrationTest {
   
@@ -49,16 +51,17 @@ public class ObjectUploadRepositoryCRUDIT extends BaseIntegrationTest {
   public void findObjectUpload_whenNoIDSpecified_returnedWithAllRecords() {
     createTestObjectUpload();
     
-    ResourceList<ObjectUploadDto> objectUploadDtos =  objectUploadRepository
-        .findAll(new QuerySpec(ObjectUploadDto.class));
-    
-    assertTrue(objectUploadDtos.size() >= 1);
+    DinaRepositoryV2.PagedResource<JsonApiDto<ObjectUploadDto>> objectUploadDtos =  objectUploadRepository
+      .getAll("");
+
+    assertFalse(objectUploadDtos.resourceList().isEmpty());
   }
   
   @Test
-  public void findObjectUpload_whenIdSpecified_returnedWithSingleResult() {
+  public void findObjectUpload_whenIdSpecified_returnedWithSingleResult()
+    throws ResourceGoneException, ResourceNotFoundException {
     ObjectUploadDto objectUploadDto = objectUploadRepository
-        .findOne(testObjectUpload.getFileIdentifier(), new QuerySpec(ObjectUploadDto.class));
+        .getOne(testObjectUpload.getFileIdentifier(), null).getDto();
     assertNotNull(objectUploadDto);
     assertEquals(testObjectUpload.getFileIdentifier(), objectUploadDto.getFileIdentifier());
     assertNotNull(objectUploadDto.getCreatedOn());

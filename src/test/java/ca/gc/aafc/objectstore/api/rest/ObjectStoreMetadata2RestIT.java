@@ -87,11 +87,11 @@ public class ObjectStoreMetadata2RestIT  extends BaseRestAssuredTest {
       .port(this.testPort)
       .multiPart(file)
       .when().post("/api/v1/file/" + ObjectUploadFactory.TEST_BUCKET).then()
-      .statusCode(200)
+      .statusCode(201)
       .extract()
       .body()
       .jsonPath()
-      .get("fileIdentifier");
+      .get("data.id");
   }
 
   private String uploadDerivative() throws Exception {
@@ -107,11 +107,11 @@ public class ObjectStoreMetadata2RestIT  extends BaseRestAssuredTest {
       .port(this.testPort)
       .multiPart(file)
       .when().post("/api/v1/file/" + ObjectUploadFactory.TEST_BUCKET + "/derivative/").then()
-      .statusCode(200)
+      .statusCode(201)
       .extract()
       .body()
       .jsonPath()
-      .get("fileIdentifier");
+      .get("data.id");
   }
 
   @Test

@@ -2,6 +2,7 @@ package ca.gc.aafc.objectstore.api.service;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.util.UUID;
 import javax.inject.Inject;
 
 import org.apache.tika.mime.MimeTypeException;
@@ -10,9 +11,9 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ContextConfiguration;
 
+import ca.gc.aafc.dina.repository.JsonApiModelAssistant;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.config.MediaTypeConfiguration;
-import ca.gc.aafc.objectstore.api.dto.ObjectUploadDto;
 import ca.gc.aafc.objectstore.api.file.FileController;
 import ca.gc.aafc.objectstore.api.file.TemporaryObjectAccessController;
 import ca.gc.aafc.objectstore.api.minio.MinioTestContainerInitializer;
@@ -46,13 +47,13 @@ public class ReportTemplateUploadServiceIT extends BaseIntegrationTest {
       .createMockMultipartFile(resourceLoader, TEST_UPLOAD_FILE_NAME,
         MediaTypeConfiguration.FREEMARKER_TEMPLATE_MIME_TYPE.toString());
 
-    ObjectUploadDto uploadResponse = fileController.handleFileUpload(mockFile, TEST_BUCKET_NAME);
-    assertNotNull(uploadResponse);
-    assertNotNull(uploadResponse.getFileIdentifier());
+    var uploadResponse = fileController.handleFileUpload(mockFile, TEST_BUCKET_NAME);
+    UUID objectUploadUuid = JsonApiModelAssistant.extractUUIDFromRepresentationModelLink(uploadResponse);
+    assertNotNull(objectUploadUuid);
 
     // 2 - Tell the ReportTemplateUploadService that the ObjectUpload is a report template
     ReportTemplateUploadService.ReportTemplateUploadResult result =
-      reportTemplateUploadService.handleTemplateUpload(uploadResponse.getFileIdentifier());
+      reportTemplateUploadService.handleTemplateUpload(objectUploadUuid);
 
     // 3- make sure we can get the export file using the toa key
     assertEquals(200, toaController.downloadObject(result.toaKey()).getStatusCode().value());

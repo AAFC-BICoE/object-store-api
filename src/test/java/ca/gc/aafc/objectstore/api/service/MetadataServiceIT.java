@@ -8,9 +8,9 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ContextConfiguration;
 
+import ca.gc.aafc.dina.repository.JsonApiModelAssistant;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.config.AsyncOverrideConfig;
-import ca.gc.aafc.objectstore.api.dto.ObjectUploadDto;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.file.FileController;
@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
+import java.util.UUID;
 import javax.inject.Inject;
 
 @ContextConfiguration(initializers = MinioTestContainerInitializer.class)
@@ -52,16 +53,16 @@ public class MetadataServiceIT extends BaseIntegrationTest {
     // 1 - Upload file
     MockMultipartFile mockFile = MultipartFileFactory
       .createMockMultipartFile(resourceLoader, TEST_UPLOAD_FILE_NAME, MediaType.IMAGE_PNG_VALUE);
-
-    ObjectUploadDto uploadResponse = fileController.handleFileUpload(mockFile, TEST_BUCKET_NAME);
-    assertNotNull(uploadResponse);
-    assertNotNull(uploadResponse.getFileIdentifier());
+    
+    var uploadResponse = fileController.handleFileUpload(mockFile, TEST_BUCKET_NAME);
+    UUID objectUploadUuid = JsonApiModelAssistant.extractUUIDFromRepresentationModelLink(uploadResponse);
+    assertNotNull(objectUploadUuid);
 
     // 2 - Created metadata for it
     ObjectStoreMetadata osm = ObjectStoreMetadataFactory
       .newObjectStoreMetadata()
       .bucket(TEST_BUCKET_NAME)
-      .fileIdentifier(uploadResponse.getFileIdentifier())
+      .fileIdentifier(objectUploadUuid)
       .build();
     objectStoreMetaDataService.create(osm);
 

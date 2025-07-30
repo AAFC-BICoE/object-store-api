@@ -58,14 +58,13 @@ public class ResourceNameIdentifierRepositoryIT extends BaseRestAssuredTest {
   public void resourceNameIdentifierRepository_onGet_responseReturned() throws IOException {
 
     String fileIdentifier = newMultipart("drawing.png", MediaType.IMAGE_PNG_VALUE)
-      .post("api/v1/file/" + TEST_BUCKET_NAME).then().statusCode(200)
-      .extract().body().jsonPath().getString("fileIdentifier");
+      .post("api/v1/file/" + TEST_BUCKET_NAME).then().statusCode(201)
+      .extract().body().jsonPath().getString("data.id");
 
     ObjectStoreMetadataDto osMetadata = ObjectStoreMetadataTestFixture.newObjectStoreMetadata();
     osMetadata.setFileIdentifier(UUID.fromString(fileIdentifier));
     osMetadata.setBucket("test");
     osMetadata.setDerivatives(null);
-   // osMetadata.setOriginalFilename("aaaeeee.jpg");
 
     String createdUUID = sendPost(ObjectStoreMetadataDto.TYPENAME, JsonAPITestHelper.toJsonAPIMap(
       ObjectStoreMetadataDto.TYPENAME,

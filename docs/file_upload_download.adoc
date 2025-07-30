@@ -12,18 +12,23 @@ curl -i http://localhost:8081/api/v1/file/mybucket -F "file=@./my-image.png;type
 
 Example response:
 
-```sh
+```json
 {
-	"fileIdentifier": "0050559c-beae-48d6-a2b0-91f5a666fad1",
-	"originalFilename": "example-png.png",
-	"sha1Hex": "c0c1d898ed827d6db02a03df941225184277d9e5",
-	"receivedMediaType": "image/png",
-	"detectedMediaType": "image/png",
-	"detectedFileExtension": ".png",
-	"evaluatedMediaType": "image/png",
-	"evaluatedFileExtension": ".png",
-	"sizeInBytes": 976,
-	"thumbnailIdentifier": "b9f6f58b-1b41-400f-b178-f91d11221b7c"
+  "data": {
+    "id": "0050559c-beae-48d6-a2b0-91f5a666fad1",
+    "type": "object-upload",
+    "attributes": {
+        "originalFilename": "example-png.png",
+        "sha1Hex": "c0c1d898ed827d6db02a03df941225184277d9e5",
+        "receivedMediaType": "image/png",
+        "detectedMediaType": "image/png",
+        "detectedFileExtension": ".png",
+        "evaluatedMediaType": "image/png",
+        "evaluatedFileExtension": ".png",
+        "sizeInBytes": 976,
+        "thumbnailIdentifier": "b9f6f58b-1b41-400f-b178-f91d11221b7c"
+    }
+  }
 }
 ```
 
@@ -64,20 +69,24 @@ curl -i http://localhost:8081/api/v1/file/mybucket/derivative -F "file=@./my-ima
 Example response:
 ```json
 {
-  "id": 2,
-  "fileIdentifier": "5c158d6e-09eb-4272-88b6-3349b638100d",
-  "dcType": "IMAGE",
-  "createdBy": "dev",
-  "originalFilename": "my-image.png",
-  "sha1Hex": "3a37e3546074b6a67afef2fc1b402bf9233a1eb7",
-  "receivedMediaType": "image/png",
-  "detectedMediaType": "image/png",
-  "detectedFileExtension": ".png",
-  "evaluatedMediaType": "image/png",
-  "evaluatedFileExtension": ".png",
-  "sizeInBytes": 6091,
-  "bucket": "mybucket",
-  "isDerivative": true,
+  "data": {
+    "id": "5c158d6e-09eb-4272-88b6-3349b638100d",
+    "type": "object-upload",
+    "attributes": {
+      "dcType": "IMAGE",
+      "createdBy": "dev",
+      "originalFilename": "my-image.png",
+      "sha1Hex": "3a37e3546074b6a67afef2fc1b402bf9233a1eb7",
+      "receivedMediaType": "image/png",
+      "detectedMediaType": "image/png",
+      "detectedFileExtension": ".png",
+      "evaluatedMediaType": "image/png",
+      "evaluatedFileExtension": ".png",
+      "sizeInBytes": 6091,
+      "bucket": "mybucket",
+      "isDerivative": true
+    }
+  }
 }
 ```
 
