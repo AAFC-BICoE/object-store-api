@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import ca.gc.aafc.dina.exception.ResourceGoneException;
 import ca.gc.aafc.dina.exception.ResourceNotFoundException;
 import ca.gc.aafc.dina.jsonapi.JsonApiDocument;
+import ca.gc.aafc.dina.mapper.DinaMappingRegistry;
 import ca.gc.aafc.dina.repository.DinaRepositoryV2;
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.dina.security.auth.DinaAuthorizationService;
@@ -54,7 +55,7 @@ public class DerivativeRepository extends DinaRepositoryV2<DerivativeDto, Deriva
       DerivativeMapper.INSTANCE,
       DerivativeDto.class,
       Derivative.class,
-      buildProperties, objMapper);
+      buildProperties, objMapper, new DinaMappingRegistry(DerivativeDto.class, true));
     this.authenticatedUser = authenticatedUser;
   }
 

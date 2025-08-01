@@ -1,5 +1,10 @@
 package ca.gc.aafc.objectstore.api.repository;
 
+import ca.gc.aafc.dina.exception.ResourceGoneException;
+import ca.gc.aafc.dina.exception.ResourceNotFoundException;
+import ca.gc.aafc.dina.jsonapi.JsonApiDocument;
+import ca.gc.aafc.dina.jsonapi.JsonApiDocuments;
+import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.dto.DerivativeDto;
@@ -9,19 +14,21 @@ import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import ca.gc.aafc.objectstore.api.testsupport.fixtures.DerivativeTestFixture;
-import io.crnk.core.queryspec.QuerySpec;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 
+import java.util.Map;
 import javax.inject.Inject;
 import javax.validation.ValidationException;
 import java.util.UUID;
 
+import static ca.gc.aafc.objectstore.api.repository.ObjectStoreModuleBaseRepositoryIT.dtoToJsonApiDocument;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DerivativeRepositoryCRUDIT extends BaseIntegrationTest {
@@ -51,36 +58,43 @@ public class DerivativeRepositoryCRUDIT extends BaseIntegrationTest {
   }
   
   @Test
-  void create() {
-    DerivativeDto resource = derivativeRepository.create(newDerivative(uploadTest_1.getFileIdentifier()));
-    DerivativeDto result = derivativeRepository.findOne(
-      resource.getUuid(),
-      new QuerySpec(DerivativeDto.class));
-    Assertions.assertEquals(resource.getDcType(), result.getDcType());
-    Assertions.assertEquals(resource.getFileIdentifier(), result.getFileIdentifier());
-    Assertions.assertEquals(resource.getDerivativeType(), result.getDerivativeType());
-    Assertions.assertEquals(resource.getDcFormat(), result.getDcFormat());
-    Assertions.assertEquals(uploadTest_1.getEvaluatedMediaType(), result.getDcFormat());
+  void create() throws ResourceGoneException, ResourceNotFoundException {
+
+    DerivativeDto dto = newDerivative(uploadTest_1.getFileIdentifier());
+    JsonApiDocument docToCreate = newJsonApiDocuments(dto);
+
+    DerivativeDto resource = derivativeRepository.create(docToCreate, null).getDto();
+    DerivativeDto result = derivativeRepository.getOne(resource.getUuid(), "").getDto();
+
+    assertEquals(resource.getDcType(), result.getDcType());
+    assertEquals(resource.getFileIdentifier(), result.getFileIdentifier());
+    assertEquals(resource.getDerivativeType(), result.getDerivativeType());
+    assertEquals(resource.getDcFormat(), result.getDcFormat());
+    assertEquals(uploadTest_1.getEvaluatedMediaType(), result.getDcFormat());
+
     // Auto generated fields
-    Assertions.assertNotNull(result.getBucket());
-    Assertions.assertNotNull(result.getFileExtension());
-    Assertions.assertNotNull(result.getAcHashValue());
-    Assertions.assertNotNull(result.getAcHashFunction());
-    Assertions.assertNotNull(result.getCreatedBy());
+    assertNotNull(result.getBucket());
+    assertNotNull(result.getFileExtension());
+    assertNotNull(result.getAcHashValue());
+    assertNotNull(result.getAcHashFunction());
+    assertNotNull(result.getCreatedBy());
   }
 
   @Test
   void create_WhenNoFileId_ThrowsValidationException() {
-    DerivativeDto noFileId = newDerivative(uploadTest_1.getFileIdentifier());
-    noFileId.setFileIdentifier(null);
-    Assertions.assertThrows(ValidationException.class, () -> derivativeRepository.create(noFileId));
+    DerivativeDto dto = newDerivative(uploadTest_1.getFileIdentifier());
+    dto.setFileIdentifier(null);
+    JsonApiDocument docToCreate = newJsonApiDocuments(dto);
+    assertThrows(ValidationException.class, () -> derivativeRepository.onCreate(docToCreate));
   }
 
   @Test
   void create_WhenNoObjectUpload_ThrowsValidationException() {
-    Assertions.assertThrows(
+
+    JsonApiDocument docToCreate = dtoToJsonApiDocument(newDerivative(UUIDHelper.generateUUIDv7()));
+    assertThrows(
       ValidationException.class,
-      () -> derivativeRepository.create(newDerivative(UUIDHelper.generateUUIDv7())));
+      () -> derivativeRepository.onCreate(docToCreate));
   }
 
   @Test
@@ -88,29 +102,41 @@ public class DerivativeRepositoryCRUDIT extends BaseIntegrationTest {
     ObjectUpload notDerivative = ObjectUploadFactory.newObjectUpload().build();
     notDerivative.setIsDerivative(false);
     objectUploadService.create(notDerivative);
-    Assertions.assertThrows(
+
+    JsonApiDocument docToCreate = dtoToJsonApiDocument(newDerivative(notDerivative.getFileIdentifier()));
+    assertThrows(
       ValidationException.class,
-      () -> derivativeRepository.create(newDerivative(notDerivative.getFileIdentifier())));
+      () -> derivativeRepository.onCreate(docToCreate));
   }
 
   @Test
-  void save() {
-    DerivativeDto toCreate = newDerivative(uploadTest_1.getFileIdentifier());
-    toCreate.setPubliclyReleasable(false);
-    DerivativeDto resource = derivativeRepository.create(toCreate);
-    DerivativeDto result = derivativeRepository.findOne(
-      resource.getUuid(),
-      new QuerySpec(DerivativeDto.class));
+  void save() throws ResourceGoneException, ResourceNotFoundException {
+    DerivativeDto dto = newDerivative(uploadTest_1.getFileIdentifier());
+    dto.setPubliclyReleasable(false);
+
+    JsonApiDocument docToCreate = newJsonApiDocuments(dto);
+
+    DerivativeDto resource = derivativeRepository.create(docToCreate, null).getDto();
+    DerivativeDto result = derivativeRepository.getOne(resource.getUuid(),"").getDto();
     assertFalse(result.getPubliclyReleasable());
 
     resource.setPubliclyReleasable(true);
-    derivativeRepository.save(resource);
 
-    result = derivativeRepository.findOne(
-      resource.getUuid(),
-      new QuerySpec(DerivativeDto.class));
+    JsonApiDocument docToUpdate = dtoToJsonApiDocument(resource);
+    derivativeRepository.update(docToUpdate);
+
+    result = derivativeRepository.getOne(resource.getUuid(),"").getDto();
     assertTrue(result.getPubliclyReleasable());
     assertNotNull(result.getAcTags());
+  }
+
+  private JsonApiDocument newJsonApiDocuments(DerivativeDto dto) {
+    return JsonApiDocuments.createJsonApiDocumentWithRelToOne(
+      dto.getJsonApiId(), dto.getJsonApiType(),
+      JsonAPITestHelper.toAttributeMap(dto),
+      Map.of("acDerivedFrom", JsonApiDocument.ResourceIdentifier.builder()
+        .type(ObjectStoreMetadataDto.TYPENAME).id(dto.getAcDerivedFrom().getUuid()).build())
+    );
   }
 
   private DerivativeDto newDerivative(UUID fileIdentifier) {

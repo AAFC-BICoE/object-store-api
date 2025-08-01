@@ -23,7 +23,7 @@ import javax.transaction.Transactional;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-@Repository
+//@Repository
 @Transactional
 public class ObjectStoreResourceRepository
   extends DinaRepository<ObjectStoreMetadataDto, ObjectStoreMetadata> {
