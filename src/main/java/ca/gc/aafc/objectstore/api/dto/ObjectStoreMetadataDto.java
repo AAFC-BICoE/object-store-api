@@ -1,11 +1,11 @@
 package ca.gc.aafc.objectstore.api.dto;
 
 import ca.gc.aafc.dina.dto.ExternalRelationDto;
+import ca.gc.aafc.dina.dto.JsonApiResource;
 import ca.gc.aafc.dina.dto.RelatedEntity;
 import ca.gc.aafc.dina.mapper.CustomFieldAdapter;
 import ca.gc.aafc.dina.mapper.DinaFieldAdapter;
 import ca.gc.aafc.dina.mapper.IgnoreDinaMapping;
-import ca.gc.aafc.dina.repository.meta.AttributeMetaInfoProvider;
 import ca.gc.aafc.dina.repository.meta.JsonApiExternalRelation;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
@@ -14,13 +14,9 @@ import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.toedter.spring.hateoas.jsonapi.JsonApiId;
 import com.toedter.spring.hateoas.jsonapi.JsonApiTypeForClass;
 
-import io.crnk.core.resource.annotations.JsonApiField;
-import io.crnk.core.resource.annotations.JsonApiId;
-import io.crnk.core.resource.annotations.JsonApiRelation;
-import io.crnk.core.resource.annotations.JsonApiResource;
-import io.crnk.core.resource.annotations.PatchStrategy;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;
@@ -40,18 +36,16 @@ import java.util.function.Supplier;
 
 @RelatedEntity(ObjectStoreMetadata.class)
 @Data
-@JsonApiResource(type = ObjectStoreMetadataDto.TYPENAME)
 @TypeName(ObjectStoreMetadataDto.TYPENAME)
 @CustomFieldAdapter(adapters = ObjectStoreMetadataDto.AcSubtypeAdapter.class)
 @JsonApiTypeForClass(ObjectStoreMetadataDto.TYPENAME)
-public class ObjectStoreMetadataDto extends AttributeMetaInfoProvider implements ca.gc.aafc.dina.dto.JsonApiResource {
+public class ObjectStoreMetadataDto implements JsonApiResource {
 
   public static final String TYPENAME = "metadata";
 
   @JsonApiId
   @Id
   @PropertyName("id")
-  @com.toedter.spring.hateoas.jsonapi.JsonApiId
   private UUID uuid;
 
   private String createdBy;
@@ -90,15 +84,15 @@ public class ObjectStoreMetadataDto extends AttributeMetaInfoProvider implements
   private String[] acTags;
 
   @JsonApiExternalRelation(type = "person")
-  @JsonApiRelation
+  @JsonIgnore
   private ExternalRelationDto acMetadataCreator;
 
-  @JsonApiRelation
+  @JsonIgnore
   @DiffIgnore
   private List<DerivativeDto> derivatives = List.of();
 
   @JsonApiExternalRelation(type = "person")
-  @JsonApiRelation
+  @JsonIgnore
   private ExternalRelationDto dcCreator;
 
   private Boolean publiclyReleasable;
@@ -113,7 +107,6 @@ public class ObjectStoreMetadataDto extends AttributeMetaInfoProvider implements
   @Setter(AccessLevel.NONE)
   private String group;
 
-  @JsonApiField(patchStrategy = PatchStrategy.SET)
   private Map<String, String> managedAttributes = Map.of();
 
   public String getGroup() {

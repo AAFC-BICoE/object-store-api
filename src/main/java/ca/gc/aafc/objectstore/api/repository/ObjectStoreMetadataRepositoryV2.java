@@ -14,6 +14,7 @@ import ca.gc.aafc.dina.dto.ExternalRelationDto;
 import ca.gc.aafc.dina.dto.JsonApiExternalResource;
 import ca.gc.aafc.dina.exception.ResourceGoneException;
 import ca.gc.aafc.dina.exception.ResourceNotFoundException;
+import ca.gc.aafc.dina.mapper.DinaMappingRegistry;
 import ca.gc.aafc.dina.repository.DinaRepositoryV2;
 import ca.gc.aafc.dina.service.AuditService;
 import ca.gc.aafc.dina.service.DinaService;
@@ -31,10 +32,8 @@ import javax.servlet.http.HttpServletRequest;
 import lombok.NonNull;
 
 @RestController
-@RequestMapping(value = "/api/v1", produces = JSON_API_VALUE)
+@RequestMapping(value = "${dina.apiPrefix:}", produces = JSON_API_VALUE)
 public class ObjectStoreMetadataRepositoryV2 extends DinaRepositoryV2<ObjectStoreMetadataDto, ObjectStoreMetadata> {
-
-  private static final String TMP_V2_TYPE = ObjectStoreMetadataDto.TYPENAME + "2";
 
   public ObjectStoreMetadataRepositoryV2(
     @NonNull DinaService<ObjectStoreMetadata> dinaService,
@@ -46,7 +45,7 @@ public class ObjectStoreMetadataRepositoryV2 extends DinaRepositoryV2<ObjectStor
       ObjectStoreMetadataMapper.INSTANCE,
       ObjectStoreMetadataDto.class,
       ObjectStoreMetadata.class,
-      buildProperties, objMapper);
+      buildProperties, objMapper,  new DinaMappingRegistry(ObjectStoreMetadataDto.class, true));
   }
 
   @Override
@@ -63,13 +62,13 @@ public class ObjectStoreMetadataRepositoryV2 extends DinaRepositoryV2<ObjectStor
     return null;
   }
 
-  @GetMapping(TMP_V2_TYPE + "/{id}")
+  @GetMapping(ObjectStoreMetadataDto.TYPENAME + "/{id}")
   public ResponseEntity<RepresentationModel<?>> onFindOne(@PathVariable UUID id, HttpServletRequest req)
       throws ResourceNotFoundException, ResourceGoneException {
     return handleFindOne(id, req);
   }
 
-  @GetMapping(TMP_V2_TYPE)
+  @GetMapping(ObjectStoreMetadataDto.TYPENAME)
   public ResponseEntity<RepresentationModel<?>> onFindAll(HttpServletRequest req) {
     return handleFindAll(req);
   }

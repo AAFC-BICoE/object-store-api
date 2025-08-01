@@ -51,7 +51,7 @@ public class ObjectStoreMetadata2RestIT  extends BaseRestAssuredTest {
     super("/api/v1/");
   }
 
-  private static final String RESOURCE_UNDER_TEST = "metadata2";
+  private static final String RESOURCE_UNDER_TEST = "metadata";
 
   private ObjectStoreMetadataDto buildObjectStoreMetadataDto() {
     OffsetDateTime dateTime4Test = OffsetDateTime.now();
