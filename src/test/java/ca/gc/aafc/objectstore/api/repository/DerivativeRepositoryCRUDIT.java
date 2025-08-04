@@ -61,7 +61,7 @@ public class DerivativeRepositoryCRUDIT extends BaseIntegrationTest {
   void create() throws ResourceGoneException, ResourceNotFoundException {
 
     DerivativeDto dto = newDerivative(uploadTest_1.getFileIdentifier());
-    JsonApiDocument docToCreate = newJsonApiDocuments(dto);
+    JsonApiDocument docToCreate = DerivativeTestFixture.newJsonApiDocument(dto);
 
     DerivativeDto resource = derivativeRepository.create(docToCreate, null).getDto();
     DerivativeDto result = derivativeRepository.getOne(resource.getUuid(), "").getDto();
@@ -84,7 +84,7 @@ public class DerivativeRepositoryCRUDIT extends BaseIntegrationTest {
   void create_WhenNoFileId_ThrowsValidationException() {
     DerivativeDto dto = newDerivative(uploadTest_1.getFileIdentifier());
     dto.setFileIdentifier(null);
-    JsonApiDocument docToCreate = newJsonApiDocuments(dto);
+    JsonApiDocument docToCreate = DerivativeTestFixture.newJsonApiDocument(dto);
     assertThrows(ValidationException.class, () -> derivativeRepository.onCreate(docToCreate));
   }
 
@@ -114,7 +114,7 @@ public class DerivativeRepositoryCRUDIT extends BaseIntegrationTest {
     DerivativeDto dto = newDerivative(uploadTest_1.getFileIdentifier());
     dto.setPubliclyReleasable(false);
 
-    JsonApiDocument docToCreate = newJsonApiDocuments(dto);
+    JsonApiDocument docToCreate = DerivativeTestFixture.newJsonApiDocument(dto);
 
     DerivativeDto resource = derivativeRepository.create(docToCreate, null).getDto();
     DerivativeDto result = derivativeRepository.getOne(resource.getUuid(),"").getDto();
@@ -128,15 +128,6 @@ public class DerivativeRepositoryCRUDIT extends BaseIntegrationTest {
     result = derivativeRepository.getOne(resource.getUuid(),"").getDto();
     assertTrue(result.getPubliclyReleasable());
     assertNotNull(result.getAcTags());
-  }
-
-  private JsonApiDocument newJsonApiDocuments(DerivativeDto dto) {
-    return JsonApiDocuments.createJsonApiDocumentWithRelToOne(
-      dto.getJsonApiId(), dto.getJsonApiType(),
-      JsonAPITestHelper.toAttributeMap(dto),
-      Map.of("acDerivedFrom", JsonApiDocument.ResourceIdentifier.builder()
-        .type(ObjectStoreMetadataDto.TYPENAME).id(dto.getAcDerivedFrom().getUuid()).build())
-    );
   }
 
   private DerivativeDto newDerivative(UUID fileIdentifier) {
