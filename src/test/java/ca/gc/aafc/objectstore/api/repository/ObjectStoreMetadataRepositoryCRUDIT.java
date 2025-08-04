@@ -1,15 +1,32 @@
 package ca.gc.aafc.objectstore.api.repository;
 
+import org.apache.commons.lang3.RandomStringUtils;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import ca.gc.aafc.dina.exception.ResourceGoneException;
+import ca.gc.aafc.dina.exception.ResourceNotFoundException;
 import ca.gc.aafc.dina.jsonapi.JsonApiDocument;
 import ca.gc.aafc.dina.jsonapi.JsonApiDocuments;
 import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.dina.vocabulary.TypedVocabularyElement;
-import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.config.AsyncOverrideConfig;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectSubtypeDto;
+import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
@@ -20,45 +37,56 @@ import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFacto
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import ca.gc.aafc.objectstore.api.testsupport.fixtures.ObjectStoreManagedAttributeFixture;
-import io.crnk.core.queryspec.QuerySpec;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
-import org.springframework.http.MediaType;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import io.minio.MinioClient;
+import java.util.Map;
+import java.util.UUID;
 import javax.inject.Inject;
 import javax.persistence.criteria.Predicate;
 import javax.validation.ValidationException;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 @Import(AsyncOverrideConfig.class)
-public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
+public class ObjectStoreMetadataRepositoryCRUDIT extends ObjectStoreModuleBaseRepositoryIT {
+
+  private static final String BASE_URL = "/api/v1/" + ObjectStoreMetadataDto.TYPENAME;
+  private final static String DINA_USER_NAME = "dev";
 
   @MockBean
   private MinioClient minioClient;
 
+  @Autowired
+  private WebApplicationContext wac;
+
+  private MockMvc mockMvc;
+
   @Inject
-  private ObjectStoreResourceRepository objectStoreResourceRepository;
+  private ObjectStoreMetadataRepositoryV2 objectStoreResourceRepository;
 
   @Inject
   private ObjectStoreManagedAttributeResourceRepository managedResourceRepository;
 
-  private ObjectSubtypeDto acSubtype;
+  @Autowired
+  protected ObjectStoreMetadataRepositoryCRUDIT(ObjectMapper objMapper) {
+    super(BASE_URL, objMapper);
+  }
 
-  private ObjectUpload objectUpload;
-  
-  private ObjectStoreMetadata createTestObjectStoreMetadata() {
-    ObjectStoreMetadata testObjectStoreMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata().fileIdentifier(objectUpload.getFileIdentifier()).build();
+  @Override
+  protected MockMvc getMockMvc() {
+    return mockMvc;
+  }
+
+  @BeforeEach
+  public void setup() throws JsonProcessingException {
+    this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
+  }
+
+  private ObjectStoreMetadata createTestObjectStoreMetadata(UUID fileIdentifier) {
+    ObjectStoreMetadata testObjectStoreMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata().fileIdentifier(fileIdentifier).build();
     objectStoreMetaDataService.create(testObjectStoreMetadata);
     return testObjectStoreMetadata;
   }
@@ -70,38 +98,40 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
     return managedAttributeService.create(testManagedAttribute);
   }
 
-  @BeforeEach
-  public void setup() {
-    objectUpload = createObjectUpload();
-    createAcSubtype();
-  }
+//  @BeforeEach
+//  public void setup() {
+//    objectUpload = createObjectUpload();
+//    createAcSubtype();
+//  }
   
   /**
    * Clean up database after each test.
    */
-  @AfterEach
-  public void tearDown() {
-    objectStoreMetaDataService.findAll(ObjectStoreMetadata.class,
-    (criteriaBuilder, objectStoreMetadataRoot) -> new Predicate[0],
-    null, 0, 100).forEach(metadata -> {
-
-      List<UUID> toDelete = metadata.getDerivatives().stream().map(Derivative::getUuid).toList();
-      for(UUID curr : toDelete) {
-        derivativeService.delete(derivativeService.findOne(curr, Derivative.class));
-      }
-
-      objectStoreMetaDataService.delete(metadata);
-    });
-    objectUploadService.delete(objectUpload);
-  }
+//  @AfterEach
+//  public void tearDown() {
+//    objectStoreMetaDataService.findAll(ObjectStoreMetadata.class,
+//    (criteriaBuilder, objectStoreMetadataRoot) -> new Predicate[0],
+//    null, 0, 100).forEach(metadata -> {
+//
+//      List<UUID> toDelete = metadata.getDerivatives().stream().map(Derivative::getUuid).toList();
+//      for(UUID curr : toDelete) {
+//        derivativeService.delete(derivativeService.findOne(curr, Derivative.class));
+//      }
+//
+//      objectStoreMetaDataService.delete(metadata);
+//    });
+//    objectUploadService.delete(objectUpload);
+//  }
   
-  private void createAcSubtype() {
+  private ObjectSubtypeDto createAcSubtype() {
     ObjectSubtype oSubtype = ObjectSubtypeFactory.newObjectSubtype().build();
     objectSubtypeService.create(oSubtype);
-    acSubtype = new ObjectSubtypeDto();
+    ObjectSubtypeDto acSubtype = new ObjectSubtypeDto();
     acSubtype.setUuid(oSubtype.getUuid());
     acSubtype.setAcSubtype(oSubtype.getAcSubtype());
     acSubtype.setDcType(oSubtype.getDcType());
+
+    return acSubtype;
   }
   
   private ObjectUpload createObjectUpload() {
@@ -111,8 +141,9 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
   }
   
   @Test
-  public void findMeta_whenNoFieldsAreSelected_MetadataReturnedWithAllFields() {
-    ObjectStoreMetadata testMetadata = createTestObjectStoreMetadata();
+  public void findMeta_whenNoFieldsAreSelected_MetadataReturnedWithAllFields() throws ResourceGoneException, ResourceNotFoundException {
+    ObjectUpload objectUpload = createObjectUpload();
+    ObjectStoreMetadata testMetadata = createTestObjectStoreMetadata(objectUpload.getFileIdentifier());
     ObjectStoreMetadataDto objectStoreMetadataDto = fetchMetaById(testMetadata.getUuid());
     assertNotNull(objectStoreMetadataDto);
     assertEquals(testMetadata.getUuid(), objectStoreMetadataDto.getUuid());
@@ -123,12 +154,16 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
       assertEquals(
           testMetadata.getManagedAttributes(),
         objectStoreMetadataDto.getManagedAttributes());
+
+    // cleanup
+    objectUploadService.delete(objectUpload);
   }
 
   @Test
   public void create_ValidResource_ResourcePersisted() {
 
     ObjectStoreManagedAttribute testManagedAttribute = createTestManagedAttribute();
+    ObjectSubtypeDto acSubtype = createAcSubtype();
 
     ObjectUpload objectUploadTest = ObjectUploadFactory.newObjectUpload().build();
     objectUploadService.create(objectUploadTest);
@@ -142,7 +177,8 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
     dto.setCreatedBy(RandomStringUtils.random(4));
     dto.setManagedAttributes(Map.of(testManagedAttribute.getKey(), testManagedAttribute.getAcceptedValues()[0]));
 
-    UUID dtoUuid = objectStoreResourceRepository.create(dto).getUuid();
+    JsonApiDocument docToCreate = dtoToJsonApiDocument(dto);
+    UUID dtoUuid = objectStoreResourceRepository.create(docToCreate, null).getDto().getJsonApiId();
 
     ObjectStoreMetadata result = objectStoreMetaDataService.findOne(dtoUuid);
     assertEquals(dtoUuid, result.getUuid());
@@ -161,6 +197,8 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
             .build();
     testManagedAttribute = managedAttributeService.create(testManagedAttribute);
 
+    ObjectSubtypeDto acSubtype = createAcSubtype();
+
     ObjectUpload objectUploadTest = ObjectUploadFactory.newObjectUpload().build();
     objectUploadService.create(objectUploadTest);
 
@@ -173,7 +211,8 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
     dto.setCreatedBy(RandomStringUtils.random(4));
     dto.setManagedAttributes(Map.of(testManagedAttribute.getKey(), " = = < -"));
 
-    UUID dtoUuid = objectStoreResourceRepository.create(dto).getUuid();
+    JsonApiDocument docToCreate = dtoToJsonApiDocument(dto);
+    UUID dtoUuid = objectStoreResourceRepository.create(docToCreate, null).getDto().getJsonApiId();
 
     ObjectStoreMetadata result = objectStoreMetaDataService.findOne(dtoUuid);
     assertEquals(dtoUuid, result.getUuid());
@@ -205,10 +244,12 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
     derivativeObjectUpload.setIsDerivative(true);
     objectUploadService.create(derivativeObjectUpload);
 
-    ObjectStoreMetadataDto resource = newMetaDto();
-    resource.setFileIdentifier(uuid);
+    ObjectSubtypeDto acSubtype = createAcSubtype();
+    ObjectStoreMetadataDto dto = newMetaDto(acSubtype.getDcType());
+    dto.setFileIdentifier(uuid);
 
-    assertThrows(ValidationException.class, () -> objectStoreResourceRepository.create(resource));
+    JsonApiDocument docToCreate = dtoToJsonApiDocument(dto);
+    assertThrows(ValidationException.class, () -> objectStoreResourceRepository.create(docToCreate, null));
     objectUploadService.delete(derivativeObjectUpload);
   }
       
@@ -218,10 +259,14 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
     ObjectUpload objectUpload = ObjectUploadFactory.newObjectUpload().build();
     objectUpload.setDetectedMediaType(MediaType.IMAGE_JPEG_VALUE);
     objectUploadService.create(objectUpload);
-    ObjectStoreMetadataDto resource = newMetaDto();
-    resource.setFileIdentifier(objectUpload.getFileIdentifier());
 
-    UUID parentUuid = objectStoreResourceRepository.create(resource).getUuid();
+    ObjectSubtypeDto acSubtype = createAcSubtype();
+    ObjectStoreMetadataDto dto = newMetaDto(acSubtype.getDcType());
+    dto.setFileIdentifier(objectUpload.getFileIdentifier());
+
+    JsonApiDocument docToCreate = dtoToJsonApiDocument(dto);
+
+    UUID parentUuid = objectStoreResourceRepository.create(docToCreate, null).getDto().getJsonApiId();
     Derivative child = derivativeService.findAll(Derivative.class,
       (criteriaBuilder, root) -> new Predicate[] {criteriaBuilder.equal(
         root.get("acDerivedFrom"),
@@ -236,9 +281,12 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
 
   @Test
   public void create_validExternalResource_NoThumbnailCreated() {
-    ObjectStoreMetadataDto resource = newMetaDtoExternalResource();
+    ObjectSubtypeDto acSubtype = createAcSubtype();
+    ObjectStoreMetadataDto dto = newMetaDtoExternalResource(acSubtype.getDcType());
 
-    UUID resourceUuid = objectStoreResourceRepository.create(resource).getUuid();
+    JsonApiDocument docToCreate = dtoToJsonApiDocument(dto);
+
+    UUID resourceUuid = objectStoreResourceRepository.create(docToCreate, null).getDto().getJsonApiId();
     Derivative child = derivativeService.findAll(Derivative.class,
       (criteriaBuilder, root) -> new Predicate[] {criteriaBuilder.equal(
         root.get("acDerivedFrom"),
@@ -248,15 +296,19 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
   }
 
   @Test
-  public void save_ValidResource_ResourceUpdated() {
-    ObjectStoreMetadata testMetadata = createTestObjectStoreMetadata();
+  public void save_ValidResource_ResourceUpdated() throws ResourceGoneException, ResourceNotFoundException {
+    ObjectSubtypeDto acSubtype = createAcSubtype();
+    ObjectUpload objectUpload = createObjectUpload();
+
+    ObjectStoreMetadata testMetadata = createTestObjectStoreMetadata(objectUpload.getFileIdentifier());
     ObjectStoreMetadataDto updateMetadataDto = fetchMetaById(testMetadata.getUuid());
     updateMetadataDto.setBucket(ObjectUploadFactory.TEST_BUCKET);
     updateMetadataDto.setFileIdentifier(ObjectUploadFactory.TEST_FILE_IDENTIFIER);
     updateMetadataDto.setAcSubtype(acSubtype.getAcSubtype());
     updateMetadataDto.setXmpRightsUsageTerms(ObjectUploadFactory.TEST_USAGE_TERMS);
 
-    objectStoreResourceRepository.save(updateMetadataDto);
+    JsonApiDocument docToUpdate = dtoToJsonApiDocument(updateMetadataDto);
+    objectStoreResourceRepository.update(docToUpdate);
 
     ObjectStoreMetadata result = objectStoreMetaDataService.findOne(updateMetadataDto.getUuid());
     assertEquals(ObjectUploadFactory.TEST_BUCKET, result.getBucket());
@@ -266,22 +318,26 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
 
     //Can break Relationships
     assertRelationshipsRemoved(testMetadata.getUuid());
+
+    // cleanup
+    objectUploadService.delete(objectUpload);
   }
 
-  private void assertRelationshipsRemoved(UUID metadataUUID) {
+  private void assertRelationshipsRemoved(UUID metadataUUID) throws ResourceGoneException, ResourceNotFoundException {
     ObjectStoreMetadataDto updateMetadataDto = fetchMetaById(metadataUUID);
     assertNotNull(updateMetadataDto.getAcSubtype());
 
     updateMetadataDto.setAcSubtype(null);
 
-    objectStoreResourceRepository.save(updateMetadataDto);
+    JsonApiDocument docToUpdate = dtoToJsonApiDocument(updateMetadataDto);
+    objectStoreResourceRepository.update(docToUpdate);
 
     ObjectStoreMetadata result = objectStoreMetaDataService.findOne(updateMetadataDto.getUuid());
     Assertions.assertNull(result.getAcSubtype());
   }
 
   @Test
-  public void create_onManagedAttributeValue_validationOccur() {
+  public void create_onManagedAttributeValue_validationOccur() throws ResourceGoneException, ResourceNotFoundException {
 
     ObjectStoreManagedAttributeDto newAttribute = ObjectStoreManagedAttributeFixture.newObjectStoreManagedAttribute();
     newAttribute.setVocabularyElementType(TypedVocabularyElement.VocabularyElementType.DATE);
@@ -293,49 +349,51 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends BaseIntegrationTest {
     );
     newAttribute = managedResourceRepository.create(docToCreate, null).getDto();
 
-    ObjectStoreMetadata testMetadata = createTestObjectStoreMetadata();
+    ObjectUpload objectUpload = createObjectUpload();
+    ObjectStoreMetadata testMetadata = createTestObjectStoreMetadata(objectUpload.getFileIdentifier());
     ObjectStoreMetadataDto testMetadataDto = fetchMetaById(testMetadata.getUuid());
 
     // Put an invalid value for Date
     testMetadataDto.setManagedAttributes(Map.of(newAttribute.getKey(), "zxy"));
-    assertThrows(ValidationException.class, () -> objectStoreResourceRepository.save(testMetadataDto));
+
+    JsonApiDocument docToUpdate = dtoToJsonApiDocument(testMetadataDto);
+    assertThrows(ValidationException.class, () -> objectStoreResourceRepository.update(docToUpdate));
 
     // Fix the value
     testMetadataDto.setManagedAttributes(Map.of(newAttribute.getKey(), "2022-02-02"));
-    objectStoreResourceRepository.save(testMetadataDto);
+
+    JsonApiDocument docToReUpdate = dtoToJsonApiDocument(testMetadataDto);
+    objectStoreResourceRepository.update(docToReUpdate);
 
     //cleanup
     objectStoreResourceRepository.delete(testMetadata.getUuid());
 
     // can't delete managed attribute for now since the check for key in use is using a fresh transaction
+
+    // cleanup
+    objectUploadService.delete(objectUpload);
   }
 
-  private ObjectStoreMetadataDto newMetaDto() {
+  private ObjectStoreMetadataDto newMetaDto(DcType dcType) {
     ObjectStoreMetadataDto parentDTO = new ObjectStoreMetadataDto();
     parentDTO.setBucket(ObjectUploadFactory.TEST_BUCKET);
     parentDTO.setFileIdentifier(ObjectUploadFactory.TEST_FILE_IDENTIFIER);
-    parentDTO.setDcType(acSubtype.getDcType());
+    parentDTO.setDcType(dcType);
     parentDTO.setXmpRightsUsageTerms(ObjectUploadFactory.TEST_USAGE_TERMS);
     parentDTO.setCreatedBy(RandomStringUtils.random(4));
     return parentDTO;
   }
 
-  private ObjectStoreMetadataDto newMetaDtoExternalResource() {
-    ObjectStoreMetadataDto resource = newMetaDto();
+  private ObjectStoreMetadataDto newMetaDtoExternalResource(DcType dcType) {
+    ObjectStoreMetadataDto resource = newMetaDto(dcType);
     resource.setResourceExternalURL("https://perdu.com");
     resource.setDcFormat(MediaType.IMAGE_JPEG_VALUE);
     resource.setFileIdentifier(null);
     return resource;
   }
 
-  private ObjectStoreMetadataDto fetchMetaById(UUID uuid) {
-    return objectStoreResourceRepository.findOne(uuid, newQuery());
-  }
-  
-  private static QuerySpec newQuery() {
-    QuerySpec querySpec = new QuerySpec(ObjectStoreMetadataDto.class);
-    querySpec.includeRelation(List.of("derivatives"));
-    return querySpec;
+  private ObjectStoreMetadataDto fetchMetaById(UUID uuid) throws ResourceGoneException, ResourceNotFoundException {
+    return objectStoreResourceRepository.getOne(uuid, "include=derivatives").getDto();
   }
   
 }

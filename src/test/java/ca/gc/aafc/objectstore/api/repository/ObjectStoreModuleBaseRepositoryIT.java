@@ -24,8 +24,10 @@ import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.dina.testsupport.repository.MockMvcBasedRepository;
 import ca.gc.aafc.objectstore.api.ObjectStoreApiLauncher;
 import ca.gc.aafc.objectstore.api.async.AsyncConsumer;
+import ca.gc.aafc.objectstore.api.service.DerivativeService;
 import ca.gc.aafc.objectstore.api.service.ObjectExportService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreManagedAttributeService;
+import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
 import ca.gc.aafc.objectstore.api.service.ObjectSubtypeService;
 import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
 
@@ -39,6 +41,12 @@ import javax.inject.Inject;
 @ContextConfiguration(initializers = {PostgresTestContainerInitializer.class})
 @Import(ObjectStoreModuleBaseRepositoryIT.ObjectStoreModuleTestConfiguration.class)
 public abstract class ObjectStoreModuleBaseRepositoryIT extends MockMvcBasedRepository {
+
+  @Inject
+  protected ObjectStoreMetaDataService objectStoreMetaDataService;
+
+  @Inject
+  protected DerivativeService derivativeService;
 
   @Inject
   protected ObjectStoreManagedAttributeService managedAttributeService;
