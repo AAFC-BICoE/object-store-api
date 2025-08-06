@@ -112,7 +112,7 @@ public class FileControllerIT extends BaseIntegrationTest {
     metadataForFile.setFileIdentifier(objectUploadUuid);
 
     JsonApiDocument docToCreate = dtoToJsonApiDocument(metadataForFile);
-    objectStoreResourceRepository.create(docToCreate, null);
+    objectStoreResourceRepository.onCreate(docToCreate);
 
     // dina-admin role required
     assertThrows(AccessDeniedException.class, () ->
@@ -364,11 +364,11 @@ public class FileControllerIT extends BaseIntegrationTest {
     metadataForFile.setFileIdentifier(objectUploadUuid);
 
     JsonApiDocument docToCreate = dtoToJsonApiDocument(metadataForFile);
-    metadataForFile = objectStoreResourceRepository.create(docToCreate, null).getDto();
+    UUID metadataUUID = JsonApiModelAssistant.extractUUIDFromRepresentationModelLink(objectStoreResourceRepository.onCreate(docToCreate));
 
     // change the bucket using the service to avoid permission issues but set it
     // publiclyReleasable
-    ObjectStoreMetadata metadataEntity = objectStoreMetaDataService.findOne(metadataForFile.getUuid());
+    ObjectStoreMetadata metadataEntity = objectStoreMetaDataService.findOne(metadataUUID);
     metadataEntity.setPubliclyReleasable(true);
     metadataEntity.setBucket("abc");
     objectStoreMetaDataService.update(metadataEntity);

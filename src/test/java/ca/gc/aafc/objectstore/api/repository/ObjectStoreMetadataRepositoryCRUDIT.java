@@ -333,7 +333,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends ObjectStoreModuleBaseRe
     objectStoreResourceRepository.update(docToUpdate);
 
     ObjectStoreMetadata result = objectStoreMetaDataService.findOne(updateMetadataDto.getUuid());
-    Assertions.assertNull(result.getAcSubtype());
+    assertNull(result.getAcSubtype());
   }
 
   @Test

@@ -6,6 +6,7 @@ import org.mapstruct.BeanMapping;
 import org.mapstruct.CollectionMappingStrategy;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.factory.Mappers;
@@ -21,8 +22,10 @@ public interface ObjectUploadMapper extends DinaMapperV2<ObjectUploadDto, Object
 
   ObjectUploadDto toDto(ObjectUpload entity, @Context Set<String> provided, @Context String scope);
 
+  @Mapping(target = "id", ignore = true)
   ObjectUpload toEntity(ObjectUploadDto dto, @Context Set<String> provided, @Context String scope);
 
+  @Mapping(target = "id", ignore = true)
   @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
   void patchEntity(@MappingTarget ObjectUpload entity, ObjectUploadDto dto,
                    @Context Set<String> provided, @Context String scope);

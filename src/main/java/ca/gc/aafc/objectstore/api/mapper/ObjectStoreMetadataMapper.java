@@ -4,10 +4,12 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.AfterMapping;
+import org.mapstruct.BeanMapping;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.factory.Mappers;
 
 import ca.gc.aafc.dina.mapper.DinaMapperV2;
@@ -27,10 +29,30 @@ public interface ObjectStoreMetadataMapper
   @Mapping(source = "dcCreator", target = "dcCreator", qualifiedByName = "uuidToPersonExternalRelation")
   ObjectStoreMetadataDto toDto(ObjectStoreMetadata entity, @Context Set<String> provided, @Context String scope);
 
+  /**
+   * Ignore internal id
+   * Ignore special fields like acSubtype and acSubtypeId.
+   * Ignore relationships for MapStruct mapping dto -> entity
+   * @param dto
+   * @param provided provided properties so only those will be set
+   * @param scope used to check provided properties within nested properties
+   * @return
+   */
+  @Mapping(target = "id", ignore = true)
   @Mapping(target = "acSubtype", ignore = true)
+  @Mapping(target = "acSubtypeId", ignore = true)
+  @Mapping(target = "acMetadataCreator", ignore = true)
+  @Mapping(target = "dcCreator", ignore = true)
+  @Mapping(target = "derivatives", ignore = true)
   ObjectStoreMetadata toEntity(ObjectStoreMetadataDto dto, @Context Set<String> provided, @Context String scope);
 
+  @Mapping(target = "id", ignore = true)
   @Mapping(target = "acSubtype", ignore = true)
+  @Mapping(target = "acSubtypeId", ignore = true)
+  @Mapping(target = "acMetadataCreator", ignore = true)
+  @Mapping(target = "dcCreator", ignore = true)
+  @Mapping(target = "derivatives", ignore = true)
+  @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
   void patchEntity(@MappingTarget ObjectStoreMetadata entity, ObjectStoreMetadataDto dto, @Context Set<String> provided, @Context String scope);
 
   /**
@@ -66,7 +88,7 @@ public interface ObjectStoreMetadataMapper
   }
 
   // Relationships handling
-
+  @Mapping(target = "id", ignore = true)
   @Mapping(target = "acDerivedFrom", ignore = true)
   @Mapping(target = "generatedFromDerivative", ignore = true)
   Derivative toDerivativeEntity(DerivativeDto dto, Set<String> provided, String scope);

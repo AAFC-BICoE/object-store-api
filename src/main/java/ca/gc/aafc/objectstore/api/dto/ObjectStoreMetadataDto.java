@@ -1,15 +1,10 @@
 package ca.gc.aafc.objectstore.api.dto;
 
-import ca.gc.aafc.dina.dto.ExternalRelationDto;
-import ca.gc.aafc.dina.dto.JsonApiResource;
-import ca.gc.aafc.dina.dto.RelatedEntity;
-import ca.gc.aafc.dina.mapper.CustomFieldAdapter;
-import ca.gc.aafc.dina.mapper.DinaFieldAdapter;
-import ca.gc.aafc.dina.mapper.IgnoreDinaMapping;
-import ca.gc.aafc.dina.repository.meta.JsonApiExternalRelation;
-import ca.gc.aafc.objectstore.api.entities.DcType;
-import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
-import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
+import org.javers.core.metamodel.annotation.DiffIgnore;
+import org.javers.core.metamodel.annotation.Id;
+import org.javers.core.metamodel.annotation.PropertyName;
+import org.javers.core.metamodel.annotation.ShallowReference;
+import org.javers.core.metamodel.annotation.TypeName;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -17,27 +12,24 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.toedter.spring.hateoas.jsonapi.JsonApiId;
 import com.toedter.spring.hateoas.jsonapi.JsonApiTypeForClass;
 
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.Setter;
-import org.apache.commons.lang3.StringUtils;
-import org.javers.core.metamodel.annotation.DiffIgnore;
-import org.javers.core.metamodel.annotation.Id;
-import org.javers.core.metamodel.annotation.PropertyName;
-import org.javers.core.metamodel.annotation.ShallowReference;
-import org.javers.core.metamodel.annotation.TypeName;
+import ca.gc.aafc.dina.dto.ExternalRelationDto;
+import ca.gc.aafc.dina.dto.JsonApiResource;
+import ca.gc.aafc.dina.dto.RelatedEntity;
+import ca.gc.aafc.dina.repository.meta.JsonApiExternalRelation;
+import ca.gc.aafc.objectstore.api.entities.DcType;
+import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.Setter;
 
 @RelatedEntity(ObjectStoreMetadata.class)
 @Data
 @TypeName(ObjectStoreMetadataDto.TYPENAME)
-@CustomFieldAdapter(adapters = ObjectStoreMetadataDto.AcSubtypeAdapter.class)
 @JsonApiTypeForClass(ObjectStoreMetadataDto.TYPENAME)
 public class ObjectStoreMetadataDto implements JsonApiResource {
 
@@ -101,7 +93,6 @@ public class ObjectStoreMetadataDto implements JsonApiResource {
   private String notPubliclyReleasableReason;
 
   @JsonInclude(Include.NON_EMPTY)
-  @IgnoreDinaMapping(reason = "Custom Resolved field")
   private String acSubtype;
 
   @Setter(AccessLevel.NONE)
@@ -123,59 +114,6 @@ public class ObjectStoreMetadataDto implements JsonApiResource {
   @JsonIgnore
   public UUID getJsonApiId() {
     return uuid;
-  }
-
-  public void applyObjectSubtype(ObjectSubtype objectSubtype) {
-    if (objectSubtype != null &&
-        objectSubtype.getDcType() != null &&
-        StringUtils.isNotBlank(objectSubtype.getAcSubtype())) {
-      setAcSubtype(objectSubtype.getAcSubtype());
-    } else {
-      setAcSubtype(null);
-    }
-  }
-  public ObjectSubtype supplyObjectSubtype() {
-    if (getDcType() == null || StringUtils.isBlank(getAcSubtype())) {
-      return null;
-    }
-    return ObjectSubtype.builder()
-        .dcType(getDcType())
-        .acSubtype(getAcSubtype())
-        .build();
-  }
-
-  public static class AcSubtypeAdapter
-    implements DinaFieldAdapter<ObjectStoreMetadataDto, ObjectStoreMetadata, ObjectSubtype, ObjectSubtype> {
-
-    @Override
-    public ObjectSubtype toDTO(ObjectSubtype subtype) {
-      return subtype;
-    }
-
-    @Override
-    public ObjectSubtype toEntity(ObjectSubtype subtype) {
-      return subtype;
-    }
-
-    @Override
-    public Consumer<ObjectSubtype> entityApplyMethod(ObjectStoreMetadata entityRef) {
-      return entityRef::setAcSubtype;
-    }
-
-    @Override
-    public Supplier<ObjectSubtype> entitySupplyMethod(ObjectStoreMetadata entityRef) {
-      return entityRef::getAcSubtype;
-    }
-
-    @Override
-    public Consumer<ObjectSubtype> dtoApplyMethod(ObjectStoreMetadataDto dtoRef) {
-      return dtoRef::applyObjectSubtype;
-    }
-
-    @Override
-    public Supplier<ObjectSubtype> dtoSupplyMethod(ObjectStoreMetadataDto dtoRef) {
-      return dtoRef::supplyObjectSubtype;
-    }
   }
 
 }
