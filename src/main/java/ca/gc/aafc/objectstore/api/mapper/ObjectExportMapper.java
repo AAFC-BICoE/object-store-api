@@ -17,7 +17,9 @@ public interface ObjectExportMapper {
 
   ObjectExportMapper INSTANCE = Mappers.getMapper(ObjectExportMapper.class);
 
-  @Mapping(target = "objectExportOption", source = ".")
+  @Mapping(source = "filenameAliases", target = "objectExportOption.aliases")
+  @Mapping(source = "exportLayout", target = "objectExportOption.exportLayout")
+  @Mapping(source = "exportFunction", target = "objectExportOption.exportFunction")
   ObjectExportService.ExportArgs toEntity(ObjectExportDto dto);
 
   default <T> List<T> nullSafeList(List<T> list) {

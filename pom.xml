@@ -460,6 +460,7 @@
               <version>${lombok-mapstruct-binding.version}</version>
             </path>
           </annotationProcessorPaths>
+          <showWarnings>true</showWarnings>
         </configuration>
       </plugin>
     </plugins>
