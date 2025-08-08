@@ -42,7 +42,7 @@ import static org.hamcrest.Matchers.hasItems;
 @Transactional
 @ContextConfiguration(initializers = {PostgresTestContainerInitializer.class, MinioTestContainerInitializer.class})
 @Import(BaseIntegrationTest.ObjectStoreModuleTestConfiguration.class)
-public class ObjectStoreMetadata2RestIT  extends BaseRestAssuredTest {
+public class ObjectStoreMetadata2RestIT extends BaseRestAssuredTest {
 
   @Autowired
   protected WebApplicationContext wac;
@@ -134,7 +134,7 @@ null, null
       JsonAPITestHelper.toJsonAPIMap(DerivativeDto.TYPENAME,
         JsonAPITestHelper.toAttributeMap(derivativeDto),
         JsonAPITestHelper.toRelationshipMap(
-          JsonAPIRelationship.of("acDerivedFrom", "metadata", metadataUUID)), null));
+          JsonAPIRelationship.of("acDerivedFrom", ObjectStoreMetadataDto.TYPENAME, metadataUUID)), null));
 
     ValidatableResponse response = sendGet(RESOURCE_UNDER_TEST, "", Map.of("include", "derivatives,acMetadataCreator"), 200);
     response.body("data.id", hasItems(metadataUUID));

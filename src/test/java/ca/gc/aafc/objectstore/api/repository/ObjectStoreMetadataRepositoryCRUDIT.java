@@ -1,7 +1,7 @@
 package ca.gc.aafc.objectstore.api.repository;
 
 import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +44,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import io.minio.MinioClient;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import javax.inject.Inject;
@@ -54,7 +55,6 @@ import javax.validation.ValidationException;
 public class ObjectStoreMetadataRepositoryCRUDIT extends ObjectStoreModuleBaseRepositoryIT {
 
   private static final String BASE_URL = "/api/v1/" + ObjectStoreMetadataDto.TYPENAME;
-  private final static String DINA_USER_NAME = "dev";
 
   @MockBean
   private MinioClient minioClient;
@@ -97,31 +97,24 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends ObjectStoreModuleBaseRe
     .build();
     return managedAttributeService.create(testManagedAttribute);
   }
-
-//  @BeforeEach
-//  public void setup() {
-//    objectUpload = createObjectUpload();
-//    createAcSubtype();
-//  }
   
   /**
    * Clean up database after each test.
    */
-//  @AfterEach
-//  public void tearDown() {
-//    objectStoreMetaDataService.findAll(ObjectStoreMetadata.class,
-//    (criteriaBuilder, objectStoreMetadataRoot) -> new Predicate[0],
-//    null, 0, 100).forEach(metadata -> {
-//
-//      List<UUID> toDelete = metadata.getDerivatives().stream().map(Derivative::getUuid).toList();
-//      for(UUID curr : toDelete) {
-//        derivativeService.delete(derivativeService.findOne(curr, Derivative.class));
-//      }
-//
-//      objectStoreMetaDataService.delete(metadata);
-//    });
-//    objectUploadService.delete(objectUpload);
-//  }
+  @AfterEach
+  public void tearDown() {
+    objectStoreMetaDataService.findAll(ObjectStoreMetadata.class,
+    (criteriaBuilder, objectStoreMetadataRoot) -> new Predicate[0],
+    null, 0, 100).forEach(metadata -> {
+
+      List<UUID> toDelete = metadata.getDerivatives().stream().map(Derivative::getUuid).toList();
+      for(UUID curr : toDelete) {
+        derivativeService.delete(derivativeService.findOne(curr, Derivative.class));
+      }
+
+      objectStoreMetaDataService.delete(metadata);
+    });
+  }
   
   private ObjectSubtypeDto createAcSubtype() {
     ObjectSubtype oSubtype = ObjectSubtypeFactory.newObjectSubtype().build();
