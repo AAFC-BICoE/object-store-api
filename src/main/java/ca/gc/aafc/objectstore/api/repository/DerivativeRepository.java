@@ -61,7 +61,7 @@ public class DerivativeRepository extends DinaRepositoryV2<DerivativeDto, Deriva
 
   @GetMapping(DerivativeDto.TYPENAME + "/{id}")
   public ResponseEntity<RepresentationModel<?>> onFindOne(@PathVariable UUID id, HttpServletRequest req)
-    throws ResourceNotFoundException, ResourceGoneException {
+      throws ResourceNotFoundException, ResourceGoneException {
     return handleFindOne(id, req);
   }
 
