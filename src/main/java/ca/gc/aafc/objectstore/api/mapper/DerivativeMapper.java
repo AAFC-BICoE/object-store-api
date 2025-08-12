@@ -23,9 +23,13 @@ public interface DerivativeMapper extends DinaMapperV2<DerivativeDto, Derivative
 
   DerivativeDto toDto(Derivative entity, @Context Set<String> provided, @Context String scope);
 
+  @Mapping(target = "id", ignore = true)
+  @Mapping(target = "acDerivedFrom", ignore = true)
+  @Mapping(target = "generatedFromDerivative", ignore = true)
   Derivative toEntity(DerivativeDto dto, @Context Set<String> provided, @Context String scope);
 
   @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+  @Mapping(target = "id", ignore = true)
   @Mapping(target = "acDerivedFrom", ignore = true)
   @Mapping(target = "generatedFromDerivative", ignore = true)
   void patchEntity(@MappingTarget Derivative entity, DerivativeDto dto, @Context Set<String> provided, @Context String scope);
@@ -54,8 +58,10 @@ public interface DerivativeMapper extends DinaMapperV2<DerivativeDto, Derivative
 
   // Relationships handling
 
+  @Mapping(target = "id", ignore = true)
   @Mapping(target = "derivatives", ignore = true)
   @Mapping(target = "acSubtype", ignore = true)
+  @Mapping(target = "acSubtypeId", ignore = true)
   @Mapping(target = "acMetadataCreator", ignore = true)
   @Mapping(target = "dcCreator", ignore = true)
   ObjectStoreMetadata toMetadataEntity(ObjectStoreMetadataDto dto, Set<String> provided, String scope);

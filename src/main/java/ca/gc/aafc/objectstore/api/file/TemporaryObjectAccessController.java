@@ -36,8 +36,6 @@ import ca.gc.aafc.dina.file.FileCleaner;
  * Files are stored in specific folder that should only be used for temporary object access.
  * Once used or expired, the file will be deleted.
  */
-// CHECKSTYLE:OFF NoFinalizer
-// CHECKSTYLE:OFF SuperFinalize
 @RestController
 @RequestMapping("/api/v1")
 @Log4j2
@@ -175,13 +173,5 @@ public class TemporaryObjectAccessController {
   }
 
   record TemporaryObjectAccess(String filename, Instant createdOn) {
-  }
-
-  /**
-   * Protection against CT_CONSTRUCTOR_THROW
-   */
-  @Override
-  protected final void finalize() {
-    // no-op
   }
 }
