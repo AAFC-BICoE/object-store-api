@@ -18,7 +18,11 @@ import ca.gc.aafc.dina.dto.ExternalRelationDto;
 import ca.gc.aafc.dina.dto.JsonApiExternalResource;
 import ca.gc.aafc.dina.exception.ResourceGoneException;
 import ca.gc.aafc.dina.exception.ResourceNotFoundException;
+import ca.gc.aafc.dina.exception.ResourcesGoneException;
+import ca.gc.aafc.dina.exception.ResourcesNotFoundException;
 import ca.gc.aafc.dina.json.JsonDocumentInspector;
+import ca.gc.aafc.dina.jsonapi.JsonApiBulkDocument;
+import ca.gc.aafc.dina.jsonapi.JsonApiBulkResourceIdentifierDocument;
 import ca.gc.aafc.dina.jsonapi.JsonApiDocument;
 import ca.gc.aafc.dina.mapper.DinaMappingRegistry;
 import ca.gc.aafc.dina.repository.DinaRepositoryV2;
@@ -89,6 +93,14 @@ public class ObjectStoreMetadataRepositoryV2 extends DinaRepositoryV2<ObjectStor
     return handleFindAll(req);
   }
 
+  @PostMapping(path = ObjectStoreMetadataDto.TYPENAME + "/" + DinaRepositoryV2.JSON_API_BULK_LOAD_PATH, consumes = JSON_API_BULK)
+  public ResponseEntity<RepresentationModel<?>> onBulkLoad(@RequestBody
+                                                           JsonApiBulkResourceIdentifierDocument jsonApiBulkDocument,
+                                                           HttpServletRequest req)
+    throws ResourcesNotFoundException, ResourcesGoneException {
+    return handleBulkLoad(jsonApiBulkDocument, req);
+  }
+
   @PostMapping(ObjectStoreMetadataDto.TYPENAME)
   @Transactional
   public ResponseEntity<RepresentationModel<?>> onCreate(@RequestBody JsonApiDocument postedDocument) {
@@ -100,11 +112,29 @@ public class ObjectStoreMetadataRepositoryV2 extends DinaRepositoryV2<ObjectStor
     });
   }
 
+  @PostMapping(path = ObjectStoreMetadataDto.TYPENAME + "/" + DinaRepositoryV2.JSON_API_BULK_PATH, consumes = JSON_API_BULK)
+  @Transactional
+  public ResponseEntity<RepresentationModel<?>> onBulkCreate(@RequestBody
+                                                             JsonApiBulkDocument jsonApiBulkDocument) {
+    return handleBulkCreate(jsonApiBulkDocument, dto -> {
+      if (authenticatedUser != null) {
+        dto.setCreatedBy(authenticatedUser.getUsername());
+      }
+    });
+  }
+
   @PatchMapping(ObjectStoreMetadataDto.TYPENAME + "/{id}")
   @Transactional
   public ResponseEntity<RepresentationModel<?>> onUpdate(@RequestBody JsonApiDocument partialPatchDto,
                                                          @PathVariable UUID id) throws ResourceNotFoundException, ResourceGoneException {
     return handleUpdate(partialPatchDto, id);
+  }
+
+  @PatchMapping(path = ObjectStoreMetadataDto.TYPENAME + "/" + DinaRepositoryV2.JSON_API_BULK_PATH, consumes = JSON_API_BULK)
+  @Transactional
+  public ResponseEntity<RepresentationModel<?>> onBulkUpdate(@RequestBody JsonApiBulkDocument jsonApiBulkDocument)
+    throws ResourceNotFoundException, ResourceGoneException {
+    return handleBulkUpdate(jsonApiBulkDocument);
   }
 
   @DeleteMapping(ObjectStoreMetadataDto.TYPENAME + "/{id}")
