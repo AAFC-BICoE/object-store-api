@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.junit.jupiter.api.Test;
 
 import ca.gc.aafc.objectstore.api.dto.DerivativeDto;
@@ -41,6 +42,29 @@ public class ObjectStoreMetadataMapperTest {
 
     // relationships should not be mapped to entity by the mapper
     assertTrue(CollectionUtils.isEmpty(entity.getDerivatives()));
+  }
+
+  @Test
+  public void testMapperPatchEntity() {
+    ObjectStoreMetadataDto dto = ObjectStoreMetadataTestFixture.newObjectStoreMetadata();
+    dto.setOriginalFilename("allo.txt");
+    dto.setManagedAttributes(Map.of("att1", "val1"));
+
+    ObjectStoreMetadata
+      entity = ObjectStoreMetadataMapper.INSTANCE.toEntity(dto,
+      Set.of("originalFilename", "managedAttributes"), null);
+    assertTrue(MapUtils.isNotEmpty(entity.getManagedAttributes()));
+
+    // set to null on purpose
+    dto.setManagedAttributes(null);
+    dto.setOriginalFilename("allo2.txt");
+
+    // patch the entity from the dto but do not provide managedAttribute
+    ObjectStoreMetadataMapper.INSTANCE.patchEntity(entity, dto,
+      Set.of("originalFilename"), null);
+
+    assertEquals(dto.getOriginalFilename(), entity.getOriginalFilename());
+    assertTrue(MapUtils.isNotEmpty(entity.getManagedAttributes()));
   }
 
   @Test

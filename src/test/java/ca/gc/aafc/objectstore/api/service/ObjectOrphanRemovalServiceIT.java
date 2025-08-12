@@ -26,6 +26,10 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 @ContextConfiguration(initializers = MinioTestContainerInitializer.class)
 @SpringBootTest(classes = ObjectStoreApiLauncher.class, properties = {
   "orphan-removal.expiration.object_max_age=12d",
@@ -73,10 +77,10 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
 
     serviceUnderTest.removeObjectOrphans(); // method under test
 
-    Assertions.assertTrue(
+    assertTrue(
       fileService.retrieveFile(BUCKET, fileName, false).isEmpty(),
       "There should be no returned files");
-    Assertions.assertNull(
+    assertNull(
       objectUploadService.findOne(upload.getFileIdentifier(), ObjectUpload.class),
       "There should be no upload record");
   }
@@ -91,10 +95,10 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
 
     serviceUnderTest.removeObjectOrphans(); // method under test
 
-    Assertions.assertTrue(
+    assertTrue(
       fileService.retrieveFile(BUCKET, fileName,false).isPresent(),
       "There should be a returned file");
-    Assertions.assertNotNull(
+    assertNotNull(
       objectUploadService.findOne(upload.getFileIdentifier(), ObjectUpload.class),
       "There should be a upload record");
   }
@@ -103,7 +107,7 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
   @Test
   void removeOrphans_WhenLinkedToMetadata_OrphanNotRemoved() {
     persistOrphanRecord();
-    ObjectUpload upload = findUploads().get(0);
+    ObjectUpload upload = findUploads().getFirst();
     String fileName = storeFileForUpload(upload);
 
     metaDataService.create(ObjectStoreMetadataFactory.newObjectStoreMetadata()
@@ -112,10 +116,11 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
 
     serviceUnderTest.removeObjectOrphans(); // method under test
 
-    Assertions.assertTrue(
+    assertTrue(
       fileService.retrieveFile(BUCKET, fileName,false).isPresent(),
       "There should be a returned file");
-    Assertions.assertNotNull(
+
+    assertNotNull(
       objectUploadService.findOne(upload.getFileIdentifier(), ObjectUpload.class),
       "There should be a upload record");
   }
@@ -153,10 +158,10 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
 
     serviceUnderTest.removeObjectOrphans(); // method under test
 
-    Assertions.assertTrue(
+    assertTrue(
       fileService.retrieveFile(BUCKET, fileName, true).isPresent(),
       "There should be a returned file");
-    Assertions.assertNotNull(
+    assertNotNull(
       objectUploadService.findOne(derivativeUpload.getFileIdentifier(), ObjectUpload.class),
       "There should be a derivativeUpload record");
   }
@@ -174,10 +179,10 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
 
     serviceUnderTest.removeObjectOrphans(); // method under test
 
-    Assertions.assertTrue(
+    assertTrue(
       fileService.retrieveFile(BUCKET, fileName,true).isEmpty(),
       "There should be no returned files");
-    Assertions.assertNull(
+    assertNull(
       objectUploadService.findOne(derivativeUpload.getFileIdentifier(), ObjectUpload.class),
       "There should be no upload record");
   }
@@ -192,10 +197,10 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
 
     Thread.sleep(2000);
 
-    Assertions.assertTrue(
+    assertTrue(
       fileService.retrieveFile(BUCKET, fileName,false).isEmpty(),
       "There should be no returned files");
-    Assertions.assertTrue(findUploads().isEmpty(), "There should be no upload record");
+    assertTrue(findUploads().isEmpty(), "There should be no upload record");
   }
 
   private List<ObjectUpload> findUploads() {
