@@ -79,7 +79,7 @@ public class DerivativeRepository extends DinaRepositoryV2<DerivativeDto, Deriva
   public ResponseEntity<RepresentationModel<?>> onBulkLoad(@RequestBody
                                                            JsonApiBulkResourceIdentifierDocument jsonApiBulkDocument,
                                                            HttpServletRequest req)
-    throws ResourcesNotFoundException, ResourcesGoneException {
+      throws ResourcesNotFoundException, ResourcesGoneException {
     return handleBulkLoad(jsonApiBulkDocument, req);
   }
 
@@ -119,7 +119,7 @@ public class DerivativeRepository extends DinaRepositoryV2<DerivativeDto, Deriva
   @Transactional
   public ResponseEntity<RepresentationModel<?>> onBulkUpdate(@RequestBody
                                                              JsonApiBulkDocument jsonApiBulkDocument)
-    throws ResourceNotFoundException, ResourceGoneException {
+      throws ResourceNotFoundException, ResourceGoneException {
     return handleBulkUpdate(jsonApiBulkDocument);
   }
 

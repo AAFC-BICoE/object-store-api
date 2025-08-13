@@ -97,7 +97,7 @@ public class ObjectStoreMetadataRepositoryV2 extends DinaRepositoryV2<ObjectStor
   public ResponseEntity<RepresentationModel<?>> onBulkLoad(@RequestBody
                                                            JsonApiBulkResourceIdentifierDocument jsonApiBulkDocument,
                                                            HttpServletRequest req)
-    throws ResourcesNotFoundException, ResourcesGoneException {
+      throws ResourcesNotFoundException, ResourcesGoneException {
     return handleBulkLoad(jsonApiBulkDocument, req);
   }
 
@@ -133,7 +133,7 @@ public class ObjectStoreMetadataRepositoryV2 extends DinaRepositoryV2<ObjectStor
   @PatchMapping(path = ObjectStoreMetadataDto.TYPENAME + "/" + DinaRepositoryV2.JSON_API_BULK_PATH, consumes = JSON_API_BULK)
   @Transactional
   public ResponseEntity<RepresentationModel<?>> onBulkUpdate(@RequestBody JsonApiBulkDocument jsonApiBulkDocument)
-    throws ResourceNotFoundException, ResourceGoneException {
+      throws ResourceNotFoundException, ResourceGoneException {
     return handleBulkUpdate(jsonApiBulkDocument);
   }
 
