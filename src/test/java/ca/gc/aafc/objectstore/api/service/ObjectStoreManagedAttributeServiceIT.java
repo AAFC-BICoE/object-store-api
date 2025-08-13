@@ -117,7 +117,7 @@ public class ObjectStoreManagedAttributeServiceIT extends BaseIntegrationTest {
     managedAttributeService.create(managedAttribute);
     
     ObjectStoreMetadata objectStoreMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata()
-    .managedAttributeValues(new HashMap<> (Map.of(managedAttribute.getKey(), "value_a")))
+    .managedAttributes(new HashMap<> (Map.of(managedAttribute.getKey(), "value_a")))
     .build();
     
     ObjectUpload upload = ObjectUploadFactory.newObjectUpload().fileIdentifier(objectStoreMetadata.getFileIdentifier()).build();

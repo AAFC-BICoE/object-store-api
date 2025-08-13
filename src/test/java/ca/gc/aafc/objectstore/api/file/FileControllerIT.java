@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ca.gc.aafc.dina.jsonapi.JSONApiDocumentStructure;
+import ca.gc.aafc.dina.jsonapi.JsonApiDocument;
 import ca.gc.aafc.dina.repository.JsonApiModelAssistant;
 import ca.gc.aafc.dina.testsupport.security.WithMockKeycloakUser;
 import ca.gc.aafc.dina.util.UUIDHelper;
@@ -35,11 +36,12 @@ import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.minio.MinioTestContainerInitializer;
-import ca.gc.aafc.objectstore.api.repository.ObjectStoreResourceRepository;
+import ca.gc.aafc.objectstore.api.repository.ObjectStoreMetadataRepositoryV2;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MultipartFileFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 
+import static ca.gc.aafc.objectstore.api.repository.ObjectStoreModuleBaseRepositoryIT.dtoToJsonApiDocument;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -74,7 +76,7 @@ public class FileControllerIT extends BaseIntegrationTest {
   private FileController fileController;
 
   @Inject
-  private ObjectStoreResourceRepository objectStoreResourceRepository;
+  private ObjectStoreMetadataRepositoryV2 objectStoreResourceRepository;
 
   @Inject
   private TransactionTemplate transactionTemplate;
@@ -108,7 +110,9 @@ public class FileControllerIT extends BaseIntegrationTest {
     metadataForFile.setBucket(TEST_BUCKET_NAME);
 
     metadataForFile.setFileIdentifier(objectUploadUuid);
-    objectStoreResourceRepository.create(metadataForFile);
+
+    JsonApiDocument docToCreate = dtoToJsonApiDocument(metadataForFile);
+    objectStoreResourceRepository.onCreate(docToCreate);
 
     // dina-admin role required
     assertThrows(AccessDeniedException.class, () ->
@@ -358,11 +362,13 @@ public class FileControllerIT extends BaseIntegrationTest {
     metadataForFile.setBucket(TEST_BUCKET_NAME);
 
     metadataForFile.setFileIdentifier(objectUploadUuid);
-    metadataForFile = objectStoreResourceRepository.create(metadataForFile);
+
+    JsonApiDocument docToCreate = dtoToJsonApiDocument(metadataForFile);
+    UUID metadataUUID = JsonApiModelAssistant.extractUUIDFromRepresentationModelLink(objectStoreResourceRepository.onCreate(docToCreate));
 
     // change the bucket using the service to avoid permission issues but set it
     // publiclyReleasable
-    ObjectStoreMetadata metadataEntity = objectStoreMetaDataService.findOne(metadataForFile.getUuid());
+    ObjectStoreMetadata metadataEntity = objectStoreMetaDataService.findOne(metadataUUID);
     metadataEntity.setPubliclyReleasable(true);
     metadataEntity.setBucket("abc");
     objectStoreMetaDataService.update(metadataEntity);

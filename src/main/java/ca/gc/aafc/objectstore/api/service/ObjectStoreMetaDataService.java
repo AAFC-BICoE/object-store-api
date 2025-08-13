@@ -27,7 +27,6 @@ import ca.gc.aafc.objectstore.api.file.FileController;
 import ca.gc.aafc.objectstore.api.validation.ObjectStoreManagedAttributeValueValidator;
 import ca.gc.aafc.objectstore.api.validation.ObjectStoreMetadataValidator;
 
-import io.crnk.core.exception.BadRequestException;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 
@@ -139,9 +138,9 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
     }
   }
 
-  private BadRequestException throwBadRequest(ObjectSubtype acSubtype) {
-    return new BadRequestException(
-        acSubtype.getAcSubtype() + "/" + acSubtype.getDcType() + " is not a valid acSubtype/dcType");
+  private IllegalArgumentException throwBadRequest(ObjectSubtype acSubtype) {
+    return new IllegalArgumentException(
+      acSubtype.getAcSubtype() + "/" + acSubtype.getDcType() + " is not a valid acSubtype/dcType");
   }
 
   /**

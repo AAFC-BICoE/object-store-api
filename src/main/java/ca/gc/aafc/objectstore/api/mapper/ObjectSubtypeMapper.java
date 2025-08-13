@@ -5,6 +5,7 @@ import java.util.Set;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.factory.Mappers;
@@ -20,9 +21,11 @@ public interface ObjectSubtypeMapper extends DinaMapperV2<ObjectSubtypeDto, Obje
 
   ObjectSubtypeDto toDto(ObjectSubtype entity, @Context Set<String> provided, @Context String scope);
 
+  @Mapping(target = "id", ignore = true)
   ObjectSubtype toEntity(ObjectSubtypeDto dto, @Context Set<String> provided, @Context String scope);
 
   @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+  @Mapping(target = "id", ignore = true)
   void patchEntity(@MappingTarget ObjectSubtype entity, ObjectSubtypeDto dto, @Context Set<String> provided, @Context String scope);
 
 }

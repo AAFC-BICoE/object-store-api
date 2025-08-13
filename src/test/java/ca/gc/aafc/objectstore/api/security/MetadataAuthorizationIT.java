@@ -10,21 +10,26 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
 
-import ca.gc.aafc.dina.repository.GoneException;
+import ca.gc.aafc.dina.exception.ResourceGoneException;
+import ca.gc.aafc.dina.exception.ResourceNotFoundException;
+import ca.gc.aafc.dina.jsonapi.JsonApiDocument;
 import ca.gc.aafc.dina.testsupport.security.WithMockKeycloakUser;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
-import ca.gc.aafc.objectstore.api.repository.ObjectStoreResourceRepository;
+import ca.gc.aafc.objectstore.api.repository.ObjectStoreMetadataRepositoryV2;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 
-import io.crnk.core.queryspec.QuerySpec;
 import io.minio.MinioClient;
 import java.util.UUID;
 import javax.inject.Inject;
+
+import static ca.gc.aafc.objectstore.api.repository.ObjectStoreModuleBaseRepositoryIT.dtoToJsonApiDocument;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(properties = "keycloak.enabled=true")
 public class MetadataAuthorizationIT extends BaseIntegrationTest {
@@ -33,7 +38,7 @@ public class MetadataAuthorizationIT extends BaseIntegrationTest {
   private MinioClient minioClient;
 
   @Inject
-  private ObjectStoreResourceRepository repo;
+  private ObjectStoreMetadataRepositoryV2 repo;
 
   private static final String GROUP_1 = "CNC";
   private static final String TEST_USAGE_TERMS = "test user terms";
@@ -52,69 +57,79 @@ public class MetadataAuthorizationIT extends BaseIntegrationTest {
   @AfterEach
   void tearDown() {
     objectUploadService.delete(testObjectUpload);
-    repo.findAll(new QuerySpec(ObjectStoreMetadataDto.class))
+    repo.getAll("")
+      .resourceList()
       .forEach(m -> objectStoreMetaDataService.delete(
         objectStoreMetaDataService.findOne(
-          m.getUuid(), ObjectStoreMetadata.class)));
+          m.getDto().getUuid(), ObjectStoreMetadata.class)));
   }
 
   @Test
   @WithMockKeycloakUser(groupRole = {"CNC:USER"})
   void create_Unauthorized_ThrowsAccessDenied() {
     ObjectStoreMetadataDto dto = newMetaDto("invalidGroup");
-    Assertions.assertThrows(AccessDeniedException.class, () -> repo.create(dto));
+    JsonApiDocument docToCreate = dtoToJsonApiDocument(dto);
+
+    assertThrows(AccessDeniedException.class, () -> repo.create(docToCreate, null));
   }
 
   @Test
   @WithMockKeycloakUser(groupRole = {"CNC:USER"})
   void create_Authorized_RecordCreated() {
     ObjectStoreMetadataDto dto = newMetaDto(GROUP_1);
-    UUID uuid = repo.create(dto).getUuid();
+    JsonApiDocument docToCreate = dtoToJsonApiDocument(dto);
+    UUID uuid = repo.create(docToCreate, null).getDto().getJsonApiId();
     Assertions.assertNotNull(uuid);
   }
 
   @Test
   @WithMockKeycloakUser(groupRole = {"Invalid:USER"})
-  public void save_UnAuthorizedGroup_ThrowsAccessDeniedException() {
-    ObjectStoreMetadataDto toUpdate = repo.findOne(
-      persisted.getUuid(), new QuerySpec(ObjectStoreMetadataDto.class));
+  public void save_UnAuthorizedGroup_ThrowsAccessDeniedException() throws ResourceGoneException, ResourceNotFoundException {
+    ObjectStoreMetadataDto toUpdate = repo.getOne(persisted.getUuid(), "").getDto();
+
     toUpdate.setAcCaption("new");
-    Assertions.assertThrows(AccessDeniedException.class, () -> repo.save(toUpdate));
+    JsonApiDocument docToUpdate = dtoToJsonApiDocument(toUpdate);
+    assertThrows(AccessDeniedException.class, () -> repo.update(docToUpdate));
   }
 
   @Test
   @WithMockKeycloakUser(groupRole = {"CNC:USER"})
-  public void save_AuthorizedGroup_UpdatesObject() {
+  public void save_AuthorizedGroup_UpdatesObject() throws ResourceGoneException, ResourceNotFoundException {
     String expected = "new value";
-    ObjectStoreMetadataDto toUpdate = repo.findOne(
-      persisted.getUuid(), new QuerySpec(ObjectStoreMetadataDto.class));
+    ObjectStoreMetadataDto toUpdate = repo.getOne(persisted.getUuid(), "").getDto();
     toUpdate.setAcCaption(expected);
-    ObjectStoreMetadataDto result = repo.save(toUpdate);
-    Assertions.assertEquals(expected, result.getAcCaption());
+
+    JsonApiDocument docToUpdate = dtoToJsonApiDocument(toUpdate);
+    ObjectStoreMetadataDto result = repo.update(docToUpdate).getDto();
+    assertEquals(expected, result.getAcCaption());
   }
 
   @Test
   @WithMockKeycloakUser(groupRole = {"CNC:USER"})
   public void delete_NotSuperUser_ThrowsAccessDeniedException() {
-    ObjectStoreMetadataDto dto = repo.create(newMetaDto(GROUP_1));
-    Assertions.assertThrows(AccessDeniedException.class, () -> repo.delete(dto.getUuid()));
+    ObjectStoreMetadataDto dto = newMetaDto(GROUP_1);
+    JsonApiDocument docToCreate = dtoToJsonApiDocument(dto);
+
+    ObjectStoreMetadataDto createdDto = repo.create(docToCreate, null).getDto();
+    assertThrows(AccessDeniedException.class, () -> repo.delete(createdDto.getUuid()));
   }
 
   @Test
   @WithMockKeycloakUser(groupRole = {"CNC:SUPER_USER"})
-  public void delete_SuperUser_resourceDeleted() {
-    ObjectStoreMetadataDto dto = repo.create(newMetaDto(GROUP_1));
-    repo.delete(dto.getUuid());
-    Assertions.assertThrows(
-            GoneException.class,
-            () -> repo.findOne(dto.getUuid(), new QuerySpec(ObjectStoreMetadataDto.class)));
+  public void delete_SuperUser_resourceDeleted() throws ResourceGoneException, ResourceNotFoundException {
+    ObjectStoreMetadataDto dto = newMetaDto(GROUP_1);
+    JsonApiDocument docToCreate = dtoToJsonApiDocument(dto);
+    ObjectStoreMetadataDto createdDto = repo.create(docToCreate, null).getDto();
+
+    repo.delete(createdDto.getUuid());
+    assertThrows(ResourceGoneException.class, () -> repo.getOne(createdDto.getUuid(), ""));
   }
 
   @Test
   @WithMockKeycloakUser(groupRole = {"Invalid:USER"})
   public void delete_UnAuthorizedGroup_ThrowsAccessDeniedException() {
     ObjectStoreMetadata group1 = persistMeta("Group1");
-    Assertions.assertThrows(AccessDeniedException.class, () -> repo.delete(group1.getUuid()));
+    assertThrows(AccessDeniedException.class, () -> repo.delete(group1.getUuid()));
   }
 
   private ObjectStoreMetadataDto newMetaDto(String group) {

@@ -1,5 +1,9 @@
 package ca.gc.aafc.objectstore.api.security;
 
+import ca.gc.aafc.dina.exception.ResourceGoneException;
+import ca.gc.aafc.dina.exception.ResourceNotFoundException;
+import ca.gc.aafc.dina.jsonapi.JsonApiDocument;
+import ca.gc.aafc.dina.repository.JsonApiModelAssistant;
 import ca.gc.aafc.dina.testsupport.security.WithMockKeycloakUser;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.dto.DerivativeDto;
@@ -11,8 +15,8 @@ import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.repository.DerivativeRepository;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
-import io.crnk.core.queryspec.QuerySpec;
-import org.junit.jupiter.api.Assertions;
+import ca.gc.aafc.objectstore.api.testsupport.fixtures.DerivativeTestFixture;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,6 +25,9 @@ import org.springframework.security.access.AccessDeniedException;
 
 import javax.inject.Inject;
 import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(properties = "keycloak.enabled=true")
 public class DerivativeRepoAuthorizationIT extends BaseIntegrationTest {
@@ -53,16 +60,23 @@ public class DerivativeRepoAuthorizationIT extends BaseIntegrationTest {
 
   @Test
   @WithMockKeycloakUser(groupRole = {"CNC:USER"})
-  void create_WithValidGroup_DerivativeCreated() {
-    Assertions.assertNotNull(derivativeRepository.findOne(derivativeRepository.create(newDerivative(
-      uploadTest_1.getFileIdentifier())).getUuid(), new QuerySpec(DerivativeDto.class)));
+  void create_WithValidGroup_DerivativeCreated()
+    throws ResourceGoneException, ResourceNotFoundException {
+    DerivativeDto dto = newDerivative(uploadTest_1.getFileIdentifier());
+    JsonApiDocument docToCreate = DerivativeTestFixture.newJsonApiDocument(dto);
+
+    UUID uuid = JsonApiModelAssistant.extractUUIDFromRepresentationModelLink(derivativeRepository.onCreate(docToCreate));
+    assertNotNull(derivativeRepository.getOne(uuid, "").getDto());
   }
 
   @Test
   @WithMockKeycloakUser(groupRole = {"INVALID_GROUP:USER"})
   void create_WithInvalidGroup_ThrowsAccessDenied() {
-    Assertions.assertThrows(AccessDeniedException.class, () ->
-      derivativeRepository.create(newDerivative(uploadTest_1.getFileIdentifier())));
+    DerivativeDto dto = newDerivative(uploadTest_1.getFileIdentifier());
+    JsonApiDocument docToCreate = DerivativeTestFixture.newJsonApiDocument(dto);
+
+    assertThrows(AccessDeniedException.class, () ->
+      derivativeRepository.create(docToCreate, null));
   }
 
   private DerivativeDto newDerivative(UUID fileIdentifier) {

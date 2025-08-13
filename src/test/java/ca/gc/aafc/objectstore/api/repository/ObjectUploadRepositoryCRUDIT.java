@@ -38,8 +38,6 @@ public class ObjectUploadRepositoryCRUDIT extends ObjectStoreModuleBaseRepositor
   private WebApplicationContext wac;
 
   private MockMvc mockMvc;
-  
- // private ObjectUpload testObjectUpload;
 
   @Autowired
   protected ObjectUploadRepositoryCRUDIT(ObjectMapper objMapper) {

@@ -31,8 +31,6 @@ import java.io.InputStream;
  * be used (if provided).
  *
  */
-// CHECKSTYLE:OFF NoFinalizer
-// CHECKSTYLE:OFF SuperFinalize
 @Service
 public class MediaTypeDetectionStrategy {
 
@@ -147,13 +145,4 @@ public class MediaTypeDetectionStrategy {
 
     return receivedMediaType;
   }
-
-  /**
-   * Protection against CT_CONSTRUCTOR_THROW
-   */
-  @Override
-  protected final void finalize() {
-    // no-op
-  }
-
 }

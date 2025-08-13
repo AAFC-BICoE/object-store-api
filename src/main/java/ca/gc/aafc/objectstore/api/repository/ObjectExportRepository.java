@@ -54,7 +54,6 @@ public class ObjectExportRepository {
     dto.setUsername(authenticatedUser.getUsername());
     ObjectExportService.ExportArgs exportArgs = mapper.toEntity(dto);
 
-
     UUID exportUUID = objectExportService.export(exportArgs);
 
     dto.setUuid(exportUUID);
