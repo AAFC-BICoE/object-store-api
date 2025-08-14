@@ -7,21 +7,29 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ca.gc.aafc.dina.dto.JsonApiResource;
+import ca.gc.aafc.dina.jsonapi.JsonApiBulkResourceIdentifierDocument;
 import ca.gc.aafc.dina.jsonapi.JsonApiDocument;
 import ca.gc.aafc.dina.jsonapi.JsonApiDocuments;
+import ca.gc.aafc.dina.repository.DinaRepositoryV2;
 import ca.gc.aafc.dina.testsupport.PostgresTestContainerInitializer;
 import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.dina.testsupport.repository.MockMvcBasedRepository;
 import ca.gc.aafc.objectstore.api.ObjectStoreApiLauncher;
 import ca.gc.aafc.objectstore.api.async.AsyncConsumer;
-import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
+import ca.gc.aafc.objectstore.api.service.DerivativeService;
 import ca.gc.aafc.objectstore.api.service.ObjectExportService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreManagedAttributeService;
+import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
+import ca.gc.aafc.objectstore.api.service.ObjectSubtypeService;
+import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
 
 import java.util.Properties;
 import java.util.concurrent.Future;
@@ -35,19 +43,38 @@ import javax.inject.Inject;
 public abstract class ObjectStoreModuleBaseRepositoryIT extends MockMvcBasedRepository {
 
   @Inject
+  protected ObjectStoreMetaDataService objectStoreMetaDataService;
+
+  @Inject
+  protected DerivativeService derivativeService;
+
+  @Inject
   protected ObjectStoreManagedAttributeService managedAttributeService;
 
+  @Inject
+  protected ObjectSubtypeService objectSubtypeService;
+
+  @Inject
+  protected ObjectUploadService objectUploadService;
 
   protected ObjectStoreModuleBaseRepositoryIT(String baseUrl,
                                              ObjectMapper objMapper) {
     super(baseUrl, objMapper);
   }
 
-  JsonApiDocument dtoToJsonApiDocument(JsonApiResource jsonApiResource) {
+  public static JsonApiDocument dtoToJsonApiDocument(JsonApiResource jsonApiResource) {
     return JsonApiDocuments.createJsonApiDocument(
       jsonApiResource.getJsonApiId(), jsonApiResource.getJsonApiType(),
       JsonAPITestHelper.toAttributeMap(jsonApiResource)
     );
+  }
+
+  // Mode to base-api
+  protected MvcResult sendBulkLoad(JsonApiBulkResourceIdentifierDocument docToPost) throws Exception {
+    return this.getMockMvc().perform(MockMvcRequestBuilders.post(this.baseUrl + "/" + DinaRepositoryV2.JSON_API_BULK_LOAD_PATH, new Object[0])
+      .contentType(DinaRepositoryV2.JSON_API_BULK)
+      .content(this.objMapper.writeValueAsString(docToPost))).andExpect(
+      MockMvcResultMatchers.status().isOk()).andReturn();
   }
 
   @TestConfiguration

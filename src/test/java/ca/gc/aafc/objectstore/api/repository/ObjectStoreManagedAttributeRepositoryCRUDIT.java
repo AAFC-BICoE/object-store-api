@@ -38,22 +38,10 @@ public class ObjectStoreManagedAttributeRepositoryCRUDIT extends ObjectStoreModu
 
   @Inject
   private ObjectStoreManagedAttributeResourceRepository managedResourceRepository;
-  
-  private ObjectStoreManagedAttribute testManagedAttribute;
-
 
   @Autowired
   protected ObjectStoreManagedAttributeRepositoryCRUDIT(ObjectMapper objMapper) {
     super(BASE_URL, objMapper);
-  }
-
-  private ObjectStoreManagedAttribute createTestManagedAttribute() throws JsonProcessingException {
-    testManagedAttribute = ObjectStoreManagedAttributeFactory.newManagedAttribute()
-        .acceptedValues(new String[] { "dosal" })
-        .multilingualDescription(MultilingualDescriptionFactory.newMultilingualDescription().build())
-        .build();
-
-    return managedAttributeService.create(testManagedAttribute);
   }
 
   @Override
@@ -62,14 +50,20 @@ public class ObjectStoreManagedAttributeRepositoryCRUDIT extends ObjectStoreModu
   }
 
   @BeforeEach
-  public void setup() throws JsonProcessingException { 
-    createTestManagedAttribute();
+  public void setup() throws JsonProcessingException {
     this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
-  }  
+  }
 
   @Test
   public void findManagedAttribute_whenNoFieldsAreSelected_manageAttributeReturnedWithAllFields()
     throws ResourceGoneException, ResourceNotFoundException {
+
+    ObjectStoreManagedAttribute testManagedAttribute = ObjectStoreManagedAttributeFactory.newManagedAttribute()
+      .acceptedValues(new String[] { "dosal" })
+      .multilingualDescription(MultilingualDescriptionFactory.newMultilingualDescription().build())
+      .build();
+
+    managedAttributeService.create(testManagedAttribute);
 
     ObjectStoreManagedAttributeDto managedAttributeDto = managedResourceRepository.getOne(
       testManagedAttribute.getUuid(), null

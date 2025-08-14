@@ -21,7 +21,6 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Properties;
-import java.util.UUID;
 import java.util.concurrent.Future;
 import javax.inject.Inject;
 

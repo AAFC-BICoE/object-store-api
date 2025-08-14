@@ -1,7 +1,5 @@
 package ca.gc.aafc.objectstore.api.dto;
 
-import io.crnk.core.resource.annotations.JsonApiId;
-import io.crnk.core.resource.annotations.JsonApiResource;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,13 +7,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import com.toedter.spring.hateoas.jsonapi.JsonApiId;
+import com.toedter.spring.hateoas.jsonapi.JsonApiTypeForClass;
+
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonApiResource(type = ReportTemplateUploadDto.TYPENAME)
-public class ReportTemplateUploadDto {
+@JsonApiTypeForClass(ReportTemplateUploadDto.TYPENAME)
+public class ReportTemplateUploadDto implements ca.gc.aafc.dina.dto.JsonApiResource {
 
   public static final String TYPENAME = "report-template-upload";
 
@@ -24,4 +25,13 @@ public class ReportTemplateUploadDto {
 
   private UUID fileIdentifier;
 
+  @Override
+  public String getJsonApiType() {
+    return TYPENAME;
+  }
+
+  @Override
+  public UUID getJsonApiId() {
+    return uuid;
+  }
 }

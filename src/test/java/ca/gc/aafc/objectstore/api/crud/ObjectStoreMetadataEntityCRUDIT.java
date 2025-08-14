@@ -223,7 +223,7 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
     managedAttributeService.create(managedAttribute);
     
     ObjectStoreMetadata objectStoreMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata()
-    .managedAttributeValues(new HashMap<> (Map.of(managedAttribute.getKey(), value)))
+    .managedAttributes(new HashMap<> (Map.of(managedAttribute.getKey(), value)))
     .build();
     
     ObjectUpload upload = ObjectUploadFactory.newObjectUpload().fileIdentifier(objectStoreMetadata.getFileIdentifier()).build();
@@ -245,7 +245,7 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
     managedAttributeService.create(managedAttribute);
     
     ObjectStoreMetadata objectStoreMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata()
-    .managedAttributeValues(new HashMap<> (Map.of(managedAttribute.getKey(), "val1")))
+    .managedAttributes(new HashMap<> (Map.of(managedAttribute.getKey(), "val1")))
     .build();
     
     ObjectUpload upload = ObjectUploadFactory.newObjectUpload().fileIdentifier(objectStoreMetadata.getFileIdentifier()).build();
@@ -266,7 +266,7 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
     managedAttributeService.create(managedAttribute);
     
     ObjectStoreMetadata objectStoreMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata()
-    .managedAttributeValues(new HashMap<> (Map.of(managedAttribute.getKey(), "val3")))
+    .managedAttributes(new HashMap<> (Map.of(managedAttribute.getKey(), "val3")))
     .build();
     
     ObjectUpload upload = ObjectUploadFactory.newObjectUpload().fileIdentifier(objectStoreMetadata.getFileIdentifier()).build();
@@ -281,7 +281,7 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
   void testCreate_assignedKeyDoesNotExist_ExceptionThrown() {
     
     ObjectStoreMetadata objectStoreMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata()
-    .managedAttributeValues(new HashMap<> (Map.of("key_x", "val3")))
+    .managedAttributes(new HashMap<> (Map.of("key_x", "val3")))
     .build();
     
     ObjectUpload upload = ObjectUploadFactory.newObjectUpload().fileIdentifier(objectStoreMetadata.getFileIdentifier()).build();

@@ -1,4 +1,17 @@
-package ca.gc.aafc.objectstore.api.crud;
+package ca.gc.aafc.objectstore.api.service;
+
+import org.junit.jupiter.api.Test;
+
+import ca.gc.aafc.dina.i18n.MultilingualDescription;
+import ca.gc.aafc.dina.vocabulary.TypedVocabularyElement;
+import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
+import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
+import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
+import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
+import ca.gc.aafc.objectstore.api.testsupport.factories.MultilingualDescriptionFactory;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreManagedAttributeFactory;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -10,34 +23,32 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
 import javax.validation.ValidationException;
 
-import org.junit.jupiter.api.Test;
+public class ObjectStoreManagedAttributeServiceIT extends BaseIntegrationTest {
 
-import ca.gc.aafc.dina.i18n.MultilingualDescription;
-import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
-import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
-import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
-import ca.gc.aafc.objectstore.api.testsupport.factories.MultilingualDescriptionFactory;
-import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreManagedAttributeFactory;
-import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
-import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
-
-public class ObjectStoreManagedAttributeCRUDIT extends BaseEntityCRUDIT {
-
-  private ObjectStoreManagedAttribute managedAttributeUnderTest = ObjectStoreManagedAttributeFactory.newManagedAttribute()
+  private ObjectStoreManagedAttribute buildObjectStoreManagedAttribute() {
+    return ObjectStoreManagedAttributeFactory.newManagedAttribute()
       .acceptedValues(new String[] { "a", "b" })
       .multilingualDescription(MultilingualDescriptionFactory.newMultilingualDescription().build())
       .createdBy("createdBy")
       .build();
+  }
       
-      
-  @Override
+  @Test
   public void testSave() {
-    assertNull(managedAttributeUnderTest.getId());
+    ObjectStoreManagedAttribute managedAttributeUnderTest = buildObjectStoreManagedAttribute();
     managedAttributeService.create(managedAttributeUnderTest);
     assertNotNull(managedAttributeUnderTest.getId());
+  }
+
+  @Test
+  public void testSaveAllTypes() {
+    for(var type : TypedVocabularyElement.VocabularyElementType.values()) {
+      managedAttributeService.create(ObjectStoreManagedAttributeFactory.newManagedAttribute()
+        .vocabularyElementType(type)
+        .build());
+    }
   }
 
   @Test
@@ -68,8 +79,11 @@ public class ObjectStoreManagedAttributeCRUDIT extends BaseEntityCRUDIT {
       () -> managedAttributeService.create(nullDescription));
   }
 
-  @Override
+  @Test
   public void testFind() {
+    ObjectStoreManagedAttribute managedAttributeUnderTest = buildObjectStoreManagedAttribute();
+    managedAttributeService.create(managedAttributeUnderTest);
+
     ObjectStoreManagedAttribute fetchedObjectStoreMeta = managedAttributeService.findOne(
       managedAttributeUnderTest.getUuid(), ObjectStoreManagedAttribute.class);
     assertEquals(managedAttributeUnderTest.getId(), fetchedObjectStoreMeta.getId());
@@ -83,6 +97,9 @@ public class ObjectStoreManagedAttributeCRUDIT extends BaseEntityCRUDIT {
 
   @Test
   public void testRemove() {
+    ObjectStoreManagedAttribute managedAttributeUnderTest = buildObjectStoreManagedAttribute();
+    managedAttributeService.create(managedAttributeUnderTest);
+
     UUID uuid = managedAttributeUnderTest.getUuid();
     managedAttributeService.delete(managedAttributeUnderTest);
     assertNull(managedAttributeService.findOne(
@@ -100,7 +117,7 @@ public class ObjectStoreManagedAttributeCRUDIT extends BaseEntityCRUDIT {
     managedAttributeService.create(managedAttribute);
     
     ObjectStoreMetadata objectStoreMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata()
-    .managedAttributeValues(new HashMap<> (Map.of(managedAttribute.getKey(), "value_a")))
+    .managedAttributes(new HashMap<> (Map.of(managedAttribute.getKey(), "value_a")))
     .build();
     
     ObjectUpload upload = ObjectUploadFactory.newObjectUpload().fileIdentifier(objectStoreMetadata.getFileIdentifier()).build();

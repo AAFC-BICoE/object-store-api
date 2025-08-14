@@ -96,7 +96,7 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
       String xmpRightsUsageTerms,
       String originalFilename,
       String[] acTags,
-      Map<String, String> managedAttributeValues,
+      Map<String, String> managedAttributes,
       UUID acMetadataCreator,
       UUID dcCreator,
       List<Derivative> derivatives,
@@ -129,7 +129,7 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
     this.xmpRightsOwner = xmpRightsOwner;
     this.xmpRightsUsageTerms = xmpRightsUsageTerms;
     this.originalFilename = originalFilename;
-    this.managedAttributes = MapUtils.isNotEmpty(managedAttributeValues) ? managedAttributeValues : new HashMap<>();
+    this.managedAttributes = MapUtils.isNotEmpty(managedAttributes) ? managedAttributes : new HashMap<>();
     this.acMetadataCreator = acMetadataCreator;
     this.dcCreator = dcCreator;
     this.derivatives = CollectionUtils.isNotEmpty(derivatives) ? derivatives : new ArrayList<>();
