@@ -11,12 +11,13 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.factory.Mappers;
 
 import ca.gc.aafc.dina.mapper.DinaMapperV2;
+import ca.gc.aafc.dina.mapper.MapperStaticConverter;
 import ca.gc.aafc.objectstore.api.dto.DerivativeDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 
-@Mapper
+@Mapper(imports = MapperStaticConverter.class)
 public interface DerivativeMapper extends DinaMapperV2<DerivativeDto, Derivative> {
 
   DerivativeMapper INSTANCE = Mappers.getMapper(DerivativeMapper.class);
@@ -68,7 +69,7 @@ public interface DerivativeMapper extends DinaMapperV2<DerivativeDto, Derivative
 
   @Mapping(target = "derivatives", ignore = true)
   @Mapping(target = "acSubtype", ignore = true)
-  @Mapping(target = "dcCreator", qualifiedByName = "uuidToPersonExternalRelation")
-  @Mapping(target = "acMetadataCreator", qualifiedByName = "uuidToPersonExternalRelation")
+  @Mapping(target = "acMetadataCreator", expression = "java(MapperStaticConverter.uuidToExternalRelation(entity.getAcMetadataCreator(), \"person\"))")
+  @Mapping(target = "dcCreator", expression = "java(MapperStaticConverter.uuidToExternalRelation(entity.getDcCreator(), \"person\"))")
   ObjectStoreMetadataDto toMetadataDto(ObjectStoreMetadata entity, Set<String> provided, String scope);
 }

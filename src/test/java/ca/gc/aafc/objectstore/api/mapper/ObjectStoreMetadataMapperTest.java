@@ -78,7 +78,7 @@ public class ObjectStoreMetadataMapperTest {
     entity.setDerivatives(List.of(derivativeEntity));
 
     ObjectStoreMetadataDto dto = ObjectStoreMetadataMapper.INSTANCE.toDto(entity,
-      Set.of("originalFilename", "managedAttributes", "derivatives"), null);
+      Set.of("originalFilename", "managedAttributes", "derivatives", "derivatives.fileIdentifier"), null);
 
     assertEquals(entity.getOriginalFilename(), dto.getOriginalFilename());
     assertEquals(entity.getManagedAttributes(), dto.getManagedAttributes());

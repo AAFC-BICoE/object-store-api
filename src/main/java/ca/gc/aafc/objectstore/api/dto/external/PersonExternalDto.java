@@ -1,4 +1,4 @@
-package ca.gc.aafc.objectstore.api.dto;
+package ca.gc.aafc.objectstore.api.dto.external;
 
 import java.util.UUID;
 import lombok.Builder;
@@ -17,7 +17,6 @@ import ca.gc.aafc.dina.dto.JsonApiExternalResource;
 @Getter
 @JsonApiTypeForClass(PersonExternalDto.EXTERNAL_TYPENAME)
 public class PersonExternalDto implements JsonApiExternalResource {
-
   public static final String EXTERNAL_TYPENAME = "person";
 
   @JsonApiId
