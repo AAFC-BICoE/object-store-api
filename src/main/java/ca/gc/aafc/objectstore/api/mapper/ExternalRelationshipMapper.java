@@ -6,7 +6,7 @@ import ca.gc.aafc.dina.dto.ExternalRelationDto;
 import ca.gc.aafc.dina.dto.JsonApiExternalResource;
 import ca.gc.aafc.objectstore.api.dto.external.PersonExternalDto;
 
-public class ExternalRelationshipMapper {
+public final class ExternalRelationshipMapper {
   private ExternalRelationshipMapper() {
     //utility class
   }

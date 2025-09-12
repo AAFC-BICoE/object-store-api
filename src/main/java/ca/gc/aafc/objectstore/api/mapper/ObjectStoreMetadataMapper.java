@@ -67,7 +67,7 @@ public interface ObjectStoreMetadataMapper
    * @return
    */
   default List<DerivativeDto> toDto(List<Derivative> entities, @Context Set<String> provided, @Context String scope) {
-    if(CollectionUtils.isEmpty(entities)) {
+    if (CollectionUtils.isEmpty(entities)) {
       return null;
     }
     return entities.stream().map(d -> toDerivativeDto(d, provided, "derivatives"))
