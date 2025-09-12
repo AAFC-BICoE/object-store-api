@@ -15,5 +15,9 @@ See https://spotbugs.readthedocs.io/en/latest/filter.html
   <Match>
     <Bug pattern="CT_CONSTRUCTOR_THROW"/>
   </Match>
-
+  
+  <Match>
+    <Package name="ca.gc.aafc.objectstore.api.mapper" />
+    <Class name="~.*MapperImpl$"/>
+  </Match>
 </FindBugsFilter>

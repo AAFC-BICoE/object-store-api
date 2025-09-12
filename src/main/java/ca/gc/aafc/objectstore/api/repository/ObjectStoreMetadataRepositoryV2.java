@@ -31,8 +31,8 @@ import ca.gc.aafc.dina.security.TextHtmlSanitizer;
 import ca.gc.aafc.dina.service.AuditService;
 import ca.gc.aafc.dina.service.DinaService;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
-import ca.gc.aafc.objectstore.api.dto.PersonExternalDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
+import ca.gc.aafc.objectstore.api.mapper.ExternalRelationshipMapper;
 import ca.gc.aafc.objectstore.api.mapper.ObjectStoreMetadataMapper;
 import ca.gc.aafc.objectstore.api.security.MetadataAuthorizationService;
 
@@ -69,17 +69,8 @@ public class ObjectStoreMetadataRepositoryV2 extends DinaRepositoryV2<ObjectStor
   }
 
   @Override
-  protected JsonApiExternalResource externalRelationDtoToJsonApiExternalResource(
-    ExternalRelationDto externalRelationDto) {
-
-    if (externalRelationDto == null) {
-      return null;
-    }
-
-    if (PersonExternalDto.EXTERNAL_TYPENAME.equals(externalRelationDto.getType())) {
-      return PersonExternalDto.builder().uuid(UUID.fromString(externalRelationDto.getId())).build();
-    }
-    return null;
+  protected JsonApiExternalResource externalRelationDtoToJsonApiExternalResource(ExternalRelationDto externalRelationDto) {
+    return ExternalRelationshipMapper.externalRelationDtoToJsonApiExternalResource(externalRelationDto);
   }
 
   @GetMapping(ObjectStoreMetadataDto.TYPENAME + "/{id}")
