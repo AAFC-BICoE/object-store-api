@@ -10,15 +10,37 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.extern.log4j.Log4j2;
 
 /**
  * Requires ImageMagick 7 to be available to container/system running this code.
  */
+@Log4j2
 public class ImageConverter {
 
   private static final String IMAGE_MAGICK_COMMAND = "magick";
 
+  public static boolean isToolAvailable() {
+    CommandLine cmdLine = new CommandLine(IMAGE_MAGICK_COMMAND);
+    cmdLine.addArgument("-version");
+
+    DefaultExecutor executor = DefaultExecutor.builder().get();
+    int exitValue;
+    try {
+      exitValue = executor.execute(cmdLine);
+    } catch (IOException e) {
+      log.error("Failed to execute ImageMagick command", e);
+      return false;
+    }
+    return exitValue == 0;
+  }
+
   public static boolean convert(String inputPath, String outputPath, ImageConversionOptions imageConversionOptions) throws IOException {
+
+    if (!isToolAvailable()) {
+      throw new IllegalStateException(
+        "Tool with command " + IMAGE_MAGICK_COMMAND + " not available");
+    }
 
     CommandLine cmdLine = new CommandLine(IMAGE_MAGICK_COMMAND);
 
