@@ -24,6 +24,7 @@ import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.file.FileController;
+import ca.gc.aafc.objectstore.api.util.ObjectFilenameUtils;
 import ca.gc.aafc.objectstore.api.validation.ObjectStoreManagedAttributeValueValidator;
 import ca.gc.aafc.objectstore.api.validation.ObjectStoreMetadataValidator;
 
@@ -178,6 +179,13 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
     objectMetadata.setFileExtension(objectUpload.getEvaluatedFileExtension());
     objectMetadata.setOriginalFilename(objectUpload.getOriginalFilename());
     objectMetadata.setDcFormat(objectUpload.getEvaluatedMediaType());
+
+    // fill filename but only if it has no value
+    if (StringUtils.isBlank(objectMetadata.getFilename())) {
+      objectMetadata.setFilename(ObjectFilenameUtils.standardizeFilename(objectUpload.getOriginalFilename()));
+    } else {
+      objectMetadata.setFilename(ObjectFilenameUtils.standardizeFilename(objectMetadata.getFilename()));
+    }
 
     // if the sha1hex is unspecified, do not alter the value on the metadata
     // see https://github.com/AAFC-BICoE/object-store-api/releases/tag/v1.4

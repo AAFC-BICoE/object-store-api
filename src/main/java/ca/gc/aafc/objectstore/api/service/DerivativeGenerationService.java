@@ -74,7 +74,7 @@ public class DerivativeGenerationService extends DefaultDinaService<Derivative> 
     if (thumbnailShouldBeGenerated(acDerivedFrom, derivativeType)) {
       this.generateThumbnail(
         resource.getBucket(),
-        resource.getFilename(),
+        resource.getInternalFilename(),
         acDerivedFrom.getUuid(),
         resource.getDcFormat(),
         resource.getUuid(),
@@ -156,7 +156,7 @@ public class DerivativeGenerationService extends DefaultDinaService<Derivative> 
 
     try {
       Optional<?> file =
-        fileStorage.getFileInfo(thumbnailDerivative.getBucket(), thumbnailDerivative.getFilename(), true);
+        fileStorage.getFileInfo(thumbnailDerivative.getBucket(), thumbnailDerivative.getInternalFilename(), true);
       if (file.isPresent()) {
         log.info("Thumbnail file already present, skipping");
         return;
@@ -173,7 +173,7 @@ public class DerivativeGenerationService extends DefaultDinaService<Derivative> 
 
     thumbnailGenerator.generateThumbnail(
       thumbnailDerivative.getFileIdentifier(),
-      source.getFilename(),
+      source.getInternalFilename(),
       source.getDcFormat(),
       source.getBucket(),
       thumbnailDerivative.getGeneratedFromDerivative() != null);
