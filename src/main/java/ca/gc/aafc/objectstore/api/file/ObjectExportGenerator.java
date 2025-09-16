@@ -128,7 +128,7 @@ public class ObjectExportGenerator {
     if (isFunctionPresentAndValid(sourceMediaType, exportFunction)) {
       BufferedImage buffImgIn = ImageIO.read(source);
       BufferedImage buffImgOut =
-        imageOperationService.resize(buffImgIn, Float.parseFloat(exportFunction.params().getFirst()));
+        imageOperationService.resize(buffImgIn, Float.parseFloat(exportFunction.params().get(ExportFunction.IMG_RESIZE_PARAM_FACTOR)));
       ImageOutputStream output = ImageIO.createImageOutputStream(out);
       ImageUtils.writeJpeg(buffImgOut, output);
       output.close();

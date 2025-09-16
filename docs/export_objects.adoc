@@ -33,7 +33,7 @@ To use an alternative name (alias) for files:
 To apply a function to the object before the export (jpeg image only):
 ```
 {
-"exportFunction": { "functionDef" : "IMG_RESIZE", "params" : ["0.5"] }
+"exportFunction": { "functionDef" : "IMG_RESIZE", "params" : {"factor": "0.5"} }
 }
 ```
 
