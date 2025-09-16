@@ -86,7 +86,7 @@ public class DerivativeGenerationRepositoryIT extends BaseIntegrationTest {
 
     // Scenario 1: the thumbnail entity exists but not the file
     // delete the file directly in the FileStorage but keep the entity
-    fileStorage.deleteFile(thumbResult.getBucket(), thumbResult.getFilename(), true);
+    fileStorage.deleteFile(thumbResult.getBucket(), thumbResult.getInternalFilename(), true);
 
     JsonApiDocument docToCreate = JsonApiDocuments.createJsonApiDocument(
       null, DerivativeGenerationDto.TYPENAME,
@@ -97,7 +97,7 @@ public class DerivativeGenerationRepositoryIT extends BaseIntegrationTest {
 
     derivativeGenerationRepository.onCreate(docToCreate);
 
-    assertTrue(fileStorage.getFileInfo(thumbResult.getBucket(), thumbResult.getFilename(), true).isPresent());
+    assertTrue(fileStorage.getFileInfo(thumbResult.getBucket(), thumbResult.getInternalFilename(), true).isPresent());
 
     // Scenario 2: thumbnail entity doesn't exist
     // delete the derivative entity
@@ -118,7 +118,7 @@ public class DerivativeGenerationRepositoryIT extends BaseIntegrationTest {
     Derivative thumbResult2 = findThumbnailByGeneratedFromDerivative(derivative)
       .orElseGet(() -> Assertions.fail("A derivative for a thumbnail should of been generated"));
     assertNotEquals(firstThumbnailUUID, thumbResult2.getUuid());
-    assertTrue(fileStorage.getFileInfo(thumbResult2.getBucket(), thumbResult2.getFilename(), true).isPresent());
+    assertTrue(fileStorage.getFileInfo(thumbResult2.getBucket(), thumbResult2.getInternalFilename(), true).isPresent());
   }
 
   @Test
@@ -143,7 +143,7 @@ public class DerivativeGenerationRepositoryIT extends BaseIntegrationTest {
 
     // Scenario 1: the thumbnail entity exists but not the file
     // delete the file directly in the FileStorage but keep the entity
-    fileStorage.deleteFile(thumbResult.getBucket(), thumbResult.getFilename(), true);
+    fileStorage.deleteFile(thumbResult.getBucket(), thumbResult.getInternalFilename(), true);
 
     JsonApiDocument docToCreate = JsonApiDocuments.createJsonApiDocument(
       null, DerivativeGenerationDto.TYPENAME,
@@ -153,7 +153,7 @@ public class DerivativeGenerationRepositoryIT extends BaseIntegrationTest {
         .build()));
     derivativeGenerationRepository.onCreate(docToCreate);
 
-    assertTrue(fileStorage.getFileInfo(thumbResult.getBucket(), thumbResult.getFilename(), true).isPresent());
+    assertTrue(fileStorage.getFileInfo(thumbResult.getBucket(), thumbResult.getInternalFilename(), true).isPresent());
 
     // Scenario 2: thumbnail entity doesn't exist
     // delete the derivative entity
@@ -172,7 +172,7 @@ public class DerivativeGenerationRepositoryIT extends BaseIntegrationTest {
     Derivative thumbResult2 = derivativeGenerationService.findThumbnailDerivativeForMetadata(osMetadata)
       .orElseGet(() -> Assertions.fail("A derivative for a thumbnail should of been generated"));
     assertNotEquals(firstThumbnailUUID, thumbResult2.getUuid());
-    assertTrue(fileStorage.getFileInfo(thumbResult2.getBucket(), thumbResult2.getFilename(), true).isPresent());
+    assertTrue(fileStorage.getFileInfo(thumbResult2.getBucket(), thumbResult2.getInternalFilename(), true).isPresent());
   }
 
   private Optional<Derivative> findThumbnailByGeneratedFromDerivative(Derivative derivative) {

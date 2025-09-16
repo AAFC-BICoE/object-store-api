@@ -44,6 +44,11 @@ public class ObjectStoreMetadataDto implements JsonApiResource {
   private OffsetDateTime createdOn;
   private String bucket;
   private UUID fileIdentifier;
+
+  private String originalFilename;
+
+  private String filename;
+
   private String fileExtension;
   private String resourceExternalURL;
 
@@ -65,9 +70,6 @@ public class ObjectStoreMetadataDto implements JsonApiResource {
   private String xmpRightsOwner;
   private String xmpRightsUsageTerms;
   private Integer orientation;
-
-  @JsonInclude(Include.NON_EMPTY)
-  private String originalFilename;
 
   private String acHashFunction;
   private String acHashValue;

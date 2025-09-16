@@ -20,16 +20,20 @@ import javax.validation.constraints.Size;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
+import lombok.Setter;
 
 @MappedSuperclass
 @AllArgsConstructor
 @RequiredArgsConstructor
 @NaturalIdCache
+@Setter
 public abstract class AbstractObjectStoreMetadata implements DinaEntity {
+
   protected UUID uuid;
   protected String bucket;
   protected UUID fileIdentifier;
   protected String fileExtension;
+  protected String filename;
   protected DcType dcType;
   protected String acHashFunction;
   protected String acHashValue;
@@ -38,7 +42,6 @@ public abstract class AbstractObjectStoreMetadata implements DinaEntity {
   private String dcFormat;
   private Boolean publiclyReleasable;
   private String notPubliclyReleasableReason;
-
   private String[] acTags;
 
   @NaturalId
@@ -48,27 +51,15 @@ public abstract class AbstractObjectStoreMetadata implements DinaEntity {
     return uuid;
   }
 
-  public void setUuid(UUID uuid) {
-    this.uuid = uuid;
-  }
-
   @NotNull
   @Size(max = 50)
   public String getBucket() {
     return bucket;
   }
 
-  public void setBucket(String bucket) {
-    this.bucket = bucket;
-  }
-
   @Column(name = "file_identifier", unique = true)
   public UUID getFileIdentifier() {
     return fileIdentifier;
-  }
-
-  public void setFileIdentifier(UUID fileIdentifier) {
-    this.fileIdentifier = fileIdentifier;
   }
 
   @Column(name = "file_extension")
@@ -77,8 +68,10 @@ public abstract class AbstractObjectStoreMetadata implements DinaEntity {
     return fileExtension;
   }
 
-  public void setFileExtension(String fileExtension) {
-    this.fileExtension = fileExtension;
+  @Column(name = "filename")
+  @Size(max = 255)
+  public String getFilename() {
+    return filename;
   }
 
   @NotNull
@@ -89,10 +82,6 @@ public abstract class AbstractObjectStoreMetadata implements DinaEntity {
     return dcType;
   }
 
-  public void setDcType(DcType dcType) {
-    this.dcType = dcType;
-  }
-
   @Column(name = "dc_format")
   @NotNull
   @Size(max = 150)
@@ -100,26 +89,14 @@ public abstract class AbstractObjectStoreMetadata implements DinaEntity {
     return dcFormat;
   }
 
-  public void setDcFormat(String dcFormat) {
-    this.dcFormat = dcFormat;
-  }
-
   @Column(name = "ac_hash_function")
   public String getAcHashFunction() {
     return acHashFunction;
   }
 
-  public void setAcHashFunction(String acHashFunction) {
-    this.acHashFunction = acHashFunction;
-  }
-
   @Column(name = "ac_hash_value")
   public String getAcHashValue() {
     return acHashValue;
-  }
-
-  public void setAcHashValue(String acHashValue) {
-    this.acHashValue = acHashValue;
   }
 
   @NotBlank
@@ -128,18 +105,10 @@ public abstract class AbstractObjectStoreMetadata implements DinaEntity {
     return createdBy;
   }
 
-  public void setCreatedBy(String createdBy) {
-    this.createdBy = createdBy;
-  }
-
   @Column(name = "created_on", insertable = false, updatable = false)
   @Generated(value = GenerationTime.INSERT)
   public OffsetDateTime getCreatedOn() {
     return createdOn;
-  }
-
-  public void setCreatedOn(OffsetDateTime createdOn) {
-    this.createdOn = createdOn;
   }
 
   @Column(name = "publicly_releasable")
@@ -147,11 +116,7 @@ public abstract class AbstractObjectStoreMetadata implements DinaEntity {
     return publiclyReleasable;
   }
 
-  public void setPubliclyReleasable(Boolean publiclyReleasable) {
-    this.publiclyReleasable = publiclyReleasable;
-  }
-
-    /**
+  /**
    * Return publiclyReleasable as Optional as defined by
    * {@link ca.gc.aafc.dina.entity.DinaEntity}.
    * 
@@ -168,18 +133,10 @@ public abstract class AbstractObjectStoreMetadata implements DinaEntity {
     return notPubliclyReleasableReason;
   }
 
-  public void setNotPubliclyReleasableReason(String notPubliclyReleasableReason) {
-    this.notPubliclyReleasableReason = notPubliclyReleasableReason;
-  }
-
   @Type(type = "string-array")
   @Column(name = "ac_tags", columnDefinition = "text[]")
   public String[] getAcTags() {
     return acTags;
-  }
-
-  public void setAcTags(String[] acTags) {
-    this.acTags = acTags;
   }
 
   /**
@@ -188,7 +145,7 @@ public abstract class AbstractObjectStoreMetadata implements DinaEntity {
    * @return fileIdentifier + fileExtension
    */
   @Transient
-  public String getFilename() {
+  public String getInternalFilename() {
     return fileIdentifier + fileExtension;
   }
 }

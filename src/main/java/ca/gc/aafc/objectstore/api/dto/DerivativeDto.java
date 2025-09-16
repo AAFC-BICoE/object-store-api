@@ -26,8 +26,10 @@ public class DerivativeDto implements JsonApiResource {
   private UUID uuid;
 
   private String bucket;
+  private String filename;
   private UUID fileIdentifier;
   private String fileExtension;
+
   private DcType dcType;
   private String dcFormat;
   private String acHashFunction;
