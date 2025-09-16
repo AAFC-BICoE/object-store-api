@@ -16,6 +16,7 @@ import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.file.FileController;
+import ca.gc.aafc.objectstore.api.util.ObjectFilenameUtils;
 import ca.gc.aafc.objectstore.api.validation.DerivativeValidator;
 
 import java.util.Optional;
@@ -109,6 +110,13 @@ public class DerivativeService extends MessageProducingService<Derivative> {
     derivative.setBucket(objectUpload.getBucket());
     if (StringUtils.isBlank(derivative.getDcFormat())) { // Auto populate if not submitted
       derivative.setDcFormat(objectUpload.getEvaluatedMediaType());
+    }
+
+    // make sure there is a filename
+    if (StringUtils.isBlank(derivative.getFilename())) {
+      derivative.setFilename(derivative.getInternalFilename());
+    } else {
+      derivative.setFilename(ObjectFilenameUtils.standardizeFilename(derivative.getFilename()));
     }
   }
 

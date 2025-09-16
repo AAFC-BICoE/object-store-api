@@ -89,7 +89,7 @@ public final class ObjectFilenameUtils {
       return FilenameUtils.getBaseName(filename) + "_" + derivativeSuffix + derivative.getFileExtension();
     }
     //fallback, use the internal name
-    return derivative.getFilename();
+    return derivative.getInternalFilename();
   }
 
   /**
@@ -107,7 +107,7 @@ public final class ObjectFilenameUtils {
 
     // if there is no original file name of the filename is just an extension
     if (StringUtils.isEmpty(filename) || StringUtils.isEmpty(FilenameUtils.getBaseName(filename))) {
-      return mainObject.getFilename();
+      return mainObject.getInternalFilename();
     }
     // use the internal extension since we are also returning the internal media type
     return FilenameUtils.getBaseName(filename) + mainObject.getFileExtension();

@@ -22,4 +22,5 @@
     <include file="db/changelog/migrations/16-Add_CROPPED_IMAGE_to_derivative_type.xml"/>
     <include file="db/changelog/migrations/17-Add_acTags_to_Derivative.xml"/>
     <include file="db/changelog/migrations/18-Add_managed_attribute_type_DECIMAL.xml"/>
+    <include file="db/changelog/migrations/19-Add_filename_to_metadata_and_derivative.xml"/>
 </databaseChangeLog>

@@ -107,7 +107,7 @@ public class ObjectExportService {
       // get file info to make sure the file exists and compute total size
       try {
         Optional<FileObjectInfo> fileInfo =
-          fileStorage.getFileInfo(obj.getBucket(), obj.getFilename(), obj instanceof Derivative);
+          fileStorage.getFileInfo(obj.getBucket(), obj.getInternalFilename(), obj instanceof Derivative);
         if (fileInfo.isPresent()) {
           totalSizeInBytes += fileInfo.get().getLength();
         } else {

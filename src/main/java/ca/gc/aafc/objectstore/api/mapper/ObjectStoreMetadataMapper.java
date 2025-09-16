@@ -1,7 +1,10 @@
 package ca.gc.aafc.objectstore.api.mapper;
 
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.BeanMapping;
@@ -13,20 +16,21 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.factory.Mappers;
 
 import ca.gc.aafc.dina.mapper.DinaMapperV2;
+import ca.gc.aafc.dina.mapper.MapperStaticConverter;
 import ca.gc.aafc.objectstore.api.dto.DerivativeDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 
-@Mapper
+@Mapper(imports = MapperStaticConverter.class)
 public interface ObjectStoreMetadataMapper
   extends DinaMapperV2<ObjectStoreMetadataDto, ObjectStoreMetadata> {
 
   ObjectStoreMetadataMapper INSTANCE = Mappers.getMapper(ObjectStoreMetadataMapper.class);
 
-  @Mapping(source = "acMetadataCreator", target = "acMetadataCreator", qualifiedByName = "uuidToPersonExternalRelation")
-  @Mapping(source = "dcCreator", target = "dcCreator", qualifiedByName = "uuidToPersonExternalRelation")
+  @Mapping(target = "acMetadataCreator", expression = "java(MapperStaticConverter.uuidToExternalRelation(entity.getAcMetadataCreator(), \"person\"))")
+  @Mapping(target = "dcCreator", expression = "java(MapperStaticConverter.uuidToExternalRelation(entity.getDcCreator(), \"person\"))")
   ObjectStoreMetadataDto toDto(ObjectStoreMetadata entity, @Context Set<String> provided, @Context String scope);
 
   /**
@@ -57,24 +61,17 @@ public interface ObjectStoreMetadataMapper
 
   /**
    * Default method to intercept the mapping and set the context to the relationship
-   * @param dto
+   * @param entities
    * @param provided
    * @param scope will be ignored but required so MapStruct uses it
    * @return
    */
-  default Derivative toEntity(DerivativeDto dto, @Context Set<String> provided, @Context String scope) {
-    return toDerivativeEntity(dto, provided, "derivative");
-  }
-
-  /**
-   * Default method to intercept the mapping and set the context to the relationship
-   * @param dto
-   * @param provided
-   * @param scope will be ignored but required so MapStruct uses it
-   * @return
-   */
-  default DerivativeDto toDto(Derivative dto, @Context Set<String> provided, @Context String scope) {
-    return toDerivativeDto(dto, provided, "derivative");
+  default List<DerivativeDto> toDto(List<Derivative> entities, @Context Set<String> provided, @Context String scope) {
+    if (CollectionUtils.isEmpty(entities)) {
+      return null;
+    }
+    return entities.stream().map(d -> toDerivativeDto(d, provided, "derivatives"))
+      .collect(Collectors.toList());
   }
 
   // Specific type mapping
