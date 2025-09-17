@@ -8,6 +8,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.context.WebApplicationContext;
 
+import ca.gc.aafc.dina.jsonapi.JsonApiDocument;
 import ca.gc.aafc.dina.testsupport.BaseRestAssuredTest;
 import ca.gc.aafc.dina.testsupport.PostgresTestContainerInitializer;
 import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPIRelationship;
@@ -16,22 +17,25 @@ import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.ObjectStoreApiLauncher;
 import ca.gc.aafc.objectstore.api.dto.DerivativeDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
+import ca.gc.aafc.objectstore.api.dto.ObjectSubtypeDto;
 import ca.gc.aafc.objectstore.api.minio.MinioTestContainerInitializer;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import ca.gc.aafc.objectstore.api.testsupport.fixtures.DerivativeTestFixture;
 import ca.gc.aafc.objectstore.api.testsupport.fixtures.ObjectStoreMetadataTestFixture;
-
+import ca.gc.aafc.objectstore.api.testsupport.fixtures.ObjectSubTypeTestFixture;
 import io.restassured.RestAssured;
 import io.restassured.builder.MultiPartSpecBuilder;
 import io.restassured.http.Header;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.MultiPartSpecification;
 import java.time.OffsetDateTime;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import javax.transaction.Transactional;
 
 import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.equalTo;
 
 @SpringBootTest(
   webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -139,5 +143,45 @@ null, null
     ValidatableResponse response = sendGet(RESOURCE_UNDER_TEST, "", Map.of("include", "derivatives,acMetadataCreator"), 200);
     response.body("data.id", hasItems(metadataUUID));
 
+  }
+
+  @Test
+  public void patchWithSubtype_expectedResultReturned() throws Exception {
+    // 1. Create the subtype to be included in the metadata.
+    ObjectSubtypeDto objectSubtype = ObjectSubTypeTestFixture.newObjectSubType();
+    JsonAPITestHelper.extractId(sendPost(ObjectSubtypeDto.TYPENAME,
+      JsonAPITestHelper.toJsonAPIMap(ObjectSubtypeDto.TYPENAME,
+        JsonAPITestHelper.toAttributeMap(objectSubtype), null, null
+      )
+    ));
+
+    // 2. Create the metadata with the acSubtype set with the correct dcType.
+    UUID fileIdentifier = UUID.fromString(uploadFile());
+
+    ObjectStoreMetadataDto osMetadata = buildObjectStoreMetadataDto();
+    osMetadata.setFileIdentifier(fileIdentifier);
+    osMetadata.setDcType(objectSubtype.getDcType());
+
+    String metadataUUID = JsonAPITestHelper.extractId(sendPost(ObjectStoreMetadataDto.TYPENAME,
+      JsonAPITestHelper.toJsonAPIMap(ObjectStoreMetadataDto.TYPENAME,
+        JsonAPITestHelper.toAttributeMap(osMetadata), null, null
+      )
+    ));
+
+    // 3. Perform an update to add the acSubType.
+    sendPatch(
+      RESOURCE_UNDER_TEST, 
+      metadataUUID, 
+      JsonAPITestHelper.toJsonAPIMap(
+        RESOURCE_UNDER_TEST,
+        metadataUUID,
+        Map.of("acSubtype", objectSubtype.getAcSubtype())
+      )
+    );
+
+    // 4. Validate the acSubtype is returned in the get response since it's no longer empty.
+    ValidatableResponse response = sendGet(RESOURCE_UNDER_TEST, metadataUUID, null, 200);
+    response.body("data.id", equalTo(metadataUUID));
+    response.body("data.attributes.acSubtype", equalTo(objectSubtype.getAcSubtype()));
   }
 }
