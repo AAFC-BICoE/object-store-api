@@ -26,6 +26,7 @@ import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
+import ca.gc.aafc.objectstore.api.entities.StringHolder;
 import ca.gc.aafc.objectstore.api.file.FileController;
 import ca.gc.aafc.objectstore.api.util.ObjectFilenameUtils;
 import ca.gc.aafc.objectstore.api.validation.ObjectStoreManagedAttributeValueValidator;
@@ -111,27 +112,22 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
    */
   private void setAcSubtype(@NonNull ObjectStoreMetadata metadata) {
 
-    // Check is there is something to do
-    if (metadata.getAcSubtype() == null && StringUtils.isBlank(metadata.getAcSubtypeStr())) {
-      return;
+    switch (metadata.getAcSubtypeStr()) {
+      case StringHolder.Defined(var sType) -> {
+        List<Pair<String, Object>> params = List.of(Pair.of("acSubtype", sType));
+        ObjectSubtype subtype = baseDAO.findOneByProperties(ObjectSubtype.class, params);
+        if (subtype == null) {
+          throw throwBadRequest(sType);
+        }
+        metadata.setAcSubtype(subtype);
+        metadata.setAcSubtypeId(subtype.getId());
+      }
+      case StringHolder.Null() -> {
+        metadata.setAcSubtype(null);
+        metadata.setAcSubtypeId(null);
+      }
+      case StringHolder.Undefined() -> {} // no-op
     }
-
-    if (StringUtils.isBlank(metadata.getAcSubtypeStr())) {
-      metadata.setAcSubtype(null);
-      metadata.setAcSubtypeId(null);
-      return;
-    }
-
-    List<Pair<String, Object>> params = new ArrayList<>();
-    params.add(Pair.of("acSubtype", metadata.getAcSubtypeStr()));
-    ObjectSubtype subtype = baseDAO.findOneByProperties(ObjectSubtype.class, params);
-
-    if (subtype == null) {
-      throw throwBadRequest(metadata.getAcSubtypeStr());
-    }
-
-    metadata.setAcSubtype(subtype);
-    metadata.setAcSubtypeId(subtype.getId());
   }
 
   private IllegalArgumentException throwBadRequest(String acSubtypeStr) {

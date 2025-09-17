@@ -323,6 +323,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends ObjectStoreModuleBaseRe
     updateMetadataDto.setAcSubtype(null);
 
     JsonApiDocument docToUpdate = dtoToJsonApiDocument(updateMetadataDto);
+    docToUpdate.getAttributes().put("acSubtype", null);
     objectStoreResourceRepository.update(docToUpdate);
 
     ObjectStoreMetadata result = objectStoreMetaDataService.findOne(updateMetadataDto.getUuid());

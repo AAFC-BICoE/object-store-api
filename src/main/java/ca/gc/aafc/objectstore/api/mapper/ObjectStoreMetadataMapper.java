@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.mapstruct.AfterMapping;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
@@ -21,6 +22,7 @@ import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
+import ca.gc.aafc.objectstore.api.entities.StringHolder;
 
 @Mapper(imports = MapperStaticConverter.class)
 public interface ObjectStoreMetadataMapper
@@ -55,7 +57,6 @@ public interface ObjectStoreMetadataMapper
   @Mapping(target = "acMetadataCreator", ignore = true)
   @Mapping(target = "dcCreator", ignore = true)
   @Mapping(target = "derivatives", ignore = true)
-  @Mapping(source ="acSubtype", target = "acSubtypeStr", ignore = true)
   @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
   void patchEntity(@MappingTarget ObjectStoreMetadata entity, ObjectStoreMetadataDto dto, @Context Set<String> provided, @Context String scope);
 
@@ -93,4 +94,18 @@ public interface ObjectStoreMetadataMapper
   @Mapping(target = "acDerivedFrom", ignore = true)
   @Mapping(target = "generatedFromDerivative", ignore = true)
   DerivativeDto toDerivativeDto(Derivative entity, Set<String> provided, String scope);
+
+  // After mapping customization
+  @AfterMapping
+  default void afterObjectStoreMetadataMapping(@MappingTarget ObjectStoreMetadata entity,
+                                               ObjectStoreMetadataDto dto,
+                                               @Context Set<String> provided) {
+    if (provided.contains("acSubtype")) {
+      if (StringUtils.isBlank(dto.getAcSubtype())) {
+        entity.setAcSubtypeStr(StringHolder.ofNull());
+      } else {
+        entity.setAcSubtypeStr(StringHolder.of(dto.getAcSubtype()));
+      }
+    }
+  }
 }

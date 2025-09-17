@@ -70,7 +70,7 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
 
   // used to move the value from the dto to the entity through the mapper
   @Setter
-  private String acSubtypeStr;
+  private StringHolder acSubtypeStr = StringHolder.undefined();
 
   /**
    * Read-only field to get the ac_sub_type_id to allow filtering by null values.
@@ -329,7 +329,7 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
   }
 
   @Transient
-  public String getAcSubtypeStr(){
+  public StringHolder getAcSubtypeStr(){
      return acSubtypeStr;
   }
 
