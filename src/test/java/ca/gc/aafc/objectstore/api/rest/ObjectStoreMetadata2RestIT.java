@@ -8,7 +8,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.context.WebApplicationContext;
 
-import ca.gc.aafc.dina.jsonapi.JsonApiDocument;
 import ca.gc.aafc.dina.testsupport.BaseRestAssuredTest;
 import ca.gc.aafc.dina.testsupport.PostgresTestContainerInitializer;
 import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPIRelationship;
@@ -29,7 +28,6 @@ import io.restassured.http.Header;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.MultiPartSpecification;
 import java.time.OffsetDateTime;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import javax.transaction.Transactional;
