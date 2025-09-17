@@ -1,6 +1,8 @@
 package ca.gc.aafc.objectstore.api.service;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -11,6 +13,7 @@ import javax.persistence.criteria.Root;
 import javax.validation.ValidationException;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.SmartValidator;
 
@@ -68,9 +71,7 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
     entity.setUuid(UUIDHelper.generateUUIDv7());
     handleFileRelatedData(entity);
     defaultValueSetterService.assignDefaultValues(entity);
-    if (entity.getAcSubtype() != null) {
-      setAcSubtype(entity, entity.getAcSubtype());
-    }
+    setAcSubtype(entity);
   }
 
   @Override
@@ -82,19 +83,7 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
 
   @Override
   protected void preUpdate(ObjectStoreMetadata entity) {
-    ObjectSubtype temp = entity.getAcSubtype();
-
-    if (temp != null) {
-      /*
-       * Need to flush the entities current state here to allow further JPA
-       * transactions
-       */
-      entity.setAcSubtype(null);
-      baseDAO.update(entity);
-
-      setAcSubtype(entity, temp);
-    }
-
+    setAcSubtype(entity);
     handleFileRelatedData(entity);
   }
 
@@ -119,29 +108,35 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
    * given acSubtype.
    *
    * @param metadata  - metadata to set
-   * @param acSubtype - acSubtype to fetch
    */
-  private void setAcSubtype(
-      @NonNull ObjectStoreMetadata metadata,
-      @NonNull ObjectSubtype acSubtype) {
-    if (acSubtype.getDcType() == null || StringUtils.isBlank(acSubtype.getAcSubtype())) {
+  private void setAcSubtype(@NonNull ObjectStoreMetadata metadata) {
+
+    // Check is there is something to do
+    if (metadata.getAcSubtype() == null && StringUtils.isBlank(metadata.getAcSubtypeStr())) {
+      return;
+    }
+
+    if (StringUtils.isBlank(metadata.getAcSubtypeStr())) {
       metadata.setAcSubtype(null);
       metadata.setAcSubtypeId(null);
-    } else {
-      ObjectSubtype fetchedType = this.findAll(ObjectSubtype.class,
-          (criteriaBuilder, objectRoot) -> new Predicate[] {
-              criteriaBuilder.equal(objectRoot.get("acSubtype"), acSubtype.getAcSubtype()),
-              criteriaBuilder.equal(objectRoot.get("dcType"), acSubtype.getDcType()),
-          }, null, 0, 1)
-          .stream().findFirst().orElseThrow(() -> throwBadRequest(acSubtype));
-      metadata.setAcSubtype(fetchedType);
-      metadata.setAcSubtypeId(fetchedType.getId());
+      return;
     }
+
+    List<Pair<String, Object>> params = new ArrayList<>();
+    params.add(Pair.of("acSubtype", metadata.getAcSubtypeStr()));
+    ObjectSubtype subtype = baseDAO.findOneByProperties(ObjectSubtype.class, params);
+
+    if (subtype == null) {
+      throw throwBadRequest(metadata.getAcSubtypeStr());
+    }
+
+    metadata.setAcSubtype(subtype);
+    metadata.setAcSubtypeId(subtype.getId());
   }
 
-  private IllegalArgumentException throwBadRequest(ObjectSubtype acSubtype) {
+  private IllegalArgumentException throwBadRequest(String acSubtypeStr) {
     return new IllegalArgumentException(
-      acSubtype.getAcSubtype() + "/" + acSubtype.getDcType() + " is not a valid acSubtype/dcType");
+      acSubtypeStr + " is not a valid acSubtype");
   }
 
   /**
