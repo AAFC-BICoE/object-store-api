@@ -153,7 +153,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends ObjectStoreModuleBaseRe
   }
 
   @Test
-  public void create_ValidResource_ResourcePersisted() {
+  public void create_ValidResource_ResourcePersisted() throws ResourceGoneException, ResourceNotFoundException {
 
     ObjectStoreManagedAttribute testManagedAttribute = createTestManagedAttribute();
     ObjectSubtypeDto acSubtype = createAcSubtype();
@@ -173,11 +173,11 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends ObjectStoreModuleBaseRe
     JsonApiDocument docToCreate = dtoToJsonApiDocument(dto);
     UUID dtoUuid = objectStoreResourceRepository.create(docToCreate, null).getDto().getJsonApiId();
 
-    ObjectStoreMetadata result = objectStoreMetaDataService.findOne(dtoUuid);
+    ObjectStoreMetadataDto result = objectStoreResourceRepository.getOne(dtoUuid, null).getDto();
     assertEquals(dtoUuid, result.getUuid());
     assertEquals(objectUploadTest.getBucket(), result.getBucket());
     assertEquals(objectUploadTest.getFileIdentifier(), result.getFileIdentifier());
-    assertEquals(acSubtype.getUuid(), result.getAcSubtype().getUuid());
+    assertEquals(acSubtype.getAcSubtype(), result.getAcSubtype());
     assertEquals(ObjectUploadFactory.TEST_USAGE_TERMS, result.getXmpRightsUsageTerms());
     assertEquals(testManagedAttribute.getAcceptedValues()[0],
     result.getManagedAttributes().get(testManagedAttribute.getKey()));
