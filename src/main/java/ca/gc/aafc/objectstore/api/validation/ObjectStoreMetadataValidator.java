@@ -38,8 +38,8 @@ public class ObjectStoreMetadataValidator extends DinaBaseValidator<ObjectStoreM
   }
 
   private void checkDcTypeMatchingSubType(ObjectStoreMetadata entity, Errors errors) {
-    if(entity.getAcSubtype() != null) {
-      if(entity.getDcType() != entity.getAcSubtype().getDcType()) {
+    if (entity.getAcSubtype() != null) {
+      if (entity.getDcType() != entity.getAcSubtype().getDcType()) {
         errors.reject(NON_MATCHING_DCTYPE, getMessage(NON_MATCHING_DCTYPE));
       }
     }
