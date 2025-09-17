@@ -1,7 +1,6 @@
 package ca.gc.aafc.objectstore.api.service;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -111,7 +110,6 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
    * @param metadata  - metadata to set
    */
   private void setAcSubtype(@NonNull ObjectStoreMetadata metadata) {
-
     switch (metadata.getAcSubtypeStr()) {
       case StringHolder.Defined(var sType) -> {
         List<Pair<String, Object>> params = List.of(Pair.of("acSubtype", sType));
@@ -126,7 +124,8 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
         metadata.setAcSubtype(null);
         metadata.setAcSubtypeId(null);
       }
-      case StringHolder.Undefined() -> {} // no-op
+      case StringHolder.Undefined() -> {
+      } // no-op
     }
   }
 

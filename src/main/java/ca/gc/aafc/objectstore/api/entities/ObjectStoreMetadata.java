@@ -329,8 +329,8 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
   }
 
   @Transient
-  public StringHolder getAcSubtypeStr(){
-     return acSubtypeStr;
+  public StringHolder getAcSubtypeStr() {
+    return acSubtypeStr;
   }
 
   /**
