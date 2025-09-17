@@ -22,6 +22,7 @@ import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
+import ca.gc.aafc.objectstore.api.entities.StringHolder;
 
 @Mapper(imports = MapperStaticConverter.class)
 public interface ObjectStoreMetadataMapper
@@ -95,17 +96,16 @@ public interface ObjectStoreMetadataMapper
   DerivativeDto toDerivativeDto(Derivative entity, Set<String> provided, String scope);
 
   // After mapping customization
-
   @AfterMapping
   default void afterObjectStoreMetadataMapping(@MappingTarget ObjectStoreMetadata entity,
-                               ObjectStoreMetadataDto dto) {
-    if (dto.getDcType() == null || StringUtils.isBlank(dto.getAcSubtype())) {
-      entity.setAcSubtype(null);
+                                               ObjectStoreMetadataDto dto,
+                                               @Context Set<String> provided) {
+    if (provided.contains("acSubtype")) {
+      if (StringUtils.isBlank(dto.getAcSubtype())) {
+        entity.setAcSubtypeStr(StringHolder.ofNull());
+      } else {
+        entity.setAcSubtypeStr(StringHolder.of(dto.getAcSubtype()));
+      }
     }
-    entity.setAcSubtype(ObjectSubtype.builder()
-      .dcType(dto.getDcType())
-      .acSubtype(dto.getAcSubtype())
-      .build());
   }
-
 }

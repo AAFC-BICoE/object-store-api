@@ -13,6 +13,7 @@ public class ObjectStoreMetadataValidator extends DinaBaseValidator<ObjectStoreM
 
   public static final String VALID_FILE_ID_OR_RESOURCE_EXTERNAL = "validation.constraint.violation.fileIdOrResourceExternal";
   public static final String NO_FILE_ID_OR_RESOURCE_EXTERNAL = "validation.constraint.violation.noFileIdOrResourceExternal";
+  public static final String NON_MATCHING_DCTYPE = "validation.constraint.violation.nonMatchingDcType";
 
   public ObjectStoreMetadataValidator(MessageSource messageSource) {
     super(ObjectStoreMetadata.class, messageSource);
@@ -21,6 +22,7 @@ public class ObjectStoreMetadataValidator extends DinaBaseValidator<ObjectStoreM
   @Override
   public void validateTarget(ObjectStoreMetadata target, Errors errors) {
     checkOnlyFileIdentifierOrResourceExternalURI(target, errors);
+    checkDcTypeMatchingSubType(target, errors);
   }
 
   private void checkOnlyFileIdentifierOrResourceExternalURI(ObjectStoreMetadata entity, Errors errors) {
@@ -32,6 +34,14 @@ public class ObjectStoreMetadataValidator extends DinaBaseValidator<ObjectStoreM
     // Report an error if none of them are setup.
     if (entity.getFileIdentifier() == null && StringUtils.isBlank(entity.getResourceExternalURL())) {
       errors.reject(NO_FILE_ID_OR_RESOURCE_EXTERNAL, getMessage(NO_FILE_ID_OR_RESOURCE_EXTERNAL));
+    }
+  }
+
+  private void checkDcTypeMatchingSubType(ObjectStoreMetadata entity, Errors errors) {
+    if (entity.getAcSubtype() != null) {
+      if (entity.getDcType() != entity.getAcSubtype().getDcType()) {
+        errors.reject(NON_MATCHING_DCTYPE, getMessage(NON_MATCHING_DCTYPE));
+      }
     }
   }
 }
