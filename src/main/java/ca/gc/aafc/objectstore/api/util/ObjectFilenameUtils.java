@@ -75,18 +75,26 @@ public final class ObjectFilenameUtils {
   public static String generateDerivativeFilename(Derivative derivative, String filenameAlias) {
     Objects.requireNonNull(derivative);
 
+    // if the derivative has an alias or filename
+    String filename = StringUtils.firstNonBlank(filenameAlias, derivative.getFilename());
+    if (StringUtils.isNotEmpty(filename) && StringUtils.isNotEmpty(FilenameUtils.getBaseName(filename))) {
+      // use the internal extension since we are also returning the internal media type
+      return FilenameUtils.getBaseName(standardizeFilename(filename)) + derivative.getFileExtension();
+    }
+
+    // If not, try with the derivedFrom
     ObjectStoreMetadata derivedFrom = derivative.getAcDerivedFrom();
     // make sure there is a derivedFrom and that it has a filename
-    if (derivedFrom != null && StringUtils.isNotEmpty(FilenameUtils.getBaseName(derivedFrom.getOriginalFilename()))) {
+    if (derivedFrom != null) {
       String derivativeSuffix =
         derivative.getDerivativeType() != null ? derivative.getDerivativeType().getSuffix() :
           "derivative";
 
-      String filename = StringUtils.isBlank(filenameAlias) ? derivedFrom.getOriginalFilename() :
-        standardizeFilename(filenameAlias);
-
-      // generate a name from the originalFilename + the generated suffix + the derivative file extension (since it might be different from the original)
-      return FilenameUtils.getBaseName(filename) + "_" + derivativeSuffix + derivative.getFileExtension();
+      String derivedFromFilename = StringUtils.firstNonBlank(derivedFrom.getFilename(), derivedFrom.getOriginalFilename());
+      if (StringUtils.isNotEmpty(derivedFromFilename) && StringUtils.isNotEmpty(FilenameUtils.getBaseName(derivedFromFilename))) {
+        // generate a name from the originalFilename + the generated suffix + the derivative file extension (since it might be different from the original)
+        return FilenameUtils.getBaseName(standardizeFilename(derivedFromFilename)) + "_" + derivativeSuffix + derivative.getFileExtension();
+      }
     }
     //fallback, use the internal name
     return derivative.getInternalFilename();
@@ -111,7 +119,7 @@ public final class ObjectFilenameUtils {
       return mainObject.getInternalFilename();
     }
     // use the internal extension since we are also returning the internal media type
-    return FilenameUtils.getBaseName(filename) + mainObject.getFileExtension();
+    return FilenameUtils.getBaseName(standardizeFilename(filename)) + mainObject.getFileExtension();
   }
 
   /**

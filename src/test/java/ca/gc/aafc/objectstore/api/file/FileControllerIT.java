@@ -301,6 +301,7 @@ public class FileControllerIT extends BaseIntegrationTest {
     Derivative derivative = derivativeService.create(Derivative.builder()
         .fileIdentifier(derivativeObjectUploadUuid)
         .acDerivedFrom(acDerivedFrom)
+        .filename("myderivative")
         .dcType(DcType.IMAGE)
         .createdBy("dina")
         .build());
@@ -309,6 +310,7 @@ public class FileControllerIT extends BaseIntegrationTest {
       TEST_BUCKET_NAME, derivativeObjectUploadUuid);
     // Assert Response
     assertEquals(200, result.getStatusCode().value());
+    assertEquals("myderivative.png", result.getHeaders().getContentDisposition().getFilename());
     // Assert File Content
     InputStreamResource body = result.getBody();
     assertNotNull(body);
