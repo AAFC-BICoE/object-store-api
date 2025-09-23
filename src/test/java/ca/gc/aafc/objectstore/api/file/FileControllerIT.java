@@ -1,5 +1,6 @@
 package ca.gc.aafc.objectstore.api.file;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MimeTypeException;
@@ -108,7 +109,7 @@ public class FileControllerIT extends BaseIntegrationTest {
     // file can only be downloaded if we attach metadata to it
     ObjectStoreMetadataDto metadataForFile = new ObjectStoreMetadataDto();
     metadataForFile.setBucket(TEST_BUCKET_NAME);
-
+    metadataForFile.setFilename("myfile");
     metadataForFile.setFileIdentifier(objectUploadUuid);
 
     JsonApiDocument docToCreate = dtoToJsonApiDocument(metadataForFile);
@@ -121,8 +122,8 @@ public class FileControllerIT extends BaseIntegrationTest {
     ResponseEntity<InputStreamResource> response = fileController.downloadObject(TEST_BUCKET_NAME,
       objectUploadUuid);
 
-    // on download, the original file name should be returned
-    assertEquals(mockFile.getOriginalFilename(), response.getHeaders().getContentDisposition().getFilename());
+    // on download, the custom file name should be returned with the extension
+    assertEquals("myfile." + FilenameUtils.getExtension(mockFile.getOriginalFilename()), response.getHeaders().getContentDisposition().getFilename());
   }
 
   @Test

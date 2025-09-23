@@ -94,18 +94,19 @@ public final class ObjectFilenameUtils {
 
   /**
    * Make sure a valid filename is generated for the download.
+   * Return the first candidate of : alias, filename, original filename, internal filename
    *
    * @param mainObject
-   * @param filenameAlias optional, an alias to use instead of the originalFilename
+   * @param filenameAlias optional, an alias to use instead of the filename
    * @return generated filename including file extension
    */
   public static String generateMainObjectFilename(ObjectStoreMetadata mainObject, String filenameAlias) {
     Objects.requireNonNull(mainObject);
 
-    String filename = StringUtils.isBlank(filenameAlias) ? mainObject.getOriginalFilename() :
-      standardizeFilename(filenameAlias);
+    // get the first available value in order of priority
+    String filename = StringUtils.firstNonBlank(filenameAlias, mainObject.getFilename(), mainObject.getOriginalFilename());
 
-    // if there is no original file name of the filename is just an extension
+    // if there is no filename or the filename is just an extension
     if (StringUtils.isEmpty(filename) || StringUtils.isEmpty(FilenameUtils.getBaseName(filename))) {
       return mainObject.getInternalFilename();
     }
