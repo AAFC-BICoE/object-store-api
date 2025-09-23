@@ -66,10 +66,11 @@ public final class ObjectFilenameUtils {
   }
 
   /**
-   * Generate a filename (with file extension) for a derivative. Since Derivatives don't have a name we are trying to use the name
+   * Generate a filename (with file extension) for a derivative.
+   * Try to use the alias or the derivative filename is available. If not, try to use the name
    * of the derivedFrom and add the derivative type as suffix. We will use a fallback on derivative's uuid.
    * @param derivative non null
-   * @param filenameAlias optional, an alias to use instead of the originalFilename of the derivedFrom
+   * @param filenameAlias optional, an alias to use instead of the filename of the derivedFrom
    * @return a filename like myUploadedImage_thumbnail.jpg
    */
   public static String generateDerivativeFilename(Derivative derivative, String filenameAlias) {
