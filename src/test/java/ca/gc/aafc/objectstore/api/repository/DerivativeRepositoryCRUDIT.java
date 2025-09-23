@@ -1,5 +1,7 @@
 package ca.gc.aafc.objectstore.api.repository;
 
+import ca.gc.aafc.dina.dto.JsonApiDto;
+import ca.gc.aafc.dina.dto.JsonApiResource;
 import ca.gc.aafc.dina.exception.ResourceGoneException;
 import ca.gc.aafc.dina.exception.ResourceNotFoundException;
 import ca.gc.aafc.dina.jsonapi.JsonApiDocument;
@@ -117,17 +119,18 @@ public class DerivativeRepositoryCRUDIT extends BaseIntegrationTest {
     JsonApiDocument docToCreate = DerivativeTestFixture.newJsonApiDocument(dto);
 
     DerivativeDto resource = derivativeRepository.create(docToCreate, null).getDto();
-    DerivativeDto result = derivativeRepository.getOne(resource.getUuid(),"").getDto();
-    assertFalse(result.getPubliclyReleasable());
+    JsonApiDto<DerivativeDto> result = derivativeRepository.getOne(resource.getUuid(),"include=acDerivedFrom");
+    assertFalse(result.getDto().getPubliclyReleasable());
+    assertNotNull(((JsonApiDto.RelationshipToOne)result.getRelationships().get("acDerivedFrom")).getIncluded().getJsonApiId());
 
     resource.setPubliclyReleasable(true);
 
     JsonApiDocument docToUpdate = dtoToJsonApiDocument(resource);
     derivativeRepository.update(docToUpdate);
 
-    result = derivativeRepository.getOne(resource.getUuid(),"").getDto();
-    assertTrue(result.getPubliclyReleasable());
-    assertNotNull(result.getAcTags());
+    DerivativeDto resultDto = derivativeRepository.getOne(resource.getUuid(),"").getDto();
+    assertTrue(resultDto.getPubliclyReleasable());
+    assertNotNull(resultDto.getAcTags());
   }
 
   private DerivativeDto newDerivative(UUID fileIdentifier) {

@@ -37,28 +37,16 @@ public interface DerivativeMapper extends DinaMapperV2<DerivativeDto, Derivative
 
   /**
    * Default method to intercept the mapping and set the context to the relationship
-   * @param dto
-   * @param provided
-   * @param scope will be ignored but required so MapStruct uses it
-   * @return
-   */
-  default ObjectStoreMetadata toEntity(ObjectStoreMetadataDto dto, @Context Set<String> provided, @Context String scope) {
-    return toMetadataEntity(dto, provided, "metadata");
-  }
-
-  /**
-   * Default method to intercept the mapping and set the context to the relationship
    * @param entity
    * @param provided
    * @param scope will be ignored but required so MapStruct uses it
    * @return
    */
   default ObjectStoreMetadataDto toDto(ObjectStoreMetadata entity, @Context Set<String> provided, @Context String scope) {
-    return toMetadataDto(entity, provided, "metadata");
+    return toMetadataDto(entity, provided, "acDerivedFrom");
   }
 
   // Relationships handling
-
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "derivatives", ignore = true)
   @Mapping(target = "acSubtype", ignore = true)
