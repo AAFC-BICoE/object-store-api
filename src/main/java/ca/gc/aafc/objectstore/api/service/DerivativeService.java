@@ -113,11 +113,10 @@ public class DerivativeService extends MessageProducingService<Derivative> {
     }
 
     // make sure there is a filename
-    if (StringUtils.isBlank(derivative.getFilename())) {
-      derivative.setFilename(derivative.getInternalFilename());
-    } else {
-      derivative.setFilename(ObjectFilenameUtils.standardizeFilename(derivative.getFilename()));
-    }
+    String filename =
+      StringUtils.firstNonBlank(derivative.getFilename(), objectUpload.getOriginalFilename(),
+        derivative.getInternalFilename());
+    derivative.setFilename(ObjectFilenameUtils.standardizeFilename(filename));
   }
 
   @Override
