@@ -29,10 +29,10 @@
     <!-- Tika needs a version higher than what Minio requires -->
     <commons-compress.version>1.26.1</commons-compress.version>
     
-    <tika.version>2.9.2</tika.version>
+    <tika.version>3.2.3</tika.version>
     <thumbnailator.version>0.4.20</thumbnailator.version>
     <pdfbox.version>2.0.34</pdfbox.version>
-    <imageio.version>3.11.0</imageio.version>
+    <imageio.version>3.12.0</imageio.version>
 
     <spotbugs-maven-plugin.version>4.9.4.2</spotbugs-maven-plugin.version>
     <spotbugs.version>4.9.4</spotbugs.version>
