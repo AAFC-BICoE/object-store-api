@@ -14,9 +14,8 @@ import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
  */
 public final class ObjectFilenameUtils {
 
-  // Accepted : alphanumerical (with Unicode) and _ - [] () .
-  public static final Pattern FILENAME_PATTERN = Pattern.compile("[^\\p{L}\\p{N}_\\-\\[\\](). ]");
-
+  // Accepted : alphanumerical (with Unicode) and _ - [] () . +
+  public static final Pattern FILENAME_PATTERN = Pattern.compile("[^\\p{L}\\p{N}_\\-\\[\\]().+ ]");
 
   public static final String FOLDER_FIRST_CHARS_TO_REMOVE = "^[^a-zA-Z0-9]+";
 
