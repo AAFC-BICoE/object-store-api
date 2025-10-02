@@ -13,6 +13,9 @@ public class ObjectFilenameUtilsTest {
     assertEquals("1_2.jpg", ObjectFilenameUtils.standardizeFilename("1|2.jpg"));
     assertEquals("1_2.jpg", ObjectFilenameUtils.standardizeFilename("1?2.jpg"));
     assertEquals("abc_test.jpg", ObjectFilenameUtils.standardizeFilename("abc/test.jpg"));
+
+    // allowed characters
+    assertEquals("abc+test.jpg", ObjectFilenameUtils.standardizeFilename("abc+test.jpg"));
   }
 
   @ParameterizedTest

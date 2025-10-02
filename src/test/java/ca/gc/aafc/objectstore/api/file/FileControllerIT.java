@@ -1,5 +1,6 @@
 package ca.gc.aafc.objectstore.api.file;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MimeTypeException;
@@ -108,7 +109,7 @@ public class FileControllerIT extends BaseIntegrationTest {
     // file can only be downloaded if we attach metadata to it
     ObjectStoreMetadataDto metadataForFile = new ObjectStoreMetadataDto();
     metadataForFile.setBucket(TEST_BUCKET_NAME);
-
+    metadataForFile.setFilename("myfile");
     metadataForFile.setFileIdentifier(objectUploadUuid);
 
     JsonApiDocument docToCreate = dtoToJsonApiDocument(metadataForFile);
@@ -121,8 +122,8 @@ public class FileControllerIT extends BaseIntegrationTest {
     ResponseEntity<InputStreamResource> response = fileController.downloadObject(TEST_BUCKET_NAME,
       objectUploadUuid);
 
-    // on download, the original file name should be returned
-    assertEquals(mockFile.getOriginalFilename(), response.getHeaders().getContentDisposition().getFilename());
+    // on download, the custom file name should be returned with the extension
+    assertEquals("myfile." + FilenameUtils.getExtension(mockFile.getOriginalFilename()), response.getHeaders().getContentDisposition().getFilename());
   }
 
   @Test
@@ -300,6 +301,7 @@ public class FileControllerIT extends BaseIntegrationTest {
     Derivative derivative = derivativeService.create(Derivative.builder()
         .fileIdentifier(derivativeObjectUploadUuid)
         .acDerivedFrom(acDerivedFrom)
+        .filename("myderivative")
         .dcType(DcType.IMAGE)
         .createdBy("dina")
         .build());
@@ -308,6 +310,7 @@ public class FileControllerIT extends BaseIntegrationTest {
       TEST_BUCKET_NAME, derivativeObjectUploadUuid);
     // Assert Response
     assertEquals(200, result.getStatusCode().value());
+    assertEquals("myderivative.png", result.getHeaders().getContentDisposition().getFilename());
     // Assert File Content
     InputStreamResource body = result.getBody();
     assertNotNull(body);

@@ -246,7 +246,7 @@ public class FileController {
       .findByFileId(fileId)
       .orElseThrow(() -> buildNotFoundException(bucket, Objects.toString(fileId)));
 
-    // For the download of an object use the originalFilename provided (if possible)
+    // For the download of an object use the filename provided (if possible)
     return download(bucket, metadata.getInternalFilename(),
       ObjectFilenameUtils.generateMainObjectFilename(metadata, null),
         false, metadata.getDcFormat(), metadata);
