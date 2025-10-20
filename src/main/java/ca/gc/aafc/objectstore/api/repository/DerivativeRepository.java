@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import ca.gc.aafc.dina.dto.ExternalRelationDto;
+import ca.gc.aafc.dina.dto.JsonApiExternalResource;
 import ca.gc.aafc.dina.exception.ResourceGoneException;
 import ca.gc.aafc.dina.exception.ResourceNotFoundException;
 import ca.gc.aafc.dina.exception.ResourcesGoneException;
@@ -28,6 +30,7 @@ import ca.gc.aafc.dina.security.auth.DinaAuthorizationService;
 import ca.gc.aafc.objectstore.api.dto.DerivativeDto;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.mapper.DerivativeMapper;
+import ca.gc.aafc.objectstore.api.mapper.ExternalRelationshipMapper;
 import ca.gc.aafc.objectstore.api.service.DerivativeService;
 
 import static com.toedter.spring.hateoas.jsonapi.MediaTypes.JSON_API_VALUE;
@@ -62,6 +65,11 @@ public class DerivativeRepository extends DinaRepositoryV2<DerivativeDto, Deriva
       Derivative.class,
       buildProperties, objMapper, new DinaMappingRegistry(DerivativeDto.class, true));
     this.authenticatedUser = authenticatedUser;
+  }
+
+  @Override
+  protected JsonApiExternalResource externalRelationDtoToJsonApiExternalResource(ExternalRelationDto externalRelationDto) {
+    return ExternalRelationshipMapper.externalRelationDtoToJsonApiExternalResource(externalRelationDto);
   }
 
   @GetMapping(DerivativeDto.TYPENAME + "/{id}")

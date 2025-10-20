@@ -5,7 +5,7 @@
 
   <groupId>ca.gc.aafc</groupId>
   <artifactId>object-store.api</artifactId>
-  <version>1.29-SNAPSHOT</version>
+  <version>1.31-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>Object-Store API</name>
@@ -29,13 +29,13 @@
     <!-- Tika needs a version higher than what Minio requires -->
     <commons-compress.version>1.26.1</commons-compress.version>
     
-    <tika.version>2.9.2</tika.version>
+    <tika.version>3.2.3</tika.version>
     <thumbnailator.version>0.4.20</thumbnailator.version>
     <pdfbox.version>2.0.34</pdfbox.version>
-    <imageio.version>3.11.0</imageio.version>
+    <imageio.version>3.12.0</imageio.version>
 
-    <spotbugs-maven-plugin.version>4.8.5.0</spotbugs-maven-plugin.version>
-    <spotbugs.version>4.8.5</spotbugs.version>
+    <spotbugs-maven-plugin.version>4.9.4.2</spotbugs-maven-plugin.version>
+    <spotbugs.version>4.9.4</spotbugs.version>
     <jcip-annotations.version>1.0</jcip-annotations.version>
     <dependency-check.version>9.0.8</dependency-check.version>
     <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
@@ -44,12 +44,12 @@
     <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
 
     <!-- Checkstyle-->
-    <maven-checkstyle-plugin.version>3.4.0</maven-checkstyle-plugin.version>
-    <checkstyle.version>10.17.0</checkstyle.version>
+    <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
+    <checkstyle.version>10.26.1</checkstyle.version>
 
     <asciidoctor-maven-plugin.version>2.1.0</asciidoctor-maven-plugin.version>
     <asciidoctorj.diagram.version>2.0.2</asciidoctorj.diagram.version>
-    <dina-base-api.version>0.149</dina-base-api.version>
+    <dina-base-api.version>0.153</dina-base-api.version>
     
     <postgresql.version>42.4.4</postgresql.version>
 

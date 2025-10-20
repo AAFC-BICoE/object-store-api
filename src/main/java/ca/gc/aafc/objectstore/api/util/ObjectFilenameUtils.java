@@ -14,9 +14,8 @@ import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
  */
 public final class ObjectFilenameUtils {
 
-  // Accepted : alphanumerical (with Unicode) and _ - [] () .
-  public static final Pattern FILENAME_PATTERN = Pattern.compile("[^\\p{L}\\p{N}_\\-\\[\\](). ]");
-
+  // Accepted : alphanumerical (with Unicode) and _ - [] () . +
+  public static final Pattern FILENAME_PATTERN = Pattern.compile("[^\\p{L}\\p{N}_\\-\\[\\]().+ ]");
 
   public static final String FOLDER_FIRST_CHARS_TO_REMOVE = "^[^a-zA-Z0-9]+";
 
@@ -66,51 +65,61 @@ public final class ObjectFilenameUtils {
   }
 
   /**
-   * Generate a filename (with file extension) for a derivative. Since Derivatives don't have a name we are trying to use the name
+   * Generate a filename (with file extension) for a derivative.
+   * Try to use the alias or the derivative filename is available. If not, try to use the name
    * of the derivedFrom and add the derivative type as suffix. We will use a fallback on derivative's uuid.
    * @param derivative non null
-   * @param filenameAlias optional, an alias to use instead of the originalFilename of the derivedFrom
+   * @param filenameAlias optional, an alias to use instead of the filename of the derivedFrom
    * @return a filename like myUploadedImage_thumbnail.jpg
    */
   public static String generateDerivativeFilename(Derivative derivative, String filenameAlias) {
     Objects.requireNonNull(derivative);
 
+    // if the derivative has an alias or filename
+    String filename = StringUtils.firstNonBlank(filenameAlias, derivative.getFilename());
+    if (StringUtils.isNotEmpty(filename) && StringUtils.isNotEmpty(FilenameUtils.getBaseName(filename))) {
+      // use the internal extension since we are also returning the internal media type
+      return FilenameUtils.getBaseName(standardizeFilename(filename)) + derivative.getFileExtension();
+    }
+
+    // If not, try with the derivedFrom
     ObjectStoreMetadata derivedFrom = derivative.getAcDerivedFrom();
     // make sure there is a derivedFrom and that it has a filename
-    if (derivedFrom != null && StringUtils.isNotEmpty(FilenameUtils.getBaseName(derivedFrom.getOriginalFilename()))) {
+    if (derivedFrom != null) {
       String derivativeSuffix =
         derivative.getDerivativeType() != null ? derivative.getDerivativeType().getSuffix() :
           "derivative";
 
-      String filename = StringUtils.isBlank(filenameAlias) ? derivedFrom.getOriginalFilename() :
-        standardizeFilename(filenameAlias);
-
-      // generate a name from the originalFilename + the generated suffix + the derivative file extension (since it might be different from the original)
-      return FilenameUtils.getBaseName(filename) + "_" + derivativeSuffix + derivative.getFileExtension();
+      String derivedFromFilename = StringUtils.firstNonBlank(derivedFrom.getFilename(), derivedFrom.getOriginalFilename());
+      if (StringUtils.isNotEmpty(derivedFromFilename) && StringUtils.isNotEmpty(FilenameUtils.getBaseName(derivedFromFilename))) {
+        // generate a name from the originalFilename + the generated suffix + the derivative file extension (since it might be different from the original)
+        return FilenameUtils.getBaseName(standardizeFilename(derivedFromFilename)) + "_" + derivativeSuffix + derivative.getFileExtension();
+      }
     }
     //fallback, use the internal name
-    return derivative.getFilename();
+    return derivative.getInternalFilename();
   }
 
   /**
    * Make sure a valid filename is generated for the download.
+   * Return the first candidate of : alias, filename, original filename, internal filename
    *
    * @param mainObject
-   * @param filenameAlias optional, an alias to use instead of the originalFilename
+   * @param filenameAlias optional, an alias to use instead of the filename
    * @return generated filename including file extension
    */
   public static String generateMainObjectFilename(ObjectStoreMetadata mainObject, String filenameAlias) {
     Objects.requireNonNull(mainObject);
 
-    String filename = StringUtils.isBlank(filenameAlias) ? mainObject.getOriginalFilename() :
-      standardizeFilename(filenameAlias);
+    // get the first available value in order of priority
+    String filename = StringUtils.firstNonBlank(filenameAlias, mainObject.getFilename(), mainObject.getOriginalFilename());
 
-    // if there is no original file name of the filename is just an extension
+    // if there is no filename or the filename is just an extension
     if (StringUtils.isEmpty(filename) || StringUtils.isEmpty(FilenameUtils.getBaseName(filename))) {
-      return mainObject.getFilename();
+      return mainObject.getInternalFilename();
     }
     // use the internal extension since we are also returning the internal media type
-    return FilenameUtils.getBaseName(filename) + mainObject.getFileExtension();
+    return FilenameUtils.getBaseName(standardizeFilename(filename)) + mainObject.getFileExtension();
   }
 
   /**

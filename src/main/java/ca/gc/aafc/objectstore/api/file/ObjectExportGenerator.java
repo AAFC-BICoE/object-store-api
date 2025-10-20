@@ -76,7 +76,7 @@ public class ObjectExportGenerator {
 
         // Get and copy the stream into the zip
         Optional<InputStream> optIs =
-          fileStorage.retrieveFile(currObj.getBucket(), currObj.getFilename(), currObj instanceof Derivative);
+          fileStorage.retrieveFile(currObj.getBucket(), currObj.getInternalFilename(), currObj instanceof Derivative);
         try (InputStream is = optIs.orElseThrow(
           () -> new IllegalStateException("No InputStream available"))) {
           //If there is no function(s) handling the stream copy it
@@ -128,7 +128,7 @@ public class ObjectExportGenerator {
     if (isFunctionPresentAndValid(sourceMediaType, exportFunction)) {
       BufferedImage buffImgIn = ImageIO.read(source);
       BufferedImage buffImgOut =
-        imageOperationService.resize(buffImgIn, Float.parseFloat(exportFunction.params().getFirst()));
+        imageOperationService.resize(buffImgIn, Float.parseFloat(exportFunction.params().get(ExportFunction.IMG_RESIZE_PARAM_FACTOR)));
       ImageOutputStream output = ImageIO.createImageOutputStream(out);
       ImageUtils.writeJpeg(buffImgOut, output);
       output.close();
@@ -160,7 +160,7 @@ public class ObjectExportGenerator {
     } else if (obj instanceof Derivative derivative) {
       filename = ObjectFilenameUtils.generateDerivativeFilename(derivative, filenameAlias);
     } else {
-      filename = obj.getFilename();
+      filename = obj.getInternalFilename();
     }
 
     // Is there a valid function that will be applied ?

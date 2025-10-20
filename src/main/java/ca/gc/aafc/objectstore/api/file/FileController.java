@@ -246,8 +246,8 @@ public class FileController {
       .findByFileId(fileId)
       .orElseThrow(() -> buildNotFoundException(bucket, Objects.toString(fileId)));
 
-    // For the download of an object use the originalFilename provided (if possible)
-    return download(bucket, metadata.getFilename(),
+    // For the download of an object use the filename provided (if possible)
+    return download(bucket, metadata.getInternalFilename(),
       ObjectFilenameUtils.generateMainObjectFilename(metadata, null),
         false, metadata.getDcFormat(), metadata);
   }
@@ -287,7 +287,7 @@ public class FileController {
     Derivative derivative = derivativeService.findByFileId(fileId)
       .orElseThrow(() -> buildNotFoundException(bucket, Objects.toString(fileId)));
 
-    return download(bucket, derivative.getFilename(), 
+    return download(bucket, derivative.getInternalFilename(),
       ObjectFilenameUtils.generateDerivativeFilename(derivative, null), true, derivative.getDcFormat(), derivative);
   }
 

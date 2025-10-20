@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import lombok.Setter;
 
 /**
  * The Class ObjectStoreMetadata.
@@ -63,16 +64,19 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
 
   private List<Derivative> derivatives;
 
-  private ObjectSubtype acSubtype;
-
   private Integer orientation;
 
   private String resourceExternalURL;
+
+  // used to move the value from the dto to the entity through the mapper
+  @Setter
+  private StringHolder acSubtypeStr = StringHolder.undefined();
 
   /**
    * Read-only field to get the ac_sub_type_id to allow filtering by null values.
    */
   private Integer acSubtypeId;
+  private ObjectSubtype acSubtype;
 
   @Builder
   public ObjectStoreMetadata(
@@ -80,6 +84,7 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
       String bucket,
       UUID fileIdentifier,
       String fileExtension,
+      String filename,
       DcType dcType,
       String acHashFunction,
       String acHashValue,
@@ -111,6 +116,7 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
         bucket,
         fileIdentifier,
         fileExtension,
+        filename,
         dcType,
         acHashFunction,
         acHashValue,
@@ -320,6 +326,11 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
   @Transient
   public String getGroup() {
     return bucket;
+  }
+
+  @Transient
+  public StringHolder getAcSubtypeStr() {
+    return acSubtypeStr;
   }
 
   /**

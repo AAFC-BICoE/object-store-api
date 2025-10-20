@@ -1,6 +1,7 @@
 package ca.gc.aafc.objectstore.api.service;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -11,6 +12,7 @@ import javax.persistence.criteria.Root;
 import javax.validation.ValidationException;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.SmartValidator;
 
@@ -23,7 +25,9 @@ import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
+import ca.gc.aafc.objectstore.api.entities.StringHolder;
 import ca.gc.aafc.objectstore.api.file.FileController;
+import ca.gc.aafc.objectstore.api.util.ObjectFilenameUtils;
 import ca.gc.aafc.objectstore.api.validation.ObjectStoreManagedAttributeValueValidator;
 import ca.gc.aafc.objectstore.api.validation.ObjectStoreMetadataValidator;
 
@@ -67,9 +71,7 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
     entity.setUuid(UUIDHelper.generateUUIDv7());
     handleFileRelatedData(entity);
     defaultValueSetterService.assignDefaultValues(entity);
-    if (entity.getAcSubtype() != null) {
-      setAcSubtype(entity, entity.getAcSubtype());
-    }
+    setAcSubtype(entity);
   }
 
   @Override
@@ -81,19 +83,7 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
 
   @Override
   protected void preUpdate(ObjectStoreMetadata entity) {
-    ObjectSubtype temp = entity.getAcSubtype();
-
-    if (temp != null) {
-      /*
-       * Need to flush the entities current state here to allow further JPA
-       * transactions
-       */
-      entity.setAcSubtype(null);
-      baseDAO.update(entity);
-
-      setAcSubtype(entity, temp);
-    }
-
+    setAcSubtype(entity);
     handleFileRelatedData(entity);
   }
 
@@ -118,29 +108,30 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
    * given acSubtype.
    *
    * @param metadata  - metadata to set
-   * @param acSubtype - acSubtype to fetch
    */
-  private void setAcSubtype(
-      @NonNull ObjectStoreMetadata metadata,
-      @NonNull ObjectSubtype acSubtype) {
-    if (acSubtype.getDcType() == null || StringUtils.isBlank(acSubtype.getAcSubtype())) {
-      metadata.setAcSubtype(null);
-      metadata.setAcSubtypeId(null);
-    } else {
-      ObjectSubtype fetchedType = this.findAll(ObjectSubtype.class,
-          (criteriaBuilder, objectRoot) -> new Predicate[] {
-              criteriaBuilder.equal(objectRoot.get("acSubtype"), acSubtype.getAcSubtype()),
-              criteriaBuilder.equal(objectRoot.get("dcType"), acSubtype.getDcType()),
-          }, null, 0, 1)
-          .stream().findFirst().orElseThrow(() -> throwBadRequest(acSubtype));
-      metadata.setAcSubtype(fetchedType);
-      metadata.setAcSubtypeId(fetchedType.getId());
+  private void setAcSubtype(@NonNull ObjectStoreMetadata metadata) {
+    switch (metadata.getAcSubtypeStr()) {
+      case StringHolder.Defined(var sType) -> {
+        List<Pair<String, Object>> params = List.of(Pair.of("acSubtype", sType));
+        ObjectSubtype subtype = baseDAO.findOneByProperties(ObjectSubtype.class, params);
+        if (subtype == null) {
+          throw throwBadRequest(sType);
+        }
+        metadata.setAcSubtype(subtype);
+        metadata.setAcSubtypeId(subtype.getId());
+      }
+      case StringHolder.Null() -> {
+        metadata.setAcSubtype(null);
+        metadata.setAcSubtypeId(null);
+      }
+      case StringHolder.Undefined() -> {
+      } // no-op
     }
   }
 
-  private IllegalArgumentException throwBadRequest(ObjectSubtype acSubtype) {
+  private IllegalArgumentException throwBadRequest(String acSubtypeStr) {
     return new IllegalArgumentException(
-      acSubtype.getAcSubtype() + "/" + acSubtype.getDcType() + " is not a valid acSubtype/dcType");
+      acSubtypeStr + " is not a valid acSubtype");
   }
 
   /**
@@ -178,6 +169,13 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
     objectMetadata.setFileExtension(objectUpload.getEvaluatedFileExtension());
     objectMetadata.setOriginalFilename(objectUpload.getOriginalFilename());
     objectMetadata.setDcFormat(objectUpload.getEvaluatedMediaType());
+
+    // fill filename but only if it has no value
+    if (StringUtils.isBlank(objectMetadata.getFilename())) {
+      objectMetadata.setFilename(ObjectFilenameUtils.standardizeFilename(objectUpload.getOriginalFilename()));
+    } else {
+      objectMetadata.setFilename(ObjectFilenameUtils.standardizeFilename(objectMetadata.getFilename()));
+    }
 
     // if the sha1hex is unspecified, do not alter the value on the metadata
     // see https://github.com/AAFC-BICoE/object-store-api/releases/tag/v1.4
