@@ -4,12 +4,13 @@ import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.ExecuteException;
 import org.apache.commons.exec.ExecuteWatchdog;
+import org.apache.commons.lang3.concurrent.ConcurrentException;
+import org.apache.commons.lang3.concurrent.LazyInitializer;
 
 import java.io.IOException;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
@@ -22,26 +23,38 @@ import lombok.extern.log4j.Log4j2;
  * must be installed and available in the system PATH for this class to function.</p>
  */
 @Log4j2
-public class ImageConverter {
+public final class ImageConverter {
 
   private static final String IMAGE_MAGICK_COMMAND = "magick";
   private static final int DEFAULT_TIMEOUT_SECONDS = 60;
 
-  // Cached result of the tool availability check.
-  private static final AtomicReference<Boolean> TOOL_AVAILABLE = new AtomicReference<>();
+  /**
+   * Lazy-initialized cached result of the tool availability check.
+   */
+  private static final LazyInitializer<Boolean> TOOL_AVAILABLE = new LazyInitializer<>() {
+    @Override
+    protected Boolean initialize() {
+      return checkToolAvailability();
+    }
+  };
 
   private ImageConverter() {
     //utility class
   }
 
   /**
-   *  Checks if ImageMagick 7 is available on the system.
-   * @return
+   * Checks if ImageMagick 7 is available on the system.
+   *
+   * @return {@code true} if ImageMagick is available and responds successfully to the
+   * version command; {@code false} otherwise (including if initialization fails)
    */
   public static boolean isToolAvailable() {
-    return TOOL_AVAILABLE.updateAndGet(current ->
-      current != null ? current : checkToolAvailability()
-    );
+    try {
+      return TOOL_AVAILABLE.get();
+    } catch (ConcurrentException e) {
+      log.error("Failed to check tool availability", e);
+      return false;
+    }
   }
 
   /**

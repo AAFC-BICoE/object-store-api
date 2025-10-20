@@ -3,18 +3,13 @@ package ca.gc.aafc.objectstore.api.file;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import javax.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.ResourceLoader;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ImageConverterIT {
-
-  @Inject
-  private ResourceLoader resourceLoader;
 
   private static final ClassPathResource TEST_IMG = new ClassPathResource("sample2CR2.CR2");
 
