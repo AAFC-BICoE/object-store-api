@@ -1,4 +1,4 @@
-package ca.gc.aafc.objectstore.api.util;
+package ca.gc.aafc.objectstore.api.image;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;

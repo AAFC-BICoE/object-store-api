@@ -39,6 +39,10 @@ public final class ObjectFilenameUtils {
     return FILENAME_PATTERN.matcher(userSubmittedFilename).replaceAll("_");
   }
 
+  public static String changeExtension(String filename, String newExtension) {
+    return FilenameUtils.removeExtension(filename) + StringUtils.prependIfMissing(newExtension, ".");
+  }
+
   /**
    * Standardize folder name to make sure we can extract the file in most operating systems.
    * The regex accepts less than what is technically accepted to keep things simple.

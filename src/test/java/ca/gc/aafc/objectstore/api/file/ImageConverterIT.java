@@ -7,6 +7,8 @@ import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 
+import ca.gc.aafc.objectstore.api.image.ImageConverter;
+
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ImageConverterIT {

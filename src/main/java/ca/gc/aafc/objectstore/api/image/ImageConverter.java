@@ -1,4 +1,4 @@
-package ca.gc.aafc.objectstore.api.file;
+package ca.gc.aafc.objectstore.api.image;
 
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
@@ -100,7 +100,7 @@ public final class ImageConverter {
     CommandLine cmdLine = new CommandLine(IMAGE_MAGICK_COMMAND);
 
     cmdLine.addArgument(inputPath, false);
-    if (imageConversionOptions.getRotation() != 0) {
+    if (imageConversionOptions.getRotation() != null && imageConversionOptions.getRotation() != 0) {
       cmdLine.addArgument("-rotate");
       cmdLine.addArgument(String.valueOf(imageConversionOptions.getRotation()), false);
     }

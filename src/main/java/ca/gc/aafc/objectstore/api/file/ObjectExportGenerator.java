@@ -4,8 +4,14 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.compress.archivers.ArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.tika.mime.MediaType;
+import org.apache.tika.mime.MimeType;
+import org.apache.tika.mime.MimeTypeException;
+import org.apache.tika.mime.MimeTypes;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -15,9 +21,9 @@ import ca.gc.aafc.objectstore.api.config.ObjectExportOption;
 import ca.gc.aafc.objectstore.api.entities.AbstractObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
-import ca.gc.aafc.objectstore.api.service.ImageOperationService;
+import ca.gc.aafc.objectstore.api.image.ImageOperationService;
 import ca.gc.aafc.objectstore.api.storage.FileStorage;
-import ca.gc.aafc.objectstore.api.util.ImageUtils;
+import ca.gc.aafc.objectstore.api.image.ImageUtils;
 import ca.gc.aafc.objectstore.api.util.ObjectFilenameUtils;
 
 import java.awt.image.BufferedImage;
@@ -45,7 +51,9 @@ import lombok.extern.log4j.Log4j2;
 public class ObjectExportGenerator {
 
   private static final Set<ExportFunction.FunctionDef> SUPPORTED_FUNCTIONS = Set.of(
-    ExportFunction.FunctionDef.IMG_RESIZE);
+    ExportFunction.FunctionDef.IMG_RESIZE, ExportFunction.FunctionDef.MAGICK);
+
+  private static final MimeTypes ALL_MIME_TYPES = MimeTypes.getDefaultMimeTypes();
 
   private final FileStorage fileStorage;
   private final ImageOperationService imageOperationService;
@@ -108,8 +116,7 @@ public class ObjectExportGenerator {
    * Handles the specified export function to an image read from a source stream
    * and writes the result to an output stream.
    * <p>
-   * If the first function in the list is not {@code IMG_RESIZE}, a warning is logged and no operation
-   * is performed.
+   * If the function is not supported, a warning is logged and no operation is performed.
    * <p>
    * If a supported function is applied, it creates an {@link ImageOutputStream} from the provided output stream and writes the result as JPEG.
    * The original {@code source} and {@code out} streams are NOT closed by this method;
@@ -126,18 +133,43 @@ public class ObjectExportGenerator {
 
     // Make sure the media type is supported and parameters are valid
     if (isFunctionPresentAndValid(sourceMediaType, exportFunction)) {
-      BufferedImage buffImgIn = ImageIO.read(source);
-      BufferedImage buffImgOut =
-        imageOperationService.resize(buffImgIn, Float.parseFloat(exportFunction.params().get(ExportFunction.IMG_RESIZE_PARAM_FACTOR)));
-      ImageOutputStream output = ImageIO.createImageOutputStream(out);
-      ImageUtils.writeJpeg(buffImgOut, output);
-      output.close();
-      return true;
+      switch (exportFunction.functionDef()) {
+        case IMG_RESIZE -> handleResizeFunction(source, out, exportFunction.params());
+        case MAGICK -> handleMagickFunction(source, sourceMediaType, out, exportFunction.params());
+      }
     } else {
       log.debug("Skipping export function. Not provided or not valid.");
     }
-
     return false;
+  }
+
+  private void handleResizeFunction(InputStream source, OutputStream out, Map<String, String> params) throws IOException {
+    BufferedImage buffImgIn = ImageIO.read(source);
+    BufferedImage buffImgOut =
+      imageOperationService.resize(buffImgIn, Float.parseFloat(params.get(ExportFunction.IMG_RESIZE_PARAM_FACTOR)));
+    ImageOutputStream output = ImageIO.createImageOutputStream(out);
+    ImageUtils.writeJpeg(buffImgOut, output);
+    output.close();
+  }
+
+  private void handleMagickFunction(InputStream source, String sourceMediaType, OutputStream out, Map<String, String> params) throws IOException {
+    Integer quality = params.containsKey(ExportFunction.MAGICK_PARAM_QUALITY) ?
+      Integer.valueOf(params.get(ExportFunction.MAGICK_PARAM_QUALITY)) : null;
+    Integer rotation = params.containsKey(ExportFunction.MAGICK_PARAM_ROTATION) ?
+      Integer.valueOf(params.get(ExportFunction.MAGICK_PARAM_ROTATION)) : null;
+
+    try {
+      imageOperationService.magick(source, extensionFromMediaType(sourceMediaType), out,
+        extensionFromMediaType(params.get(ExportFunction.MAGICK_PARAM_TARGET_MEDIA_TYPE)), quality, rotation);
+    } catch (MimeTypeException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private static String extensionFromMediaType(String mediaType) throws MimeTypeException {
+    MimeType mimeType = ALL_MIME_TYPES.forName(mediaType);
+    // Get primary extension
+    return mimeType.getExtension();
   }
 
   /**
@@ -164,12 +196,27 @@ public class ObjectExportGenerator {
     }
 
     // Is there a valid function that will be applied ?
-    // Add function related suffix but only if there is no alias provided
-    if (isFunctionPresentAndValid(obj.getDcFormat(), exportFunction) &&
-      StringUtils.isBlank(filenameAlias)) {
-      filename = ObjectFilenameUtils.insertBeforeFileExtension(filename,
-        "_" + exportFunction.functionDef().getSuffix());
+    if (isFunctionPresentAndValid(obj.getDcFormat(), exportFunction)) {
+
+      // We are adding function related suffix but only if there is no alias provided
+      if (StringUtils.isBlank(filenameAlias)) {
+        filename = ObjectFilenameUtils.insertBeforeFileExtension(filename,
+          "_" + exportFunction.functionDef().getSuffix());
+      }
+
+      // Do we need to change the extension ?
+      if (exportFunction.functionDef().isChangingMediaType()) {
+        if(exportFunction.getGeneratedMediaType().isPresent()) {
+          try {
+            filename = ObjectFilenameUtils.changeExtension(filename,
+              extensionFromMediaType(exportFunction.getGeneratedMediaType().get()));
+          } catch (MimeTypeException e) {
+            throw new RuntimeException(e);
+          }
+        }
+      }
     }
+
 
     // Do we have an export layout to consider ?
     if (StringUtils.isNotBlank(folder)) {
