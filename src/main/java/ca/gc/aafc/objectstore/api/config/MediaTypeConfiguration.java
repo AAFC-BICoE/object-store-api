@@ -38,6 +38,7 @@ public class MediaTypeConfiguration {
   public static final MediaType FREEMARKER_TEMPLATE_MIME_TYPE = new MediaType("text", "x-freemarker-template");
 
   public static final MediaType CANON_CR2_MEDIA_TYPE = new MediaType("image", "x-canon-cr2");
+  public static final MediaType NIKON_NEF_MEDIA_TYPE = new MediaType("image", "x-nikon-nef");
 
   /**
    * init the supported MediaType from Tika but removed unsupported MediaType.

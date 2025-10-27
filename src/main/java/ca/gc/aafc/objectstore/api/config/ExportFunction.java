@@ -9,6 +9,7 @@ import lombok.Builder;
 import org.springframework.http.MediaType;
 
 import static ca.gc.aafc.objectstore.api.config.MediaTypeConfiguration.CANON_CR2_MEDIA_TYPE;
+import static ca.gc.aafc.objectstore.api.config.MediaTypeConfiguration.NIKON_NEF_MEDIA_TYPE;
 
 /**
  * Pre-defined functions that can be used on exports of objects.
@@ -25,8 +26,10 @@ public record ExportFunction(FunctionDef functionDef, Map<String, String> params
   public static final String MAGICK_PARAM_TARGET_MEDIA_TYPE = "targetMediaType";
 
   public enum FunctionDef {
-    IMG_RESIZE(Set.of(MediaType.IMAGE_JPEG_VALUE), ExportFunction::imageResizeParamValidator, "resized", false),
-    MAGICK(Set.of(MediaType.IMAGE_JPEG_VALUE, CANON_CR2_MEDIA_TYPE.toString()), ExportFunction::magickParamValidator, "converted", true);
+    IMG_RESIZE(Set.of(MediaType.IMAGE_JPEG_VALUE), ExportFunction::imageResizeParamValidator,
+      "resized", false),
+    MAGICK(Set.of(MediaType.IMAGE_JPEG_VALUE, CANON_CR2_MEDIA_TYPE.toString(),
+      NIKON_NEF_MEDIA_TYPE.toString()), ExportFunction::magickParamValidator, "converted", true);
 
     private final Set<String> supportedMediaType;
     private final Predicate<Map<String, String>> paramsValidator;
