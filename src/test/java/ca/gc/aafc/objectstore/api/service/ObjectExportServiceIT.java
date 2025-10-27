@@ -17,7 +17,6 @@ import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.async.AsyncConsumer;
 import ca.gc.aafc.objectstore.api.config.AsyncOverrideConfig;
 import ca.gc.aafc.objectstore.api.config.ExportFunction;
-import ca.gc.aafc.objectstore.api.config.MediaTypeConfiguration;
 import ca.gc.aafc.objectstore.api.config.ObjectExportOption;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
@@ -34,8 +33,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.List;
@@ -199,65 +196,4 @@ public class ObjectExportServiceIT extends BaseIntegrationTest {
     assertEquals(1, filenamesInZip.size());
     assertTrue(filenamesInZip.contains("testfile_resized.jpg"));
   }
-
-  @Test
-  public void exportObjects_onExportWithMagickFunction_ZipContentValid() throws IOException, MimeTypeException, NoSuchAlgorithmException {
-    // 1 - Upload file
-    MockMultipartFile mockFile = MultipartFileFactory
-      .createMockMultipartFile(resourceLoader, "sample2CR2.CR2", MediaTypeConfiguration.CANON_CR2_MEDIA_TYPE.toString());
-
-    var uploadResponse = fileController.handleFileUpload(mockFile, TEST_BUCKET_NAME);
-    UUID objectUploadUuid = JsonApiModelAssistant.extractUUIDFromRepresentationModelLink(uploadResponse);
-
-    assertNotNull(objectUploadUuid);
-
-    // 2 - Created metadata for it
-    ObjectStoreMetadata osm = ObjectStoreMetadataFactory
-      .newObjectStoreMetadata()
-      .bucket(TEST_BUCKET_NAME)
-      .fileIdentifier(objectUploadUuid)
-      .build();
-    objectStoreMetaDataService.create(osm);
-
-    // 4 - request the file and its derivative
-    objectExportService.export(ObjectExportService.ExportArgs.builder()
-      .username("testuser")
-      .fileIdentifiers(List.of(osm.getFileIdentifier()))
-      .objectExportOption(ObjectExportOption.builder()
-        .exportFunction(ExportFunction.builder().functionDef(ExportFunction.FunctionDef.MAGICK)
-          .params(Map.of(ExportFunction.MAGICK_PARAM_TARGET_MEDIA_TYPE, "image/tiff")).build())
-        .build())
-      .username("testname")
-      .build());
-
-    // 5 - Wait for completion
-    ObjectExportService.ExportResult result;
-    try {
-      result = asyncConsumer.getAccepted().getFirst().get();
-      asyncConsumer.clear();
-    } catch (InterruptedException | ExecutionException e) {
-      throw new RuntimeException(e);
-    }
-
-    // 6 - Make sure we can get the export file using the toa key
-    ResponseEntity<InputStreamResource> response = toaController.downloadObject(result.toaKey());
-    assertEquals(200, response.getStatusCode().value());
-
-    Files.copy(response.getBody().getInputStream(),Path.of("/tmp/toto.zip"));
-
-//    Set<String> filenamesInZip = new HashSet<>();
-//    try (ZipArchiveInputStream archive = new ZipArchiveInputStream(
-//      response.getBody().getInputStream())) {
-//      ZipArchiveEntry entry;
-//      while ((entry = archive.getNextZipEntry()) != null) {
-//        filenamesInZip.add(entry.getName());
-//      }
-//    } catch (IOException e) {
-//      fail();
-//    }
-
-  //  assertEquals(1, filenamesInZip.size());
- //   assertTrue(filenamesInZip.contains("testfile_resized.jpg"));
-  }
-
 }
