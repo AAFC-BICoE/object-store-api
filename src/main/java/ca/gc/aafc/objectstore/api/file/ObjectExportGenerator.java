@@ -4,11 +4,8 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.compress.archivers.ArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.tika.mime.MediaType;
 import org.apache.tika.mime.MimeType;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
@@ -22,8 +19,8 @@ import ca.gc.aafc.objectstore.api.entities.AbstractObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.image.ImageOperationService;
-import ca.gc.aafc.objectstore.api.storage.FileStorage;
 import ca.gc.aafc.objectstore.api.image.ImageUtils;
+import ca.gc.aafc.objectstore.api.storage.FileStorage;
 import ca.gc.aafc.objectstore.api.util.ObjectFilenameUtils;
 
 import java.awt.image.BufferedImage;
@@ -136,6 +133,7 @@ public class ObjectExportGenerator {
       switch (exportFunction.functionDef()) {
         case IMG_RESIZE -> handleResizeFunction(source, out, exportFunction.params());
         case MAGICK -> handleMagickFunction(source, sourceMediaType, out, exportFunction.params());
+        default -> throw new IllegalStateException("Invalid functionDef");
       }
     } else {
       log.debug("Skipping export function. Not provided or not valid.");
@@ -206,7 +204,7 @@ public class ObjectExportGenerator {
 
       // Do we need to change the extension ?
       if (exportFunction.functionDef().isChangingMediaType()) {
-        if(exportFunction.getGeneratedMediaType().isPresent()) {
+        if (exportFunction.getGeneratedMediaType().isPresent()) {
           try {
             filename = ObjectFilenameUtils.changeExtension(filename,
               extensionFromMediaType(exportFunction.getGeneratedMediaType().get()));
