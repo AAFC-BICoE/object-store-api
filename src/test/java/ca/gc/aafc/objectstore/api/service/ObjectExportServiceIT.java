@@ -196,5 +196,4 @@ public class ObjectExportServiceIT extends BaseIntegrationTest {
     assertEquals(1, filenamesInZip.size());
     assertTrue(filenamesInZip.contains("testfile_resized.jpg"));
   }
-
 }
