@@ -37,6 +37,13 @@ To apply a function to the object before the export (jpeg image only):
 }
 ```
 
+TIFF conversion:
+```
+{
+"exportFunction": { "functionDef" : "MAGICK", "params" : {"targetMediaType": "image/tiff"} }
+}
+```
+
 == Export processing
 
 * Assemble the export and compress the content in an archive

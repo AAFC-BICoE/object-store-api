@@ -1,9 +1,9 @@
 package ca.gc.aafc.objectstore.api.entities;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -26,12 +26,11 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 /**
  * The Class ObjectStoreMetadata.
@@ -39,6 +38,7 @@ import lombok.Setter;
 @Entity
 @Table(name = "metadata")
 @RequiredArgsConstructor
+@SuperBuilder
 public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
 
   public static final String DERIVATIVES_PROP = "derivatives";
@@ -57,12 +57,14 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
 
   private String originalFilename;
 
-  private Map<String, String> managedAttributes;
+  @Builder.Default
+  private Map<String, String> managedAttributes = new HashMap<>();
 
   private UUID acMetadataCreator;
   private UUID dcCreator;
 
-  private List<Derivative> derivatives;
+  @Builder.Default
+  private List<Derivative> derivatives =  new ArrayList<>();
 
   private Integer orientation;
 
@@ -70,6 +72,7 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
 
   // used to move the value from the dto to the entity through the mapper
   @Setter
+  @Builder.Default
   private StringHolder acSubtypeStr = StringHolder.undefined();
 
   /**
@@ -77,73 +80,6 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
    */
   private Integer acSubtypeId;
   private ObjectSubtype acSubtype;
-
-  @Builder
-  public ObjectStoreMetadata(
-      UUID uuid,
-      String bucket,
-      UUID fileIdentifier,
-      String fileExtension,
-      String filename,
-      DcType dcType,
-      String acHashFunction,
-      String acHashValue,
-      String createdBy,
-      OffsetDateTime createdOn,
-      Integer id,
-      String dcFormat,
-      String acCaption,
-      OffsetDateTime acDigitizationDate,
-      OffsetDateTime xmpMetadataDate,
-      String xmpRightsWebStatement,
-      String dcRights,
-      String xmpRightsOwner,
-      String xmpRightsUsageTerms,
-      String originalFilename,
-      String[] acTags,
-      Map<String, String> managedAttributes,
-      UUID acMetadataCreator,
-      UUID dcCreator,
-      List<Derivative> derivatives,
-      Boolean publiclyReleasable,
-      String notPubliclyReleasableReason,
-      ObjectSubtype acSubtype,
-      Integer acSubtypeId,
-      Integer orientation,
-      String resourceExternalURL) {
-    super(
-        uuid,
-        bucket,
-        fileIdentifier,
-        fileExtension,
-        filename,
-        dcType,
-        acHashFunction,
-        acHashValue,
-        createdBy,
-        createdOn,
-        dcFormat,
-        publiclyReleasable,
-        notPubliclyReleasableReason,
-        acTags);
-    this.id = id;
-    this.acCaption = acCaption;
-    this.acDigitizationDate = acDigitizationDate;
-    this.xmpMetadataDate = xmpMetadataDate;
-    this.xmpRightsWebStatement = xmpRightsWebStatement;
-    this.dcRights = dcRights;
-    this.xmpRightsOwner = xmpRightsOwner;
-    this.xmpRightsUsageTerms = xmpRightsUsageTerms;
-    this.originalFilename = originalFilename;
-    this.managedAttributes = MapUtils.isNotEmpty(managedAttributes) ? managedAttributes : new HashMap<>();
-    this.acMetadataCreator = acMetadataCreator;
-    this.dcCreator = dcCreator;
-    this.derivatives = CollectionUtils.isNotEmpty(derivatives) ? derivatives : new ArrayList<>();
-    this.acSubtype = acSubtype;
-    this.acSubtypeId = acSubtypeId;
-    this.orientation = orientation;
-    this.resourceExternalURL = resourceExternalURL;
-  }
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -52,6 +52,8 @@ public class ObjectStoreMetadataDto implements JsonApiResource {
   private String fileExtension;
   private String resourceExternalURL;
 
+  private String sourceSet;
+
   private String dcFormat;
 
   @ShallowReference

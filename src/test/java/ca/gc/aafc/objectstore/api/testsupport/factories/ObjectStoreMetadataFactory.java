@@ -23,9 +23,9 @@ public class ObjectStoreMetadataFactory implements TestableEntityFactory<ObjectS
    *
    * @return Pre-configured builder with all mandatory fields set
    */
-  public static ObjectStoreMetadata.ObjectStoreMetadataBuilder newObjectStoreMetadata() {
+  public static ObjectStoreMetadata.ObjectStoreMetadataBuilder<?,?> newObjectStoreMetadata() {
 
-    return  ObjectStoreMetadata.builder()
+    return ObjectStoreMetadata.builder()
         .uuid(UUIDHelper.generateUUIDv7())
         .fileIdentifier(UUIDHelper.generateUUIDv7())
         .fileExtension(".jpg")
