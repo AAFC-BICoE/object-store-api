@@ -18,7 +18,7 @@ public class DerivativeFactory implements TestableEntityFactory<Derivative> {
     return newDerivative(null, null).build();
   }
 
-  public static Derivative.DerivativeBuilder newDerivative(ObjectStoreMetadata derivedFrom, UUID fileIdentifier) {
+  public static Derivative.DerivativeBuilder<?,?> newDerivative(ObjectStoreMetadata derivedFrom, UUID fileIdentifier) {
     return Derivative.builder()
       .uuid(UUIDHelper.generateUUIDv7())
       .fileIdentifier(fileIdentifier)
