@@ -1,7 +1,6 @@
 package ca.gc.aafc.objectstore.api.entities;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
 
@@ -16,13 +15,13 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import java.time.OffsetDateTime;
-import java.util.UUID;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(name = "derivative")
 @NoArgsConstructor
 @AllArgsConstructor
+@SuperBuilder
 public class Derivative extends AbstractObjectStoreMetadata {
 
   public enum DerivativeType {
@@ -47,48 +46,6 @@ public class Derivative extends AbstractObjectStoreMetadata {
   private ObjectStoreMetadata acDerivedFrom;
   private DerivativeType derivativeType;
   private Derivative generatedFromDerivative;
-
-  @Builder
-  public Derivative(
-    UUID uuid,
-    String bucket,
-    UUID fileIdentifier,
-    String fileExtension,
-    String filename,
-    DcType dcType,
-    String acHashFunction,
-    String acHashValue,
-    String createdBy,
-    OffsetDateTime createdOn,
-    Integer id,
-    ObjectStoreMetadata acDerivedFrom,
-    DerivativeType derivativeType,
-    Derivative generatedFromDerivative,
-    String dcFormat,
-    Boolean publiclyReleasable,
-    String notPubliclyReleasableReason,
-    String[] acTags
-  ) {
-    super(
-      uuid,
-      bucket,
-      fileIdentifier,
-      fileExtension,
-      filename,
-      dcType,
-      acHashFunction,
-      acHashValue,
-      createdBy,
-      createdOn,
-      dcFormat,
-      publiclyReleasable,
-      notPubliclyReleasableReason,
-      acTags);
-    this.id = id;
-    this.acDerivedFrom = acDerivedFrom;
-    this.derivativeType = derivativeType;
-    this.generatedFromDerivative = generatedFromDerivative;
-  }
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

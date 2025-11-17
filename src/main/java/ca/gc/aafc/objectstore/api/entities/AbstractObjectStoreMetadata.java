@@ -2,6 +2,7 @@ package ca.gc.aafc.objectstore.api.entities;
 
 import ca.gc.aafc.dina.entity.DinaEntity;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
@@ -21,11 +22,13 @@ import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @MappedSuperclass
 @AllArgsConstructor
 @RequiredArgsConstructor
 @NaturalIdCache
+@SuperBuilder
 @Setter
 public abstract class AbstractObjectStoreMetadata implements DinaEntity {
 
@@ -43,6 +46,10 @@ public abstract class AbstractObjectStoreMetadata implements DinaEntity {
   private Boolean publiclyReleasable;
   private String notPubliclyReleasableReason;
   private String[] acTags;
+
+  @Getter
+  @Size(max = 50)
+  private String sourceSet;
 
   @NaturalId
   @NotNull
