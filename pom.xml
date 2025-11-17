@@ -25,7 +25,7 @@
     <!-- Minio cannot used version 3.14.9 for okhttp. 4.8.1 is required. -->
     <!-- See: https://github.com/minio/minio-java/issues/1282 -->
     <okhttp.version>4.8.1</okhttp.version>
-    <minio.version>8.4.6</minio.version>
+    <minio.version>8.6.0</minio.version>
     <!-- Tika needs a version higher than what Minio requires -->
     <commons-compress.version>1.26.1</commons-compress.version>
     
