@@ -16,6 +16,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.extern.log4j.Log4j2;
@@ -172,13 +173,17 @@ public class NFSFileStorage implements FileStorage {
    */
   private void saveFileNFS(Path targetFile, InputStream input) throws IOException {
 
-    String fileName = targetFile.getFileName().toString();
-    Path targetDir = targetFile.getParent();
+    Objects.requireNonNull(targetFile);
 
-    // VALIDATION: Throw explicit exception if parent is null.
-    // This happens if 'targetFile' is just a filename ("file.txt") or root ("/").
-    if (targetDir == null) {
-      throw new IOException("Invalid path: Target file must be in a directory, but got: " + targetFile);
+    // VALIDATION
+    // targetFile.getFileName() returns null if path is root (e.g. "/").
+    // targetFile.getParent() also return null if it is just a filename ("file.txt") or root ("/").
+    Path targetDir = targetFile.getParent();
+    Path fileName = targetFile.getFileName();
+
+    // VALIDATION: Ensure we have both a directory to write to and a filename to write.
+    if (targetDir == null || fileName == null) {
+      throw new IOException("Invalid target path (missing parent or filename): " + targetFile);
     }
 
     // Ensure the directory structure exists before we try to write to it.
