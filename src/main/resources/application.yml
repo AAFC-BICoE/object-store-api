@@ -86,6 +86,10 @@ dina:
   export:
     maxObjectExportSize: 2GB
   apiPrefix: /api/v1
+  fileStorage:
+    # NFS or MINIO
+    implementation: MINIO
+   # root: "/tmp/dina-nfs"
 
 rabbitmq:
   queue: dina.search.queue

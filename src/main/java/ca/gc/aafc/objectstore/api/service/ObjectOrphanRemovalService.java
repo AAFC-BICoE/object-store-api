@@ -5,7 +5,8 @@ import ca.gc.aafc.objectstore.api.OrphanRemovalConfiguration;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
-import ca.gc.aafc.objectstore.api.minio.MinioFileService;
+import ca.gc.aafc.objectstore.api.storage.FileStorage;
+
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -21,19 +22,19 @@ public class ObjectOrphanRemovalService {
   private static final int MAX_ORPHAN_QUERY_LIMIT = 1000;
 
   private final ObjectUploadService objectUploadService;
-  private final MinioFileService fileService;
+  private final FileStorage fileStorage;
   private final BaseDAO baseDAO;
 
   private final OrphanRemovalConfiguration.OrphanRemovalExpirationSetting expiration;
 
   public ObjectOrphanRemovalService(
     ObjectUploadService objectUploadService,
-    MinioFileService fileService,
+    FileStorage fileStorage,
     BaseDAO baseDAO,
     OrphanRemovalConfiguration orphanRemovalConfiguration
   ) {
     this.objectUploadService = objectUploadService;
-    this.fileService = fileService;
+    this.fileStorage = fileStorage;
     this.baseDAO = baseDAO;
     this.expiration = orphanRemovalConfiguration.getExpiration();
   }
@@ -91,7 +92,7 @@ public class ObjectOrphanRemovalService {
   @SneakyThrows
   private void deleteMinioFile(ObjectUpload objectUpload) {
     String fileName = objectUpload.getCompleteFileName();
-    fileService.deleteFile(
+    fileStorage.deleteFile(
       objectUpload.getBucket(),
       fileName,
       objectUpload.getIsDerivative());

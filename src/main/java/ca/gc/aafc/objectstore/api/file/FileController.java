@@ -41,7 +41,6 @@ import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.exif.ExifParser;
-import ca.gc.aafc.objectstore.api.minio.MinioFileService;
 import ca.gc.aafc.objectstore.api.repository.ObjectUploadResourceRepository;
 import ca.gc.aafc.objectstore.api.security.FileControllerAuthorizationService;
 import ca.gc.aafc.objectstore.api.service.DerivativeService;
@@ -100,7 +99,7 @@ public class FileController {
   @Inject
   public FileController(
     FileControllerAuthorizationService authorizationService,
-    MinioFileService minioService,
+    FileStorage fileStorage,
     ObjectUploadService objectUploadService,
     DerivativeService derivativeService,
     ObjectStoreMetaDataService objectStoreMetaDataService,
@@ -111,7 +110,7 @@ public class FileController {
     BuildProperties buildProperties
   ) {
     this.authorizationService = authorizationService;
-    this.fileStorage = minioService;
+    this.fileStorage = fileStorage;
     this.objectUploadService = objectUploadService;
     this.objectStoreMetaDataService = objectStoreMetaDataService;
     this.mediaTypeDetectionStrategy = mediaTypeDetectionStrategy;

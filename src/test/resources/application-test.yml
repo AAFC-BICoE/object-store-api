@@ -21,4 +21,9 @@ embedded.minio:
 external-types:
   providerMap:
     person: "Agent/api/v1/person"
-dina.auditing.enabled: true
+dina:
+  auditing.enabled: true
+  fileStorage:
+    # NFS or MINIO
+    implementation: NFS
+    root: "/tmp/dina-nfs"
