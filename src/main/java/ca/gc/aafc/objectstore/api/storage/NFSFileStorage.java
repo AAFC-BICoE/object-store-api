@@ -46,11 +46,11 @@ public class NFSFileStorage implements FileStorage {
       // Write stream to temp file with fsync
       saveFileNFS(filePath, iStream);
 
-      log.info("Stored file. bucket:{} : {}", bucket, fileName);
+      log.info("Stored file. Bucket:{} : {}", bucket, fileName);
 
     } catch (IOException e) {
      // deleteTempFile(tempFile);
-      log.error("Failed to store file: {}/{}", bucket, fileName, e);
+      log.error("Failed to store file. Bucket:{} : {}", bucket, fileName, e);
       throw e;
     }
   }
@@ -62,31 +62,30 @@ public class NFSFileStorage implements FileStorage {
     Path filePath = getFilePath(bucket, fileName, isDerivative);
 
     if (!Files.exists(filePath)) {
-      log.debug("File not found: {}/{}", bucket, fileName);
+      log.debug("File not found. Bucket:{} : {}", bucket, fileName);
       return Optional.empty();
     }
 
     try {
       InputStream is = Files.newInputStream(filePath);
-      log.info("Retrieved file: {}/{}", bucket, fileName);
+      log.info("Retrieved file. Bucket:{} : {}", bucket, fileName);
       return Optional.of(is);
     } catch (IOException e) {
-      log.error("Failed to retrieve file: {}/{}", bucket, fileName, e);
+      log.error("Failed to retrieve file. Bucket:{} : {}", bucket, fileName, e);
       throw e;
     }
   }
 
   @Override
   public void deleteFile(String bucket, String fileName, boolean isDerivative)
-    throws IOException {
+      throws IOException {
 
     Path filePath = getFilePath(bucket, fileName, isDerivative);
-
     try {
       Files.deleteIfExists(filePath);
-      log.info("Deleted file: {}/{}", bucket, fileName);
+      log.info("Deleted file. Bucket:{} : {}", bucket, fileName);
     } catch (IOException e) {
-      log.error("Failed to delete file: {}/{}", bucket, fileName, e);
+      log.error("Failed to delete file. Bucket:{} : {}", bucket, fileName, e);
       throw e;
     }
   }
@@ -104,18 +103,17 @@ public class NFSFileStorage implements FileStorage {
     try {
       long size = Files.size(filePath);
       String contentType = Files.probeContentType(filePath);
-      long lastModified = Files.getLastModifiedTime(filePath).toMillis();
 
       FileObjectInfo info = FileObjectInfo.builder()
         .length(size)
         .contentType(contentType)
         .build();
 
-      log.debug("Got file info: {}/{}", bucketName, fileName);
+      log.debug("Got file info. Bucket:{} : {}", bucketName, fileName);
       return Optional.of(info);
 
     } catch (IOException e) {
-      log.error("Failed to get file info: {}/{}", bucketName, fileName, e);
+      log.error("Failed to get file info. Bucket:{} : {}", bucketName, fileName, e);
       throw e;
     }
   }
@@ -230,7 +228,10 @@ public class NFSFileStorage implements FileStorage {
 
     } catch (IOException e) {
       // Cleanup: If anything fails (disk full, network cut), delete the garbage temp file.
-      try { Files.deleteIfExists(tempPath); } catch (IOException ignored) {}
+      try {
+        Files.deleteIfExists(tempPath);
+      } catch (IOException ignored) {
+      }
       throw e; // Re-throw so the caller knows it failed.
     }
   }
