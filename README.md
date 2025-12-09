@@ -1,8 +1,6 @@
 # object-store-api
 
-The object-store-api is an API providing an object metadata store backed by [MinIO](https://min.io/).
-
-Important note on MinIO: Starting version RELEASE.2022-06-02T02-11-04Z, MinIO implements [Erasure Coding](https://min.io/docs/minio/linux/operations/concepts/erasure-coding.html?ref=docs-redirect#minio-erasure-coding). On local filesystems files are now stored in another format and are named like `.xl.meta`.
+The object-store-api is an API providing an object metadata store backed by an object storage (s3-compatible) or a simple folder.
 
 Features :
  * Implements DINA object-store [specification](https://dina-web.github.io/object-store-specs/)
@@ -29,7 +27,6 @@ See [documentation](https://aafc-bicoe.github.io/object-store-api/) page.
 * Docker 20+ (for running integration tests)
 
 ### To run
-* [Minio](https://min.io/)
 * [PostgreSQL](https://www.postgresql.org/) 12
 * [Keycloak](https://www.keycloak.org/)
 
