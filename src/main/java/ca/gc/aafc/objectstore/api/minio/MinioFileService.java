@@ -22,6 +22,8 @@ import io.minio.errors.ServerException;
 import io.minio.errors.XmlParserException;
 import io.minio.messages.ErrorResponse;
 import lombok.extern.log4j.Log4j2;
+
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -35,6 +37,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+@ConditionalOnProperty(prefix = "dina.fileStorage", name = "implementation", havingValue = "MINIO")
 @Service
 @Log4j2
 public class MinioFileService implements FileStorage, FileInformationService {

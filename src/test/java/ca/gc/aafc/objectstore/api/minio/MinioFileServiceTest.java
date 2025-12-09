@@ -18,7 +18,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 @ContextConfiguration(initializers = MinioTestContainerInitializer.class)
-@SpringBootTest(properties = "dev-user.enabled=true")
+@SpringBootTest(properties = {"dev-user.enabled=true", "dina.fileStorage.implementation=MINIO"})
 class MinioFileServiceTest extends BaseIntegrationTest {
 
   public static final String BUCKET = "bucket";

@@ -6,8 +6,8 @@ import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
-import ca.gc.aafc.objectstore.api.minio.MinioFileService;
 import ca.gc.aafc.objectstore.api.minio.MinioTestContainerInitializer;
+import ca.gc.aafc.objectstore.api.storage.FileStorage;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import lombok.SneakyThrows;
@@ -54,11 +54,11 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
   private DerivativeService derivativeService;
 
   @Inject
-  private MinioFileService fileService;
+  private FileStorage fileStorage;
 
   @BeforeEach
   void setUp() throws IOException {
-    fileService.ensureBucketExists(BUCKET);
+    fileStorage.ensureBucketExists(BUCKET);
     findUploads().forEach(objectUpload -> objectUploadService.delete(objectUpload));
   }
 
@@ -78,7 +78,7 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
     serviceUnderTest.removeObjectOrphans(); // method under test
 
     assertTrue(
-      fileService.retrieveFile(BUCKET, fileName, false).isEmpty(),
+      fileStorage.retrieveFile(BUCKET, fileName, false).isEmpty(),
       "There should be no returned files");
     assertNull(
       objectUploadService.findOne(upload.getFileIdentifier(), ObjectUpload.class),
@@ -96,7 +96,7 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
     serviceUnderTest.removeObjectOrphans(); // method under test
 
     assertTrue(
-      fileService.retrieveFile(BUCKET, fileName,false).isPresent(),
+      fileStorage.retrieveFile(BUCKET, fileName,false).isPresent(),
       "There should be a returned file");
     assertNotNull(
       objectUploadService.findOne(upload.getFileIdentifier(), ObjectUpload.class),
@@ -117,7 +117,7 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
     serviceUnderTest.removeObjectOrphans(); // method under test
 
     assertTrue(
-      fileService.retrieveFile(BUCKET, fileName,false).isPresent(),
+      fileStorage.retrieveFile(BUCKET, fileName,false).isPresent(),
       "There should be a returned file");
 
     assertNotNull(
@@ -159,7 +159,7 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
     serviceUnderTest.removeObjectOrphans(); // method under test
 
     assertTrue(
-      fileService.retrieveFile(BUCKET, fileName, true).isPresent(),
+      fileStorage.retrieveFile(BUCKET, fileName, true).isPresent(),
       "There should be a returned file");
     assertNotNull(
       objectUploadService.findOne(derivativeUpload.getFileIdentifier(), ObjectUpload.class),
@@ -180,7 +180,7 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
     serviceUnderTest.removeObjectOrphans(); // method under test
 
     assertTrue(
-      fileService.retrieveFile(BUCKET, fileName,true).isEmpty(),
+      fileStorage.retrieveFile(BUCKET, fileName,true).isEmpty(),
       "There should be no returned files");
     assertNull(
       objectUploadService.findOne(derivativeUpload.getFileIdentifier(), ObjectUpload.class),
@@ -198,7 +198,7 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
     Thread.sleep(2000);
 
     assertTrue(
-      fileService.retrieveFile(BUCKET, fileName,false).isEmpty(),
+      fileStorage.retrieveFile(BUCKET, fileName,false).isEmpty(),
       "There should be no returned files");
     assertTrue(findUploads().isEmpty(), "There should be no upload record");
   }
@@ -233,7 +233,7 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
   @SneakyThrows
   private String storeFileForUpload(ObjectUpload upload) {
     String fileName = upload.getCompleteFileName();
-    fileService.storeFile(
+    fileStorage.storeFile(
       BUCKET,
       fileName,
       upload.getIsDerivative(),
