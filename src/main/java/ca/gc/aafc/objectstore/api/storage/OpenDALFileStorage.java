@@ -29,6 +29,7 @@ public class OpenDALFileStorage implements FileStorage {
   private final String endpoint;
   private final String accessKey;
   private final String secretKey;
+  private final String region;
 
   private final FolderStructureStrategy folderStructureStrategy;
 
@@ -39,6 +40,7 @@ public class OpenDALFileStorage implements FileStorage {
     this.endpoint = s3Config.getEndpoint();
     this.accessKey = s3Config.getAccessKey();
     this.secretKey = s3Config.getSecretKey();
+    this.region = s3Config.getRegion();
 
     this.folderStructureStrategy = folderStructureStrategy;
   }
@@ -74,9 +76,9 @@ public class OpenDALFileStorage implements FileStorage {
     return operatorCache.computeIfAbsent(bucketName, bucket -> {
       Map<String, String> map = new HashMap<>();
       map.put("root", "/");
-      map.put("region", "a");
       map.put("bucket", bucket);
       map.put("endpoint", endpoint);
+      map.put("region", region);
       map.put("access_key_id", accessKey);
       map.put("secret_access_key", secretKey);
 

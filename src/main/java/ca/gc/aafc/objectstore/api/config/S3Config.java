@@ -15,6 +15,8 @@ public class S3Config {
   private String accessKey;
   private String secretKey;
 
+  private String region = "none";
+
   private Integer port;
 
   /**
