@@ -25,7 +25,8 @@ public class MinioTestContainerInitializer implements ApplicationContextInitiali
         minioTestContainer.start();
       }
       TestPropertyValues.of(
-        "minio.port:" + minioTestContainer.getMappedPort()
+        "minio.port:" + minioTestContainer.getMappedPort(),
+        "s3.port:" + minioTestContainer.getMappedPort()
       ).applyTo(env);
     }
   }
