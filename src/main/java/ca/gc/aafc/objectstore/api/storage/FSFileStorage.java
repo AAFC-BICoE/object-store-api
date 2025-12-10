@@ -41,7 +41,7 @@ public class FSFileStorage implements FileStorage {
     this.folderStructureStrategy = folderStructureStrategy;
 
     this.isNFS = isNFS(rootPath);
-    log.info("FS Storage Mode.{}", isNFS ? "(NFS)" : "");
+    log.info("FS Storage Mode {}. Root path: {}", isNFS ? "(NFS)" : "", rootPath);
   }
 
   @Override
