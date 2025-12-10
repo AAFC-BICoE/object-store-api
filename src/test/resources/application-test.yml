@@ -24,6 +24,6 @@ external-types:
 dina:
   auditing.enabled: true
   fileStorage:
-    # NFS or MINIO
-    implementation: NFS
+    # FS, S3 or MINIO
+    implementation: FS
     root: "/tmp/dina-nfs"

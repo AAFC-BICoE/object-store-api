@@ -2,6 +2,7 @@ package ca.gc.aafc.objectstore.api.storage;
 
 import java.io.IOException;
 import java.net.URI;
+import lombok.extern.log4j.Log4j2;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
@@ -11,13 +12,17 @@ import software.amazon.awssdk.services.s3.model.HeadBucketRequest;
 
 import software.amazon.awssdk.services.s3.model.S3Exception;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Service;
 
 import ca.gc.aafc.objectstore.api.config.S3Config;
 
-@ConditionalOnProperty(prefix = "dina.fileStorage", name = "implementation", havingValue = "S3")
+/**
+ * {@link FileManagement} implementation using s3 client to perform management operations.
+ */
+@ConditionalOnExpression("'${dina.fileStorage.implementation}' == 'S3' or '${dina.fileStorage.implementation}' == 'MINIO'")
 @Service
+@Log4j2
 public class S3FileManagement implements FileManagement {
 
   private final S3Config s3Config;
@@ -39,12 +44,12 @@ public class S3FileManagement implements FileManagement {
       try {
         // 1. Check if bucket exists
         s3Client.headBucket(HeadBucketRequest.builder().bucket(bucketName).build());
-        System.out.println("Bucket " + bucketName + " already exists.");
+        log.debug("Bucket: {} already exists.", bucketName);
       } catch (S3Exception e) {
         if (e.statusCode() == 404) {
           // 2. Create bucket
           s3Client.createBucket(CreateBucketRequest.builder().bucket(bucketName).build());
-          System.out.println("Bucket " + bucketName + " created.");
+          log.debug("Bucket {} created.", bucketName);
         } else {
           throw new IOException(e);
         }

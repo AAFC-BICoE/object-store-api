@@ -92,7 +92,7 @@ dina:
     maxObjectExportSize: 2GB
   apiPrefix: /api/v1
   fileStorage:
-    # NFS, S3 or MINIO
+    # FS, S3 or MINIO
     implementation: MINIO
    # root: "/tmp/dina-nfs"
 
