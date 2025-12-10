@@ -108,7 +108,7 @@ public class OpenDALFileStorage implements FileStorage {
 
   @Override
   public Optional<InputStream> retrieveFile(String bucket, String fileName, boolean isDerivative)
-    throws IOException {
+      throws IOException {
     var op = getOperator(bucket);
     var path = getFileLocation(fileName, isDerivative);
 
@@ -138,7 +138,7 @@ public class OpenDALFileStorage implements FileStorage {
 
   @Override
   public Optional<FileObjectInfo> getFileInfo(String bucket, String fileName, boolean isDerivative)
-    throws IOException {
+      throws IOException {
     var op = getOperator(bucket);
     var path = getFileLocation(fileName, isDerivative);
 
