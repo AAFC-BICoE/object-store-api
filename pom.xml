@@ -27,6 +27,7 @@
     <okhttp.version>4.8.1</okhttp.version>
     <minio.version>8.4.6</minio.version>
     <opendal.version>0.48.2</opendal.version>
+    <awssdk.s3>2.40.5</awssdk.s3>
     <!-- Tika needs a version higher than what Minio requires -->
     <commons-compress.version>1.26.1</commons-compress.version>
     
@@ -149,6 +150,12 @@
         <groupId>io.minio</groupId>
         <artifactId>minio</artifactId>
         <version>${minio.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>s3</artifactId>
+      <version>${awssdk.s3}</version>
     </dependency>
 
     <dependency>

@@ -21,9 +21,11 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import lombok.extern.log4j.Log4j2;
 
 @ConditionalOnProperty(prefix = "dina.fileStorage", name = "implementation", havingValue = "S3")
 @Service
+@Log4j2
 public class OpenDALFileStorage implements FileStorage {
 
   private final String endpoint;
@@ -36,13 +38,14 @@ public class OpenDALFileStorage implements FileStorage {
   // Cache async Operators per bucket
   private final Map<String, Operator> operatorCache = new ConcurrentHashMap<>();
 
-  public OpenDALFileStorage( FolderStructureStrategy folderStructureStrategy, S3Config s3Config) {
+  public OpenDALFileStorage(FolderStructureStrategy folderStructureStrategy, S3Config s3Config) {
     this.endpoint = s3Config.getEndpoint();
     this.accessKey = s3Config.getAccessKey();
     this.secretKey = s3Config.getSecretKey();
     this.region = s3Config.getRegion();
 
     this.folderStructureStrategy = folderStructureStrategy;
+    log.info("S3 Storage Mode (OpenDAL)");
   }
 
   /**
@@ -105,7 +108,7 @@ public class OpenDALFileStorage implements FileStorage {
 
   @Override
   public Optional<InputStream> retrieveFile(String bucket, String fileName, boolean isDerivative)
-    throws IOException {
+      throws IOException {
     var op = getOperator(bucket);
     var path = getFileLocation(fileName, isDerivative);
 
@@ -135,7 +138,7 @@ public class OpenDALFileStorage implements FileStorage {
 
   @Override
   public Optional<FileObjectInfo> getFileInfo(String bucket, String fileName, boolean isDerivative)
-    throws IOException {
+      throws IOException {
     var op = getOperator(bucket);
     var path = getFileLocation(fileName, isDerivative);
 
@@ -150,20 +153,6 @@ public class OpenDALFileStorage implements FileStorage {
         return Optional.empty();
       }
       throw new IOException("Failed to get file info: " + e.getMessage(), e);
-    }
-  }
-
-  @Override
-  public void ensureBucketExists(String bucketName) throws IOException {
-    var op = getOperator(bucketName);
-    try {
-      // Simple check to see if we can access the root of the bucket
-      op.stat("/");
-    } catch (OpenDALException e) {
-      if (e.getCode() == OpenDALException.Code.NotFound) {
-        throw new IOException("Bucket " + bucketName + " does not exist.");
-      }
-      throw new IOException("Bucket check failed: " + e.getMessage(), e);
     }
   }
 }

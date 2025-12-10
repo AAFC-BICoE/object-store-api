@@ -46,6 +46,7 @@ import ca.gc.aafc.objectstore.api.security.FileControllerAuthorizationService;
 import ca.gc.aafc.objectstore.api.service.DerivativeService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
 import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
+import ca.gc.aafc.objectstore.api.storage.FileManagement;
 import ca.gc.aafc.objectstore.api.storage.FileStorage;
 import ca.gc.aafc.objectstore.api.util.ObjectFilenameUtils;
 
@@ -84,6 +85,8 @@ public class FileController {
 
   private final ObjectUploadService objectUploadService;
   private final DerivativeService derivativeService;
+
+  private final FileManagement fileManagement;
   private final FileStorage fileStorage;
 
   private final ObjectStoreMetaDataService objectStoreMetaDataService;
@@ -100,6 +103,7 @@ public class FileController {
   public FileController(
     FileControllerAuthorizationService authorizationService,
     FileStorage fileStorage,
+    FileManagement fileManagement,
     ObjectUploadService objectUploadService,
     DerivativeService derivativeService,
     ObjectStoreMetaDataService objectStoreMetaDataService,
@@ -111,6 +115,7 @@ public class FileController {
   ) {
     this.authorizationService = authorizationService;
     this.fileStorage = fileStorage;
+    this.fileManagement = fileManagement;
     this.objectUploadService = objectUploadService;
     this.objectStoreMetaDataService = objectStoreMetaDataService;
     this.mediaTypeDetectionStrategy = mediaTypeDetectionStrategy;
@@ -352,8 +357,6 @@ public class FileController {
       null);
   }
 
- 
-
   /**
    * Utility method to generate HttpHeaders based on the given parameters
    *
@@ -392,7 +395,7 @@ public class FileController {
     boolean isDerivative
   ) throws IOException {
     // make bucket if it does not exist
-    fileStorage.ensureBucketExists(bucket);
+    fileManagement.ensureBucketExists(bucket);
 
     fileStorage.storeFile(
       bucket,

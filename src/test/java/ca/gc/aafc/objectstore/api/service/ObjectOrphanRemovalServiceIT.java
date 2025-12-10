@@ -6,8 +6,9 @@ import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
-import ca.gc.aafc.objectstore.api.minio.MinioTestContainerInitializer;
+import ca.gc.aafc.objectstore.api.storage.FileManagement;
 import ca.gc.aafc.objectstore.api.storage.FileStorage;
+import ca.gc.aafc.objectstore.api.storage.VersityWGTestContainerInitializer;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import lombok.SneakyThrows;
@@ -30,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@ContextConfiguration(initializers = MinioTestContainerInitializer.class)
+@ContextConfiguration(initializers = VersityWGTestContainerInitializer.class)
 @SpringBootTest(classes = ObjectStoreApiLauncher.class, properties = {
   "orphan-removal.expiration.object_max_age=12d",
   "orphan-removal.cron.expression=*/1 * * * * *",
@@ -54,11 +55,14 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
   private DerivativeService derivativeService;
 
   @Inject
+  private FileManagement fileManagement;
+
+  @Inject
   private FileStorage fileStorage;
 
   @BeforeEach
   void setUp() throws IOException {
-    fileStorage.ensureBucketExists(BUCKET);
+    fileManagement.ensureBucketExists(BUCKET);
     findUploads().forEach(objectUpload -> objectUploadService.delete(objectUpload));
   }
 

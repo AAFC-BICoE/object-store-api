@@ -12,16 +12,15 @@ import javax.transaction.Transactional;
 
 import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPIRelationship;
 import ca.gc.aafc.dina.util.UUIDHelper;
+import ca.gc.aafc.objectstore.api.rest.ObjectStoreBaseRestAssuredTest;
 import ca.gc.aafc.objectstore.api.testsupport.fixtures.DerivativeTestFixture;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
-import ca.gc.aafc.dina.testsupport.BaseRestAssuredTest;
 import ca.gc.aafc.dina.testsupport.DatabaseSupportService;
 import ca.gc.aafc.dina.testsupport.PostgresTestContainerInitializer;
 import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
@@ -43,7 +42,7 @@ import lombok.SneakyThrows;
 @TestPropertySource(properties = "spring.config.additional-location=classpath:application-test.yml")
 @Transactional
 @ContextConfiguration(initializers = {PostgresTestContainerInitializer.class})
-public class DerivativeOpenApiIT extends BaseRestAssuredTest {
+public class DerivativeOpenApiIT extends ObjectStoreBaseRestAssuredTest {
 
   @Inject
   private DatabaseSupportService service;

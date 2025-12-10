@@ -1,4 +1,4 @@
-package ca.gc.aafc.objectstore.api.minio;
+package ca.gc.aafc.objectstore.api.storage;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Assertions;
@@ -9,34 +9,28 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
-import ca.gc.aafc.objectstore.api.storage.FileStorage;
 
-import io.minio.BucketExistsArgs;
-import io.minio.MakeBucketArgs;
-import io.minio.MinioClient;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import javax.inject.Inject;
 import lombok.SneakyThrows;
 
-@ContextConfiguration(initializers = MinioTestContainerInitializer.class)
+@ContextConfiguration(initializers = VersityWGTestContainerInitializer.class)
 @SpringBootTest(properties = {"dev-user.enabled=true", "dina.fileStorage.implementation=S3"})
 class S3FileServiceTest extends BaseIntegrationTest {
 
   public static final String BUCKET = "bucket";
 
   @Inject
-  private FileStorage fileService;
+  private FileStorage fileStorage;
 
   @Inject
-  private MinioClient client;
+  private S3FileManagement fileManagement;
 
   @SneakyThrows
   @BeforeEach
   void setUp() {
-    if (!client.bucketExists(BucketExistsArgs.builder().bucket(BUCKET).build())) {
-      client.makeBucket(MakeBucketArgs.builder().bucket(BUCKET).build());
-    }
+    fileManagement.ensureBucketExists(BUCKET);
   }
 
   @SneakyThrows
@@ -44,7 +38,7 @@ class S3FileServiceTest extends BaseIntegrationTest {
   void storeFile_whenFileExists_FileOverWritten() {
     String fileName = "name";
     byte[] firstFile = "firstFile".getBytes();
-    fileService.storeFile(
+    fileStorage.storeFile(
       BUCKET,
       fileName,
       false,
@@ -54,7 +48,7 @@ class S3FileServiceTest extends BaseIntegrationTest {
     Assertions.assertArrayEquals(firstFile, returnBytesForFile(fileName));
 
     byte[] expected = "dina".getBytes();
-    fileService.storeFile(
+    fileStorage.storeFile(
       BUCKET,
       fileName,
       false,
@@ -71,7 +65,7 @@ class S3FileServiceTest extends BaseIntegrationTest {
     byte[] bytes = "dina".getBytes();
     String fileName = "name";
 
-    fileService.storeFile(
+    fileStorage.storeFile(
       BUCKET,
       fileName,
       false,
@@ -85,7 +79,7 @@ class S3FileServiceTest extends BaseIntegrationTest {
   @SneakyThrows
   @Test
   void getFile_WhenFileDoesNotExist_OptionalEmptyReturned() {
-    Assertions.assertFalse(fileService.retrieveFile(BUCKET,"fileName", false).isPresent());
+    Assertions.assertFalse(fileStorage.retrieveFile(BUCKET,"fileName", false).isPresent());
   }
 
   @SneakyThrows
@@ -94,7 +88,7 @@ class S3FileServiceTest extends BaseIntegrationTest {
     byte[] bytes = "dina".getBytes();
     String fileName = "name";
 
-    fileService.storeFile(
+    fileStorage.storeFile(
       BUCKET,
       fileName,
       false,
@@ -102,7 +96,7 @@ class S3FileServiceTest extends BaseIntegrationTest {
       new ByteArrayInputStream(bytes)
     );
 
-    Assertions.assertFalse(fileService.retrieveFile("fake", fileName,false).isPresent());
+    Assertions.assertFalse(fileStorage.retrieveFile("fake", fileName,false).isPresent());
   }
 
   @SneakyThrows
@@ -111,7 +105,7 @@ class S3FileServiceTest extends BaseIntegrationTest {
     byte[] bytes = "dina".getBytes();
     String fileName = "name";
 
-    fileService.storeFile(
+    fileStorage.storeFile(
       BUCKET,
       fileName,
       false,
@@ -119,13 +113,13 @@ class S3FileServiceTest extends BaseIntegrationTest {
       new ByteArrayInputStream(bytes)
     );
 
-    Assertions.assertTrue(fileService.getFileInfo(BUCKET, fileName,false).isPresent());
+    Assertions.assertTrue(fileStorage.getFileInfo(BUCKET, fileName,false).isPresent());
   }
 
   @SneakyThrows
   @Test
   void getFileInfo_WhenNoFile_OptionalEmptyReturned() {
-    Assertions.assertFalse(fileService.getFileInfo(BUCKET, "nosuchfile",false).isPresent());
+    Assertions.assertFalse(fileStorage.getFileInfo(BUCKET, "nosuchfile",false).isPresent());
   }
 
   @SneakyThrows
@@ -134,7 +128,7 @@ class S3FileServiceTest extends BaseIntegrationTest {
     byte[] bytes = "dina".getBytes();
     String fileName = "name";
 
-    fileService.storeFile(
+    fileStorage.storeFile(
       BUCKET,
       fileName,
       false,
@@ -142,9 +136,9 @@ class S3FileServiceTest extends BaseIntegrationTest {
       new ByteArrayInputStream(bytes)
     );
 
-    Assertions.assertTrue(fileService.retrieveFile(BUCKET, fileName,false).isPresent());
-    fileService.deleteFile(BUCKET, fileName, false);
-    Assertions.assertFalse(fileService.retrieveFile(BUCKET, fileName, false).isPresent());
+    Assertions.assertTrue(fileStorage.retrieveFile(BUCKET, fileName,false).isPresent());
+    fileStorage.deleteFile(BUCKET, fileName, false);
+    Assertions.assertFalse(fileStorage.retrieveFile(BUCKET, fileName, false).isPresent());
   }
 
 //  @Test
@@ -154,7 +148,7 @@ class S3FileServiceTest extends BaseIntegrationTest {
 //  }
 
   private byte[] returnBytesForFile(String fileName) throws IOException {
-    return IOUtils.toByteArray(fileService.retrieveFile(BUCKET, fileName, false)
+    return IOUtils.toByteArray(fileStorage.retrieveFile(BUCKET, fileName, false)
       .orElseThrow(() -> {
         Assertions.fail("The file was not persisted");
         return null;

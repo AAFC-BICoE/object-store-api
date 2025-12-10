@@ -129,7 +129,6 @@ public class MinioFileService implements FileStorage, FileInformationService {
     }
   }
 
-  @Override
   public void ensureBucketExists(String bucketName) throws IOException {
     try {
       if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build())) {

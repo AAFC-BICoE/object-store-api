@@ -40,9 +40,4 @@ public interface FileStorage {
   Optional<FileObjectInfo> getFileInfo(String bucketName, String fileName, boolean isDerivative)
       throws IOException;
 
-  /**
-   * Checks if the bucket exists and if it doesn't create it.
-   * @param bucketName
-   */
-  void ensureBucketExists(String bucketName) throws IOException;
 }
