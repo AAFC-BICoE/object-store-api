@@ -475,7 +475,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </li>
 <li><a href="#_configuration">4. Configuration</a>
 <ul class="sectlevel2">
-<li><a href="#_orphan_removal">4.1. Orphan Removal</a></li>
+<li><a href="#_file_storage">4.1. File Storage</a></li>
+<li><a href="#_orphan_removal">4.2. Orphan Removal</a></li>
 </ul>
 </li>
 <li><a href="#_media_type_detection">5. Media Type Detection</a>
@@ -913,7 +914,36 @@ use the original object as a source.</p>
 <h2 id="_configuration">4. Configuration</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_orphan_removal">4.1. Orphan Removal</h3>
+<h3 id="_file_storage">4.1. File Storage</h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Property</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dina.fileStorage.implementation</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>FS</code>, <code>S3</code> or <code>MINIO</code> (deprecated)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dina.fileStorage.root</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Only required for <code>FS</code>. Represents the root folder in the context of the container/pod.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>s3.*</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Only required for <code>S3</code> and <code>MINIO</code>. Represents the s3 specific configuration.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_orphan_removal">4.2. Orphan Removal</h3>
 <div class="paragraph">
 <p>The orphan removal cron job is responsible for identifying and removing orphan objects. Orphan objects are <code>object uploads</code> that do not have any matching file identifiers associated with <code>derivatives</code> or <code>metadata</code> objects.</p>
 </div>
@@ -1103,7 +1133,7 @@ The key is communicated using an event (message).</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-12-10 15:51:31 UTC
+Last updated 2025-12-10 16:11:57 UTC
 </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
