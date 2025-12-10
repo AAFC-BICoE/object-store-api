@@ -156,19 +156,17 @@ public class FSFileStorage implements FileStorage {
   }
 
   /**
-   * Writes an InputStream to a file on an NFS mount with strict data integrity guarantees.
+   * Writes an InputStream to a file with strict data integrity guarantees.
    * <p>
-   * This method employs a "Write-Temp-Sync-Move" strategy to overcome standard NFS
-   * caching and latency issues:
+   * This method employs a "Write-Temp-Sync-Move" strategy to overcome any IO issues:
    * <ol>
    *   <li>Creates a unique temporary file in the same directory as the target.</li>
    *   <li>Writes stream data to the temporary file.</li>
-   *   <li>Forces a physical disk sync (NFS COMMIT) using {@code FileChannel.force(true)}.</li>
    *   <li>Atomically renames the temporary file to the final destination.</li>
    * </ol>
    * This ensures that the destination file is never in a partial or corrupted state
    * visible to other clients, even if the application crashes or the network fails
-   * during the write operation.
+   * during the write operation (NFS).
    * </p>
    * <p>
    * <b>Note:</b> This implementation was assisted by AI.
@@ -235,6 +233,23 @@ public class FSFileStorage implements FileStorage {
     Files.copy(input, tempPath, StandardCopyOption.REPLACE_EXISTING);
   }
 
+  /**
+   * Writes an InputStream to a temp file on an NFS mount with strict data integrity guarantees.
+   * <p>
+   * <ol>
+   *   <li>Writes stream data to the temporary file.</li>
+   *   <li>Forces a physical disk sync (NFS COMMIT) using {@code FileChannel.force(true)}.</li>
+   * </ol>
+   * </p>
+   * <p>
+   * <b>Note:</b> This implementation was assisted by AI.
+   * </p>
+   *
+   * @param tempPath temp file path
+   * @param input      The source InputStream to read from.
+   * @throws IOException If the parent directory is invalid, the disk is full, the
+   *                     network fails, or the NFS server rejects the commit.
+   */
   private void writeNfs(Path tempPath, InputStream input) throws IOException {
     try (FileChannel ch = FileChannel.open(tempPath,
       StandardOpenOption.WRITE,
