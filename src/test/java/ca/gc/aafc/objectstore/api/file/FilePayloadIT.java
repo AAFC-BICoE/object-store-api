@@ -1,8 +1,7 @@
 package ca.gc.aafc.objectstore.api.file;
 
-import ca.gc.aafc.dina.testsupport.PostgresTestContainerInitializer;
+import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.ObjectStoreApiLauncher;
-import ca.gc.aafc.objectstore.api.minio.MinioTestContainerInitializer;
 import io.restassured.RestAssured;
 import io.restassured.builder.MultiPartSpecBuilder;
 import io.restassured.http.Header;
@@ -10,9 +9,7 @@ import io.restassured.specification.MultiPartSpecification;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 
@@ -23,9 +20,7 @@ import java.security.SecureRandom;
   "spring.config.additional-location=classpath:application-test.yml",
   "spring.servlet.multipart.max-file-size=1KB",
   "dev-user.enabled=true"})
-@Transactional
-@ContextConfiguration(initializers = {PostgresTestContainerInitializer.class, MinioTestContainerInitializer.class})
-public class FilePayloadIT {
+public class FilePayloadIT extends BaseIntegrationTest {
 
   @LocalServerPort
   protected int testPort;

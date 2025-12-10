@@ -8,13 +8,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
-import ca.gc.aafc.dina.testsupport.BaseRestAssuredTest;
 import ca.gc.aafc.dina.testsupport.PostgresTestContainerInitializer;
 import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
 import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.dina.testsupport.specs.OpenAPI3Assertions;
 import ca.gc.aafc.objectstore.api.ObjectStoreApiLauncher;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
+import ca.gc.aafc.objectstore.api.rest.ObjectStoreBaseRestAssuredTest;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MultilingualDescriptionFactory;
 import lombok.SneakyThrows;
 
@@ -26,7 +26,7 @@ import lombok.SneakyThrows;
 @TestPropertySource(properties = "spring.config.additional-location=classpath:application-test.yml")
 @Transactional
 @ContextConfiguration(initializers = {PostgresTestContainerInitializer.class})
-public class ObjectStoreManagedAttributeOpenApiIT extends BaseRestAssuredTest {
+public class ObjectStoreManagedAttributeOpenApiIT extends ObjectStoreBaseRestAssuredTest {
 
   private static final String SCHEMA_NAME = "ManagedAttribute";
   private static final String RESOURCE_UNDER_TEST = "managed-attribute";
