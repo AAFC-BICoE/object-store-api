@@ -8,6 +8,11 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class XlMetaFileDetector extends SimpleFileVisitor<Path> {
 
+    private boolean foundXlMeta = false;
+
+    public boolean isFoundXlMeta() {
+        return foundXlMeta;
+    }
     @Override
     public java.nio.file.FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
         if(attrs.isRegularFile()) {
