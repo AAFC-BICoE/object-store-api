@@ -9,18 +9,22 @@ import javax.persistence.Column;
 import java.time.OffsetDateTime;
 import lombok.Data;
 
+/**
+ * Internal structure to record information about the system to ease
+ * migrations between versions.
+ */
 @Entity
 @Table(name = "migrations_hints")
 @Data
 public class MigrationHint {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Integer id;
 
-    @Column(name = "hint_key", nullable = false, unique = true)
-    private String hintKey;
+  @Column(name = "hint_key", nullable = false, unique = true)
+  private String hintKey;
 
-    @Column(name = "created_on")
-    private OffsetDateTime createdOn;
+  @Column(name = "created_on")
+  private OffsetDateTime createdOn;
 }
