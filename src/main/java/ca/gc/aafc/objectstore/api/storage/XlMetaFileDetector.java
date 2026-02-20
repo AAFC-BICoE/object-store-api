@@ -33,7 +33,8 @@ public class XlMetaFileDetector extends SimpleFileVisitor<Path> {
   @Override
   public java.nio.file.FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
     if (attrs.isRegularFile()) {
-      if (file.getFileName().toString().equals("xl.meta")) {
+      Path fileName = file.getFileName();
+      if (fileName != null && "xl.meta".equals(fileName.toString())) {
         log.info(
           "Found xl.meta file in FS storage directory. Please ensure that the previous data in this directory was not erasure coded.");
         foundXlMeta = true;
