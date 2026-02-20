@@ -9,6 +9,7 @@ import ca.gc.aafc.objectstore.api.storage.XlMetaFileDetector;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 
+import java.io.IOException;
 import java.nio.file.Path;
 
 import lombok.extern.log4j.Log4j2;
@@ -64,7 +65,7 @@ public class StartupChecks {
             log.warn("FS startup check terminated early (xl.meta found), marker not set.");
           }
         }
-      } catch (Exception e) {
+      } catch (IOException e) {
         log.error("FS startup check failed: {}", e.getMessage());
       }
     }

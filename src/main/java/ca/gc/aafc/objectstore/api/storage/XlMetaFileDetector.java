@@ -1,11 +1,12 @@
 package ca.gc.aafc.objectstore.api.storage;
 
-import static java.nio.file.FileVisitResult.*;
-
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.SimpleFileVisitor;
 import lombok.extern.log4j.Log4j2;
+
+import static java.nio.file.FileVisitResult.CONTINUE;
+import static java.nio.file.FileVisitResult.TERMINATE;
 
 /**
  * A file visitor that detects the presence of xl.meta files in a file system directory tree.
