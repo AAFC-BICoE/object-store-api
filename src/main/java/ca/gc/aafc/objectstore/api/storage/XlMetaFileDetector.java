@@ -5,6 +5,19 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.SimpleFileVisitor;
 import lombok.extern.log4j.Log4j2;
 
+/**
+ * A file visitor that detects the presence of xl.meta files in a file system directory tree.
+ * 
+ * The object-store-api using the FS storage implementation will not be able to read files uploaded 
+ * to a MinIO bucket that has erasure coding enabled.  
+ * MinIO creates xl.meta files in directories that are erasure coded, which is not compatible 
+ * with the Object Store API's FS file storage implementation. 
+ * 
+ * The visitor traverses the FS storage file tree  and terminates immediately upon finding the first
+ * xl.meta file, avoiding unnecessary traversal of the entire directory tree.
+ * 
+ * @see java.nio.file.SimpleFileVisitor
+ */
 @Log4j2
 public class XlMetaFileDetector extends SimpleFileVisitor<Path> {
 
