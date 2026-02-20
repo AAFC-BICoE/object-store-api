@@ -1,5 +1,20 @@
 = Configuration
 
+== File Storage
+
+|===
+|Property |Description
+
+|`dina.fileStorage.implementation`
+| `FS`, `S3` or `MINIO` (deprecated)
+
+|`dina.fileStorage.root`
+| Only required for `FS`. Represents the root folder in the context of the container/pod.
+
+|`s3.*`
+| Only required for `S3` and `MINIO`. Represents the s3 specific configuration.
+|===
+
 == Orphan Removal
 
 The orphan removal cron job is responsible for identifying and removing orphan objects. Orphan objects are `object uploads` that do not have any matching file identifiers associated with `derivatives` or `metadata` objects.

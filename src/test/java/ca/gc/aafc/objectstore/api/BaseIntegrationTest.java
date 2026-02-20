@@ -11,15 +11,19 @@ import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
 import ca.gc.aafc.objectstore.api.service.ObjectSubtypeService;
 import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
 
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.file.Path;
 import java.util.Properties;
 import java.util.concurrent.Future;
 import javax.inject.Inject;
@@ -30,6 +34,16 @@ import javax.inject.Inject;
 @ContextConfiguration(initializers = {PostgresTestContainerInitializer.class})
 @Import(BaseIntegrationTest.ObjectStoreModuleTestConfiguration.class)
 public abstract class BaseIntegrationTest {
+
+  // let junit create a temp dir for us
+  @TempDir
+  static Path rootTempDir;
+
+  // replace the root with that tmp dir to make sure it exists
+  @DynamicPropertySource
+  static void registerProperties(DynamicPropertyRegistry registry) {
+    registry.add("dina.fileStorage.root", () -> rootTempDir.toAbsolutePath().toString());
+  }
 
   @Inject
   protected DatabaseSupportService service;

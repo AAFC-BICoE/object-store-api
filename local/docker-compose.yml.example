@@ -8,13 +8,22 @@ services:
     volumes:
       - ${BASE_PATH_TO_OBJECT_STORE:-.}/src/test/resources/create-test-users.sql:/docker-entrypoint-initdb.d/1-init-schema.sql
 
-  minio:
-    image: minio/minio
+  versitygw:
+    image: versity/versitygw:latest
+    container_name: versitygw
+    # The command tells Versity to use the 'posix' backend
+    command: posix /data
+    environment:
+      # S3 Credentials
+      - ROOT_ACCESS_KEY=myaccesskey
+      - ROOT_SECRET_KEY=mysecretkey
+      - VGW_HEALTH=/health
+      - VGW_REGION=none
+    ports:
+      - "7070:7070"
     volumes:
-      - ./minio-data:/data
-    env_file:
-      - ${BASE_PATH_TO_OBJECT_STORE:-.}/minio.env
-    command: server /data
+      # Map your host folder to the container
+      - ./versity_data:/data
 
   object-store-api:
     image: aafcbicoe/object-store-api:0.40

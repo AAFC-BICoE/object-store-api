@@ -22,7 +22,6 @@ import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.file.FileController;
 import ca.gc.aafc.objectstore.api.file.TemporaryObjectAccessController;
-import ca.gc.aafc.objectstore.api.minio.MinioFileService;
 import ca.gc.aafc.objectstore.api.minio.MinioTestContainerInitializer;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MultipartFileFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
@@ -56,9 +55,6 @@ public class ObjectExportServiceIT extends BaseIntegrationTest {
 
   @Inject
   private FileController fileController;
-
-  @Inject
-  private MinioFileService minioFileService;
 
   @Inject
   private ObjectExportService objectExportService;

@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
-import ca.gc.aafc.dina.testsupport.BaseRestAssuredTest;
 import ca.gc.aafc.dina.testsupport.PostgresTestContainerInitializer;
 import ca.gc.aafc.dina.testsupport.factories.TestableEntityFactory;
 import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
@@ -29,7 +28,7 @@ import static org.hamcrest.Matchers.not;
 @TestPropertySource(properties = "spring.config.additional-location=classpath:application-test.yml")
 @Transactional
 @ContextConfiguration(initializers = {PostgresTestContainerInitializer.class})
-public class ObjectStoreManagedAttributeRestIT extends BaseRestAssuredTest {
+public class ObjectStoreManagedAttributeRestIT extends ObjectStoreBaseRestAssuredTest {
 
   protected ObjectStoreManagedAttributeRestIT() {
     super("/api/v1/");

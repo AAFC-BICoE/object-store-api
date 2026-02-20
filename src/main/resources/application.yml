@@ -21,6 +21,11 @@ minio:
   port:  9000
   accessKey:  minio	
   secretKey:  minio123
+s3:
+  endpoint: http://localhost
+  port: 9000
+  accessKey: minio
+  secretKey: minio123
 crnk:
   pathPrefix: /api/v1
   domainName: ""
@@ -86,6 +91,10 @@ dina:
   export:
     maxObjectExportSize: 2GB
   apiPrefix: /api/v1
+  fileStorage:
+    # FS, S3 or MINIO
+    implementation: MINIO
+   # root: "/tmp/dina-nfs"
 
 rabbitmq:
   queue: dina.search.queue

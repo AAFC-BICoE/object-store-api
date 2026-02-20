@@ -15,7 +15,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.context.WebApplicationContext;
@@ -36,7 +35,6 @@ import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
-import ca.gc.aafc.objectstore.api.minio.MinioTestContainerInitializer;
 import ca.gc.aafc.objectstore.api.repository.ObjectStoreMetadataRepositoryV2;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MultipartFileFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
@@ -55,7 +53,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 import javax.inject.Inject;
 
-@ContextConfiguration(initializers = MinioTestContainerInitializer.class)
 @SpringBootTest(properties = "keycloak.enabled = true")
 public class FileControllerIT extends BaseIntegrationTest {
 

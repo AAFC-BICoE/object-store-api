@@ -1,6 +1,5 @@
 package ca.gc.aafc.objectstore.api.openapi;
 
-import ca.gc.aafc.dina.testsupport.BaseRestAssuredTest;
 import ca.gc.aafc.dina.testsupport.DatabaseSupportService;
 import ca.gc.aafc.dina.testsupport.PostgresTestContainerInitializer;
 import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPIRelationship;
@@ -15,6 +14,7 @@ import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
+import ca.gc.aafc.objectstore.api.rest.ObjectStoreBaseRestAssuredTest;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreManagedAttributeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
@@ -43,7 +43,7 @@ import java.util.UUID;
 @TestPropertySource(properties = "spring.config.additional-location=classpath:application-test.yml")
 @Transactional
 @ContextConfiguration(initializers = { PostgresTestContainerInitializer.class })
-public class ObjectStoreMetadataOpenApiIT extends BaseRestAssuredTest {
+public class ObjectStoreMetadataOpenApiIT extends ObjectStoreBaseRestAssuredTest {
 
   @Inject
   protected DatabaseSupportService service;

@@ -1,6 +1,5 @@
 package ca.gc.aafc.objectstore.api.rest;
 
-import ca.gc.aafc.dina.testsupport.BaseRestAssuredTest;
 import ca.gc.aafc.dina.testsupport.PostgresTestContainerInitializer;
 import ca.gc.aafc.objectstore.api.ObjectStoreApiLauncher;
 import io.restassured.response.ValidatableResponse;
@@ -19,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 @TestPropertySource(properties = "spring.config.additional-location=classpath:application-test.yml")
 @Transactional
 @ContextConfiguration(initializers = {PostgresTestContainerInitializer.class})
-public class ConfigRepoRestIT extends BaseRestAssuredTest {
+public class ConfigRepoRestIT extends ObjectStoreBaseRestAssuredTest {
   protected ConfigRepoRestIT() {
     super("/api/v1/config");
   }

@@ -17,14 +17,12 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
-import ca.gc.aafc.dina.testsupport.BaseRestAssuredTest;
 import ca.gc.aafc.dina.testsupport.PostgresTestContainerInitializer;
 import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.ObjectStoreApiLauncher;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.dto.ResourceNameIdentifierResponseDto;
-import ca.gc.aafc.objectstore.api.minio.MinioTestContainerInitializer;
 import ca.gc.aafc.objectstore.api.testsupport.fixtures.ObjectStoreMetadataTestFixture;
 
 import static io.restassured.RestAssured.given;
@@ -36,10 +34,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
   properties = "dev-user.enabled=true"
 )
 @TestPropertySource(properties = {"spring.config.additional-location=classpath:application-test.yml"})
-@ContextConfiguration(initializers = {PostgresTestContainerInitializer.class,
-  MinioTestContainerInitializer.class})
+@ContextConfiguration(initializers = PostgresTestContainerInitializer.class)
 @Import(BaseIntegrationTest.ObjectStoreModuleTestConfiguration.class)
-public class ResourceNameIdentifierRepositoryIT extends BaseRestAssuredTest {
+public class ResourceNameIdentifierRepositoryIT extends ObjectStoreBaseRestAssuredTest {
 
   @LocalServerPort
   protected int testPort;

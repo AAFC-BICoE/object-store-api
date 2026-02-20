@@ -1,7 +1,12 @@
 package ca.gc.aafc.objectstore.api.crud;
 
+import java.nio.file.Path;
+
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 
 /**
  * Base class for CRUD-based Integration tests. The main purpose is to ensure

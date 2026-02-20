@@ -13,16 +13,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.util.NestedServletException;
 
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.config.MediaTypeConfiguration;
-import ca.gc.aafc.objectstore.api.minio.MinioTestContainerInitializer;
 
-@ContextConfiguration(initializers = MinioTestContainerInitializer.class)
 @SpringBootTest(properties = "keycloak.enabled = true")
 public class FileUploadIT extends BaseIntegrationTest {
 

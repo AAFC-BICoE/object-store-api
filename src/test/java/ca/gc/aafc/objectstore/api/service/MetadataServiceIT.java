@@ -14,8 +14,8 @@ import ca.gc.aafc.objectstore.api.config.AsyncOverrideConfig;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.file.FileController;
-import ca.gc.aafc.objectstore.api.minio.MinioFileService;
 import ca.gc.aafc.objectstore.api.minio.MinioTestContainerInitializer;
+import ca.gc.aafc.objectstore.api.storage.FileStorage;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MultipartFileFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 
@@ -44,7 +44,7 @@ public class MetadataServiceIT extends BaseIntegrationTest {
   private FileController fileController;
 
   @Inject
-  private MinioFileService minioFileService;
+  private FileStorage fileStorage;
 
   @Test
   public void endToEndMetadataServiceTest()
@@ -72,12 +72,12 @@ public class MetadataServiceIT extends BaseIntegrationTest {
 
     // 4 - Make sure we can load the file
     String thumbnailFilename = thumbnail.get().getFileIdentifier() + thumbnail.get().getFileExtension();
-    Optional<InputStream> file = minioFileService.retrieveFile(TEST_BUCKET_NAME, thumbnailFilename, true);
+    Optional<InputStream> file = fileStorage.retrieveFile(TEST_BUCKET_NAME, thumbnailFilename, true);
     assertTrue(file.isPresent());
 
     // Deleting the metadata should also delete the derivative and the system generated thumbnail
     objectStoreMetaDataService.delete(osm);
-    file = minioFileService.retrieveFile(TEST_BUCKET_NAME, thumbnailFilename, true);
+    file = fileStorage.retrieveFile(TEST_BUCKET_NAME, thumbnailFilename, true);
     assertFalse(file.isPresent());
   }
 
