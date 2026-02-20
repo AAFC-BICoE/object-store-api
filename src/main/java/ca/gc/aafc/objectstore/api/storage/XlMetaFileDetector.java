@@ -31,6 +31,7 @@ public class XlMetaFileDetector extends SimpleFileVisitor<Path> {
         if(attrs.isRegularFile()) {
             if (file.getFileName().toString().equals("xl.meta")) {
                 log.info("Found xl.meta file in FS storage directory. Please ensure that the previous data in this directory was not erasure coded.");
+                foundXlMeta = true;
                 return TERMINATE; // Stop traversal once a .xlmeta file is found
             }
         } 
