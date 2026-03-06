@@ -10,7 +10,6 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.context.ContextConfiguration;
 
 import ca.gc.aafc.dina.repository.JsonApiModelAssistant;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
@@ -22,7 +21,6 @@ import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.file.FileController;
 import ca.gc.aafc.objectstore.api.file.TemporaryObjectAccessController;
-import ca.gc.aafc.objectstore.api.minio.MinioTestContainerInitializer;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MultipartFileFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 
@@ -43,7 +41,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.inject.Inject;
 
-@ContextConfiguration(initializers = MinioTestContainerInitializer.class)
 @Import(AsyncOverrideConfig.class)
 public class ObjectExportServiceIT extends BaseIntegrationTest {
 

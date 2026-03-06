@@ -23,7 +23,6 @@ import ca.gc.aafc.objectstore.api.repository.ObjectStoreMetadataRepositoryV2;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 
-import io.minio.MinioClient;
 import java.util.UUID;
 import javax.inject.Inject;
 
@@ -33,9 +32,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(properties = "keycloak.enabled=true")
 public class MetadataAuthorizationIT extends BaseIntegrationTest {
-
-  @MockBean
-  private MinioClient minioClient;
 
   @Inject
   private ObjectStoreMetadataRepositoryV2 repo;

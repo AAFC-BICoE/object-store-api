@@ -5,9 +5,8 @@ import java.nio.file.Paths;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
 import org.springframework.stereotype.Service;
-
-import com.google.common.base.Preconditions;
 
 /**
  * A FolderStructureStrategy allows to return a folder structure based on a filename. The main purpose
@@ -33,9 +32,9 @@ public class FolderStructureStrategy {
    */
   public Path getPathFor(String filename, boolean isDerivative) {
     Objects.requireNonNull(filename, "filename shall be provided");
-    Preconditions.checkArgument(filename.length() >= 4,
+    Validate.isTrue(filename.length() >= 4,
         "FolderStructureStrategy requires at least 4 characters:" + filename);
-    Preconditions.checkArgument(StringUtils.isAlphanumeric(filename.substring(0, 4)),
+    Validate.isTrue(StringUtils.isAlphanumeric(filename.substring(0, 4)),
         "FolderStructureStrategy requires the first 4 characters to be alphanumeric:" + filename);
 
     Path path = Paths.get(filename.substring(0, 2), filename.substring(2, 4),
@@ -44,7 +43,6 @@ public class FolderStructureStrategy {
     if (isDerivative) {
       return Paths.get(DERIVATIVES_ROOT_FOLDER).resolve(path);
     }
-
     return path;
   }
 
