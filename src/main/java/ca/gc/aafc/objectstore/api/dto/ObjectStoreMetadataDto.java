@@ -15,6 +15,7 @@ import com.toedter.spring.hateoas.jsonapi.JsonApiTypeForClass;
 import ca.gc.aafc.dina.dto.ExternalRelationDto;
 import ca.gc.aafc.dina.dto.JsonApiResource;
 import ca.gc.aafc.dina.dto.RelatedEntity;
+import ca.gc.aafc.dina.jsonapi.JsonApiImmutable;
 import ca.gc.aafc.dina.repository.meta.JsonApiExternalRelation;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
@@ -50,6 +51,11 @@ public class ObjectStoreMetadataDto implements JsonApiResource {
   private String filename;
 
   private String fileExtension;
+
+  // calculated field
+  @JsonApiImmutable({JsonApiImmutable.ImmutableOn.UPDATE, JsonApiImmutable.ImmutableOn.CREATE})
+  private Boolean isExternalResource;
+
   private String resourceExternalURL;
 
   private String sourceSet;

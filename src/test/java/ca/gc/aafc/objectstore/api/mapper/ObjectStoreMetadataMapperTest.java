@@ -87,4 +87,14 @@ public class ObjectStoreMetadataMapperTest {
     assertEquals(derivativeEntity.getFileIdentifier(), dto.getDerivatives().getFirst().getFileIdentifier());
   }
 
+  @Test
+  public void testExternalResource() {
+
+    ObjectStoreMetadata entity = ObjectStoreMetadataFactory.newEmptyObjectStoreMetadata();
+    entity.setResourceExternalURL("https://www.example.com");
+
+    ObjectStoreMetadataDto dto = ObjectStoreMetadataMapper.INSTANCE.toDto(entity, Set.of("isExternalResource"), null);
+    assertTrue(dto.getIsExternalResource());
+  }
+
 }
