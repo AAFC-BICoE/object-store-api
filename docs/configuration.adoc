@@ -6,13 +6,13 @@
 |Property |Description
 
 |`dina.fileStorage.implementation`
-| `FS`, `S3` or `MINIO` (deprecated)
+| `FS` or `S3`
 
 |`dina.fileStorage.root`
 | Only required for `FS`. Represents the root folder in the context of the container/pod.
 
 |`s3.*`
-| Only required for `S3` and `MINIO`. Represents the s3 specific configuration.
+| Only required for `S3`. Represents the s3 specific configuration.
 |===
 
 == Orphan Removal
