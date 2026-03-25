@@ -460,15 +460,16 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </li>
 <li><a href="#_api">3. API</a>
 <ul class="sectlevel2">
-<li><a href="#_additional_endpoints">3.1. Additional Endpoints</a>
+<li><a href="#_open_api">3.1. Open API</a></li>
+<li><a href="#_additional_endpoints">3.2. Additional Endpoints</a>
 <ul class="sectlevel3">
-<li><a href="#_resource_name_identifier">3.1.1. resource-name-identifier</a></li>
+<li><a href="#_resource_name_identifier">3.2.1. resource-name-identifier</a></li>
 </ul>
 </li>
-<li><a href="#_administrative_endpoints">3.2. Administrative Endpoints</a>
+<li><a href="#_administrative_endpoints">3.3. Administrative Endpoints</a>
 <ul class="sectlevel3">
-<li><a href="#_regenerate_thumbnails">3.2.1. Regenerate Thumbnails</a></li>
-<li><a href="#_index_refresh">3.2.2. Index Refresh</a></li>
+<li><a href="#_regenerate_thumbnails">3.3.1. Regenerate Thumbnails</a></li>
+<li><a href="#_index_refresh">3.3.2. Index Refresh</a></li>
 </ul>
 </li>
 </ul>
@@ -834,9 +835,15 @@ The user must be SUPER_USER on the target group (bucket) and the filename (uuid)
 <h2 id="_api">3. API</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_additional_endpoints">3.1. Additional Endpoints</h3>
+<h3 id="_open_api">3.1. Open API</h3>
+<div class="paragraph">
+<p>Object-Store Open API <a href="https://www.dina-project.net/object-store-specs/">specifications</a>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_additional_endpoints">3.2. Additional Endpoints</h3>
 <div class="sect3">
-<h4 id="_resource_name_identifier">3.1.1. resource-name-identifier</h4>
+<h4 id="_resource_name_identifier">3.2.1. resource-name-identifier</h4>
 <div class="paragraph">
 <p>Get the identifier (UUID) based on the name, the type and the group.</p>
 </div>
@@ -856,12 +863,12 @@ The user must be SUPER_USER on the target group (bucket) and the filename (uuid)
 </div>
 </div>
 <div class="sect2">
-<h3 id="_administrative_endpoints">3.2. Administrative Endpoints</h3>
+<h3 id="_administrative_endpoints">3.3. Administrative Endpoints</h3>
 <div class="paragraph">
 <p>Unless explicitly mentioned administrative endpoints require <code>DINA_ADMIN</code> role.</p>
 </div>
 <div class="sect3">
-<h4 id="_regenerate_thumbnails">3.2.1. Regenerate Thumbnails</h4>
+<h4 id="_regenerate_thumbnails">3.3.1. Regenerate Thumbnails</h4>
 <div class="paragraph">
 <p>Send a POST request to <code>derivative-generation</code> with a body like:</p>
 </div>
@@ -886,7 +893,7 @@ use the original object as a source.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_index_refresh">3.2.2. Index Refresh</h4>
+<h4 id="_index_refresh">3.3.2. Index Refresh</h4>
 <div class="paragraph">
 <p>Trigger a message to (re)index a resource.</p>
 </div>
@@ -1133,7 +1140,7 @@ The key is communicated using an event (message).</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-03-12 12:20:19 UTC
+Last updated 2026-03-25 12:40:57 UTC
 </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
