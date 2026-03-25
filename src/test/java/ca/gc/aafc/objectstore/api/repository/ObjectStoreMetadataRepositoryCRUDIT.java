@@ -5,7 +5,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -43,7 +42,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import io.minio.MinioClient;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -55,9 +53,6 @@ import javax.validation.ValidationException;
 public class ObjectStoreMetadataRepositoryCRUDIT extends ObjectStoreModuleBaseRepositoryIT {
 
   private static final String BASE_URL = "/api/v1/" + ObjectStoreMetadataDto.TYPENAME;
-
-  @MockBean
-  private MinioClient minioClient;
 
   @Autowired
   private WebApplicationContext wac;

@@ -15,15 +15,9 @@ embedded.postgresql:
   database: object_store_test
   schema: object_store
   max_connection: 250
-embedded.minio:
-  enabled: true
-  image: minio/minio:RELEASE.2022-05-04T07-45-27Z
-external-types:
-  providerMap:
-    person: "Agent/api/v1/person"
 dina:
   auditing.enabled: true
   fileStorage:
-    # FS, S3 or MINIO
+    # FS, S3
     implementation: FS
     root: "/tmp/dina-nfs"

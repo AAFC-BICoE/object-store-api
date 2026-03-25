@@ -14,7 +14,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.context.ContextConfiguration;
 
 import ca.gc.aafc.dina.exception.ResourceNotFoundException;
 import ca.gc.aafc.dina.jsonapi.JsonApiDocument;
@@ -27,7 +26,6 @@ import ca.gc.aafc.objectstore.api.dto.DerivativeGenerationDto;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.file.FileController;
-import ca.gc.aafc.objectstore.api.minio.MinioTestContainerInitializer;
 import ca.gc.aafc.objectstore.api.storage.FileStorage;
 import ca.gc.aafc.objectstore.api.testsupport.factories.DerivativeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MultipartFileFactory;
@@ -36,7 +34,6 @@ import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFacto
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@ContextConfiguration(initializers = MinioTestContainerInitializer.class)
 @Import(AsyncOverrideConfig.class)
 public class DerivativeGenerationRepositoryIT extends BaseIntegrationTest {
 
