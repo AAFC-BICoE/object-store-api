@@ -30,8 +30,7 @@ import ca.gc.aafc.dina.dto.JsonApiDtoMeta;
 import ca.gc.aafc.dina.entity.DinaEntity;
 import ca.gc.aafc.dina.exception.ResourceGoneException;
 import ca.gc.aafc.dina.exception.ResourceNotFoundException;
-import ca.gc.aafc.dina.mapper.DinaMapper;
-import ca.gc.aafc.dina.mapper.DinaMappingLayer;
+import ca.gc.aafc.dina.mapper.DinaMappingRegistry;
 import ca.gc.aafc.dina.repository.JsonApiModelAssistant;
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.dina.util.UUIDHelper;
@@ -41,6 +40,7 @@ import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.exif.ExifParser;
+import ca.gc.aafc.objectstore.api.mapper.ObjectUploadMapper;
 import ca.gc.aafc.objectstore.api.repository.ObjectUploadResourceRepository;
 import ca.gc.aafc.objectstore.api.security.FileControllerAuthorizationService;
 import ca.gc.aafc.objectstore.api.service.DerivativeService;
@@ -81,7 +81,6 @@ public class FileController {
   private static final int MAX_NUMBER_OF_ATTEMPT_RANDOM_UUID = 5;
 
   private final FileControllerAuthorizationService authorizationService;
-  private final DinaMappingLayer<ObjectUploadDto, ObjectUpload> mappingLayer;
 
   private final ObjectUploadService objectUploadService;
   private final DerivativeService derivativeService;
@@ -95,6 +94,7 @@ public class FileController {
   private final MediaTypeConfiguration mediaTypeConfiguration;
 
   private final JsonApiModelAssistant<ObjectUploadDto> jsonApiModelAssistant;
+  private final DinaMappingRegistry dinaMappingRegistry;
 
   // request scoped bean
   private final DinaAuthenticatedUser authenticatedUser;
@@ -124,11 +124,8 @@ public class FileController {
     this.derivativeService = derivativeService;
     this.mediaTypeConfiguration = mediaTypeConfiguration;
 
-    this.mappingLayer = new DinaMappingLayer<>(
-      ObjectUploadDto.class, objectUploadService,
-      new DinaMapper<>(ObjectUploadDto.class));
-
     this.jsonApiModelAssistant = new JsonApiModelAssistant<>(buildProperties.getVersion());
+    this.dinaMappingRegistry = new DinaMappingRegistry(ObjectUploadDto.class);
   }
 
   @PostMapping(value = "/file/{bucket}/derivative", produces = JSON_API_VALUE)
@@ -469,7 +466,9 @@ public class FileController {
       .exif(exifData)
       .isDerivative(isDerivative)
       .build());
-    ObjectUploadDto dto = mapObjectUpload(objectUpload);
+
+    ObjectUploadDto dto = ObjectUploadMapper.INSTANCE
+      .toDto(objectUpload, dinaMappingRegistry.getAttributesForClass(ObjectUploadDto.class), null);
 
     var jsonApiDtoBuilder = JsonApiDto.<ObjectUploadDto>builder()
       .dto(dto);
@@ -515,9 +514,5 @@ public class FileController {
       numberOfAttempt++;
     }
     throw new IllegalStateException("Can't assign unique UUID. Giving up.");
-  }
-
-  private ObjectUploadDto mapObjectUpload(ObjectUpload objectUpload) {
-    return mappingLayer.toDtoSimpleMapping(objectUpload);
   }
 }

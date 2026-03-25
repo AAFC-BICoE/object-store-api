@@ -32,6 +32,7 @@ public interface ObjectStoreMetadataMapper
 
   @Mapping(target = "acMetadataCreator", expression = "java(MapperStaticConverter.uuidToExternalRelation(entity.getAcMetadataCreator(), \"person\"))")
   @Mapping(target = "dcCreator", expression = "java(MapperStaticConverter.uuidToExternalRelation(entity.getDcCreator(), \"person\"))")
+  @Mapping(target = "isExternalResource", expression = "java(entity.isExternal())")
   ObjectStoreMetadataDto toDto(ObjectStoreMetadata entity, @Context Set<String> provided, @Context String scope);
 
   /**
