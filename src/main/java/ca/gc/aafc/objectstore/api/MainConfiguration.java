@@ -1,7 +1,6 @@
 package ca.gc.aafc.objectstore.api;
 
 import org.mybatis.spring.annotation.MapperScan;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -21,7 +20,6 @@ import ca.gc.aafc.dina.config.ResourceNameIdentifierConfig;
 import ca.gc.aafc.dina.service.JaversDataService;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 
-import io.minio.MinioClient;
 import java.util.concurrent.Executor;
 
 @Configuration
@@ -34,21 +32,6 @@ import java.util.concurrent.Executor;
 public class MainConfiguration {
 
   public static final String DINA_THREAD_POOL_BEAN_NAME = "DinaThreadPoolTaskExecutor";
-
-  @Bean
-  @ConditionalOnMissingBean
-  public MinioClient initMinioClient(
-    @Value("${minio.scheme:}") String protocol,
-    @Value("${minio.host:}") String host,
-    @Value("${minio.port:}") int port,
-    @Value("${minio.accessKey:}") String accessKey,
-    @Value("${minio.secretKey:}") String secretKey
-  ) {
-    String endpoint = protocol + "://" + host;
-    return MinioClient.builder()
-      .endpoint(endpoint, port, false)
-      .credentials(accessKey, secretKey).build();
-  }
 
   @Bean(name = DINA_THREAD_POOL_BEAN_NAME)
   @ConditionalOnMissingBean
@@ -76,10 +59,7 @@ public class MainConfiguration {
       .withPageMetaAutomaticallyCreated(false)
       .withObjectMapperCustomizer(objectMapper -> {
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-      //  objectMapper.addMixIn(ObjectStoreMetadataDto.class, ObjectStoreMetadataDtoMixin.class);
-      //  objectMapper.addMixIn(DerivativeDto.class, DerivativeDtoMixin.class);
         objectMapper.registerModule(new JavaTimeModule());
       });
   }
-
 }

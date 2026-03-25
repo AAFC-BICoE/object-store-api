@@ -9,20 +9,17 @@ import org.apache.tika.mime.MimeTypeException;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.context.ContextConfiguration;
 
 import ca.gc.aafc.dina.repository.JsonApiModelAssistant;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.config.MediaTypeConfiguration;
 import ca.gc.aafc.objectstore.api.file.FileController;
 import ca.gc.aafc.objectstore.api.file.TemporaryObjectAccessController;
-import ca.gc.aafc.objectstore.api.minio.MinioTestContainerInitializer;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MultipartFileFactory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@ContextConfiguration(initializers = MinioTestContainerInitializer.class)
 public class ReportTemplateUploadServiceIT extends BaseIntegrationTest {
 
   private static final String TEST_UPLOAD_FILE_NAME = "demo.ftlh";

@@ -1,5 +1,9 @@
 = API
 
+== Open API
+
+Object-Store Open API https://www.dina-project.net/object-store-specs/[specifications].
+
 == Additional Endpoints
 
 === resource-name-identifier
