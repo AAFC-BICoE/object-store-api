@@ -5,9 +5,10 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
+    if: ${{ github.ref == 'refs/heads/main' }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
       - name: Install asciidoctor
         run: |
            sudo apt-get install -y asciidoctor        
@@ -19,7 +20,6 @@ jobs:
       #     cp -r asciidoc/user-guide/images/. generated-docs/images
 
       - name: Deploy GitHub Pages (only on master branch)
-        # if: ${{ github.ref == 'refs/heads/main' }}
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
