@@ -7,6 +7,7 @@ import org.springframework.boot.info.BuildProperties;
 import org.springframework.context.annotation.Configuration;
 
 import ca.gc.aafc.dina.dto.ApiInfoDto;
+import ca.gc.aafc.objectstore.api.image.ImageConverter;
 
 @Configuration
 public class ApiInfoConfiguration {
@@ -21,9 +22,11 @@ public class ApiInfoConfiguration {
   private Boolean isConsumer;
 
   private final String apiVersion;
+  private final boolean magickCommandAvailable;
 
   public ApiInfoConfiguration(BuildProperties buildProperties) {
     this.apiVersion = buildProperties.getVersion();
+    this.magickCommandAvailable = ImageConverter.isToolAvailable();
   }
 
   public ApiInfoDto buildApiInfoDto() {
@@ -32,9 +35,11 @@ public class ApiInfoConfiguration {
     infoDto.setMessageProducer(isProducer);
     infoDto.setMessageConsumer(isConsumer);
 
-    Map<String, Object> moduleInfo = Map.of("storageImplementation", storageImplementation);
+    Map<String, Object> moduleInfo = Map.of(
+      "storageImplementation", storageImplementation,
+      "magickCommandAvailable", magickCommandAvailable);
+
     infoDto.setModuleInfo(moduleInfo);
     return infoDto;
   }
-
 }
