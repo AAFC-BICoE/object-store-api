@@ -1,4 +1,4 @@
-FROM aafcbicoe/object-store-api:1.32
+FROM aafcbicoe/object-store-api:1.33
 
 USER root
 RUN apt-get update && apt-get install -y --no-install-recommends git ca-certificates build-essential curl
