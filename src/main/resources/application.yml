@@ -20,6 +20,7 @@ s3:
   port: 9000
   accessKey: minio
   secretKey: minio123
+  region: us-east-1
 crnk:
   pathPrefix: /api/v1
   domainName: ""
