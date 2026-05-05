@@ -45,9 +45,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import javax.inject.Inject;
-import javax.persistence.criteria.Predicate;
-import javax.validation.ValidationException;
+import jakarta.inject.Inject;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.validation.ValidationException;
 
 @Import(AsyncOverrideConfig.class)
 public class ObjectStoreMetadataRepositoryCRUDIT extends ObjectStoreModuleBaseRepositoryIT {

@@ -1,6 +1,6 @@
 package ca.gc.aafc.objectstore.api.rest;
 
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 
 import ca.gc.aafc.dina.vocabulary.TypedVocabularyElement;
 import org.junit.jupiter.api.Test;

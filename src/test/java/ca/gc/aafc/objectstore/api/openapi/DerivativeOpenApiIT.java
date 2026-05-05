@@ -4,11 +4,11 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import javax.inject.Inject;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaDelete;
-import javax.persistence.criteria.Root;
-import javax.transaction.Transactional;
+import jakarta.inject.Inject;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaDelete;
+import jakarta.persistence.criteria.Root;
+import jakarta.transaction.Transactional;
 
 import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPIRelationship;
 import ca.gc.aafc.dina.util.UUIDHelper;

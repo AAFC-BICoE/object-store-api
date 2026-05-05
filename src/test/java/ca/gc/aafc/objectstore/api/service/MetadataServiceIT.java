@@ -26,7 +26,7 @@ import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
 import java.util.UUID;
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 @Import(AsyncOverrideConfig.class)
 public class MetadataServiceIT extends BaseIntegrationTest {

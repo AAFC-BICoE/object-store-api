@@ -1,6 +1,6 @@
 package ca.gc.aafc.objectstore.api.service;
 
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 
 import org.springframework.stereotype.Service;
 

@@ -1,19 +1,21 @@
 package ca.gc.aafc.objectstore.api.entities;
 
+import io.hypersistence.utils.hibernate.type.basic.PostgreSQLEnumType;
+import io.hypersistence.utils.hibernate.type.json.JsonType;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Transient;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Transient;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import ca.gc.aafc.dina.i18n.MultilingualTitle;
 import lombok.Getter;
@@ -55,8 +57,8 @@ public class ObjectStoreManagedAttribute implements ca.gc.aafc.dina.entity.Manag
   private String key;
 
   @NotNull
-  @Type(type = "jsonb")
-  @Column(name = "multilingual_description")
+  @Type(JsonType.class)
+  @Column(name = "multilingual_description", columnDefinition = "jsonb")
   public MultilingualDescription getMultilingualDescription() {
     return multilingualDescription;
   }
@@ -96,7 +98,7 @@ public class ObjectStoreManagedAttribute implements ca.gc.aafc.dina.entity.Manag
   }
 
   @NotNull
-  @Type(type = "pgsql_enum")
+  @Type(PostgreSQLEnumType.class)
   @Enumerated(EnumType.STRING)
   @Column(name = "type")
   public VocabularyElementType getVocabularyElementType() {
@@ -107,7 +109,6 @@ public class ObjectStoreManagedAttribute implements ca.gc.aafc.dina.entity.Manag
     this.vocabularyElementType = type;
   }
 
-  @Type(type = "string-array")
   @Column(columnDefinition = "text[]")
   public String[] getAcceptedValues() {
     return acceptedValues;

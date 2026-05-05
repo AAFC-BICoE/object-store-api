@@ -1,20 +1,21 @@
 package ca.gc.aafc.objectstore.api.entities;
 
+import io.hypersistence.utils.hibernate.type.basic.PostgreSQLEnumType;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.experimental.SuperBuilder;
 
 @Entity
@@ -68,7 +69,7 @@ public class Derivative extends AbstractObjectStoreMetadata {
     this.acDerivedFrom = acDerivedFrom;
   }
 
-  @Type(type = "pgsql_enum")
+  @Type(PostgreSQLEnumType.class)
   @Enumerated(EnumType.STRING)
   @Column(name = "derivative_type")
   public DerivativeType getDerivativeType() {

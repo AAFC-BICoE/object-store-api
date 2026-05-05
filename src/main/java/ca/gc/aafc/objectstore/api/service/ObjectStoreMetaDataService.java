@@ -6,16 +6,17 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiFunction;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.validation.ValidationException;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import jakarta.validation.ValidationException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.SmartValidator;
 
+import ca.gc.aafc.dina.entity.ValueHolder;
 import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.dina.messaging.DinaEventPublisher;
 import ca.gc.aafc.dina.messaging.EntityChanged;
@@ -25,7 +26,6 @@ import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
-import ca.gc.aafc.objectstore.api.entities.StringHolder;
 import ca.gc.aafc.objectstore.api.file.FileController;
 import ca.gc.aafc.objectstore.api.util.ObjectFilenameUtils;
 import ca.gc.aafc.objectstore.api.validation.ObjectStoreManagedAttributeValueValidator;
@@ -111,7 +111,7 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
    */
   private void setAcSubtype(@NonNull ObjectStoreMetadata metadata) {
     switch (metadata.getAcSubtypeStr()) {
-      case StringHolder.Defined(var sType) -> {
+      case ValueHolder.Defined(var sType) -> {
         List<Pair<String, Object>> params = List.of(Pair.of("acSubtype", sType));
         ObjectSubtype subtype = baseDAO.findOneByProperties(ObjectSubtype.class, params);
         if (subtype == null) {
@@ -120,11 +120,11 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
         metadata.setAcSubtype(subtype);
         metadata.setAcSubtypeId(subtype.getId());
       }
-      case StringHolder.Null() -> {
+      case ValueHolder.Null() -> {
         metadata.setAcSubtype(null);
         metadata.setAcSubtypeId(null);
       }
-      case StringHolder.Undefined() -> {
+      case ValueHolder.Undefined() -> {
       } // no-op
     }
   }

@@ -3,7 +3,7 @@ package ca.gc.aafc.objectstore.api.service;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.apache.tika.mime.MimeTypeException;
 import org.junit.jupiter.api.Test;

@@ -15,21 +15,17 @@ spring:
     open-in-view: false
   # Allow grace timeout period for 20 seconds
   lifecycle.timeout-per-shutdown-phase: 20s
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://keycloak.local:8080/auth
+          jwk-set-uri: http://keycloak:8080/auth/realms/dina/protocol/openid-connect/certs
 s3:
   endpoint: http://localhost
   port: 9000
   accessKey: minio
   secretKey: minio123
-crnk:
-  pathPrefix: /api/v1
-  domainName: ""
-  defaultPageLimit: 20
-  maxPageLimit: 1000
-  allow-unknown-attributes: true
-  # The "include" query-string param is handled by our code and incorporated into the database
-  # query, so we don't let Crnk automatically call findOneTarget for each null relation.
-  config.lookup.behavior.default: NONE
-  jpa.enabled: false
 default-values:
   values:
     - type: metadata
@@ -56,21 +52,7 @@ javers:
   sqlSchemaManagementEnabled: false
 keycloak:
   enabled: false
-  realm: dina
-  auth-server-url: http://${KEYCLOAK_HOST_IP}:8080/auth
-  ssl-required: none
-  resource: objectstore
-  public-client: true
-  bearer-only: true
-  principal-attribute: preferred_username
 
-  # All endpoints require a logged-in user with the "dina-realm-user" role.
-  security-constraints:
-    - auth-roles:
-      - dina-realm-user
-      security-collections:
-        - patterns:
-          - /*
 # Wait for requests to finish before shutting down:
 server.shutdown: graceful
 
@@ -83,7 +65,7 @@ dina:
     maxObjectExportSize: 2GB
   apiPrefix: /api/v1
   fileStorage:
-    # FS, S3 or MINIO
+    # FS or S3
     implementation: MINIO
    # root: "/tmp/dina-nfs"
 

@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
 import java.util.UUID;
-import javax.inject.Inject;
-import javax.persistence.criteria.Predicate;
+import jakarta.inject.Inject;
+import jakarta.persistence.criteria.Predicate;
 
 import org.apache.tika.mime.MimeTypeException;
 import org.junit.jupiter.api.Assertions;

@@ -20,8 +20,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 
-import javax.inject.Inject;
-import javax.persistence.criteria.Predicate;
+import jakarta.inject.Inject;
+import jakarta.persistence.criteria.Predicate;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
