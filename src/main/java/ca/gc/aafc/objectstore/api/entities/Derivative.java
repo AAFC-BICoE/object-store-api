@@ -1,6 +1,7 @@
 package ca.gc.aafc.objectstore.api.entities;
 
 import io.hypersistence.utils.hibernate.type.basic.PostgreSQLEnumType;
+import jakarta.persistence.FetchType;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
@@ -59,7 +60,7 @@ public class Derivative extends AbstractObjectStoreMetadata {
     this.id = id;
   }
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "ac_derived_from", referencedColumnName = "id")
   public ObjectStoreMetadata getAcDerivedFrom() {
     return acDerivedFrom;
@@ -80,7 +81,7 @@ public class Derivative extends AbstractObjectStoreMetadata {
     this.derivativeType = derivativeType;
   }
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "generated_from_derivative", referencedColumnName = "id")
   public Derivative getGeneratedFromDerivative() {
     return generatedFromDerivative;
