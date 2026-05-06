@@ -106,7 +106,7 @@ public class ObjectStoreMetadata2RestIT extends ObjectStoreBaseRestAssuredTest {
       .header(new Header("content-type", "multipart/form-data"))
       .port(this.testPort)
       .multiPart(file)
-      .when().post("/api/v1/file/" + ObjectUploadFactory.TEST_BUCKET + "/derivative/").then()
+      .when().post("/api/v1/file/" + ObjectUploadFactory.TEST_BUCKET + "/derivative").then()
       .statusCode(201)
       .extract()
       .body()

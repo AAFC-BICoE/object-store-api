@@ -1,5 +1,7 @@
 package ca.gc.aafc.objectstore.api.file;
 
+import jakarta.servlet.ServletException;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -15,7 +17,6 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.util.NestedServletException;
 
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.config.MediaTypeConfiguration;
@@ -64,7 +65,7 @@ public class FileUploadIT extends BaseIntegrationTest {
 
     MockMultipartFile file = new MockMultipartFile("file", "testfile", MediaType.TEXT_PLAIN_VALUE,
         "Test Content".getBytes());
-    
+
     try {
       webAppContextSetup(this.wac).build()
       .perform(MockMvcRequestBuilders
@@ -72,9 +73,8 @@ public class FileUploadIT extends BaseIntegrationTest {
       fail("Expected NestedServletException");
     }
     // NestedServletException is a generic exception so we want to do the assertion on the cause
-    catch (NestedServletException nsEx) {
+    catch (ServletException nsEx) {
       assertEquals(AccessDeniedException.class, nsEx.getCause().getClass());
     }
-     
   }
 }

@@ -142,6 +142,9 @@ public class DerivativeGenerationRepositoryIT extends BaseIntegrationTest {
     // delete the file directly in the FileStorage but keep the entity
     fileStorage.deleteFile(thumbResult.getBucket(), thumbResult.getInternalFilename(), true);
 
+    // force refresh since it is done in asyn
+    derivativeService.refresh(osMetadata);
+
     JsonApiDocument docToCreate = JsonApiDocuments.createJsonApiDocument(
       null, DerivativeGenerationDto.TYPENAME,
       JsonAPITestHelper.toAttributeMap(DerivativeGenerationDto.builder()
