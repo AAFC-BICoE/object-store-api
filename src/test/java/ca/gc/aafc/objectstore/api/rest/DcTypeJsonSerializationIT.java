@@ -4,9 +4,9 @@ import static io.restassured.RestAssured.given;
 
 import java.util.Map;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaDelete;
-import javax.persistence.criteria.Root;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaDelete;
+import jakarta.persistence.criteria.Root;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;

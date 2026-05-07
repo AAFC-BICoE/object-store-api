@@ -1,5 +1,6 @@
 package ca.gc.aafc.objectstore.api.entities;
 
+import io.hypersistence.utils.hibernate.type.json.JsonType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import lombok.Builder;
@@ -9,21 +10,21 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.validator.constraints.URL;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -31,6 +32,8 @@ import java.util.Map;
 import java.util.UUID;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+
+import ca.gc.aafc.dina.entity.ValueHolder;
 
 /**
  * The Class ObjectStoreMetadata.
@@ -73,7 +76,7 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
   // used to move the value from the dto to the entity through the mapper
   @Setter
   @Builder.Default
-  private StringHolder acSubtypeStr = StringHolder.undefined();
+  private ValueHolder<String> acSubtypeStr = ValueHolder.undefined();
 
   /**
    * Read-only field to get the ac_sub_type_id to allow filtering by null values.
@@ -265,7 +268,7 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
   }
 
   @Transient
-  public StringHolder getAcSubtypeStr() {
+  public ValueHolder<String> getAcSubtypeStr() {
     return acSubtypeStr;
   }
 
@@ -276,9 +279,9 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
   public void setGroup(String group) {
   }
 
-  @Type(type = "jsonb")
+  @Type(JsonType.class)
   @NotNull
-  @Column(name = "managed_attribute_values")
+  @Column(name = "managed_attribute_values", columnDefinition = "jsonb")
   public Map<String, String> getManagedAttributes() {
     return managedAttributes;
   }

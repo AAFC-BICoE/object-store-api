@@ -29,7 +29,7 @@ import static com.toedter.spring.hateoas.jsonapi.MediaTypes.JSON_API_VALUE;
 import java.net.URI;
 import java.util.Optional;
 import java.util.Set;
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 
 /**
  * Administrative repository.

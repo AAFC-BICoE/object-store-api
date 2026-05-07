@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ca.gc.aafc.dina.dto.ApiInfoDto;
+import ca.gc.aafc.dina.security.auth.DinaAdminAuthorizationService;
 import ca.gc.aafc.objectstore.api.config.ApiInfoConfiguration;
-import ca.gc.aafc.objectstore.api.security.DinaAdminAuthorizationService;
 
 import static com.toedter.spring.hateoas.jsonapi.JsonApiModelBuilder.jsonApiModel;
 import static com.toedter.spring.hateoas.jsonapi.MediaTypes.JSON_API_VALUE;

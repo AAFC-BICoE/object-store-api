@@ -10,7 +10,7 @@ import ca.gc.aafc.objectstore.api.dto.LicenseDto;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.List;
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 public class SupportedLicenseRepositoryIT extends BaseIntegrationTest {
 

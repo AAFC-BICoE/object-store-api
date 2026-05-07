@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.ConstructorBinding;
 
 import java.util.List;
 import java.util.Map;
@@ -20,7 +19,6 @@ public class DefaultValueConfiguration {
     return Map.copyOf(Map.of("values", values));
   }
 
-  @ConstructorBinding
   @RequiredArgsConstructor
   @Getter
   public static class DefaultValue {

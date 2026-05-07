@@ -22,8 +22,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.MediaType;
 
-import javax.persistence.criteria.Predicate;
-import javax.validation.ValidationException;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.validation.ValidationException;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneId;

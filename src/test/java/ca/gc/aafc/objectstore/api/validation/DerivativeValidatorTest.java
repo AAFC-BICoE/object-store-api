@@ -15,7 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 @SpringBootTest(properties = "dev-user.enabled=true")
 class DerivativeValidatorTest extends BaseIntegrationTest {

@@ -12,7 +12,7 @@ import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import lombok.SneakyThrows;
 
 @ContextConfiguration(initializers = VersityWGTestContainerInitializer.class)

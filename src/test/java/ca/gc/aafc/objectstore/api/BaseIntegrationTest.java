@@ -26,7 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.nio.file.Path;
 import java.util.Properties;
 import java.util.concurrent.Future;
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 @SpringBootTest(classes = ObjectStoreApiLauncher.class, properties = "dev-user.enabled=true")
 @TestPropertySource(properties = "spring.config.additional-location=classpath:application-test.yml")

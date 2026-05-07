@@ -28,7 +28,7 @@ import io.restassured.specification.MultiPartSpecification;
 import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.UUID;
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.equalTo;
@@ -106,7 +106,7 @@ public class ObjectStoreMetadata2RestIT extends ObjectStoreBaseRestAssuredTest {
       .header(new Header("content-type", "multipart/form-data"))
       .port(this.testPort)
       .multiPart(file)
-      .when().post("/api/v1/file/" + ObjectUploadFactory.TEST_BUCKET + "/derivative/").then()
+      .when().post("/api/v1/file/" + ObjectUploadFactory.TEST_BUCKET + "/derivative").then()
       .statusCode(201)
       .extract()
       .body()
