@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.SmartValidator;
 
 import ca.gc.aafc.dina.jpa.BaseDAO;
+import ca.gc.aafc.dina.jpa.PredicateSupplier;
 import ca.gc.aafc.dina.messaging.DinaEventPublisher;
 import ca.gc.aafc.dina.messaging.EntityChanged;
 import ca.gc.aafc.dina.messaging.message.DocumentOperationType;
@@ -20,6 +21,7 @@ import ca.gc.aafc.objectstore.api.util.ObjectFilenameUtils;
 import ca.gc.aafc.objectstore.api.validation.DerivativeValidator;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.BiFunction;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -163,7 +165,19 @@ public class DerivativeService extends MessageProducingService<Derivative> {
    * @return an Optional Derivative for a given criteria.
    */
   private Optional<Derivative> findOneBy(
-    @NonNull BiFunction<CriteriaBuilder, Root<Derivative>, Predicate[]> crit) {
-    return this.findAll(Derivative.class, crit, null, 0, 1).stream().findFirst();
+    @NonNull BiFunction<CriteriaBuilder, Root<Derivative>, Predicate[]> crit
+  ) {
+    PredicateSupplier<Derivative> whereSupplier =
+      (criteriaBuilder, root, entityManager) -> crit.apply(criteriaBuilder, root);
+
+    return this.findAll(
+      Derivative.class,
+      whereSupplier,
+      null,
+      0,
+      1,
+      Set.of(),
+      Set.of("acDerivedFrom")
+    ).stream().findFirst();
   }
 }
