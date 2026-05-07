@@ -18,7 +18,6 @@ public class OrphanRemovalConfiguration {
 
   private OrphanRemovalExpirationSetting expiration;
 
-  //@ConstructorBinding
   @RequiredArgsConstructor
   @Getter
   public static class OrphanRemovalExpirationSetting {

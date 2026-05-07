@@ -19,7 +19,6 @@ public class DefaultValueConfiguration {
     return Map.copyOf(Map.of("values", values));
   }
 
-  //@ConstructorBinding
   @RequiredArgsConstructor
   @Getter
   public static class DefaultValue {
