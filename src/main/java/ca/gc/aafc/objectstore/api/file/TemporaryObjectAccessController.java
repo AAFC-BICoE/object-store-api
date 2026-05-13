@@ -26,7 +26,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PreDestroy;
 import lombok.extern.log4j.Log4j2;
 
 import ca.gc.aafc.dina.file.FileCleaner;

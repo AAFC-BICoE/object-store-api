@@ -17,8 +17,8 @@ import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFacto
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 
 import java.util.List;
-import javax.persistence.criteria.Predicate;
-import javax.validation.ValidationException;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.validation.ValidationException;
 
 public class DerivativeServiceIT extends BaseIntegrationTest {
 

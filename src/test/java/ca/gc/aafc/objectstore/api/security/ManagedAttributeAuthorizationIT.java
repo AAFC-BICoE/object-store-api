@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 @SpringBootTest(properties = "keycloak.enabled=true")
 public class ManagedAttributeAuthorizationIT extends BaseIntegrationTest {

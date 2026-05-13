@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 public class ObjectStoreManagedAttributeRepositoryCRUDIT extends ObjectStoreModuleBaseRepositoryIT {
 

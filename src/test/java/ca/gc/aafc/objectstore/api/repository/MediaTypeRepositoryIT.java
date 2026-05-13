@@ -5,7 +5,7 @@ import ca.gc.aafc.objectstore.api.dto.MediaTypeDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;

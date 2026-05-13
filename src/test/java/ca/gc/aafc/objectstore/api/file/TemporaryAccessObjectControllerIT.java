@@ -6,8 +6,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.UUID;
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;

@@ -51,7 +51,7 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 @SpringBootTest(properties = "keycloak.enabled = true")
 public class FileControllerIT extends BaseIntegrationTest {

@@ -1,7 +1,7 @@
 package ca.gc.aafc.objectstore.api.repository;
 
 import java.util.List;
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 

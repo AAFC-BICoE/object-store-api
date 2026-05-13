@@ -39,7 +39,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 @Import(AsyncOverrideConfig.class)
 public class ObjectExportServiceIT extends BaseIntegrationTest {

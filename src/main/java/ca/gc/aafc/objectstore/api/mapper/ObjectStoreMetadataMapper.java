@@ -15,6 +15,7 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.factory.Mappers;
 
+import ca.gc.aafc.dina.entity.ValueHolder;
 import ca.gc.aafc.dina.mapper.DinaMapperV2;
 import ca.gc.aafc.dina.mapper.MapperStaticConverter;
 import ca.gc.aafc.objectstore.api.dto.DerivativeDto;
@@ -22,7 +23,6 @@ import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
-import ca.gc.aafc.objectstore.api.entities.StringHolder;
 
 @Mapper(imports = MapperStaticConverter.class)
 public interface ObjectStoreMetadataMapper
@@ -103,9 +103,9 @@ public interface ObjectStoreMetadataMapper
                                                @Context Set<String> provided) {
     if (provided.contains("acSubtype")) {
       if (StringUtils.isBlank(dto.getAcSubtype())) {
-        entity.setAcSubtypeStr(StringHolder.ofNull());
+        entity.setAcSubtypeStr(ValueHolder.ofNull());
       } else {
-        entity.setAcSubtypeStr(StringHolder.of(dto.getAcSubtype()));
+        entity.setAcSubtypeStr(ValueHolder.of(dto.getAcSubtype()));
       }
     }
   }

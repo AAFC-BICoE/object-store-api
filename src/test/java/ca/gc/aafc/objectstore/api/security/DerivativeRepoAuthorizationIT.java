@@ -23,7 +23,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;

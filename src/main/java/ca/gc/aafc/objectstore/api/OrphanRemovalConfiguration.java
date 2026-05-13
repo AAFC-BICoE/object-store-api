@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.ConstructorBinding;
 import org.springframework.boot.convert.DurationUnit;
 import org.springframework.context.annotation.Configuration;
 
@@ -19,7 +18,6 @@ public class OrphanRemovalConfiguration {
 
   private OrphanRemovalExpirationSetting expiration;
 
-  @ConstructorBinding
   @RequiredArgsConstructor
   @Getter
   public static class OrphanRemovalExpirationSetting {

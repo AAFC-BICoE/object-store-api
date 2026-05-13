@@ -6,7 +6,7 @@ import ca.gc.aafc.objectstore.api.exif.ExifParser;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import org.junit.jupiter.api.Test;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
