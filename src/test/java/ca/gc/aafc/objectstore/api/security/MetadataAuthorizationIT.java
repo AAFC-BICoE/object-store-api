@@ -10,6 +10,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
 
+import ca.gc.aafc.dina.exception.ConflictException;
 import ca.gc.aafc.dina.exception.ResourceGoneException;
 import ca.gc.aafc.dina.exception.ResourceNotFoundException;
 import ca.gc.aafc.dina.jsonapi.JsonApiDocument;
@@ -90,7 +91,8 @@ public class MetadataAuthorizationIT extends BaseIntegrationTest {
 
   @Test
   @WithMockKeycloakUser(groupRole = {"CNC:USER"})
-  public void save_AuthorizedGroup_UpdatesObject() throws ResourceGoneException, ResourceNotFoundException {
+  public void save_AuthorizedGroup_UpdatesObject()
+      throws ResourceGoneException, ResourceNotFoundException, ConflictException {
     String expected = "new value";
     ObjectStoreMetadataDto toUpdate = repo.getOne(persisted.getUuid(), "").getDto();
     toUpdate.setAcCaption(expected);

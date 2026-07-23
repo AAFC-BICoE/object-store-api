@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -74,7 +74,7 @@ public class FileUploadIT extends BaseIntegrationTest {
     }
     // NestedServletException is a generic exception so we want to do the assertion on the cause
     catch (ServletException nsEx) {
-      assertEquals(AccessDeniedException.class, nsEx.getCause().getClass());
+      assertEquals(AuthorizationDeniedException.class, nsEx.getCause().getClass());
     }
   }
 }

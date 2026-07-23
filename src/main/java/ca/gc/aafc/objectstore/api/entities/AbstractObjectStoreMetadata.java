@@ -1,16 +1,13 @@
 package ca.gc.aafc.objectstore.api.entities;
 
-import ca.gc.aafc.dina.entity.DinaEntity;
-
-import io.hypersistence.utils.hibernate.type.basic.PostgreSQLEnumType;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.NaturalIdCache;
-import org.hibernate.annotations.Type;
+import org.hibernate.type.SqlTypes;
+
+import ca.gc.aafc.dina.entity.DinaEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;
@@ -23,6 +20,9 @@ import jakarta.validation.constraints.Size;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
@@ -84,7 +84,7 @@ public abstract class AbstractObjectStoreMetadata implements DinaEntity {
   }
 
   @NotNull
-  @Type(PostgreSQLEnumType.class)
+  @JdbcTypeCode(SqlTypes.NAMED_ENUM)
   @Enumerated(EnumType.STRING)
   @Column(name = "dc_type")
   public DcType getDcType() {

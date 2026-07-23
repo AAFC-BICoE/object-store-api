@@ -14,6 +14,7 @@ import org.springframework.web.context.WebApplicationContext;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import ca.gc.aafc.dina.exception.ConflictException;
 import ca.gc.aafc.dina.exception.ResourceGoneException;
 import ca.gc.aafc.dina.exception.ResourceNotFoundException;
 import ca.gc.aafc.dina.jsonapi.JsonApiDocument;
@@ -284,7 +285,8 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends ObjectStoreModuleBaseRe
   }
 
   @Test
-  public void save_ValidResource_ResourceUpdated() throws ResourceGoneException, ResourceNotFoundException {
+  public void save_ValidResource_ResourceUpdated()
+      throws ResourceGoneException, ResourceNotFoundException, ConflictException {
     ObjectSubtypeDto acSubtype = createAcSubtype();
     ObjectUpload objectUpload = createObjectUpload();
 
@@ -311,7 +313,8 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends ObjectStoreModuleBaseRe
     objectUploadService.delete(objectUpload);
   }
 
-  private void assertRelationshipsRemoved(UUID metadataUUID) throws ResourceGoneException, ResourceNotFoundException {
+  private void assertRelationshipsRemoved(UUID metadataUUID)
+      throws ResourceGoneException, ResourceNotFoundException, ConflictException {
     ObjectStoreMetadataDto updateMetadataDto = fetchMetaById(metadataUUID);
     assertNotNull(updateMetadataDto.getAcSubtype());
 
@@ -326,7 +329,8 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends ObjectStoreModuleBaseRe
   }
 
   @Test
-  public void create_onManagedAttributeValue_validationOccur() throws ResourceGoneException, ResourceNotFoundException {
+  public void create_onManagedAttributeValue_validationOccur()
+      throws ResourceGoneException, ResourceNotFoundException, ConflictException {
 
     ObjectStoreManagedAttributeDto newAttribute = ObjectStoreManagedAttributeFixture.newObjectStoreManagedAttribute();
     newAttribute.setVocabularyElementType(TypedVocabularyElement.VocabularyElementType.DATE);

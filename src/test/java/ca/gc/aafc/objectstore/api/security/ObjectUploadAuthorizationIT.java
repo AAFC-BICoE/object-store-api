@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.access.AccessDeniedException;
 
+import ca.gc.aafc.dina.exception.ConflictException;
 import ca.gc.aafc.dina.exception.ResourceGoneException;
 import ca.gc.aafc.dina.exception.ResourceNotFoundException;
 import ca.gc.aafc.dina.jsonapi.JsonApiDocument;
@@ -49,7 +50,8 @@ public class ObjectUploadAuthorizationIT extends BaseIntegrationTest {
 
   @Test
   @WithMockKeycloakUser(adminRole = {"DINA_ADMIN"})
-  void save_isAdmin_Allowed() throws ResourceGoneException, ResourceNotFoundException {
+  void save_isAdmin_Allowed()
+      throws ResourceGoneException, ResourceNotFoundException, ConflictException {
     ObjectUpload testObjectUpload = ObjectUploadFactory.newObjectUpload()
       .build();
     objectUploadService.create(testObjectUpload);

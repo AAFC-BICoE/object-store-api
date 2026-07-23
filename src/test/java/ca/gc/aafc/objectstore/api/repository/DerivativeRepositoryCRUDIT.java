@@ -1,6 +1,7 @@
 package ca.gc.aafc.objectstore.api.repository;
 
 import ca.gc.aafc.dina.dto.JsonApiDto;
+import ca.gc.aafc.dina.exception.ConflictException;
 import ca.gc.aafc.dina.exception.ResourceGoneException;
 import ca.gc.aafc.dina.exception.ResourceNotFoundException;
 import ca.gc.aafc.dina.jsonapi.JsonApiDocument;
@@ -108,7 +109,7 @@ public class DerivativeRepositoryCRUDIT extends BaseIntegrationTest {
   }
 
   @Test
-  void save() throws ResourceGoneException, ResourceNotFoundException {
+  void save() throws ResourceGoneException, ResourceNotFoundException, ConflictException {
     DerivativeDto dto = newDerivative(uploadTest_1.getFileIdentifier());
     dto.setPubliclyReleasable(false);
 

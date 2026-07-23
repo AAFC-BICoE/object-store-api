@@ -7,6 +7,7 @@ import org.javers.core.metamodel.object.CdoSnapshot;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import ca.gc.aafc.dina.exception.ConflictException;
 import ca.gc.aafc.dina.exception.ResourceGoneException;
 import ca.gc.aafc.dina.exception.ResourceNotFoundException;
 import ca.gc.aafc.dina.jsonapi.JsonApiDocument;
@@ -55,7 +56,7 @@ public class ObjectStoreManagedAttributeAuditingIT extends BaseIntegrationTest {
 
   @Test
   void update_WhenMetaDataRepo_ManagedAttributesNotAudited()
-    throws ResourceGoneException, ResourceNotFoundException {
+    throws ResourceGoneException, ResourceNotFoundException, ConflictException {
 
     JsonApiDocument docToCreate = dtoToJsonApiDocument(newMeta());
     UUID metadataUUID = JsonApiModelAssistant.extractUUIDFromRepresentationModelLink(metadataRepository.onCreate(docToCreate));
