@@ -1,5 +1,7 @@
 package ca.gc.aafc.objectstore.api.security;
 
+import java.util.Set;
+
 import ca.gc.aafc.dina.security.auth.PermissionAuthorizationService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -32,7 +34,12 @@ public class MetadataAuthorizationService extends PermissionAuthorizationService
   }
 
   @Override
+  public Set<String> evaluatedAttributes() {
+    return Set.of("bucket");
+  }
+
+  @Override
   public String getName() {
-    return "ObjectStoreManagedAttributeAuthorizationService";
+    return MetadataAuthorizationService.class.getSimpleName();
   }
 }
