@@ -1,5 +1,7 @@
 package ca.gc.aafc.objectstore.api.security;
 
+import java.util.Set;
+
 import ca.gc.aafc.dina.security.auth.PermissionAuthorizationService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,11 @@ public class MetadataAuthorizationService extends PermissionAuthorizationService
   @Override
   @PreAuthorize("allow()")
   public void authorizeRead(Object entity) {
+  }
+
+  @Override
+  public Set<String> evaluatedAttributes() {
+    return Set.of("group");
   }
 
   @Override
