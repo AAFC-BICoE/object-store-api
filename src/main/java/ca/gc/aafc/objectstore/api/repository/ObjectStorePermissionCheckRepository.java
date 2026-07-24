@@ -27,7 +27,7 @@ public class ObjectStorePermissionCheckRepository extends PermissionCheckReposit
 
   @PostMapping(PermissionCheckDto.TYPE_NAME)
   public ResponseEntity<RepresentationModel<?>> onCreate(@RequestBody JsonApiDocument postedDocument)
-    throws ResourceNotFoundException {
+      throws ResourceNotFoundException {
     return handleCheckPermissions(postedDocument);
   }
 }
