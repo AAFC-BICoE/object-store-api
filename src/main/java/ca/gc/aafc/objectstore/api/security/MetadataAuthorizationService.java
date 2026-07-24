@@ -27,6 +27,7 @@ public class MetadataAuthorizationService extends PermissionAuthorizationService
   }
 
   @Override
+  @PreAuthorize("allow()")
   public void authorizeRead(Object entity) {
   }
 

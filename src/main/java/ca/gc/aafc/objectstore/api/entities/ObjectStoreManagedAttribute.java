@@ -1,6 +1,5 @@
 package ca.gc.aafc.objectstore.api.entities;
 
-import io.hypersistence.utils.hibernate.type.basic.PostgreSQLEnumType;
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import java.time.OffsetDateTime;
 import java.util.UUID;
@@ -22,9 +21,11 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.NaturalIdCache;
 import org.hibernate.annotations.Type;
+import org.hibernate.type.SqlTypes;
 
 import ca.gc.aafc.dina.i18n.MultilingualDescription;
 import lombok.AllArgsConstructor;
@@ -98,7 +99,7 @@ public class ObjectStoreManagedAttribute implements ca.gc.aafc.dina.entity.Manag
   }
 
   @NotNull
-  @Type(PostgreSQLEnumType.class)
+  @JdbcTypeCode(SqlTypes.NAMED_ENUM)
   @Enumerated(EnumType.STRING)
   @Column(name = "type")
   public VocabularyElementType getVocabularyElementType() {
