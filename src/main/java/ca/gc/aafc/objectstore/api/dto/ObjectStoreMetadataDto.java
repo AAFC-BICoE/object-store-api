@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.toedter.spring.hateoas.jsonapi.JsonApiId;
 import com.toedter.spring.hateoas.jsonapi.JsonApiTypeForClass;
 
+import ca.gc.aafc.dina.dto.DinaDto;
 import ca.gc.aafc.dina.dto.ExternalRelationDto;
 import ca.gc.aafc.dina.dto.JsonApiResource;
 import ca.gc.aafc.dina.dto.RelatedEntity;
@@ -20,6 +21,7 @@ import ca.gc.aafc.dina.repository.meta.JsonApiExternalRelation;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +34,7 @@ import lombok.Setter;
 @Data
 @TypeName(ObjectStoreMetadataDto.TYPENAME)
 @JsonApiTypeForClass(ObjectStoreMetadataDto.TYPENAME)
-public class ObjectStoreMetadataDto implements JsonApiResource {
+public class ObjectStoreMetadataDto implements DinaDto {
 
   public static final String TYPENAME = "metadata";
 
@@ -41,8 +43,12 @@ public class ObjectStoreMetadataDto implements JsonApiResource {
   @PropertyName("id")
   private UUID uuid;
 
+  private Long resourceVersion;
+
   private String createdBy;
   private OffsetDateTime createdOn;
+  private Instant lastUpdatedOn;
+
   private String bucket;
   private UUID fileIdentifier;
 

@@ -24,4 +24,5 @@
     <include file="db/changelog/migrations/18-Add_managed_attribute_type_DECIMAL.xml"/>
     <include file="db/changelog/migrations/19-Add_filename_to_metadata_and_derivative.xml"/>
     <include file="db/changelog/migrations/20-Add_sourceset_to_metadata_and_derivative.xml"/>
+    <include file="db/changelog/migrations/21-Add_version_and_last_updated_on_to_metadata.xml"/>
 </databaseChangeLog>

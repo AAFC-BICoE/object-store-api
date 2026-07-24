@@ -1,6 +1,8 @@
 package ca.gc.aafc.objectstore.api.entities;
 
 import io.hypersistence.utils.hibernate.type.json.JsonType;
+import jakarta.persistence.Version;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import lombok.Builder;
@@ -47,6 +49,13 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
   public static final String DERIVATIVES_PROP = "derivatives";
 
   private Integer id;
+
+  @Version
+  private Long resourceVersion;
+
+  @UpdateTimestamp
+  @Column(name = "last_updated_on")
+  private Instant lastUpdatedOn;
 
   private String acCaption;
 
