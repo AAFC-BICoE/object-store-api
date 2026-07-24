@@ -35,11 +35,11 @@ public class MetadataAuthorizationService extends PermissionAuthorizationService
 
   @Override
   public Set<String> evaluatedAttributes() {
-    return Set.of("group");
+    return Set.of("bucket");
   }
 
   @Override
   public String getName() {
-    return "ObjectStoreManagedAttributeAuthorizationService";
+    return MetadataAuthorizationService.class.getSimpleName();
   }
 }

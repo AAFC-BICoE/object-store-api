@@ -25,6 +25,7 @@ import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 
 import jakarta.inject.Inject;
+import java.util.Map;
 
 @SpringBootTest(properties = "keycloak.enabled=true")
 public class ObjectStorePermissionCheckRepositoryIT extends BaseIntegrationTest {
@@ -49,10 +50,9 @@ public class ObjectStorePermissionCheckRepositoryIT extends BaseIntegrationTest 
   @WithMockKeycloakUser(username="user", groupRole = {"group 1:USER"})
   public void onPermissionCheck_responseReturned() throws Exception {
 
-    PermissionCheckDto dto = PermissionCheckDto.builder().build();
     JsonApiDocument doc = JsonApiDocuments.createJsonApiDocument(
       null, ObjectStoreMetadataDto.TYPENAME,
-      JsonAPITestHelper.toAttributeMap(dto)
+      JsonAPITestHelper.toAttributeMap(Map.of("bucket", "group 1"))
     );
 
     var response = mockMvc.perform(
