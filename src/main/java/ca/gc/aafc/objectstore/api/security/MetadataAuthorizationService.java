@@ -27,6 +27,7 @@ public class MetadataAuthorizationService extends PermissionAuthorizationService
   }
 
   @Override
+  @PreAuthorize("hasMinimumGroupAndRolePermissions(@currentUser, 'READ_ONLY', #entity)")
   public void authorizeRead(Object entity) {
   }
 

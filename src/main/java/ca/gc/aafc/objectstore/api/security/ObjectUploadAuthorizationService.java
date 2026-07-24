@@ -29,6 +29,7 @@ public class ObjectUploadAuthorizationService extends PermissionAuthorizationSer
   }
 
   @Override
+  @PreAuthorize("allow()")
   public void authorizeRead(Object entity) {
   }
 
