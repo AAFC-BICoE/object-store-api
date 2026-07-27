@@ -48,12 +48,13 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
 
   public static final String DERIVATIVES_PROP = "derivatives";
 
+  @Setter
   private Integer id;
 
-  @Version
+  @Setter
   private Long resourceVersion;
 
-  @UpdateTimestamp
+  //@UpdateTimestamp
   @Column(name = "last_updated_on")
   private Instant lastUpdatedOn;
 
@@ -100,8 +101,11 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
     return id;
   }
 
-  public void setId(Integer id) {
-    this.id = id;
+  @Version
+  @Column(name ="resource_version")
+  @Override
+  public Long getResourceVersion() {
+    return resourceVersion;
   }
 
   @Column(name = "ac_caption")
