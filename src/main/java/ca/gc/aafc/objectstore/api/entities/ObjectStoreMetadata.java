@@ -61,6 +61,10 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
   @Setter
   private OffsetDateTime xmpMetadataDate;
 
+  // Synonym for xmpMetadataDate
+  //we need to declare it has a valid attribute
+  private Instant lastUpdatedOn;
+
   private String xmpRightsWebStatement;
   private String dcRights;
   private String xmpRightsOwner;
@@ -100,7 +104,7 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
   }
 
   @Version
-  @Column(name ="resource_version")
+  @Column(name = "resource_version")
   @Override
   public Long getResourceVersion() {
     return resourceVersion;
