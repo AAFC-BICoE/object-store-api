@@ -308,6 +308,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends ObjectStoreModuleBaseRe
     assertEquals(acSubtype.getUuid(), result.getAcSubtype().getUuid());
     assertEquals(ObjectUploadFactory.TEST_USAGE_TERMS, result.getXmpRightsUsageTerms());
     assertEquals(1, result.getResourceVersion());
+    assertNotNull(result.getLastUpdatedOn());
 
     //Can break Relationships
     assertRelationshipsRemoved(testMetadata.getUuid());

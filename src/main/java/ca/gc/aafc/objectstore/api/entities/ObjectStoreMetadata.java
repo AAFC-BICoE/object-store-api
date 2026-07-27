@@ -54,13 +54,11 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
   @Setter
   private Long resourceVersion;
 
-  //@UpdateTimestamp
-  @Column(name = "last_updated_on")
-  private Instant lastUpdatedOn;
-
   private String acCaption;
 
   private OffsetDateTime acDigitizationDate;
+
+  @Setter
   private OffsetDateTime xmpMetadataDate;
 
   private String xmpRightsWebStatement;
@@ -133,8 +131,14 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
     return xmpMetadataDate;
   }
 
-  public void setXmpMetadataDate(OffsetDateTime xmpMetadataDate) {
-    this.xmpMetadataDate = xmpMetadataDate;
+  /**
+   * return the value from xmpMetadataDate
+   * @return
+   */
+  @Override
+  @Transient
+  public Instant getLastUpdatedOn() {
+    return xmpMetadataDate == null ? null : xmpMetadataDate.toInstant();
   }
 
   @Column(name = "original_filename")
