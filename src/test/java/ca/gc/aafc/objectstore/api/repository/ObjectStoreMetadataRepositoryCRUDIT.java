@@ -313,6 +313,11 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends ObjectStoreModuleBaseRe
     //Can break Relationships
     assertRelationshipsRemoved(testMetadata.getUuid());
 
+    // try with a resourceVersion too old
+    updateMetadataDto.setResourceVersion(0L);
+    JsonApiDocument oldDocToUpdate = dtoToJsonApiDocument(updateMetadataDto);
+    assertThrows(ConflictException.class, () -> objectStoreResourceRepository.update(oldDocToUpdate));
+
     // cleanup
     objectUploadService.delete(objectUpload);
   }
