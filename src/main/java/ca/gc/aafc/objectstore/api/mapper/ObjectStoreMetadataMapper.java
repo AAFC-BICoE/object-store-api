@@ -50,6 +50,7 @@ public interface ObjectStoreMetadataMapper
   @Mapping(target = "acMetadataCreator", ignore = true)
   @Mapping(target = "dcCreator", ignore = true)
   @Mapping(target = "derivatives", ignore = true)
+  @Mapping(target = "acSubtypeStr", ignore = true)
   ObjectStoreMetadata toEntity(ObjectStoreMetadataDto dto, @Context Set<String> provided, @Context String scope);
 
   @Mapping(target = "id", ignore = true)
@@ -58,6 +59,7 @@ public interface ObjectStoreMetadataMapper
   @Mapping(target = "acMetadataCreator", ignore = true)
   @Mapping(target = "dcCreator", ignore = true)
   @Mapping(target = "derivatives", ignore = true)
+  @Mapping(target = "acSubtypeStr", ignore = true)
   @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
   void patchEntity(@MappingTarget ObjectStoreMetadata entity, ObjectStoreMetadataDto dto, @Context Set<String> provided, @Context String scope);
 

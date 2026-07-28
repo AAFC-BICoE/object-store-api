@@ -1,6 +1,8 @@
 package ca.gc.aafc.objectstore.api.entities;
 
 import io.hypersistence.utils.hibernate.type.json.JsonType;
+import jakarta.persistence.Version;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import lombok.Builder;
@@ -46,12 +48,22 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
 
   public static final String DERIVATIVES_PROP = "derivatives";
 
+  @Setter
   private Integer id;
+
+  @Setter
+  private Long resourceVersion;
 
   private String acCaption;
 
   private OffsetDateTime acDigitizationDate;
+
+  @Setter
   private OffsetDateTime xmpMetadataDate;
+
+  // Synonym for xmpMetadataDate
+  //we need to declare it has a valid attribute
+  private Instant lastUpdatedOn;
 
   private String xmpRightsWebStatement;
   private String dcRights;
@@ -91,8 +103,11 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
     return id;
   }
 
-  public void setId(Integer id) {
-    this.id = id;
+  @Version
+  @Column(name = "resource_version")
+  @Override
+  public Long getResourceVersion() {
+    return resourceVersion;
   }
 
   @Column(name = "ac_caption")
@@ -120,8 +135,14 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
     return xmpMetadataDate;
   }
 
-  public void setXmpMetadataDate(OffsetDateTime xmpMetadataDate) {
-    this.xmpMetadataDate = xmpMetadataDate;
+  /**
+   * return the value from xmpMetadataDate
+   * @return
+   */
+  @Override
+  @Transient
+  public Instant getLastUpdatedOn() {
+    return xmpMetadataDate == null ? null : xmpMetadataDate.toInstant();
   }
 
   @Column(name = "original_filename")

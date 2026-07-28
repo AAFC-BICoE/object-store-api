@@ -1,6 +1,7 @@
 package ca.gc.aafc.objectstore.api.repository;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.text.RandomStringGenerator;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -163,7 +164,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends ObjectStoreModuleBaseRe
     dto.setAcSubtype(acSubtype.getAcSubtype());
     dto.setDcType(acSubtype.getDcType());
     dto.setXmpRightsUsageTerms(ObjectUploadFactory.TEST_USAGE_TERMS);
-    dto.setCreatedBy(RandomStringUtils.random(4));
+    dto.setCreatedBy(RandomStringUtils.insecure().nextAlphanumeric(4));
     dto.setManagedAttributes(Map.of(testManagedAttribute.getKey(), testManagedAttribute.getAcceptedValues()[0]));
 
     JsonApiDocument docToCreate = dtoToJsonApiDocument(dto);
@@ -197,7 +198,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends ObjectStoreModuleBaseRe
     dto.setAcSubtype(acSubtype.getAcSubtype());
     dto.setDcType(acSubtype.getDcType());
     dto.setXmpRightsUsageTerms(ObjectUploadFactory.TEST_USAGE_TERMS);
-    dto.setCreatedBy(RandomStringUtils.random(4));
+    dto.setCreatedBy(RandomStringUtils.insecure().nextAlphanumeric(4));
     dto.setManagedAttributes(Map.of(testManagedAttribute.getKey(), " = = < -"));
 
     JsonApiDocument docToCreate = dtoToJsonApiDocument(dto);
@@ -291,6 +292,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends ObjectStoreModuleBaseRe
     ObjectUpload objectUpload = createObjectUpload();
 
     ObjectStoreMetadata testMetadata = createTestObjectStoreMetadata(objectUpload.getFileIdentifier());
+    assertEquals(0, testMetadata.getResourceVersion());
     ObjectStoreMetadataDto updateMetadataDto = fetchMetaById(testMetadata.getUuid());
     updateMetadataDto.setBucket(ObjectUploadFactory.TEST_BUCKET);
     updateMetadataDto.setFileIdentifier(ObjectUploadFactory.TEST_FILE_IDENTIFIER);
@@ -305,9 +307,16 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends ObjectStoreModuleBaseRe
     assertEquals(ObjectUploadFactory.TEST_FILE_IDENTIFIER, result.getFileIdentifier());
     assertEquals(acSubtype.getUuid(), result.getAcSubtype().getUuid());
     assertEquals(ObjectUploadFactory.TEST_USAGE_TERMS, result.getXmpRightsUsageTerms());
+    assertEquals(1, result.getResourceVersion());
+    assertNotNull(result.getLastUpdatedOn());
 
     //Can break Relationships
     assertRelationshipsRemoved(testMetadata.getUuid());
+
+    // try with a resourceVersion too old
+    updateMetadataDto.setResourceVersion(0L);
+    JsonApiDocument oldDocToUpdate = dtoToJsonApiDocument(updateMetadataDto);
+    assertThrows(ConflictException.class, () -> objectStoreResourceRepository.update(oldDocToUpdate));
 
     // cleanup
     objectUploadService.delete(objectUpload);
