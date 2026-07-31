@@ -33,7 +33,6 @@ import ca.gc.aafc.dina.exception.ResourceNotFoundException;
 import ca.gc.aafc.dina.mapper.DinaMappingRegistry;
 import ca.gc.aafc.dina.repository.JsonApiModelAssistant;
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
-import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.objectstore.api.config.MediaTypeConfiguration;
 import ca.gc.aafc.objectstore.api.dto.ObjectUploadDto;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
@@ -505,7 +504,7 @@ public class FileController {
   private UUID generateUUID() throws IllegalStateException {
     int numberOfAttempt = 0;
     while (numberOfAttempt < MAX_NUMBER_OF_ATTEMPT_RANDOM_UUID) {
-      UUID uuid = UUIDHelper.generateUUIDv7();
+      UUID uuid = UUID.randomUUID();
       // this would be better with an exists() function
       if (objectUploadService.findOne(uuid, ObjectUpload.class) == null) {
         return uuid;

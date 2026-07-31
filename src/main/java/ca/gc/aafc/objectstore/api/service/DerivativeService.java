@@ -10,7 +10,6 @@ import ca.gc.aafc.dina.messaging.DinaEventPublisher;
 import ca.gc.aafc.dina.messaging.EntityChanged;
 import ca.gc.aafc.dina.messaging.message.DocumentOperationType;
 import ca.gc.aafc.dina.service.MessageProducingService;
-import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.objectstore.api.dto.DerivativeDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
@@ -51,7 +50,7 @@ public class DerivativeService extends MessageProducingService<Derivative> {
 
   @Override
   protected void preCreate(Derivative entity) {
-    entity.setUuid(UUIDHelper.generateUUIDv7());
+    entity.setUuid(UUID.randomUUID());
     handleFileRelatedData(entity);
     establishBiDirectionalAssociation(entity);
   }

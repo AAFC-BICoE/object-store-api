@@ -21,7 +21,6 @@ import ca.gc.aafc.dina.jpa.BaseDAO;
 import ca.gc.aafc.dina.messaging.DinaEventPublisher;
 import ca.gc.aafc.dina.messaging.EntityChanged;
 import ca.gc.aafc.dina.service.MessageProducingService;
-import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
@@ -68,7 +67,7 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
 
   @Override
   protected void preCreate(ObjectStoreMetadata entity) {
-    entity.setUuid(UUIDHelper.generateUUIDv7());
+    entity.setUuid(UUID.randomUUID());
     handleFileRelatedData(entity);
     defaultValueSetterService.assignDefaultValues(entity);
     setAcSubtype(entity);
