@@ -26,4 +26,5 @@
     <include file="db/changelog/migrations/20-Add_sourceset_to_metadata_and_derivative.xml"/>
     <include file="db/changelog/migrations/21-Add_version_to_metadata.xml"/>
     <include file="db/changelog/migrations/22-Add_controlled_vocabulary.xml"/>
+    <include file="db/changelog/initial-data/1-Create_managed_attribute_controlled_vocabulary.xml"/>
 </databaseChangeLog>

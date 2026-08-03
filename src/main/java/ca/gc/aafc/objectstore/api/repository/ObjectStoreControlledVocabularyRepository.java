@@ -84,7 +84,7 @@ public class ObjectStoreControlledVocabularyRepository extends DinaRepositoryV2<
 
   @GetMapping(ObjectStoreControlledVocabularyDto.TYPENAME + "/{idOrKey}")
   public ResponseEntity<RepresentationModel<?>> onFindOne(@PathVariable String idOrKey, HttpServletRequest req)
-    throws ResourceNotFoundException, ResourceGoneException {
+      throws ResourceNotFoundException, ResourceGoneException {
 
     if (StringUtils.isBlank(idOrKey)) {
       throw ResourceNotFoundException.create(ObjectStoreControlledVocabularyDto.TYPENAME, "");
@@ -107,7 +107,7 @@ public class ObjectStoreControlledVocabularyRepository extends DinaRepositoryV2<
   public ResponseEntity<RepresentationModel<?>> onBulkLoad(@RequestBody
                                                            JsonApiBulkResourceIdentifierDocument jsonApiBulkDocument,
                                                            HttpServletRequest req)
-    throws ResourcesNotFoundException, ResourcesGoneException {
+      throws ResourcesNotFoundException, ResourcesGoneException {
     return handleBulkLoad(jsonApiBulkDocument, req);
   }
 
@@ -141,7 +141,7 @@ public class ObjectStoreControlledVocabularyRepository extends DinaRepositoryV2<
   @PatchMapping(path = ObjectStoreControlledVocabularyDto.TYPENAME + "/" + DinaRepositoryV2.JSON_API_BULK_PATH, consumes = JSON_API_BULK)
   @Transactional
   public ResponseEntity<RepresentationModel<?>> onBulkUpdate(@RequestBody JsonApiBulkDocument jsonApiBulkDocument)
-    throws ResourceNotFoundException, ResourceGoneException, ConflictException {
+      throws ResourceNotFoundException, ResourceGoneException, ConflictException {
     return handleBulkUpdate(jsonApiBulkDocument);
   }
 
@@ -149,7 +149,7 @@ public class ObjectStoreControlledVocabularyRepository extends DinaRepositoryV2<
   @Transactional
   public ResponseEntity<RepresentationModel<?>> onUpdate(@RequestBody JsonApiDocument partialPatchDto,
                                                          @PathVariable UUID id)
-    throws ResourceNotFoundException, ResourceGoneException, ConflictException {
+      throws ResourceNotFoundException, ResourceGoneException, ConflictException {
     return handleUpdate(partialPatchDto, id);
   }
 
@@ -157,7 +157,7 @@ public class ObjectStoreControlledVocabularyRepository extends DinaRepositoryV2<
   @Transactional
   public ResponseEntity<RepresentationModel<?>> onBulkDelete(@RequestBody
                                                              JsonApiBulkResourceIdentifierDocument jsonApiBulkDocument)
-    throws ResourceNotFoundException, ResourceGoneException {
+      throws ResourceNotFoundException, ResourceGoneException {
     return handleBulkDelete(jsonApiBulkDocument);
   }
 
