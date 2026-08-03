@@ -7,6 +7,10 @@ public class ObjectStoreVocabularyConfiguration {
   // Constant, by Liquibase migration
   public static final UUID MANAGED_ATTRIBUTE_VOCAB_UUID = UUID.fromString("b8527bdf-a1d2-465d-a8bb-2a66d552de23");
 
+  private ObjectStoreVocabularyConfiguration() {
+    // no-op
+  }
+
   public enum DinaComponent {
     METADATA,
     DERIVATIVE;
