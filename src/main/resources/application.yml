@@ -9,7 +9,7 @@ spring:
       max-request-size:  128KB
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.xml
-    contexts: schema-change
+    contexts: schema-change, initial-data, data-migration
     liquibase-schema: object_store
   jpa:
     open-in-view: false
