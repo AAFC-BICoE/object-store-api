@@ -35,7 +35,6 @@ import ca.gc.aafc.objectstore.api.config.AsyncOverrideConfig;
 import ca.gc.aafc.objectstore.api.config.ObjectStoreVocabularyConfiguration;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreControlledVocabularyDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreControlledVocabularyItemDto;
-import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectSubtypeDto;
 import ca.gc.aafc.objectstore.api.entities.DcType;
@@ -49,7 +48,6 @@ import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFacto
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import ca.gc.aafc.objectstore.api.testsupport.fixtures.ObjectStoreControlledVocabularyItemTestFixture;
-import ca.gc.aafc.objectstore.api.testsupport.fixtures.ObjectStoreManagedAttributeFixture;
 import jakarta.inject.Inject;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.validation.ValidationException;
@@ -194,7 +192,12 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends ObjectStoreModuleBaseRe
   @Test
   public void create_resourceWithUnescapedHtmlChars_ResourcePersisted() {
 
-    ObjectStoreControlledVocabularyItem testManagedAttribute = createTestManagedAttribute();
+    ObjectStoreControlledVocabularyItem testManagedAttribute = ObjectStoreControlledVocabularyItemTestFactory.newObjectStoreControlledVocabularyItem()
+      .acceptedValues(null)
+      .controlledVocabulary(getManagedAttributeControlledVocabularyRef())
+      .build();
+    controlledVocabularyItemService.create(testManagedAttribute);
+
     ObjectSubtypeDto acSubtype = createAcSubtype();
 
     ObjectUpload objectUploadTest = ObjectUploadFactory.newObjectUpload().build();
@@ -214,7 +217,6 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends ObjectStoreModuleBaseRe
 
     ObjectStoreMetadata result = objectStoreMetaDataService.findOne(dtoUuid);
     assertEquals(dtoUuid, result.getUuid());
-
   }
 
   @Test

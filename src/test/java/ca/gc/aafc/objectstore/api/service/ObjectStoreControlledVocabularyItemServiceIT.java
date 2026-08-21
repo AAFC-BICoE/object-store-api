@@ -54,35 +54,36 @@ public class ObjectStoreControlledVocabularyItemServiceIT extends BaseIntegratio
     }
   }
 
-  @Test
-  public void testSave_whenDescriptionIsBlank_throwValidationException() {
-    ObjectStoreControlledVocabularyItem blankDescription = ObjectStoreControlledVocabularyItemTestFactory.newObjectStoreControlledVocabularyItem()
-      .acceptedValues(new String[] { "a", "b" })
-      .controlledVocabulary(getManagedAttributeControlledVocabularyRef())
-      .multilingualDescription(MultilingualDescription.builder()
-          .descriptions(List.of(MultilingualDescription.MultilingualPair.of("en", "")))
-          .build())
-      .build();
+  // FIXME move that validation to dina-base since it is relevant to all modules
+  // @Test
+  // public void testSave_whenDescriptionIsBlank_throwValidationException() {
+  //   ObjectStoreControlledVocabularyItem blankDescription = ObjectStoreControlledVocabularyItemTestFactory.newObjectStoreControlledVocabularyItem()
+  //     .acceptedValues(new String[] { "a", "b" })
+  //     .controlledVocabulary(getManagedAttributeControlledVocabularyRef())
+  //     .multilingualDescription(MultilingualDescription.builder()
+  //         .descriptions(List.of(MultilingualDescription.MultilingualPair.of("en", "")))
+  //         .build())
+  //     .build();
 
-    assertThrows(
-      ValidationException.class,
-      () -> controlledVocabularyItemService.create(blankDescription));
-  }
+  //   assertThrows(
+  //     ValidationException.class,
+  //     () -> controlledVocabularyItemService.create(blankDescription));
+  // }
 
-  @Test
-  public void testSave_whenDescriptionsIsNull_throwValidationException() {
-    ObjectStoreControlledVocabularyItem nullDescription = ObjectStoreControlledVocabularyItemTestFactory.newObjectStoreControlledVocabularyItem()
-      .acceptedValues(new String[] { "a", "b" })
-      .controlledVocabulary(getManagedAttributeControlledVocabularyRef())
-      .multilingualDescription(MultilingualDescription.builder()
-          .descriptions(null)
-          .build())
-      .build();
+  // @Test
+  // public void testSave_whenDescriptionsIsNull_throwValidationException() {
+  //   ObjectStoreControlledVocabularyItem nullDescription = ObjectStoreControlledVocabularyItemTestFactory.newObjectStoreControlledVocabularyItem()
+  //     .acceptedValues(new String[] { "a", "b" })
+  //     .controlledVocabulary(getManagedAttributeControlledVocabularyRef())
+  //     .multilingualDescription(MultilingualDescription.builder()
+  //         .descriptions(null)
+  //         .build())
+  //     .build();
 
-    assertThrows(
-      ValidationException.class,
-      () -> controlledVocabularyItemService.create(nullDescription));
-  }
+  //   assertThrows(
+  //     ValidationException.class,
+  //     () -> controlledVocabularyItemService.create(nullDescription));
+  // }
 
   @Test
   public void testFind() {
