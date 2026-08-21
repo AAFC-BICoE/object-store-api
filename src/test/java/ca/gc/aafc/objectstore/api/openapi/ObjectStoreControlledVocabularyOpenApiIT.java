@@ -40,7 +40,7 @@ public class ObjectStoreControlledVocabularyOpenApiIT extends ObjectStoreBaseRes
 
     ObjectStoreControlledVocabularyItemDto dto = ObjectStoreControlledVocabularyItemTestFixture.newObjectStoreControlledVocabularyItem();
 
-    // validate against the colleciton-api specs since all controlled vocabulary is the same
+    // validate against the collection-api specs since all controlled vocabulary is the same
     OpenAPI3Assertions
       .assertRemoteSchema(OpenAPIConstants.COLLECTION_API_SPECS_URL, "ControlledVocabularyItem",
         sendPost(

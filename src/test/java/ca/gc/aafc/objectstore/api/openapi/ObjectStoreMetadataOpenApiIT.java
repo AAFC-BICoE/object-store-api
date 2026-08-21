@@ -7,9 +7,11 @@ import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.dina.testsupport.specs.OpenAPI3Assertions;
 import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.objectstore.api.ObjectStoreApiLauncher;
+import ca.gc.aafc.objectstore.api.config.ObjectStoreVocabularyConfiguration;
 import ca.gc.aafc.objectstore.api.dto.DerivativeDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
+import ca.gc.aafc.objectstore.api.entities.ObjectStoreControlledVocabulary;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreControlledVocabularyItem;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
@@ -20,6 +22,7 @@ import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreControlledVoc
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import ca.gc.aafc.objectstore.api.testsupport.fixtures.DerivativeTestFixture;
+import ca.gc.aafc.objectstore.api.service.ObjectStoreControlledVocabularyService;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,6 +51,9 @@ public class ObjectStoreMetadataOpenApiIT extends ObjectStoreBaseRestAssuredTest
 
   @Inject
   protected DatabaseSupportService service;
+
+  @Inject
+  protected ObjectStoreControlledVocabularyService controlledVocabularyService;
 
   private static final String SCHEMA_NAME = "Metadata";
   private static final String RESOURCE_UNDER_TEST = "metadata";
@@ -87,9 +93,12 @@ public class ObjectStoreMetadataOpenApiIT extends ObjectStoreBaseRestAssuredTest
         .uuid(UUIDHelper.generateUUIDv7())
         .name(MANAGED_ATTRIBUTE_KEY)
         .key(MANAGED_ATTRIBUTE_KEY)
+        .group("test")
         .acceptedValues(new String[] { MANAGED_ATTRIBUTE_VALUE })
         .createdBy("admin")
         .createdOn(OffsetDateTime.now())
+        .controlledVocabulary(controlledVocabularyService.getReferenceByNaturalId(ObjectStoreControlledVocabulary.class, 
+          ObjectStoreVocabularyConfiguration.MANAGED_ATTRIBUTE_VOCAB_UUID))
         .build();
     managedAttributeUuid = managedAttribute.getUuid();
 
