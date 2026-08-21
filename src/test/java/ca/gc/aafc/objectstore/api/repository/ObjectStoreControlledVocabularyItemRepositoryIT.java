@@ -1,0 +1,103 @@
+package ca.gc.aafc.objectstore.api.repository;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.util.Map;
+import java.util.UUID;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import ca.gc.aafc.dina.exception.ResourceNotFoundException;
+import ca.gc.aafc.dina.jsonapi.JsonApiDocument;
+import ca.gc.aafc.dina.jsonapi.JsonApiDocuments;
+import ca.gc.aafc.dina.repository.JsonApiModelAssistant;
+import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
+import ca.gc.aafc.dina.testsupport.security.WithMockKeycloakUser;
+import ca.gc.aafc.dina.vocabulary.TypedVocabularyElement;
+import ca.gc.aafc.objectstore.api.config.ObjectStoreVocabularyConfiguration;
+import ca.gc.aafc.objectstore.api.dto.ObjectStoreControlledVocabularyDto;
+import ca.gc.aafc.objectstore.api.dto.ObjectStoreControlledVocabularyItemDto;
+import ca.gc.aafc.objectstore.api.testsupport.fixtures.ObjectStoreControlledVocabularyItemTestFixture;
+import jakarta.inject.Inject;
+
+public class ObjectStoreControlledVocabularyItemRepositoryIT extends ObjectStoreModuleBaseRepositoryIT {
+
+  private static final String BASE_URL = "/api/v1/" + ObjectStoreControlledVocabularyItemDto.TYPENAME;
+
+  @Autowired
+  private WebApplicationContext wac;
+
+  private MockMvc mockMvc;
+
+  @Inject
+  private ObjectStoreControlledVocabularyItemRepository repo;
+
+  @Autowired
+  public ObjectStoreControlledVocabularyItemRepositoryIT(ObjectMapper objMapper) {
+    super(BASE_URL, objMapper);
+  }
+
+  @Override
+  protected MockMvc getMockMvc() {
+    return mockMvc;
+  }
+
+  @BeforeEach
+  public void setup() {
+    this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
+  }
+
+  @Test
+  @WithMockKeycloakUser(groupRole = "dina-group:DINA_ADMIN", adminRole = "DINA_ADMIN")
+  void create_recordCreated() throws Exception {
+    String expectedName = "dina attribute #12";
+    String expectedValue = "dina value";
+    String expectedCreatedBy = "dina";
+    String expectedGroup = "dina-group";
+
+    ObjectStoreControlledVocabularyItemDto dto =
+      ObjectStoreControlledVocabularyItemTestFixture.newObjectStoreControlledVocabularyItem();
+
+    dto.setName(expectedName);
+    dto.setVocabularyElementType(TypedVocabularyElement.VocabularyElementType.INTEGER);
+    dto.setAcceptedValues(new String[]{expectedValue});
+    dto.setDinaComponent(ObjectStoreVocabularyConfiguration.DinaComponent.METADATA.name());
+    dto.setCreatedBy(expectedCreatedBy);
+    dto.setGroup(expectedGroup);
+
+    JsonApiDocument docToCreate = JsonApiDocuments.createJsonApiDocumentWithRelToOne(
+      null, ObjectStoreControlledVocabularyItemDto.TYPENAME,
+      JsonAPITestHelper.toAttributeMap(dto),
+      Map.of("controlledVocabulary", JsonApiDocument.ResourceIdentifier.builder()
+        .type(ObjectStoreControlledVocabularyDto.TYPENAME)
+        .id(ObjectStoreVocabularyConfiguration.MANAGED_ATTRIBUTE_VOCAB_UUID).build()
+      )
+    );
+
+    var created = repo.onCreate(docToCreate);
+    UUID uuid = JsonApiModelAssistant.extractUUIDFromRepresentationModelLink(created);
+
+    // try get by uuid
+    sendGet(uuid.toString());
+
+    // try get be key
+    sendGet("managed_attribute.dina_attribute_12_integer.METADATA");
+  }
+
+  @Test
+  @WithMockKeycloakUser(groupRole = ObjectStoreControlledVocabularyItemTestFixture.GROUP + ":SUPER_USER")
+  void findOneByKey_whenBadKeyProvided_responseSanitized() throws Exception {
+    ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+      () -> repo.onFindOne("managed_attribute.attr_1<iframe src=javascript:alert(24109)", null));
+
+    assertFalse(exception.getMessage().contains("alert(24109)"));
+  }
+}
