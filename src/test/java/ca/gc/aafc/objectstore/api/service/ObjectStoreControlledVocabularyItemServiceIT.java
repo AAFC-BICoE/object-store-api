@@ -2,7 +2,6 @@ package ca.gc.aafc.objectstore.api.service;
 
 import org.junit.jupiter.api.Test;
 
-import ca.gc.aafc.dina.i18n.MultilingualDescription;
 import ca.gc.aafc.dina.vocabulary.TypedVocabularyElement;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreControlledVocabularyItem;
@@ -20,10 +19,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import jakarta.validation.ValidationException;
 
 public class ObjectStoreControlledVocabularyItemServiceIT extends BaseIntegrationTest {
 
@@ -53,37 +50,6 @@ public class ObjectStoreControlledVocabularyItemServiceIT extends BaseIntegratio
         .build());
     }
   }
-
-  // FIXME move that validation to dina-base since it is relevant to all modules
-  // @Test
-  // public void testSave_whenDescriptionIsBlank_throwValidationException() {
-  //   ObjectStoreControlledVocabularyItem blankDescription = ObjectStoreControlledVocabularyItemTestFactory.newObjectStoreControlledVocabularyItem()
-  //     .acceptedValues(new String[] { "a", "b" })
-  //     .controlledVocabulary(getManagedAttributeControlledVocabularyRef())
-  //     .multilingualDescription(MultilingualDescription.builder()
-  //         .descriptions(List.of(MultilingualDescription.MultilingualPair.of("en", "")))
-  //         .build())
-  //     .build();
-
-  //   assertThrows(
-  //     ValidationException.class,
-  //     () -> controlledVocabularyItemService.create(blankDescription));
-  // }
-
-  // @Test
-  // public void testSave_whenDescriptionsIsNull_throwValidationException() {
-  //   ObjectStoreControlledVocabularyItem nullDescription = ObjectStoreControlledVocabularyItemTestFactory.newObjectStoreControlledVocabularyItem()
-  //     .acceptedValues(new String[] { "a", "b" })
-  //     .controlledVocabulary(getManagedAttributeControlledVocabularyRef())
-  //     .multilingualDescription(MultilingualDescription.builder()
-  //         .descriptions(null)
-  //         .build())
-  //     .build();
-
-  //   assertThrows(
-  //     ValidationException.class,
-  //     () -> controlledVocabularyItemService.create(nullDescription));
-  // }
 
   @Test
   public void testFind() {
