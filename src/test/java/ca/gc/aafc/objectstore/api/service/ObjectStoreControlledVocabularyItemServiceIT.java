@@ -5,11 +5,11 @@ import org.junit.jupiter.api.Test;
 import ca.gc.aafc.dina.i18n.MultilingualDescription;
 import ca.gc.aafc.dina.vocabulary.TypedVocabularyElement;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
-import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
+import ca.gc.aafc.objectstore.api.entities.ObjectStoreControlledVocabularyItem;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MultilingualDescriptionFactory;
-import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreManagedAttributeFactory;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreControlledVocabularyItemTestFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 
@@ -25,27 +25,30 @@ import java.util.Map;
 import java.util.UUID;
 import jakarta.validation.ValidationException;
 
-public class ObjectStoreManagedAttributeServiceIT extends BaseIntegrationTest {
+public class ObjectStoreControlledVocabularyItemServiceIT extends BaseIntegrationTest {
 
-  private ObjectStoreManagedAttribute buildObjectStoreManagedAttribute() {
-    return ObjectStoreManagedAttributeFactory.newManagedAttribute()
+  private ObjectStoreControlledVocabularyItem buildObjectStoreManagedAttribute() {
+    return ObjectStoreControlledVocabularyItemTestFactory.newObjectStoreControlledVocabularyItem()
       .acceptedValues(new String[] { "a", "b" })
       .multilingualDescription(MultilingualDescriptionFactory.newMultilingualDescription().build())
       .createdBy("createdBy")
+      .controlledVocabulary(getManagedAttributeControlledVocabularyRef())
       .build();
   }
       
   @Test
   public void testSave() {
-    ObjectStoreManagedAttribute managedAttributeUnderTest = buildObjectStoreManagedAttribute();
-    managedAttributeService.create(managedAttributeUnderTest);
+    ObjectStoreControlledVocabularyItem managedAttributeUnderTest = buildObjectStoreManagedAttribute();
+    controlledVocabularyItemService.create(managedAttributeUnderTest);
     assertNotNull(managedAttributeUnderTest.getId());
   }
 
   @Test
   public void testSaveAllTypes() {
     for(var type : TypedVocabularyElement.VocabularyElementType.values()) {
-      managedAttributeService.create(ObjectStoreManagedAttributeFactory.newManagedAttribute()
+      controlledVocabularyItemService.create(
+        ObjectStoreControlledVocabularyItemTestFactory.newObjectStoreControlledVocabularyItem()
+        .controlledVocabulary(getManagedAttributeControlledVocabularyRef())
         .vocabularyElementType(type)
         .build());
     }
@@ -53,8 +56,9 @@ public class ObjectStoreManagedAttributeServiceIT extends BaseIntegrationTest {
 
   @Test
   public void testSave_whenDescriptionIsBlank_throwValidationException() {
-    ObjectStoreManagedAttribute blankDescription = ObjectStoreManagedAttributeFactory.newManagedAttribute()
+    ObjectStoreControlledVocabularyItem blankDescription = ObjectStoreControlledVocabularyItemTestFactory.newObjectStoreControlledVocabularyItem()
       .acceptedValues(new String[] { "a", "b" })
+      .controlledVocabulary(getManagedAttributeControlledVocabularyRef())
       .multilingualDescription(MultilingualDescription.builder()
           .descriptions(List.of(MultilingualDescription.MultilingualPair.of("en", "")))
           .build())
@@ -62,13 +66,14 @@ public class ObjectStoreManagedAttributeServiceIT extends BaseIntegrationTest {
 
     assertThrows(
       ValidationException.class,
-      () -> managedAttributeService.create(blankDescription));
+      () -> controlledVocabularyItemService.create(blankDescription));
   }
 
   @Test
   public void testSave_whenDescriptionsIsNull_throwValidationException() {
-    ObjectStoreManagedAttribute nullDescription = ObjectStoreManagedAttributeFactory.newManagedAttribute()
+    ObjectStoreControlledVocabularyItem nullDescription = ObjectStoreControlledVocabularyItemTestFactory.newObjectStoreControlledVocabularyItem()
       .acceptedValues(new String[] { "a", "b" })
+      .controlledVocabulary(getManagedAttributeControlledVocabularyRef())
       .multilingualDescription(MultilingualDescription.builder()
           .descriptions(null)
           .build())
@@ -76,16 +81,16 @@ public class ObjectStoreManagedAttributeServiceIT extends BaseIntegrationTest {
 
     assertThrows(
       ValidationException.class,
-      () -> managedAttributeService.create(nullDescription));
+      () -> controlledVocabularyItemService.create(nullDescription));
   }
 
   @Test
   public void testFind() {
-    ObjectStoreManagedAttribute managedAttributeUnderTest = buildObjectStoreManagedAttribute();
-    managedAttributeService.create(managedAttributeUnderTest);
+    ObjectStoreControlledVocabularyItem managedAttributeUnderTest = buildObjectStoreManagedAttribute();
+    controlledVocabularyItemService.create(managedAttributeUnderTest);
 
-    ObjectStoreManagedAttribute fetchedObjectStoreMeta = managedAttributeService.findOne(
-      managedAttributeUnderTest.getUuid(), ObjectStoreManagedAttribute.class);
+    ObjectStoreControlledVocabularyItem fetchedObjectStoreMeta = controlledVocabularyItemService.findOne(
+      managedAttributeUnderTest.getUuid(), ObjectStoreControlledVocabularyItem.class);
     assertEquals(managedAttributeUnderTest.getId(), fetchedObjectStoreMeta.getId());
 
     assertArrayEquals(new String[] { "a", "b" }, managedAttributeUnderTest.getAcceptedValues());
@@ -97,24 +102,25 @@ public class ObjectStoreManagedAttributeServiceIT extends BaseIntegrationTest {
 
   @Test
   public void testRemove() {
-    ObjectStoreManagedAttribute managedAttributeUnderTest = buildObjectStoreManagedAttribute();
-    managedAttributeService.create(managedAttributeUnderTest);
+    ObjectStoreControlledVocabularyItem managedAttributeUnderTest = buildObjectStoreManagedAttribute();
+    controlledVocabularyItemService.create(managedAttributeUnderTest);
 
     UUID uuid = managedAttributeUnderTest.getUuid();
-    managedAttributeService.delete(managedAttributeUnderTest);
-    assertNull(managedAttributeService.findOne(
-      uuid, ObjectStoreManagedAttribute.class));
+    controlledVocabularyItemService.delete(managedAttributeUnderTest);
+    assertNull(controlledVocabularyItemService.findOne(
+      uuid, ObjectStoreControlledVocabularyItem.class));
   }
 
   @Test
   public void testRemove_WhenKeyInUseByMetadata_DeniesDelete() {
-    ObjectStoreManagedAttribute managedAttribute = ObjectStoreManagedAttributeFactory.newManagedAttribute()
+    ObjectStoreControlledVocabularyItem managedAttribute = ObjectStoreControlledVocabularyItemTestFactory.newObjectStoreControlledVocabularyItem()
       .acceptedValues(new String[] { "key_a", "value_a" })
       .multilingualDescription(MultilingualDescriptionFactory.newMultilingualDescription().build())
       .createdBy("createdBy")
+      .controlledVocabulary(getManagedAttributeControlledVocabularyRef())
       .build();
 
-    managedAttributeService.create(managedAttribute);
+    controlledVocabularyItemService.create(managedAttribute);
     
     ObjectStoreMetadata objectStoreMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata()
     .managedAttributes(new HashMap<> (Map.of(managedAttribute.getKey(), "value_a")))
@@ -129,6 +135,6 @@ public class ObjectStoreManagedAttributeServiceIT extends BaseIntegrationTest {
       objectStoreMetadata.getUuid(), ObjectStoreMetadata.class));
 
     assertThrows(
-      IllegalStateException.class, () -> managedAttributeService.delete(managedAttribute));
+      IllegalStateException.class, () -> controlledVocabularyItemService.delete(managedAttribute));
   }
 }
