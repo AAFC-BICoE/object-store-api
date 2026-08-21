@@ -10,12 +10,13 @@ import ca.gc.aafc.objectstore.api.ObjectStoreApiLauncher;
 import ca.gc.aafc.objectstore.api.dto.DerivativeDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
+import ca.gc.aafc.objectstore.api.entities.ObjectStoreControlledVocabularyItem;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.rest.ObjectStoreBaseRestAssuredTest;
-import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreManagedAttributeFactory;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreControlledVocabularyItemTestFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import ca.gc.aafc.objectstore.api.testsupport.fixtures.DerivativeTestFixture;
@@ -82,7 +83,7 @@ public class ObjectStoreMetadataOpenApiIT extends ObjectStoreBaseRestAssuredTest
         .build();
 
     // Add a managed attribute to use for the object store metadata testing.
-    ObjectStoreManagedAttribute managedAttribute = ObjectStoreManagedAttributeFactory.newManagedAttribute()
+    ObjectStoreControlledVocabularyItem managedAttribute = ObjectStoreControlledVocabularyItemTestFactory.newObjectStoreControlledVocabularyItem()
         .uuid(UUIDHelper.generateUUIDv7())
         .name(MANAGED_ATTRIBUTE_KEY)
         .key(MANAGED_ATTRIBUTE_KEY)
