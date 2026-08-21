@@ -18,7 +18,6 @@ import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
-import ca.gc.aafc.objectstore.api.repository.ObjectStoreManagedAttributeResourceRepository;
 import ca.gc.aafc.objectstore.api.repository.ObjectStoreMetadataRepositoryV2;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MultilingualDescriptionFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
@@ -33,9 +32,6 @@ public class ObjectStoreManagedAttributeAuditingIT extends BaseIntegrationTest {
 
   @Inject
   private ObjectStoreMetadataRepositoryV2 metadataRepository;
-
-  @Inject
-  private ObjectStoreManagedAttributeResourceRepository managedRepo;
 
   @Inject
   private Javers javers;

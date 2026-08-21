@@ -32,7 +32,7 @@ public class ObjectStoreControlledVocabularyItemRestIT extends ObjectStoreBaseRe
     super("/api/v1/");
   }
 
-  private String createControlledVocabularyItem(ObjectStoreControlledVocabularyDto vocabDto) {
+  private String createControlledVocabularyItem(ObjectStoreControlledVocabularyDto vocabDto, ObjectStoreControlledVocabularyItemDto vocabItemDto) {
     String controlledVocabularyUuid = sendPost(ObjectStoreControlledVocabularyDto.TYPENAME, JsonAPITestHelper.toJsonAPIMap(
       ObjectStoreControlledVocabularyDto.TYPENAME,
       JsonAPITestHelper.toAttributeMap(vocabDto),
@@ -40,7 +40,6 @@ public class ObjectStoreControlledVocabularyItemRestIT extends ObjectStoreBaseRe
       null)
     ).extract().body().jsonPath().getString("data.id");
 
-    ObjectStoreControlledVocabularyItemDto vocabItemDto = ObjectStoreControlledVocabularyItemTestFixture.newObjectStoreControlledVocabularyItem();
     vocabItemDto.setGroup("dev");
 
     return sendPost(ObjectStoreControlledVocabularyItemDto.TYPENAME, JsonAPITestHelper.toJsonAPIMap(
@@ -55,7 +54,8 @@ public class ObjectStoreControlledVocabularyItemRestIT extends ObjectStoreBaseRe
   @Test
   public void testPost() {
     ObjectStoreControlledVocabularyDto vocabDto = ObjectStoreControlledVocabularyTestFixture.newObjectStoreControlledVocabulary();
-    String controlledVocabularyItemUuid = createControlledVocabularyItem(vocabDto);
+    ObjectStoreControlledVocabularyItemDto vocabItemDto = ObjectStoreControlledVocabularyItemTestFixture.newObjectStoreControlledVocabularyItem();
+    String controlledVocabularyItemUuid = createControlledVocabularyItem(vocabDto, vocabItemDto);
     sendGet(ObjectStoreControlledVocabularyItemDto.TYPENAME, controlledVocabularyItemUuid);
   }
 
@@ -64,18 +64,19 @@ public class ObjectStoreControlledVocabularyItemRestIT extends ObjectStoreBaseRe
   public void resourceUnderTest_whenUpdatingImmutableFields_returnOkAndResourceIsNotUpdated() {
     // Setup: create an resource
     ObjectStoreControlledVocabularyDto vocabDto = ObjectStoreControlledVocabularyTestFixture.newObjectStoreControlledVocabulary();
-    String controlledVocabularyItemUuid = createControlledVocabularyItem(vocabDto);
-    String originalName = vocabDto.getName();
+    ObjectStoreControlledVocabularyItemDto vocabItemDto = ObjectStoreControlledVocabularyItemTestFixture.newObjectStoreControlledVocabularyItem();
+    String controlledVocabularyItemUuid = createControlledVocabularyItem(vocabDto, vocabItemDto);
+    String originalName = vocabItemDto.getName();
 
-    vocabDto.setName("updatedName");
-    vocabDto.setKey("updatedKey");
+    vocabItemDto.setName("updatedName");
+    vocabItemDto.setKey("updatedKey");
     
     // update the resource
-    sendPatch(ObjectStoreControlledVocabularyDto.TYPENAME, controlledVocabularyItemUuid, JsonAPITestHelper.toJsonAPIMap(
-      ObjectStoreControlledVocabularyDto.TYPENAME, 
-      JsonAPITestHelper.toAttributeMap(vocabDto), controlledVocabularyItemUuid));
+    sendPatch(ObjectStoreControlledVocabularyItemDto.TYPENAME, controlledVocabularyItemUuid, JsonAPITestHelper.toJsonAPIMap(
+      ObjectStoreControlledVocabularyItemDto.TYPENAME, 
+      JsonAPITestHelper.toAttributeMap(vocabItemDto), controlledVocabularyItemUuid));
 
-    ValidatableResponse responseUpdate = sendGet(ObjectStoreControlledVocabularyDto.TYPENAME, controlledVocabularyItemUuid);
+    ValidatableResponse responseUpdate = sendGet(ObjectStoreControlledVocabularyItemDto.TYPENAME, controlledVocabularyItemUuid);
 
     responseUpdate.body("data.attributes.key",
       not(vocabDto.getKey()));
@@ -84,7 +85,7 @@ public class ObjectStoreControlledVocabularyItemRestIT extends ObjectStoreBaseRe
       equalTo(originalName));
 
     // cleanup
-    sendDelete(ObjectStoreControlledVocabularyDto.TYPENAME, controlledVocabularyItemUuid, HttpStatus.NO_CONTENT.value());
+    sendDelete(ObjectStoreControlledVocabularyItemDto.TYPENAME, controlledVocabularyItemUuid, HttpStatus.NO_CONTENT.value());
   }
 
 }

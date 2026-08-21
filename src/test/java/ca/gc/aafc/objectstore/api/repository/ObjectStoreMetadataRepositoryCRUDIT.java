@@ -32,6 +32,9 @@ import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.dina.vocabulary.TypedVocabularyElement;
 import ca.gc.aafc.objectstore.api.config.AsyncOverrideConfig;
+import ca.gc.aafc.objectstore.api.config.ObjectStoreVocabularyConfiguration;
+import ca.gc.aafc.objectstore.api.dto.ObjectStoreControlledVocabularyDto;
+import ca.gc.aafc.objectstore.api.dto.ObjectStoreControlledVocabularyItemDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreManagedAttributeDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectSubtypeDto;
@@ -45,6 +48,7 @@ import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreControlledVoc
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
+import ca.gc.aafc.objectstore.api.testsupport.fixtures.ObjectStoreControlledVocabularyItemTestFixture;
 import ca.gc.aafc.objectstore.api.testsupport.fixtures.ObjectStoreManagedAttributeFixture;
 import jakarta.inject.Inject;
 import jakarta.persistence.criteria.Predicate;
@@ -64,7 +68,7 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends ObjectStoreModuleBaseRe
   private ObjectStoreMetadataRepositoryV2 objectStoreResourceRepository;
 
   @Inject
-  private ObjectStoreManagedAttributeResourceRepository managedResourceRepository;
+  private ObjectStoreControlledVocabularyItemRepository controlledVocabularyItemRepository;
 
   @Autowired
   protected ObjectStoreMetadataRepositoryCRUDIT(ObjectMapper objMapper) {
@@ -345,15 +349,19 @@ public class ObjectStoreMetadataRepositoryCRUDIT extends ObjectStoreModuleBaseRe
   public void create_onManagedAttributeValue_validationOccur()
       throws ResourceGoneException, ResourceNotFoundException, ConflictException {
 
-    ObjectStoreManagedAttributeDto newAttribute = ObjectStoreManagedAttributeFixture.newObjectStoreManagedAttribute();
-    newAttribute.setVocabularyElementType(TypedVocabularyElement.VocabularyElementType.DATE);
-    newAttribute.setAcceptedValues(null);
+    ObjectStoreControlledVocabularyItemDto vocabItemDto = ObjectStoreControlledVocabularyItemTestFixture.newObjectStoreControlledVocabularyItem();
+    vocabItemDto.setDinaComponent(ObjectStoreVocabularyConfiguration.DinaComponent.METADATA.name());
+    vocabItemDto.setVocabularyElementType(TypedVocabularyElement.VocabularyElementType.DATE);
+    vocabItemDto.setAcceptedValues(null);
 
-    JsonApiDocument docToCreate = JsonApiDocuments.createJsonApiDocument(
-      null, ObjectStoreManagedAttributeDto.TYPENAME,
-      JsonAPITestHelper.toAttributeMap(newAttribute)
-    );
-    newAttribute = managedResourceRepository.create(docToCreate, null).getDto();
+    JsonApiDocument docToCreate = JsonApiDocuments.createJsonApiDocumentWithRelToOne(
+        null, ObjectStoreControlledVocabularyItemDto.TYPENAME,
+        JsonAPITestHelper.toAttributeMap(vocabItemDto),
+        Map.of("controlledVocabulary",
+            JsonApiDocument.ResourceIdentifier.builder().type(ObjectStoreControlledVocabularyDto.TYPENAME)
+                .id(ObjectStoreVocabularyConfiguration.MANAGED_ATTRIBUTE_VOCAB_UUID).build()));
+
+    ObjectStoreControlledVocabularyItemDto newAttribute = controlledVocabularyItemRepository.create(docToCreate, null).getDto();
 
     ObjectUpload objectUpload = createObjectUpload();
     ObjectStoreMetadata testMetadata = createTestObjectStoreMetadata(objectUpload.getFileIdentifier());

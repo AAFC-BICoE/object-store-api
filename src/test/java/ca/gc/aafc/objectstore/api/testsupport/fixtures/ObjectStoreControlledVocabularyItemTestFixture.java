@@ -10,23 +10,10 @@ public class ObjectStoreControlledVocabularyItemTestFixture {
   public static final String GROUP = "dina";
 
   public static ObjectStoreControlledVocabularyItemDto newObjectStoreControlledVocabularyItem() {
-    ObjectStoreControlledVocabularyItemDto collectionControlledVocabularyItemDto = new ObjectStoreControlledVocabularyItemDto();
-    collectionControlledVocabularyItemDto.setName(RandomStringUtils.randomAlphabetic(5));
-    collectionControlledVocabularyItemDto.setVocabularyElementType(
-      TypedVocabularyElement.VocabularyElementType.INTEGER);
-    collectionControlledVocabularyItemDto.setAcceptedValues(new String[]{"1", "2"});
-    collectionControlledVocabularyItemDto.setTerm("the-term");
-    collectionControlledVocabularyItemDto.setUnit("cm");
-    collectionControlledVocabularyItemDto.setCreatedBy("created by");
-    collectionControlledVocabularyItemDto.setGroup("test");
-    collectionControlledVocabularyItemDto.setUriTemplate("http://test.org/$1");
-    collectionControlledVocabularyItemDto.setDinaComponent("abc");
-    collectionControlledVocabularyItemDto.setMultilingualTitle(MultilingualTestFixture.newMultilingualTitle());
-    collectionControlledVocabularyItemDto.setMultilingualDescription(MultilingualTestFixture.newMultilingualDescription());
-    return collectionControlledVocabularyItemDto;
+    return newObjectStoreControlledVocabularyItem("test");
   }
 
-    public static ObjectStoreControlledVocabularyItemDto newObjectStoreControlledVocabularyItem(String group) {
+  public static ObjectStoreControlledVocabularyItemDto newObjectStoreControlledVocabularyItem(String group) {
     ObjectStoreControlledVocabularyItemDto collectionControlledVocabularyItemDto = new ObjectStoreControlledVocabularyItemDto();
     collectionControlledVocabularyItemDto.setName(RandomStringUtils.randomAlphabetic(5));
     collectionControlledVocabularyItemDto.setGroup(group);
