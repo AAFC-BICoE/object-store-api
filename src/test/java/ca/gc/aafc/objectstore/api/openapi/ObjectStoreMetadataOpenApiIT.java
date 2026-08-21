@@ -13,7 +13,6 @@ import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreControlledVocabulary;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreControlledVocabularyItem;
-import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
@@ -139,7 +138,7 @@ public class ObjectStoreMetadataOpenApiIT extends ObjectStoreBaseRestAssuredTest
     deleteEntityByUUID("fileIdentifier", oUpload_derivative.getFileIdentifier(), ObjectUpload.class);
     deleteEntityByUUID("fileIdentifier", ObjectUploadFactory.TEST_FILE_IDENTIFIER, ObjectUpload.class);
     deleteEntityByUUID("fileIdentifier", oUpload_acDerivedFrom.getFileIdentifier(), ObjectUpload.class);
-    deleteEntityByUUID("uuid", managedAttributeUuid, ObjectStoreManagedAttribute.class);
+    deleteEntityByUUID("uuid", managedAttributeUuid, ObjectStoreControlledVocabularyItem.class);
   }
 
   @Test

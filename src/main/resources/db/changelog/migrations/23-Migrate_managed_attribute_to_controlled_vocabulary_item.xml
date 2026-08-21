@@ -26,7 +26,7 @@
                 'system',
                 ma.key,
                 ma.accepted_values,
-                ma.type::text,
+                COALESCE(ma.type::text, 'STRING'),
                 'METADATA',
                 ma.multilingual_description,
                 ma.created_by,
