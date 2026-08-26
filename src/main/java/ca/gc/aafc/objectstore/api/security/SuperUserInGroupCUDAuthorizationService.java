@@ -1,5 +1,7 @@
 package ca.gc.aafc.objectstore.api.security;
 
+import java.util.Set;
+
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
@@ -29,11 +31,17 @@ public class SuperUserInGroupCUDAuthorizationService extends PermissionAuthoriza
 
   // Do nothing for now
   @Override
+  @PreAuthorize("allow()")
   public void authorizeRead(Object entity) {
   }
 
   @Override
+  public Set<String> evaluatedAttributes() {
+    return Set.of("group");
+  }
+
+  @Override
   public String getName() {
-    return "SuperUserInGroupCUDAuthorizationService";
+    return SuperUserInGroupCUDAuthorizationService.class.getSimpleName();
   }
 }

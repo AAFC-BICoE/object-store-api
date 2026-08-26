@@ -22,14 +22,18 @@ import ca.gc.aafc.dina.jsonapi.JsonApiBulkResourceIdentifierDocument;
 import ca.gc.aafc.dina.jsonapi.JsonApiDocument;
 import ca.gc.aafc.dina.jsonapi.JsonApiDocuments;
 import ca.gc.aafc.dina.repository.DinaRepositoryV2;
+import ca.gc.aafc.dina.service.ControlledVocabularyItemService;
 import ca.gc.aafc.dina.testsupport.PostgresTestContainerInitializer;
 import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.dina.testsupport.repository.MockMvcBasedRepository;
 import ca.gc.aafc.objectstore.api.ObjectStoreApiLauncher;
 import ca.gc.aafc.objectstore.api.async.AsyncConsumer;
+import ca.gc.aafc.objectstore.api.config.ObjectStoreVocabularyConfiguration;
+import ca.gc.aafc.objectstore.api.entities.ObjectStoreControlledVocabulary;
 import ca.gc.aafc.objectstore.api.service.DerivativeService;
 import ca.gc.aafc.objectstore.api.service.ObjectExportService;
-import ca.gc.aafc.objectstore.api.service.ObjectStoreManagedAttributeService;
+import ca.gc.aafc.objectstore.api.service.ObjectStoreControlledVocabularyService;
+import ca.gc.aafc.objectstore.api.service.ObjectStoreControlledVocabularyItemService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
 import ca.gc.aafc.objectstore.api.service.ObjectSubtypeService;
 import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
@@ -63,7 +67,10 @@ public abstract class ObjectStoreModuleBaseRepositoryIT extends MockMvcBasedRepo
   protected DerivativeService derivativeService;
 
   @Inject
-  protected ObjectStoreManagedAttributeService managedAttributeService;
+  protected ObjectStoreControlledVocabularyService controlledVocabularyService;
+
+  @Inject
+  protected ObjectStoreControlledVocabularyItemService controlledVocabularyItemService;
 
   @Inject
   protected ObjectSubtypeService objectSubtypeService;
@@ -80,6 +87,13 @@ public abstract class ObjectStoreModuleBaseRepositoryIT extends MockMvcBasedRepo
     return JsonApiDocuments.createJsonApiDocument(
       jsonApiResource.getJsonApiId(), jsonApiResource.getJsonApiType(),
       JsonAPITestHelper.toAttributeMap(jsonApiResource)
+    );
+  }
+
+  protected ObjectStoreControlledVocabulary getManagedAttributeControlledVocabularyRef() {
+    return controlledVocabularyService.getReferenceByNaturalId(
+      ObjectStoreControlledVocabulary.class,
+      ObjectStoreVocabularyConfiguration.MANAGED_ATTRIBUTE_VOCAB_UUID
     );
   }
 

@@ -7,18 +7,21 @@ import ca.gc.aafc.dina.testsupport.jsonapi.JsonAPITestHelper;
 import ca.gc.aafc.dina.testsupport.specs.OpenAPI3Assertions;
 import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.objectstore.api.ObjectStoreApiLauncher;
+import ca.gc.aafc.objectstore.api.config.ObjectStoreVocabularyConfiguration;
 import ca.gc.aafc.objectstore.api.dto.DerivativeDto;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreMetadataDto;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
-import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
+import ca.gc.aafc.objectstore.api.entities.ObjectStoreControlledVocabulary;
+import ca.gc.aafc.objectstore.api.entities.ObjectStoreControlledVocabularyItem;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.rest.ObjectStoreBaseRestAssuredTest;
-import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreManagedAttributeFactory;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreControlledVocabularyItemTestFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
 import ca.gc.aafc.objectstore.api.testsupport.fixtures.DerivativeTestFixture;
+import ca.gc.aafc.objectstore.api.service.ObjectStoreControlledVocabularyService;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,6 +50,9 @@ public class ObjectStoreMetadataOpenApiIT extends ObjectStoreBaseRestAssuredTest
 
   @Inject
   protected DatabaseSupportService service;
+
+  @Inject
+  protected ObjectStoreControlledVocabularyService controlledVocabularyService;
 
   private static final String SCHEMA_NAME = "Metadata";
   private static final String RESOURCE_UNDER_TEST = "metadata";
@@ -82,13 +88,16 @@ public class ObjectStoreMetadataOpenApiIT extends ObjectStoreBaseRestAssuredTest
         .build();
 
     // Add a managed attribute to use for the object store metadata testing.
-    ObjectStoreManagedAttribute managedAttribute = ObjectStoreManagedAttributeFactory.newManagedAttribute()
+    ObjectStoreControlledVocabularyItem managedAttribute = ObjectStoreControlledVocabularyItemTestFactory.newObjectStoreControlledVocabularyItem()
         .uuid(UUIDHelper.generateUUIDv7())
         .name(MANAGED_ATTRIBUTE_KEY)
         .key(MANAGED_ATTRIBUTE_KEY)
+        .group("test")
         .acceptedValues(new String[] { MANAGED_ATTRIBUTE_VALUE })
         .createdBy("admin")
         .createdOn(OffsetDateTime.now())
+        .controlledVocabulary(controlledVocabularyService.getReferenceByNaturalId(ObjectStoreControlledVocabulary.class, 
+          ObjectStoreVocabularyConfiguration.MANAGED_ATTRIBUTE_VOCAB_UUID))
         .build();
     managedAttributeUuid = managedAttribute.getUuid();
 
@@ -129,7 +138,7 @@ public class ObjectStoreMetadataOpenApiIT extends ObjectStoreBaseRestAssuredTest
     deleteEntityByUUID("fileIdentifier", oUpload_derivative.getFileIdentifier(), ObjectUpload.class);
     deleteEntityByUUID("fileIdentifier", ObjectUploadFactory.TEST_FILE_IDENTIFIER, ObjectUpload.class);
     deleteEntityByUUID("fileIdentifier", oUpload_acDerivedFrom.getFileIdentifier(), ObjectUpload.class);
-    deleteEntityByUUID("uuid", managedAttributeUuid, ObjectStoreManagedAttribute.class);
+    deleteEntityByUUID("uuid", managedAttributeUuid, ObjectStoreControlledVocabularyItem.class);
   }
 
   @Test

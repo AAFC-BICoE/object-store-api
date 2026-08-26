@@ -27,7 +27,7 @@ import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.file.FileController;
 import ca.gc.aafc.objectstore.api.util.ObjectFilenameUtils;
-import ca.gc.aafc.objectstore.api.validation.ObjectStoreManagedAttributeValueValidator;
+import ca.gc.aafc.objectstore.api.validation.ObjectStoreManagedAttributeValueValidatorMetadata;
 import ca.gc.aafc.objectstore.api.validation.ObjectStoreMetadataValidator;
 
 import lombok.NonNull;
@@ -46,22 +46,23 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
   private final BaseDAO baseDAO;
   private final ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService;
   private final DerivativeGenerationService derivativeGenerationService;
-  private final ObjectStoreManagedAttributeValueValidator objectStoreManagedAttributeValueValidator;
   private final ObjectStoreMetadataValidator objectStoreMetadataValidator;
+
+  private final ObjectStoreManagedAttributeValueValidatorMetadata objectStoreManagedAttributeValueValidatorMetadata;
 
   public ObjectStoreMetaDataService(
       @NonNull BaseDAO baseDAO,
       @NonNull ObjectStoreMetadataDefaultValueSetterService defaultValueSetterService,
       DerivativeGenerationService derivativeGenerationService,
       @NonNull SmartValidator smartValidator,
-      @NonNull ObjectStoreManagedAttributeValueValidator objectStoreManagedAttributeValueValidator,
       @NonNull ObjectStoreMetadataValidator objectStoreMetadataValidator,
+      ObjectStoreManagedAttributeValueValidatorMetadata objectStoreManagedAttributeValueValidatorMetadata,
       DinaEventPublisher<EntityChanged> eventPublisher) {
     super(baseDAO, smartValidator, ObjectStoreMetadataDto.TYPENAME, eventPublisher);
     this.baseDAO = baseDAO;
     this.defaultValueSetterService = defaultValueSetterService;
     this.derivativeGenerationService = derivativeGenerationService;
-    this.objectStoreManagedAttributeValueValidator = objectStoreManagedAttributeValueValidator;
+    this.objectStoreManagedAttributeValueValidatorMetadata = objectStoreManagedAttributeValueValidatorMetadata;
     this.objectStoreMetadataValidator = objectStoreMetadataValidator;
   }
 
@@ -99,7 +100,7 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
   @Override
   public void validateBusinessRules(ObjectStoreMetadata entity) {
     applyBusinessRule(entity, objectStoreMetadataValidator);
-    objectStoreManagedAttributeValueValidator.validate(entity, entity.getManagedAttributes());
+    objectStoreManagedAttributeValueValidatorMetadata.validate(entity, entity.getManagedAttributes());
   }
 
   /**

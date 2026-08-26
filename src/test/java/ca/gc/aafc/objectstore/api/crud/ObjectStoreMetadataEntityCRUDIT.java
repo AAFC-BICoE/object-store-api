@@ -4,12 +4,12 @@ import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.dina.vocabulary.TypedVocabularyElement;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
-import ca.gc.aafc.objectstore.api.entities.ObjectStoreManagedAttribute;
+import ca.gc.aafc.objectstore.api.entities.ObjectStoreControlledVocabularyItem;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MultilingualDescriptionFactory;
-import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreManagedAttributeFactory;
+import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreControlledVocabularyItemTestFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectUploadFactory;
@@ -34,7 +34,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
 
@@ -132,8 +131,9 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
 
   @Test
   public void testRelationships() {
-    ObjectStoreManagedAttribute ma = ObjectStoreManagedAttributeFactory.newManagedAttribute().build();
-    managedAttributeService.create(ma);
+    ObjectStoreControlledVocabularyItem ma = ObjectStoreControlledVocabularyItemTestFactory.newObjectStoreControlledVocabularyItem()
+      .controlledVocabulary(getManagedAttributeControlledVocabularyRef()).build();
+    controlledVocabularyItemService.create(ma);
 
     ObjectSubtype ost = ObjectSubtypeFactory.newObjectSubtype().build();
     objectSubtypeService.create(ost);
@@ -210,12 +210,11 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
   @ValueSource(strings = {"1.2", "", "  ", "\t", "\n", "a"})
   void testCreate_WhenInvalidIntegerType_ExceptionThrown(String value) {
 
-    ObjectStoreManagedAttribute managedAttribute = ObjectStoreManagedAttributeFactory.newManagedAttribute()
+    ObjectStoreControlledVocabularyItem managedAttribute = ObjectStoreControlledVocabularyItemTestFactory.newObjectStoreControlledVocabularyItem()
       .acceptedValues(new String[] {})
       .vocabularyElementType(TypedVocabularyElement.VocabularyElementType.INTEGER)
-      .build();
-
-    managedAttributeService.create(managedAttribute);
+      .controlledVocabulary(getManagedAttributeControlledVocabularyRef()).build();
+    controlledVocabularyItemService.create(managedAttribute);
     
     ObjectStoreMetadata objectStoreMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata()
     .managedAttributes(new HashMap<> (Map.of(managedAttribute.getKey(), value)))
@@ -226,18 +225,16 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
     objectUploadService.create(upload);
     Assertions.assertThrows(ValidationException.class, 
       () -> objectStoreMetaDataService.create(objectStoreMetadata));
-  
   }
 
   @Test
   void testCreate_assignedValueNotContainedInAcceptedValues_NoExceptionThrown() {
-    ObjectStoreManagedAttribute managedAttribute = ObjectStoreManagedAttributeFactory.newManagedAttribute()
+    ObjectStoreControlledVocabularyItem managedAttribute = ObjectStoreControlledVocabularyItemTestFactory.newObjectStoreControlledVocabularyItem()
       .acceptedValues(new String[] {"val1", "val2"})
       .multilingualDescription(MultilingualDescriptionFactory.newMultilingualDescription().build())
       .createdBy("createdBy")
-      .build();
-
-    managedAttributeService.create(managedAttribute);
+      .controlledVocabulary(getManagedAttributeControlledVocabularyRef()).build();
+     controlledVocabularyItemService.create(managedAttribute);
     
     ObjectStoreMetadata objectStoreMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata()
     .managedAttributes(new HashMap<> (Map.of(managedAttribute.getKey(), "val1")))
@@ -252,13 +249,13 @@ public class ObjectStoreMetadataEntityCRUDIT extends BaseEntityCRUDIT {
 
   @Test
   void testCreate_assignedValueNotContainedInAcceptedValues_ExceptionThrown() {
-    ObjectStoreManagedAttribute managedAttribute = ObjectStoreManagedAttributeFactory.newManagedAttribute()
+    ObjectStoreControlledVocabularyItem managedAttribute = ObjectStoreControlledVocabularyItemTestFactory.newObjectStoreControlledVocabularyItem()
       .acceptedValues(new String[] {"val1", "val2"})
       .multilingualDescription(MultilingualDescriptionFactory.newMultilingualDescription().build())
       .createdBy("createdBy")
+      .controlledVocabulary(getManagedAttributeControlledVocabularyRef())
       .build();
-
-    managedAttributeService.create(managedAttribute);
+     controlledVocabularyItemService.create(managedAttribute);
     
     ObjectStoreMetadata objectStoreMetadata = ObjectStoreMetadataFactory.newObjectStoreMetadata()
     .managedAttributes(new HashMap<> (Map.of(managedAttribute.getKey(), "val3")))

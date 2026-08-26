@@ -3,10 +3,13 @@ package ca.gc.aafc.objectstore.api;
 import ca.gc.aafc.dina.testsupport.DatabaseSupportService;
 import ca.gc.aafc.dina.testsupport.PostgresTestContainerInitializer;
 import ca.gc.aafc.objectstore.api.async.AsyncConsumer;
+import ca.gc.aafc.objectstore.api.config.ObjectStoreVocabularyConfiguration;
+import ca.gc.aafc.objectstore.api.entities.ObjectStoreControlledVocabulary;
 import ca.gc.aafc.objectstore.api.service.DerivativeGenerationService;
 import ca.gc.aafc.objectstore.api.service.DerivativeService;
 import ca.gc.aafc.objectstore.api.service.ObjectExportService;
-import ca.gc.aafc.objectstore.api.service.ObjectStoreManagedAttributeService;
+import ca.gc.aafc.objectstore.api.service.ObjectStoreControlledVocabularyService;
+import ca.gc.aafc.objectstore.api.service.ObjectStoreControlledVocabularyItemService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreMetaDataService;
 import ca.gc.aafc.objectstore.api.service.ObjectSubtypeService;
 import ca.gc.aafc.objectstore.api.service.ObjectUploadService;
@@ -55,7 +58,10 @@ public abstract class BaseIntegrationTest {
   protected DerivativeGenerationService derivativeGenerationService;
 
   @Inject
-  protected ObjectStoreManagedAttributeService managedAttributeService;
+  protected ObjectStoreControlledVocabularyService controlledVocabularyService;
+
+  @Inject
+  protected ObjectStoreControlledVocabularyItemService controlledVocabularyItemService;
 
   @Inject
   protected ObjectStoreMetaDataService objectStoreMetaDataService;
@@ -65,6 +71,14 @@ public abstract class BaseIntegrationTest {
 
   @Inject
   protected ObjectUploadService objectUploadService;
+
+  
+  protected ObjectStoreControlledVocabulary getManagedAttributeControlledVocabularyRef() {
+    return controlledVocabularyService.getReferenceByNaturalId(
+      ObjectStoreControlledVocabulary.class,
+      ObjectStoreVocabularyConfiguration.MANAGED_ATTRIBUTE_VOCAB_UUID
+    );
+  }
 
   @TestConfiguration
   public static class ObjectStoreModuleTestConfiguration {
