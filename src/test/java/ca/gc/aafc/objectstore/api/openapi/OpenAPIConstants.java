@@ -10,8 +10,11 @@ public class OpenAPIConstants {
   private static final String SCHEME = "https";
   static final String SPEC_HOST = "raw.githubusercontent.com";
   static final String SPEC_PATH = "DINA-Web/object-store-specs/master/schema/object-store-api.yml";
+
+  static final String COLLECTION_SPEC_PATH = "DINA-Web/collection-specs/master/schema/natural-history-collection-api.yml";
   
   public static final URL OBJECT_STORE_API_SPECS_URL = buildOpenAPISpecsURL();
+  public static final URL COLLECTION_API_SPECS_URL = buildCollectionOpenAPISpecsURL();
 
   private OpenAPIConstants() {
   }
@@ -22,6 +25,15 @@ public class OpenAPIConstants {
     URI_BUILDER.setScheme(SCHEME);
     URI_BUILDER.setHost(SPEC_HOST);
     URI_BUILDER.setPath(SPEC_PATH);
+    return URI_BUILDER.build().toURL();
+  }
+
+    @SneakyThrows
+  private static URL buildCollectionOpenAPISpecsURL() {
+    URIBuilder URI_BUILDER = new URIBuilder();
+    URI_BUILDER.setScheme(SCHEME);
+    URI_BUILDER.setHost(SPEC_HOST);
+    URI_BUILDER.setPath(COLLECTION_SPEC_PATH);
     return URI_BUILDER.build().toURL();
   }
 }
