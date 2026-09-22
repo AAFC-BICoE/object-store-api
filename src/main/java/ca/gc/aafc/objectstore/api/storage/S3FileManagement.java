@@ -12,7 +12,7 @@ import software.amazon.awssdk.services.s3.model.HeadBucketRequest;
 
 import software.amazon.awssdk.services.s3.model.S3Exception;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import ca.gc.aafc.objectstore.api.config.S3Config;
@@ -20,7 +20,7 @@ import ca.gc.aafc.objectstore.api.config.S3Config;
 /**
  * {@link FileManagement} implementation using s3 client to perform management operations.
  */
-@ConditionalOnExpression("'${dina.fileStorage.implementation}' == 'S3' or '${dina.fileStorage.implementation}' == 'MINIO'")
+@ConditionalOnProperty(prefix = "dina.fileStorage", name = "implementation", havingValue = "S3")
 @Service
 @Log4j2
 public class S3FileManagement implements FileManagement {
