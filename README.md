@@ -27,7 +27,7 @@ See [documentation](https://aafc-bicoe.github.io/object-store-api/) page.
 * Docker 20+ (for running integration tests)
 
 ### To run
-* [PostgreSQL](https://www.postgresql.org/) 12
+* [PostgreSQL](https://www.postgresql.org/) 18 (tested)
 * [Keycloak](https://www.keycloak.org/)
 
 ## Usage

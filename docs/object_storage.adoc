@@ -1,8 +1,17 @@
 = Object Storage
 
-== MinIO
+== Storage
 
-The Object Store module uses https://min.io/[MinIO] as a storage abstraction layer.
+The Object Store module stores files using the implementation set by `dina.fileStorage.implementation` (see Configuration):
+
+ * `FS`: files are stored on the file system, under `dina.fileStorage.root`
+ * `S3`: files are stored in an S3-compatible object storage using https://opendal.apache.org/[Apache OpenDAL]
+
+In both cases, files are stored per bucket as `<bucket>/<ab>/<cd>/<fileIdentifier><extension>`, where `<ab>` and `<cd>` are the first 4 characters of the `fileIdentifier`. Derivatives are stored under `<bucket>/derivatives/`.
+
+MinIO is no longer used. Files stored by MinIO in its internal format (folders containing `xl.meta` files) can't be read by the `FS` implementation. In `FS` mode, the storage root is checked at startup, before the API accepts requests, and the application will not start if `xl.meta` files are found. Once a check completes, it is not run again. Paths that can't be read are skipped and reported in the logs, and the check runs again on the next startup.
+
+To check an existing storage root before upgrading: `find <root> -name xl.meta -print -quit`.
 
 == Object Metadata
 
