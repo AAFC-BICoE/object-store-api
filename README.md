@@ -22,9 +22,9 @@ See [documentation](https://aafc-bicoe.github.io/object-store-api/) page.
 ## Required
 
 ### To build and run tests
-* Java 21
-* Maven 3.8 (tested)
-* Docker 20+ (for running integration tests)
+* Java 25
+* Maven 3.9 (tested)
+* Docker 29+ (for running integration tests)
 
 ### To run
 * [PostgreSQL](https://www.postgresql.org/) 18 (tested)
