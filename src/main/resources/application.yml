@@ -23,9 +23,9 @@ spring:
           jwk-set-uri: http://keycloak:8080/auth/realms/dina/protocol/openid-connect/certs
 s3:
   endpoint: http://localhost
-  port: 9000
-  accessKey: minio
-  secretKey: minio123
+  port: 7070
+  accessKey: myaccesskey
+  secretKey: mysecretkey
 default-values:
   values:
     - type: metadata
@@ -65,8 +65,8 @@ dina:
     maxObjectExportSize: 2GB
   apiPrefix: /api/v1
   fileStorage:
-    # FS or S3
-    implementation: MINIO
+    # FS (requires root) or S3 (uses the s3 properties)
+    implementation: FS
    # root: "/tmp/dina-nfs"
 
 rabbitmq:

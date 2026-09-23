@@ -96,7 +96,7 @@ public class ObjectOrphanRemovalService {
       objectUpload.getBucket(),
       fileName,
       objectUpload.getIsDerivative());
-    log.info(fileName + " removed from minio");
+    log.info(fileName + " removed from storage");
   }
 
 }

@@ -54,7 +54,7 @@ public class OpenDALFileStorage implements FileStorage {
    * always be the same.
    *
    * @param path
-   * @return minio object name
+   * @return storage object name
    */
   public static String toS3ObjectName(Path path) {
     Objects.requireNonNull(path);

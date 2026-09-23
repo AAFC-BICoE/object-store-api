@@ -8,6 +8,8 @@ import lombok.Builder;
 
 import org.springframework.http.MediaType;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import static ca.gc.aafc.objectstore.api.config.MediaTypeConfiguration.CANON_CR2_MEDIA_TYPE;
 import static ca.gc.aafc.objectstore.api.config.MediaTypeConfiguration.NIKON_NEF_MEDIA_TYPE;
 
@@ -74,6 +76,7 @@ public record ExportFunction(FunctionDef functionDef, Map<String, String> params
     return functionDef.areParamsValid(params);
   }
 
+  @JsonIgnore
   public Optional<String> getGeneratedMediaType() {
     if (functionDef() == FunctionDef.MAGICK) {
       return Optional.of(params.get(MAGICK_PARAM_TARGET_MEDIA_TYPE));

@@ -1,5 +1,6 @@
 package ca.gc.aafc.objectstore.api.storage;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.SimpleFileVisitor;
@@ -18,6 +19,10 @@ import static java.nio.file.FileVisitResult.TERMINATE;
  * <p>
  * The visitor traverses the FS storage file tree  and terminates immediately upon finding the first
  * xl.meta file, avoiding unnecessary traversal of the entire directory tree.
+ * <p>
+ * Entries that can't be read (e.g. a root-owned lost+found folder on a volume) are skipped instead of
+ * aborting the traversal, so the rest of the tree is still checked. The scan is then reported as
+ * incomplete.
  *
  * @see java.nio.file.SimpleFileVisitor
  */
@@ -25,9 +30,17 @@ import static java.nio.file.FileVisitResult.TERMINATE;
 public class XlMetaFileDetector extends SimpleFileVisitor<Path> {
 
   private boolean foundXlMeta = false;
+  private boolean scanComplete = true;
 
   public boolean isFoundXlMeta() {
     return foundXlMeta;
+  }
+
+  /**
+   * @return false if at least one file or directory could not be read during the traversal
+   */
+  public boolean isScanComplete() {
+    return scanComplete;
   }
 
   @Override
@@ -40,6 +53,22 @@ public class XlMetaFileDetector extends SimpleFileVisitor<Path> {
         foundXlMeta = true;
         return TERMINATE; // Stop traversal once a .xlmeta file is found
       }
+    }
+    return CONTINUE;
+  }
+
+  @Override
+  public java.nio.file.FileVisitResult visitFileFailed(Path file, IOException exc) {
+    log.warn("Can't read {} while looking for xl.meta files: {}", file, exc.toString());
+    scanComplete = false;
+    return CONTINUE;
+  }
+
+  @Override
+  public java.nio.file.FileVisitResult postVisitDirectory(Path dir, IOException exc) {
+    // the listing of the directory failed partway
+    if (exc != null) {
+      return visitFileFailed(dir, exc);
     }
     return CONTINUE;
   }
