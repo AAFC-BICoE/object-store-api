@@ -443,7 +443,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel1">
 <li><a href="#_object_storage">1. Object Storage</a>
 <ul class="sectlevel2">
-<li><a href="#_minio">1.1. MinIO</a></li>
+<li><a href="#_storage">1.1. Storage</a></li>
 <li><a href="#_object_metadata">1.2. Object Metadata</a></li>
 <li><a href="#_expected_sequence">1.3. Expected Sequence</a></li>
 </ul>
@@ -527,9 +527,28 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="_object_storage">1. Object Storage</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_minio">1.1. MinIO</h3>
+<h3 id="_storage">1.1. Storage</h3>
 <div class="paragraph">
-<p>The Object Store module uses <a href="https://min.io/">MinIO</a> as a storage abstraction layer.</p>
+<p>The Object Store module stores files using the implementation set by <code>dina.fileStorage.implementation</code> (see Configuration):</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>FS</code>: files are stored on the file system, under <code>dina.fileStorage.root</code></p>
+</li>
+<li>
+<p><code>S3</code>: files are stored in an S3-compatible object storage using <a href="https://opendal.apache.org/">Apache OpenDAL</a></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>In both cases, files are stored per bucket as <code>&lt;bucket&gt;/&lt;ab&gt;/&lt;cd&gt;/&lt;fileIdentifier&gt;&lt;extension&gt;</code>, where <code>&lt;ab&gt;</code> and <code>&lt;cd&gt;</code> are the first 4 characters of the <code>fileIdentifier</code>. Derivatives are stored under <code>&lt;bucket&gt;/derivatives/</code>.</p>
+</div>
+<div class="paragraph">
+<p>MinIO is no longer used. Files stored by MinIO in its internal format (folders containing <code>xl.meta</code> files) can&#8217;t be read by the <code>FS</code> implementation. In <code>FS</code> mode, the storage root is checked at startup, before the API accepts requests, and the application will not start if <code>xl.meta</code> files are found. Once a check completes, it is not run again. Paths that can&#8217;t be read are skipped and reported in the logs, and the check runs again on the next startup.</p>
+</div>
+<div class="paragraph">
+<p>To check an existing storage root before upgrading: <code>find &lt;root&gt; -name xl.meta -print -quit</code>.</p>
 </div>
 </div>
 <div class="sect2">
@@ -936,15 +955,15 @@ use the original object as a source.</p>
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>dina.fileStorage.implementation</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>FS</code> or <code>S3</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>FS</code> (default) or <code>S3</code></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>dina.fileStorage.root</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Only required for <code>FS</code>. Represents the root folder in the context of the container/pod.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Only required for <code>FS</code>. Represents the root folder in the context of the container/pod. The folder must exist.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>s3.*</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Only required for <code>S3</code>. Represents the s3 specific configuration.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Only required for <code>S3</code>. Represents the s3 specific configuration: <code>s3.endpoint</code>, <code>s3.port</code>, <code>s3.accessKey</code>, <code>s3.secretKey</code> and <code>s3.region</code> (<code>none</code> by default). When set, <code>s3.port</code> (<code>9000</code> by default) is appended to <code>s3.endpoint</code>: set it to an empty value if the endpoint already includes the port.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1140,7 +1159,7 @@ The key is communicated using an event (message).</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2026-04-01 15:22:30 UTC
+Last updated 2026-10-07 19:55:53 UTC
 </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
