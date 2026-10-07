@@ -5,7 +5,7 @@
 
   <groupId>ca.gc.aafc</groupId>
   <artifactId>object-store.api</artifactId>
-  <version>1.38-SNAPSHOT</version>
+  <version>1.38</version>
   <packaging>jar</packaging>
 
   <name>Object-Store API</name>
@@ -35,6 +35,7 @@
     <spotbugs-maven-plugin.version>4.9.4.2</spotbugs-maven-plugin.version>
     <spotbugs.version>4.9.4</spotbugs.version>
     <jcip-annotations.version>1.0</jcip-annotations.version>
+    <cyclonedx-maven-plugin.version>2.9.1</cyclonedx-maven-plugin.version>
     <dependency-check.version>9.0.8</dependency-check.version>
     <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
 
@@ -222,6 +223,24 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.cyclonedx</groupId>
+        <artifactId>cyclonedx-maven-plugin</artifactId>
+        <version>${cyclonedx-maven-plugin.version}</version>
+        <configuration>
+          <outputFormat>json</outputFormat>
+          <skipNotDeployed>false</skipNotDeployed>
+        </configuration>
+        <executions>
+          <execution>
+            <id>generate-aggregate-sbom</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>makeAggregateBom</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
       <!-- Part of Maven - specified version explicitly for compatibility
      with the maven-project-info-reports-plugin 3.0.0-->
