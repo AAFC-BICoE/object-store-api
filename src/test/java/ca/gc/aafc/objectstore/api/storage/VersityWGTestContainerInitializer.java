@@ -15,7 +15,7 @@ public class VersityWGTestContainerInitializer implements ApplicationContextInit
     ConfigurableEnvironment env = ctx.getEnvironment();
 
     if (s3TestContainer == null) {
-      s3TestContainer = new VersityWGTestContainer("versity/versitygw:latest");
+      s3TestContainer = new VersityWGTestContainer("versity/versitygw:v1.8.0");
       s3TestContainer.start();
     }
     TestPropertyValues.of(

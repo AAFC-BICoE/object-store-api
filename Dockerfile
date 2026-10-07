@@ -1,7 +1,7 @@
-FROM eclipse-temurin:21-jre-jammy
+FROM eclipse-temurin:25-jre
 
-RUN useradd -s /bin/bash user
-USER user
-COPY --chown=644 target/object-store.api-*.jar /object-store-api.jar
+RUN useradd -r -u 10001 appuser
+USER appuser
+COPY --chown=appuser:appuser target/object-store.api-*.jar app.jar
 EXPOSE 8080
-ENTRYPOINT ["java","-jar","/object-store-api.jar"]
+ENTRYPOINT ["java","-jar","app.jar"]

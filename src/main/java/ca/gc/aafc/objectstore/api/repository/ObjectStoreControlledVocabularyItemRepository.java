@@ -27,13 +27,13 @@ import ca.gc.aafc.dina.jsonapi.JsonApiDocument;
 import ca.gc.aafc.dina.repository.DinaRepositoryV2;
 import ca.gc.aafc.dina.security.DinaAuthenticatedUser;
 import ca.gc.aafc.dina.security.TextHtmlSanitizer;
+import ca.gc.aafc.dina.security.auth.SuperUserInGroupCUDAuthorizationService;
 import ca.gc.aafc.dina.service.AuditService;
 import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.objectstore.api.dto.ObjectStoreControlledVocabularyItemDto;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreControlledVocabulary;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreControlledVocabularyItem;
 import ca.gc.aafc.objectstore.api.mapper.ObjectStoreControlledVocabularyItemMapper;
-import ca.gc.aafc.objectstore.api.security.SuperUserInGroupCUDAuthorizationService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreControlledVocabularyItemService;
 import ca.gc.aafc.objectstore.api.service.ObjectStoreControlledVocabularyService;
 

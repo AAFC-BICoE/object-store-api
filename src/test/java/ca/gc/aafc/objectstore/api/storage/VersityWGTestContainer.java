@@ -11,8 +11,8 @@ import org.testcontainers.utility.DockerImageName;
  */
 public class VersityWGTestContainer extends GenericContainer<VersityWGTestContainer> {
 
-  public static final String ACCESS_KEY = "minio";
-  public static final String SECRET_KEY = "minio123";
+  public static final String ACCESS_KEY = "myaccesskey";
+  public static final String SECRET_KEY = "mysecretkey";
   public static final int PORT = 7070;
 
   public VersityWGTestContainer(String image) {

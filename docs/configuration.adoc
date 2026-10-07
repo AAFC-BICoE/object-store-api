@@ -6,13 +6,13 @@
 |Property |Description
 
 |`dina.fileStorage.implementation`
-| `FS` or `S3`
+| `FS` (default) or `S3`
 
 |`dina.fileStorage.root`
-| Only required for `FS`. Represents the root folder in the context of the container/pod.
+| Only required for `FS`. Represents the root folder in the context of the container/pod. The folder must exist.
 
 |`s3.*`
-| Only required for `S3`. Represents the s3 specific configuration.
+| Only required for `S3`. Represents the s3 specific configuration: `s3.endpoint`, `s3.port`, `s3.accessKey`, `s3.secretKey` and `s3.region` (`none` by default). When set, `s3.port` (`9000` by default) is appended to `s3.endpoint`: set it to an empty value if the endpoint already includes the port.
 |===
 
 == Orphan Removal

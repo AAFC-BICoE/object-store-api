@@ -349,7 +349,7 @@ public class FileController {
     return new ResponseStatusException(
       HttpStatus.NOT_FOUND,
       messageSource.getMessage(
-        "minio.file_or_bucket_not_found", new Object[]{filename, bucket}, LocaleContextHolder.getLocale()),
+        "storage.file_or_bucket_not_found", new Object[]{filename, bucket}, LocaleContextHolder.getLocale()),
       null);
   }
 
