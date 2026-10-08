@@ -33,6 +33,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -199,9 +200,10 @@ public class ObjectExportGenerator {
                                                    ExportFunction exportFunction, Path externalPath) {
     String filename;
     if (obj instanceof ObjectStoreMetadata metadata && metadata.isExternal()) {
+      String externalFilename = Objects.toString(externalPath.getFileName(), metadata.getUuid().toString());
       String candidate = StringUtils.firstNonBlank(filenameAlias, metadata.getFilename(),
-        metadata.getOriginalFilename(), externalPath.getFileName().toString(), metadata.getUuid().toString());
-      String extension = FilenameUtils.getExtension(externalPath.getFileName().toString());
+        metadata.getOriginalFilename(), externalFilename, metadata.getUuid().toString());
+      String extension = FilenameUtils.getExtension(externalFilename);
       filename = FilenameUtils.getBaseName(ObjectFilenameUtils.standardizeFilename(candidate));
       if (StringUtils.isNotBlank(extension)) {
         filename += "." + extension;

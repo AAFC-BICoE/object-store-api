@@ -46,6 +46,9 @@ public abstract class BaseIntegrationTest {
   @DynamicPropertySource
   static void registerProperties(DynamicPropertyRegistry registry) {
     registry.add("dina.fileStorage.root", () -> rootTempDir.toAbsolutePath().toString());
+    // external resources are resolved under the same temp dir in tests
+    registry.add("dina.fileStorage.externalResourceBasePath",
+      () -> rootTempDir.toAbsolutePath().toString());
   }
 
   @Inject
