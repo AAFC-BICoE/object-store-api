@@ -1,6 +1,8 @@
 package ca.gc.aafc.objectstore.api.file;
 
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MediaType;
 import org.apache.tika.mime.MimeTypeException;
 import org.springframework.boot.info.BuildProperties;
@@ -86,6 +88,7 @@ public class FileController {
 
   private final FileManagement fileManagement;
   private final FileStorage fileStorage;
+  private final ExternalResourceFileResolver externalResourceFileResolver;
 
   private final ObjectStoreMetaDataService objectStoreMetaDataService;
   private final MediaTypeDetectionStrategy mediaTypeDetectionStrategy;
@@ -103,6 +106,7 @@ public class FileController {
     FileControllerAuthorizationService authorizationService,
     FileStorage fileStorage,
     FileManagement fileManagement,
+    ExternalResourceFileResolver externalResourceFileResolver,
     ObjectUploadService objectUploadService,
     DerivativeService derivativeService,
     ObjectStoreMetaDataService objectStoreMetaDataService,
@@ -115,6 +119,7 @@ public class FileController {
     this.authorizationService = authorizationService;
     this.fileStorage = fileStorage;
     this.fileManagement = fileManagement;
+    this.externalResourceFileResolver = externalResourceFileResolver;
     this.objectUploadService = objectUploadService;
     this.objectStoreMetaDataService = objectStoreMetaDataService;
     this.mediaTypeDetectionStrategy = mediaTypeDetectionStrategy;
@@ -232,9 +237,13 @@ public class FileController {
   /**
    * Triggers a download of a file. Note that the file requires a metadata entry in the database to be
    * available for download.
+   * <p>
+   * The provided id is first resolved as a fileIdentifier. If no match is found, the id is resolved as
+   * the uuid of an externally hosted resource: in that case the resourceExternalURL is resolved on the
+   * file system and the file is served for download.
    *
    * @param bucket the bucket
-   * @param fileId the file id
+   * @param fileId the file id (fileIdentifier) or the uuid of an externally hosted resource
    * @return a response entity
    */
   @GetMapping("/file/{bucket}/{fileId}")
@@ -244,7 +253,12 @@ public class FileController {
   ) throws IOException {
     ObjectStoreMetadata metadata = objectStoreMetaDataService
       .findByFileId(fileId)
+      .or(() -> objectStoreMetaDataService.findByUuid(fileId).filter(ObjectStoreMetadata::isExternal))
       .orElseThrow(() -> buildNotFoundException(bucket, Objects.toString(fileId)));
+
+    if (metadata.isExternal()) {
+      return downloadExternalResource(metadata);
+    }
 
     // For the download of an object use the filename provided (if possible)
     return download(bucket, metadata.getInternalFilename(),
@@ -335,6 +349,38 @@ public class FileController {
     return new ResponseEntity<>(
       new InputStreamResource(is),
       buildHttpHeaders(downloadFilename, mediaType, foi.getLength()),
+      HttpStatus.OK);
+  }
+
+  /**
+   * Serves the download of an externally hosted resource by resolving its resourceExternalURL to a
+   * file under the configured externalResourceBasePath.
+   *
+   * @param metadata the externally hosted metadata, non null
+   * @return a response entity
+   * @throws IOException if the resolved file can't be read
+   */
+  private ResponseEntity<InputStreamResource> downloadExternalResource(
+    @NonNull ObjectStoreMetadata metadata
+  ) throws IOException {
+
+    //Authorize before anything else
+    authorizationService.authorizeDownload(metadata);
+
+    String externalURL = metadata.getResourceExternalURL();
+    Path path = externalResourceFileResolver.resolve(externalURL)
+      .filter(Files::isRegularFile)
+      .orElseThrow(() -> buildNotFoundException(metadata.getBucket(), externalURL));
+
+    String downloadFilename = StringUtils.firstNonBlank(
+      metadata.getFilename(), metadata.getOriginalFilename(),
+      FilenameUtils.getName(path.toString()), Objects.toString(metadata.getUuid(), "download"));
+    String mediaType = StringUtils.defaultIfBlank(
+      metadata.getDcFormat(), org.springframework.http.MediaType.APPLICATION_OCTET_STREAM_VALUE);
+
+    return new ResponseEntity<>(
+      new InputStreamResource(Files.newInputStream(path)),
+      buildHttpHeaders(downloadFilename, mediaType, Files.size(path)),
       HttpStatus.OK);
   }
 

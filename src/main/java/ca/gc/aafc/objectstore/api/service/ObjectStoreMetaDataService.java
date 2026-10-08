@@ -201,6 +201,17 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
   }
 
   /**
+   * Find an ObjectStoreMetadata by its uuid. Mainly used to resolve externally hosted resources that
+   * have no fileIdentifier.
+   *
+   * @param uuid the metadata uuid
+   * @return an Optional ObjectStoreMetadata
+   */
+  public Optional<ObjectStoreMetadata> findByUuid(UUID uuid) {
+    return findOneBy((cb, root) -> new Predicate[] {cb.equal(root.get("uuid"), uuid)});
+  }
+
+  /**
    * findOne implementation specific to ObjectStoreMetadata
    *
    * @param uuid
