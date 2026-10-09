@@ -5,6 +5,7 @@ import org.apache.commons.compress.archivers.ArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MimeType;
 import org.apache.tika.mime.MimeTypeException;
@@ -27,10 +28,12 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -54,10 +57,13 @@ public class ObjectExportGenerator {
 
   private final FileStorage fileStorage;
   private final ImageOperationService imageOperationService;
+  private final ExternalResourceFileResolver externalResourceFileResolver;
 
-  public ObjectExportGenerator(FileStorage fileStorage, ImageOperationService imageOperationService) {
+  public ObjectExportGenerator(FileStorage fileStorage, ImageOperationService imageOperationService,
+                               ExternalResourceFileResolver externalResourceFileResolver) {
     this.fileStorage = fileStorage;
     this.imageOperationService = imageOperationService;
+    this.externalResourceFileResolver = externalResourceFileResolver;
   }
 
   @Async(MainConfiguration.DINA_THREAD_POOL_BEAN_NAME)
@@ -70,9 +76,16 @@ public class ObjectExportGenerator {
 
     try (ArchiveOutputStream<ZipArchiveEntry> o = new ZipArchiveOutputStream(zipFile)) {
       for (AbstractObjectStoreMetadata currObj: objectsToExport) {
+        UUID objectIdentifier = currObj instanceof ObjectStoreMetadata metadata && metadata.isExternal()
+          ? metadata.getUuid() : currObj.getFileIdentifier();
+        Path externalPath = currObj instanceof ObjectStoreMetadata metadata && metadata.isExternal()
+          ? externalResourceFileResolver.resolve(metadata.getResourceExternalURL())
+            .filter(Files::isRegularFile)
+            .orElseThrow(() -> new IllegalStateException("External resource not found"))
+          : null;
 
-        String entryFilename = generateExportItemFilename(currObj, filenameAliases.get(currObj.getFileIdentifier()),
-          layoutByFileIdentifier.get(currObj.getFileIdentifier()), filenamesIncluded, exportOptions.exportFunction());
+        String entryFilename = generateExportItemFilename(currObj, filenameAliases.get(objectIdentifier),
+          layoutByFileIdentifier.get(objectIdentifier), filenamesIncluded, exportOptions.exportFunction(), externalPath);
 
         // Set zipEntry
         ZipArchiveEntry entry =
@@ -80,8 +93,9 @@ public class ObjectExportGenerator {
         o.putArchiveEntry(entry);
 
         // Get and copy the stream into the zip
-        Optional<InputStream> optIs =
-          fileStorage.retrieveFile(currObj.getBucket(), currObj.getInternalFilename(), currObj instanceof Derivative);
+        Optional<InputStream> optIs = externalPath == null
+          ? fileStorage.retrieveFile(currObj.getBucket(), currObj.getInternalFilename(), currObj instanceof Derivative)
+          : Optional.of(Files.newInputStream(externalPath));
         try (InputStream is = optIs.orElseThrow(
           () -> new IllegalStateException("No InputStream available"))) {
           //If there is no function(s) handling the stream copy it
@@ -183,9 +197,18 @@ public class ObjectExportGenerator {
   private static String generateExportItemFilename(AbstractObjectStoreMetadata obj,
                                                    String filenameAlias, String folder,
                                                    Map<String, AtomicInteger> usedFilenames,
-                                                   ExportFunction exportFunction) {
+                                                   ExportFunction exportFunction, Path externalPath) {
     String filename;
-    if (obj instanceof ObjectStoreMetadata metadata) {
+    if (obj instanceof ObjectStoreMetadata metadata && metadata.isExternal()) {
+      String externalFilename = Objects.toString(externalPath.getFileName(), metadata.getUuid().toString());
+      String candidate = StringUtils.firstNonBlank(filenameAlias, metadata.getFilename(),
+        metadata.getOriginalFilename(), externalFilename, metadata.getUuid().toString());
+      String extension = FilenameUtils.getExtension(externalFilename);
+      filename = FilenameUtils.getBaseName(ObjectFilenameUtils.standardizeFilename(candidate));
+      if (StringUtils.isNotBlank(extension)) {
+        filename += "." + extension;
+      }
+    } else if (obj instanceof ObjectStoreMetadata metadata) {
       filename = ObjectFilenameUtils.generateMainObjectFilename(metadata, filenameAlias);
     } else if (obj instanceof Derivative derivative) {
       filename = ObjectFilenameUtils.generateDerivativeFilename(derivative, filenameAlias);

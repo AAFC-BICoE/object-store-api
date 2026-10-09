@@ -2,6 +2,8 @@ package ca.gc.aafc.objectstore.api.service;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import ca.gc.aafc.dina.messaging.message.ObjectExportNotification;
 import ca.gc.aafc.dina.messaging.producer.DinaMessageProducer;
@@ -11,6 +13,7 @@ import ca.gc.aafc.objectstore.api.config.ObjectExportOption;
 import ca.gc.aafc.objectstore.api.entities.AbstractObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
+import ca.gc.aafc.objectstore.api.file.ExternalResourceFileResolver;
 import ca.gc.aafc.objectstore.api.file.FileObjectInfo;
 import ca.gc.aafc.objectstore.api.file.ObjectExportGenerator;
 import ca.gc.aafc.objectstore.api.file.TemporaryObjectAccessController;
@@ -18,6 +21,7 @@ import ca.gc.aafc.objectstore.api.security.FileControllerAuthorizationService;
 import ca.gc.aafc.objectstore.api.storage.FileStorage;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +42,7 @@ public class ObjectExportService {
   private final long maxObjectExportSizeInBytes;
   private final FileStorage fileStorage;
   private final ObjectExportGenerator objectExportGenerator;
+  private final ExternalResourceFileResolver externalResourceFileResolver;
   private final Consumer<Future<ExportResult>> asyncConsumer;
 
   private final FileControllerAuthorizationService authorizationService;
@@ -51,6 +56,7 @@ public class ObjectExportService {
                              ObjectExportGenerator objectExportGenerator,
                              Optional<Consumer<Future<ExportResult>>> asyncConsumer,
                              FileStorage fileStorage,
+                             ExternalResourceFileResolver externalResourceFileResolver,
                              FileControllerAuthorizationService authorizationService,
                              ObjectStoreMetaDataService objectMetadataService,
                              DerivativeService derivativeService,
@@ -62,6 +68,7 @@ public class ObjectExportService {
     this.asyncConsumer = asyncConsumer.orElse(null);
 
     this.fileStorage = fileStorage;
+    this.externalResourceFileResolver = externalResourceFileResolver;
     this.authorizationService = authorizationService;
     this.objectMetadataService = objectMetadataService;
     this.derivativeService = derivativeService;
@@ -90,6 +97,10 @@ public class ObjectExportService {
     long totalSizeInBytes = 0;
 
     for (UUID fileIdentifier : exportArgs.fileIdentifiers()) {
+      if (fileIdentifier == null) {
+        throw new IllegalArgumentException("fileIdentifiers must not contain null");
+      }
+
       AbstractObjectStoreMetadata obj;
       Optional<Derivative> derivative = derivativeService.findByFileId(fileIdentifier);
 
@@ -97,21 +108,34 @@ public class ObjectExportService {
         obj = derivative.get();
       } else {
         Optional<ObjectStoreMetadata> objectMetadata =
-          objectMetadataService.findByFileId(fileIdentifier);
+          objectMetadataService.findByFileId(fileIdentifier)
+            .or(() -> objectMetadataService.findByUuid(fileIdentifier)
+              .filter(ObjectStoreMetadata::isExternal));
         obj = objectMetadata.orElseThrow(
-          () -> new IllegalArgumentException("Can't find provided fileIdentifier"));
+          () -> new IllegalArgumentException("Can't find provided file identifier"));
       }
       // make sure the user is authorized before adding it to the list
       authorizationService.authorizeDownload(obj);
 
       // get file info to make sure the file exists and compute total size
       try {
-        Optional<FileObjectInfo> fileInfo =
-          fileStorage.getFileInfo(obj.getBucket(), obj.getInternalFilename(), obj instanceof Derivative);
-        if (fileInfo.isPresent()) {
-          totalSizeInBytes += fileInfo.get().getLength();
+        if (obj instanceof ObjectStoreMetadata metadata && metadata.isExternal()) {
+          Path externalPath = externalResourceFileResolver.resolve(metadata.getResourceExternalURL())
+            .filter(Files::isRegularFile)
+            .orElseThrow(() -> externalResourceNotFound(fileIdentifier));
+          try {
+            totalSizeInBytes += Files.size(externalPath);
+          } catch (IOException e) {
+            throw externalResourceNotFound(fileIdentifier);
+          }
         } else {
-          throwIllegalStateFileNotFound(fileIdentifier);
+          Optional<FileObjectInfo> fileInfo =
+            fileStorage.getFileInfo(obj.getBucket(), obj.getInternalFilename(), obj instanceof Derivative);
+          if (fileInfo.isPresent()) {
+            totalSizeInBytes += fileInfo.get().getLength();
+          } else {
+            throwIllegalStateFileNotFound(fileIdentifier);
+          }
         }
       } catch (IOException e) {
         throwIllegalStateFileNotFound(fileIdentifier);
@@ -162,6 +186,11 @@ public class ObjectExportService {
 
   private static void throwIllegalStateFileNotFound(UUID fileIdentifier) throws IllegalStateException {
     throw new IllegalStateException("File " + fileIdentifier + " not found");
+  }
+
+  private static ResponseStatusException externalResourceNotFound(UUID identifier) {
+    return new ResponseStatusException(HttpStatus.NOT_FOUND,
+      "External resource " + identifier + " is unavailable or not mounted");
   }
 
   /**

@@ -4,12 +4,14 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.apache.tika.mime.MimeTypeException;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import ca.gc.aafc.dina.repository.JsonApiModelAssistant;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
@@ -26,10 +28,15 @@ import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFacto
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.List;
@@ -40,6 +47,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import jakarta.inject.Inject;
+import org.springframework.http.HttpStatus;
 
 @Import(AsyncOverrideConfig.class)
 public class ObjectExportServiceIT extends BaseIntegrationTest {
@@ -61,6 +69,9 @@ public class ObjectExportServiceIT extends BaseIntegrationTest {
 
   @Inject
   private TemporaryObjectAccessController toaController;
+
+  @Value("${dina.fileStorage.externalResourceBasePath}")
+  private String externalResourceBasePath;
 
   @Test
   public void exportObjects_onExport_ZipContentValid()
@@ -124,6 +135,70 @@ public class ObjectExportServiceIT extends BaseIntegrationTest {
     assertEquals(2, filenamesInZip.size());
     assertTrue(filenamesInZip.contains("testFileAlias.png"));
     assertTrue(filenamesInZip.contains("thumb/testfile_thumbnail.jpg"));
+  }
+
+  @Test
+  public void exportObjects_externalResource_ZipContentValid() throws IOException {
+    Path externalFile = Paths.get(externalResourceBasePath).resolve("external-resource.txt");
+    Files.createDirectories(externalFile.getParent());
+    Files.writeString(externalFile, "external-content", StandardCharsets.UTF_8);
+
+    ObjectStoreMetadata metadata = objectStoreMetaDataService.create(
+      ObjectStoreMetadataFactory.newObjectStoreMetadata()
+        .fileIdentifier(null)
+        .fileExtension(null)
+        .bucket(TEST_BUCKET_NAME)
+        .dcFormat(MediaType.TEXT_PLAIN_VALUE)
+        .resourceExternalURL(externalFile.toUri().toString())
+        .build());
+
+    objectExportService.export(ObjectExportService.ExportArgs.builder()
+      .username("testuser")
+      .fileIdentifiers(List.of(metadata.getUuid()))
+      .objectExportOption(ObjectExportOption.builder()
+        .aliases(Map.of(metadata.getUuid(), "external-alias"))
+        .build())
+      .build());
+
+    ObjectExportService.ExportResult result;
+    try {
+      result = asyncConsumer.getAccepted().getFirst().get();
+      asyncConsumer.clear();
+    } catch (InterruptedException | ExecutionException e) {
+      throw new RuntimeException(e);
+    }
+
+    ResponseEntity<InputStreamResource> response = toaController.downloadObject(result.toaKey());
+    assertEquals(200, response.getStatusCode().value());
+
+    try (ZipArchiveInputStream archive = new ZipArchiveInputStream(response.getBody().getInputStream())) {
+      ZipArchiveEntry entry = archive.getNextZipEntry();
+      assertNotNull(entry);
+      assertEquals("external-alias.txt", entry.getName());
+      assertEquals("external-content", new String(archive.readAllBytes(), StandardCharsets.UTF_8));
+    }
+  }
+
+  @Test
+  public void exportObjects_externalResourceNotMounted_returnsNotFound() {
+    Path unresolvedPath = Paths.get(externalResourceBasePath).resolve("not-mounted/resource.jpg");
+    ObjectStoreMetadata metadata = objectStoreMetaDataService.create(
+      ObjectStoreMetadataFactory.newObjectStoreMetadata()
+        .fileIdentifier(null)
+        .fileExtension(null)
+        .bucket(TEST_BUCKET_NAME)
+        .dcFormat(MediaType.IMAGE_JPEG_VALUE)
+        .resourceExternalURL(unresolvedPath.toUri().toString())
+        .build());
+
+    ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+      () -> objectExportService.export(ObjectExportService.ExportArgs.builder()
+        .username("testuser")
+        .fileIdentifiers(List.of(metadata.getUuid()))
+        .build()));
+
+    assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+    assertTrue(exception.getReason().contains("External resource"));
   }
 
   @Test

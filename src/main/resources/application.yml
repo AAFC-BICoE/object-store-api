@@ -68,6 +68,7 @@ dina:
     # FS (requires root) or S3 (uses the s3 properties)
     implementation: FS
    # root: "/tmp/dina-nfs"
+   # externalResourceBasePath: "/mnt/nfs/dina-nfs"
 
 rabbitmq:
   queue: dina.search.queue

@@ -7,6 +7,7 @@ import org.apache.tika.mime.MimeTypeException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.ResourceLoader;
@@ -49,6 +50,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 import jakarta.inject.Inject;
@@ -81,6 +87,9 @@ public class FileControllerIT extends BaseIntegrationTest {
 
   private final static String TEST_BUCKET_NAME = "test";
   private final static String TEST_GROUP_NAME = TEST_BUCKET_NAME;
+
+  @Value("${dina.fileStorage.externalResourceBasePath}")
+  private String externalResourceBasePath;
 
   @AfterEach
   public void cleanup() {
@@ -381,6 +390,85 @@ public class FileControllerIT extends BaseIntegrationTest {
     objectStoreMetaDataService.update(metadataEntity);
     assertThrows(AccessDeniedException.class,
         () -> fileController.downloadObject(TEST_BUCKET_NAME, objectUploadUuid));
+  }
+
+  @Test
+  @WithMockKeycloakUser(groupRole = TEST_GROUP_NAME + ":USER")
+  public void downloadObject_externalResource_fileServed() throws Exception {
+    Path externalFile = writeExternalResourceFile("external-resource.jpg", "external-content");
+    ObjectStoreMetadata metadata =
+      createExternalResourceMetadata(externalFile.toUri().toString());
+
+    ResponseEntity<InputStreamResource> response =
+      fileController.downloadObject(TEST_BUCKET_NAME, metadata.getUuid());
+
+    assertEquals(200, response.getStatusCode().value());
+    assertEquals("external-resource.jpg",
+      response.getHeaders().getContentDisposition().getFilename());
+    assertNotNull(response.getHeaders().getContentType());
+    assertEquals(MediaType.IMAGE_JPEG_VALUE, response.getHeaders().getContentType().toString());
+
+    InputStreamResource body = response.getBody();
+    assertNotNull(body);
+    try (InputStream is = body.getInputStream()) {
+      assertEquals("external-content", new String(is.readAllBytes(), StandardCharsets.UTF_8));
+    }
+  }
+
+  @Test
+  @WithMockKeycloakUser(groupRole = TEST_GROUP_NAME + ":USER")
+  public void downloadObject_externalResourceMissingFile_throwsNotFound() {
+    Path missing = Paths.get(externalResourceBasePath).resolve("does-not-exist.jpg");
+    ObjectStoreMetadata metadata = createExternalResourceMetadata(missing.toUri().toString());
+
+    assertThrows(ResponseStatusException.class,
+      () -> fileController.downloadObject(TEST_BUCKET_NAME, metadata.getUuid()));
+  }
+
+  @Test
+  @WithMockKeycloakUser(groupRole = TEST_GROUP_NAME + ":USER")
+  public void downloadObject_externalResourceOutsideBasePath_throwsNotFound() throws IOException {
+    Path outside = Files.createTempFile("outside-external", ".jpg");
+    ObjectStoreMetadata metadata = createExternalResourceMetadata(outside.toUri().toString());
+
+    assertThrows(ResponseStatusException.class,
+      () -> fileController.downloadObject(TEST_BUCKET_NAME, metadata.getUuid()));
+  }
+
+  @Test
+  @WithMockKeycloakUser(groupRole = TEST_GROUP_NAME + ":USER")
+  public void downloadObject_internalResourceByUuid_throwsNotFound() throws Exception {
+    ObjectUpload objectUpload = ObjectUploadFactory.newObjectUpload()
+      .bucket(TEST_BUCKET_NAME).build();
+    objectUploadService.create(objectUpload);
+
+    ObjectStoreMetadata metadata = objectStoreMetaDataService.create(
+      ObjectStoreMetadataFactory.newObjectStoreMetadata()
+        .bucket(TEST_BUCKET_NAME)
+        .fileIdentifier(objectUpload.getFileIdentifier())
+        .build());
+
+    assertThrows(ResponseStatusException.class,
+      () -> fileController.downloadObject(TEST_BUCKET_NAME, metadata.getUuid()));
+  }
+
+  private Path writeExternalResourceFile(String filename, String content) throws IOException {
+    Path basePath = Paths.get(externalResourceBasePath);
+    Files.createDirectories(basePath);
+    Path externalFile = basePath.resolve(filename);
+    Files.write(externalFile, content.getBytes(StandardCharsets.UTF_8));
+    return externalFile;
+  }
+
+  private ObjectStoreMetadata createExternalResourceMetadata(String resourceExternalURL) {
+    return objectStoreMetaDataService.create(
+      ObjectStoreMetadataFactory.newObjectStoreMetadata()
+        .fileIdentifier(null)
+        .fileExtension(null)
+        .bucket(TEST_BUCKET_NAME)
+        .dcFormat(MediaType.IMAGE_JPEG_VALUE)
+        .resourceExternalURL(resourceExternalURL)
+        .build());
   }
 
   private MockMultipartFile getFileUnderTest() throws IOException {
