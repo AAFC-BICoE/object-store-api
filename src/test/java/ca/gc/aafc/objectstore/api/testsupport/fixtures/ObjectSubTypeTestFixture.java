@@ -6,7 +6,7 @@ import ca.gc.aafc.objectstore.api.entities.DcType;
 public class ObjectSubTypeTestFixture {
 
   public static final String CREATED_BY = "user";
-  public static final String AC_SUBTYPE = "EXPORT TEMPLATE";
+  public static final String AC_SUBTYPE = "TEST SUBTYPE";
 
   public static ObjectSubtypeDto newObjectSubType() {
 

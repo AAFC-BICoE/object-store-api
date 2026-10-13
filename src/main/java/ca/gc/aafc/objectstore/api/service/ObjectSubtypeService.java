@@ -27,4 +27,10 @@ public class ObjectSubtypeService extends DefaultDinaService<ObjectSubtype> {
     entity.setUuid(UUIDHelper.generateUUIDv7());
   }
 
+  @Override
+  protected void preDelete(ObjectSubtype entity) {
+    if (entity.getSystemDefined() != null && entity.getSystemDefined()) {
+      throw new IllegalStateException("Cannot delete a system-defined ObjectSubtype.");
+    }
+  }
 }
