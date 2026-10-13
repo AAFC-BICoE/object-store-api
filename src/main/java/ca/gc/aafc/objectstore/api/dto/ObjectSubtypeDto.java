@@ -4,6 +4,8 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import ca.gc.aafc.dina.dto.RelatedEntity;
+import ca.gc.aafc.dina.i18n.MultilingualDescription;
+import ca.gc.aafc.dina.i18n.MultilingualTitle;
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import lombok.Data;
@@ -24,6 +26,12 @@ public class ObjectSubtypeDto implements ca.gc.aafc.dina.dto.JsonApiResource {
 
   private DcType dcType;
   private String acSubtype;
+
+  private Boolean systemDefined;
+
+  private MultilingualTitle multilingualTitle;
+  private MultilingualDescription multilingualDescription;
+
   private String createdBy;
   private OffsetDateTime createdOn;
 

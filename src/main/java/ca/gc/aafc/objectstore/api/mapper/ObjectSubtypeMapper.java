@@ -22,10 +22,12 @@ public interface ObjectSubtypeMapper extends DinaMapperV2<ObjectSubtypeDto, Obje
   ObjectSubtypeDto toDto(ObjectSubtype entity, @Context Set<String> provided, @Context String scope);
 
   @Mapping(target = "id", ignore = true)
+  @Mapping(target = "systemDefined", ignore = true)
   ObjectSubtype toEntity(ObjectSubtypeDto dto, @Context Set<String> provided, @Context String scope);
 
   @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
   @Mapping(target = "id", ignore = true)
+  @Mapping(target = "systemDefined", ignore = true)
   void patchEntity(@MappingTarget ObjectSubtype entity, ObjectSubtypeDto dto, @Context Set<String> provided, @Context String scope);
 
 }

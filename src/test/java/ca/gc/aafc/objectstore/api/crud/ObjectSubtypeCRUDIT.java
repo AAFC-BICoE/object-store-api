@@ -20,6 +20,7 @@ public class ObjectSubtypeCRUDIT extends BaseEntityCRUDIT {
     assertNull(objectSubtypeUnderTest.getId());
     objectSubtypeService.create(objectSubtypeUnderTest);
     assertNotNull(objectSubtypeUnderTest.getId());
+    assertEquals(Boolean.FALSE, objectSubtypeUnderTest.getSystemDefined());
   }
 
   @Override
@@ -29,6 +30,7 @@ public class ObjectSubtypeCRUDIT extends BaseEntityCRUDIT {
     assertEquals(objectSubtypeUnderTest.getId(), fetchedAcSubtype.getId());
     assertEquals(objectSubtypeUnderTest.getAcSubtype(), fetchedAcSubtype.getAcSubtype());
     assertEquals(objectSubtypeUnderTest.getCreatedBy(), fetchedAcSubtype.getCreatedBy());
+    assertEquals(Boolean.FALSE, fetchedAcSubtype.getSystemDefined());
     assertNotNull(fetchedAcSubtype.getCreatedOn());
   }
 
