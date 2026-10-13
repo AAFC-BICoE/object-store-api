@@ -25,12 +25,12 @@ jobs:
 #       OWASP dependency-check done in AzureDevOps now
 
       - name: Extract Version
-        # if: ${{ github.ref == 'refs/heads/master' }}
+        if: ${{ github.ref == 'refs/heads/master' }}
         run: |
           mvn help:evaluate -Dexpression=project.version -q -DforceStdout > version.txt
 
       - name: Store artifacts
-        # if: ${{ github.ref == 'refs/heads/master' }}
+        if: ${{ github.ref == 'refs/heads/master' }}
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts
@@ -43,7 +43,7 @@ jobs:
     name: Build Docker Image and Push to DockerHub
     needs: [build]
     runs-on: ubuntu-latest
-    # if: ${{ github.ref == 'refs/heads/master' }}
+    if: ${{ github.ref == 'refs/heads/master' }}
 
     steps:
       - name: Download artifacts from build job
@@ -80,9 +80,9 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # - name: Push
-      #   run: |
-      #     docker push aafcbicoe/object-store-api:${{ env.VERSION_TAG }}
+      - name: Push
+        run: |
+          docker push aafcbicoe/object-store-api:${{ env.VERSION_TAG }}
 
       # - name: Build Image and Push
       #   uses: docker/build-push-action@v3
