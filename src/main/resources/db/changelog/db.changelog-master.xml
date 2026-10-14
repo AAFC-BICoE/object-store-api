@@ -28,4 +28,6 @@
     <include file="db/changelog/migrations/22-Add_controlled_vocabulary.xml"/>
     <include file="db/changelog/initial-data/1-Create_managed_attribute_controlled_vocabulary.xml"/>
     <include file="db/changelog/migrations/23-Migrate_managed_attribute_to_controlled_vocabulary_item.xml"/>
+    <include file="db/changelog/migrations/24-Expand_ObjectSubtype.xml"/>
+    <include file="db/changelog/initial-data/2-Create_initial_object_subtypes.xml"/>
 </databaseChangeLog>

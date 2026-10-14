@@ -16,6 +16,9 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import ca.gc.aafc.dina.entity.DinaEntity;
+import ca.gc.aafc.dina.i18n.MultilingualDescription;
+import ca.gc.aafc.dina.i18n.MultilingualTitle;
+import io.hypersistence.utils.hibernate.type.json.JsonType;
 
 import org.hibernate.annotations.ColumnTransformer;
 import org.hibernate.annotations.Generated;
@@ -23,90 +26,65 @@ import org.hibernate.annotations.GenerationTime;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.NaturalIdCache;
+import org.hibernate.annotations.Type;
+import org.hibernate.generator.EventType;
 import org.hibernate.type.SqlTypes;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "object_subtype")
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @RequiredArgsConstructor
+@Getter
+@Setter
 @NaturalIdCache
 public class ObjectSubtype implements DinaEntity {
 
-  private Integer id;
-  private DcType dcType;
-  private String acSubtype;
-  private UUID uuid;
-  private String createdBy;
-  private OffsetDateTime createdOn;
-
-  @NaturalId
-  @NotNull
-  @Column(name = "uuid", unique = true)
-  public UUID getUuid() {
-    return uuid;
-  }
-
-  public void setUuid(UUID uuid) {
-    this.uuid = uuid;
-  }
-
-  @Column(name = "ac_subtype")
-  @Size(max = 50)
-  @ColumnTransformer(write = "UPPER(TRIM(?))")
-  @NotBlank
-  public String getAcSubtype() {
-    return acSubtype;
-  }
-
-  public void setAcSubtype(String acSubtype) {
-    this.acSubtype = acSubtype;
-  }
-
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  public Integer getId() {
-    return id;
-  }
-
-  public void setId(Integer id) {
-    this.id = id;
-  }
+  private Integer id;
 
   @NotNull
   @JdbcTypeCode(SqlTypes.NAMED_ENUM)
   @Enumerated(EnumType.STRING)
   @Column(name = "dc_type")
-  public DcType getDcType() {
-    return dcType;
-  }
+  private DcType dcType;
 
-  public void setDcType(DcType dcType) {
-    this.dcType = dcType;
-  }
+  @Column(name = "ac_subtype")
+  @Size(max = 50)
+  @ColumnTransformer(write = "UPPER(TRIM(?))")
+  @NotBlank
+  private String acSubtype;
 
-  public void setCreatedBy(String createdBy) {
-    this.createdBy = createdBy;
-  }
+  @NaturalId
+  @NotNull
+  @Column(name = "uuid", unique = true)
+  private UUID uuid;
+
+  @Column(name = "system_defined", nullable = false, insertable = false, updatable = false)
+  @Generated(event = EventType.INSERT)
+  private Boolean systemDefined;
+
+  @Column(name = "multilingual_title", columnDefinition = "jsonb")
+  @Type(JsonType.class)
+  private MultilingualTitle multilingualTitle;
+
+  @Column(name = "multilingual_description", columnDefinition = "jsonb")
+  @Type(JsonType.class)
+  private MultilingualDescription multilingualDescription;
 
   @NotBlank
   @Column(name = "created_by", updatable = false)
-  public String getCreatedBy() {
-    return this.createdBy;
-  }
-
-  public void setCreatedOn(OffsetDateTime createdOn) {
-    this.createdOn = createdOn;
-  }
+  private String createdBy;
 
   @Column(name = "created_on", insertable = false, updatable = false)
   @Generated(value = GenerationTime.INSERT)
-  public OffsetDateTime getCreatedOn() {
-    return this.createdOn;
-  }
+  private OffsetDateTime createdOn;
 
 }
