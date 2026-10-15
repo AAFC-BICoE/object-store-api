@@ -18,6 +18,13 @@ public class ObjectExportMapperTest {
   public void testMapping() {
 
     UUID file1UUID = UUID.randomUUID();
+    UUID metadataUUID = UUID.randomUUID();
+
+    ObjectExportDto.ExternalResource externalResource = ObjectExportDto.ExternalResource.builder()
+      .metadataUuid(metadataUUID)
+      .filenameAlias("externalAlias")
+      .folder("external/")
+      .build();
 
     ObjectExportDto exportDto = ObjectExportDto.builder()
       .username("Jim")
@@ -25,6 +32,7 @@ public class ObjectExportMapperTest {
       .name("my-export")
       .filenameAliases(Map.of(file1UUID, "alias1"))
       .exportLayout(Map.of("myfolder", List.of(file1UUID)))
+      .externalResources(List.of(externalResource))
       .exportFunction(ExportFunction.builder().functionDef(ExportFunction.FunctionDef.IMG_RESIZE).build())
       .build();
 
@@ -36,6 +44,9 @@ public class ObjectExportMapperTest {
     assertEquals("Jim", exportArgs.username());
     assertEquals(file1UUID, exportArgs.fileIdentifiers().getFirst());
     assertEquals("my-export", exportArgs.name());
-
+    assertEquals(1, exportArgs.externalResources().size());
+    assertEquals(metadataUUID, exportArgs.externalResources().getFirst().getMetadataUuid());
+    assertEquals("externalAlias", exportArgs.externalResources().getFirst().getFilenameAlias());
+    assertEquals("external/", exportArgs.externalResources().getFirst().getFolder());
   }
 }

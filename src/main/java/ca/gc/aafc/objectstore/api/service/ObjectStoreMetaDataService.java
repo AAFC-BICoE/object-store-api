@@ -6,10 +6,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiFunction;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
-import jakarta.validation.ValidationException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -29,7 +25,10 @@ import ca.gc.aafc.objectstore.api.file.FileController;
 import ca.gc.aafc.objectstore.api.util.ObjectFilenameUtils;
 import ca.gc.aafc.objectstore.api.validation.ObjectStoreManagedAttributeValueValidatorMetadata;
 import ca.gc.aafc.objectstore.api.validation.ObjectStoreMetadataValidator;
-
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import jakarta.validation.ValidationException;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 
@@ -201,14 +200,14 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
   }
 
   /**
-   * Find an ObjectStoreMetadata by its uuid. Mainly used to resolve externally hosted resources that
-   * have no fileIdentifier.
+   * Find an ObjectStoreMetadata by its uuid. Mainly used to resolve externally hosted resources
+   * that have no fileIdentifier.
    *
    * @param uuid the metadata uuid
    * @return an Optional ObjectStoreMetadata
    */
   public Optional<ObjectStoreMetadata> findByUuid(UUID uuid) {
-    return findOneBy((cb, root) -> new Predicate[] {cb.equal(root.get("uuid"), uuid)});
+    return Optional.ofNullable(baseDAO.findOneByProperty(ObjectStoreMetadata.class, "uuid", uuid));
   }
 
   /**

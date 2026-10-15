@@ -1,6 +1,5 @@
 package ca.gc.aafc.objectstore.api.file;
 
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.compress.archivers.ArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
@@ -57,49 +56,36 @@ public class ObjectExportGenerator {
 
   private final FileStorage fileStorage;
   private final ImageOperationService imageOperationService;
-  private final ExternalResourceFileResolver externalResourceFileResolver;
 
-  public ObjectExportGenerator(FileStorage fileStorage, ImageOperationService imageOperationService,
-                               ExternalResourceFileResolver externalResourceFileResolver) {
+  public ObjectExportGenerator(FileStorage fileStorage, ImageOperationService imageOperationService) {
     this.fileStorage = fileStorage;
     this.imageOperationService = imageOperationService;
-    this.externalResourceFileResolver = externalResourceFileResolver;
   }
 
   @Async(MainConfiguration.DINA_THREAD_POOL_BEAN_NAME)
-  public CompletableFuture<UUID> export(UUID exportUUID, List<AbstractObjectStoreMetadata> objectsToExport,
+  public CompletableFuture<UUID> export(UUID exportUUID, List<ObjectExportItem> itemsToExport,
                                         Path zipFile, ObjectExportOption exportOptions) {
 
-    Map<UUID, String> layoutByFileIdentifier = invertExportLayout(exportOptions.exportLayout());
-    Map<UUID, String> filenameAliases = exportOptions.aliases() == null ? Map.of() : exportOptions.aliases();
     Map<String, AtomicInteger> filenamesIncluded = new HashMap<>();
 
     try (ArchiveOutputStream<ZipArchiveEntry> o = new ZipArchiveOutputStream(zipFile)) {
-      for (AbstractObjectStoreMetadata currObj: objectsToExport) {
-        UUID objectIdentifier = currObj instanceof ObjectStoreMetadata metadata && metadata.isExternal()
-          ? metadata.getUuid() : currObj.getFileIdentifier();
-        Path externalPath = currObj instanceof ObjectStoreMetadata metadata && metadata.isExternal()
-          ? externalResourceFileResolver.resolve(metadata.getResourceExternalURL())
-            .filter(Files::isRegularFile)
-            .orElseThrow(() -> new IllegalStateException("External resource not found"))
-          : null;
-
-        String entryFilename = generateExportItemFilename(currObj, filenameAliases.get(objectIdentifier),
-          layoutByFileIdentifier.get(objectIdentifier), filenamesIncluded, exportOptions.exportFunction(), externalPath);
+      for (ObjectExportItem item: itemsToExport) {
+        String entryFilename = generateExportItemFilename(item, filenamesIncluded,
+          exportOptions.exportFunction());
 
         // Set zipEntry
-        ZipArchiveEntry entry =
-          new ZipArchiveEntry(entryFilename);
+        ZipArchiveEntry entry = new ZipArchiveEntry(entryFilename);
         o.putArchiveEntry(entry);
 
         // Get and copy the stream into the zip
-        Optional<InputStream> optIs = externalPath == null
-          ? fileStorage.retrieveFile(currObj.getBucket(), currObj.getInternalFilename(), currObj instanceof Derivative)
-          : Optional.of(Files.newInputStream(externalPath));
+        Optional<InputStream> optIs = item.externalPath() == null
+          ? fileStorage.retrieveFile(item.metadata().getBucket(), item.metadata().getInternalFilename(),
+              item.metadata() instanceof Derivative)
+          : Optional.of(Files.newInputStream(item.externalPath()));
         try (InputStream is = optIs.orElseThrow(
           () -> new IllegalStateException("No InputStream available"))) {
           //If there is no function(s) handling the stream copy it
-          if (!handleImageFunction(is, currObj.getDcFormat(), o, exportOptions.exportFunction())) {
+          if (!handleImageFunction(is, item.metadata().getDcFormat(), o, exportOptions.exportFunction())) {
             IOUtils.copy(is, o);
           }
         }
@@ -187,20 +173,22 @@ public class ObjectExportGenerator {
   /**
    * Get a unique (withing the export) filename.
    *
-   * @param obj           the data about the file to add
-   * @param filenameAlias use an alternative name for the filename
-   * @param folder        folder to which the file should be stored under
+   * @param item          the prepared export item (metadata, alias, folder and resolved external path)
    * @param usedFilenames filenames that are already used with a counter. Will be modified by this function.
    * @param exportFunction optional export function provided for the export
    * @return
    */
-  private static String generateExportItemFilename(AbstractObjectStoreMetadata obj,
-                                                   String filenameAlias, String folder,
+  private static String generateExportItemFilename(ObjectExportItem item,
                                                    Map<String, AtomicInteger> usedFilenames,
-                                                   ExportFunction exportFunction, Path externalPath) {
+                                                   ExportFunction exportFunction) {
+    AbstractObjectStoreMetadata obj = item.metadata();
+    String filenameAlias = item.filenameAlias();
+    String folder = item.folder();
+
     String filename;
-    if (obj instanceof ObjectStoreMetadata metadata && metadata.isExternal()) {
-      String externalFilename = Objects.toString(externalPath.getFileName(), metadata.getUuid().toString());
+    if (item.externalPath() != null && obj instanceof ObjectStoreMetadata metadata) {
+      String externalFilename = Objects.toString(item.externalPath().getFileName(),
+        metadata.getUuid().toString());
       String candidate = StringUtils.firstNonBlank(filenameAlias, metadata.getFilename(),
         metadata.getOriginalFilename(), externalFilename, metadata.getUuid().toString());
       String extension = FilenameUtils.getExtension(externalFilename);
@@ -259,23 +247,5 @@ public class ObjectExportGenerator {
       usedFilenames.put(filename, new AtomicInteger(0));
     }
     return filename;
-  }
-
-  private static Map<UUID, String> invertExportLayout(Map<String, List<UUID>> exportLayout) {
-
-    if (MapUtils.isEmpty(exportLayout)) {
-      return Map.of();
-    }
-
-    Map<UUID, String> layoutByFileIdentifier = new HashMap<>();
-    for (var entry : exportLayout.entrySet()) {
-      for (var uuid : entry.getValue()) {
-        if (layoutByFileIdentifier.containsKey(uuid)) {
-          throw new IllegalArgumentException("fileIdentifiers should be unique in exportLayout");
-        }
-        layoutByFileIdentifier.put(uuid, entry.getKey());
-      }
-    }
-    return layoutByFileIdentifier;
   }
 }
