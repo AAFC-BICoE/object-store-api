@@ -383,6 +383,27 @@ public class FileControllerIT extends BaseIntegrationTest {
         () -> fileController.downloadObject(TEST_BUCKET_NAME, objectUploadUuid));
   }
 
+  /**
+   * The download endpoint only accepts file identifiers. Metadata uuids (including those of
+   * externally hosted resources) must be rejected.
+   */
+  @Test
+  @WithMockKeycloakUser(groupRole = TEST_GROUP_NAME + ":USER")
+  public void downloadObject_byMetadataUuid_throwsNotFound() throws Exception {
+    ObjectUpload objectUpload = ObjectUploadFactory.newObjectUpload()
+      .bucket(TEST_BUCKET_NAME).build();
+    objectUploadService.create(objectUpload);
+
+    ObjectStoreMetadata metadata = objectStoreMetaDataService.create(
+      ObjectStoreMetadataFactory.newObjectStoreMetadata()
+        .bucket(TEST_BUCKET_NAME)
+        .fileIdentifier(objectUpload.getFileIdentifier())
+        .build());
+
+    assertThrows(ResponseStatusException.class,
+      () -> fileController.downloadObject(TEST_BUCKET_NAME, metadata.getUuid()));
+  }
+
   private MockMultipartFile getFileUnderTest() throws IOException {
     return MultipartFileFactory.createMockMultipartFile(resourceLoader, TEST_UPLOAD_FILE_NAME,
         MediaType.IMAGE_PNG_VALUE);
