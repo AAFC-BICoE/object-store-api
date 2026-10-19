@@ -20,7 +20,7 @@ import ca.gc.aafc.objectstore.api.config.ObjectExportOption;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.file.FileController;
-import ca.gc.aafc.objectstore.api.file.TemporaryObjectAccessController;
+import ca.gc.aafc.objectstore.api.file.ObjectStoreTOAController;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MultipartFileFactory;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFactory;
 
@@ -60,7 +60,7 @@ public class ObjectExportServiceIT extends BaseIntegrationTest {
   private AsyncConsumer<Future<ObjectExportService.ExportResult>> asyncConsumer;
 
   @Inject
-  private TemporaryObjectAccessController toaController;
+  private ObjectStoreTOAController toaController;
 
   @Test
   public void exportObjects_onExport_ZipContentValid()
@@ -107,7 +107,7 @@ public class ObjectExportServiceIT extends BaseIntegrationTest {
     }
 
     // 6 - Make sure we can get the export file using the toa key
-    ResponseEntity<InputStreamResource> response = toaController.downloadObject(result.toaKey());
+    ResponseEntity<InputStreamResource> response = toaController.handleDownload(result.toaKey());
     assertEquals(200, response.getStatusCode().value());
 
     Set<String> filenamesInZip = new HashSet<>();
@@ -172,7 +172,7 @@ public class ObjectExportServiceIT extends BaseIntegrationTest {
     }
 
     // 6 - Make sure we can get the export file using the toa key
-    ResponseEntity<InputStreamResource> response = toaController.downloadObject(result.toaKey());
+    ResponseEntity<InputStreamResource> response = toaController.handleDownload(result.toaKey());
     assertEquals(200, response.getStatusCode().value());
 
     Set<String> filenamesInZip = new HashSet<>();
