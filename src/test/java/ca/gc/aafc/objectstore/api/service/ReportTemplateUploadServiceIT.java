@@ -14,7 +14,7 @@ import ca.gc.aafc.dina.repository.JsonApiModelAssistant;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.config.MediaTypeConfiguration;
 import ca.gc.aafc.objectstore.api.file.FileController;
-import ca.gc.aafc.objectstore.api.file.TemporaryObjectAccessController;
+import ca.gc.aafc.objectstore.api.file.ObjectStoreTOAController;
 import ca.gc.aafc.objectstore.api.testsupport.factories.MultipartFileFactory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -35,7 +35,7 @@ public class ReportTemplateUploadServiceIT extends BaseIntegrationTest {
   private ReportTemplateUploadService reportTemplateUploadService;
 
   @Inject
-  private TemporaryObjectAccessController toaController;
+  private ObjectStoreTOAController toaController;
 
   @Test
   public void reportTemplateUploadService_onTemplateUpload_toaDownloadAvailable() throws IOException, MimeTypeException, NoSuchAlgorithmException {
@@ -53,7 +53,7 @@ public class ReportTemplateUploadServiceIT extends BaseIntegrationTest {
       reportTemplateUploadService.handleTemplateUpload(objectUploadUuid);
 
     // 3- make sure we can get the export file using the toa key
-    assertEquals(200, toaController.downloadObject(result.toaKey()).getStatusCode().value());
+    assertEquals(200, toaController.handleDownload(result.toaKey()).getStatusCode().value());
 
   }
 }

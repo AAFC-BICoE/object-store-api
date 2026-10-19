@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class TemporaryAccessObjectControllerIT extends BaseIntegrationTest {
 
   @Inject
-  private TemporaryObjectAccessController tempObjectAccessController;
+  private ObjectStoreTOAController tempObjectAccessController;
 
   @Test
   public void toa_onObjectRegistered_objectCanBeDownloadedOnce() throws IOException {
@@ -33,7 +33,7 @@ public class TemporaryAccessObjectControllerIT extends BaseIntegrationTest {
     Files.writeString(p, testText);
 
     String key = tempObjectAccessController.registerObject(testFilename);
-    ResponseEntity<InputStreamResource> response = tempObjectAccessController.downloadObject(key);
+    ResponseEntity<InputStreamResource> response = tempObjectAccessController.handleDownload(key);
 
     ByteArrayOutputStream os = new ByteArrayOutputStream();
     InputStream is = response.getBody().getInputStream();
@@ -45,7 +45,7 @@ public class TemporaryAccessObjectControllerIT extends BaseIntegrationTest {
     assertEquals(testText, str);
 
     // try again
-    response = tempObjectAccessController.downloadObject(key);
+    response = tempObjectAccessController.handleDownload(key);
     assertEquals(404, response.getStatusCode().value());
 
   }
