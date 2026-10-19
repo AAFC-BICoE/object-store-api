@@ -13,7 +13,7 @@ import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.file.FileObjectInfo;
 import ca.gc.aafc.objectstore.api.file.ObjectExportGenerator;
-import ca.gc.aafc.objectstore.api.file.TemporaryObjectAccessController;
+import ca.gc.aafc.objectstore.api.file.ObjectStoreTOAController;
 import ca.gc.aafc.objectstore.api.security.FileControllerAuthorizationService;
 import ca.gc.aafc.objectstore.api.storage.FileStorage;
 
@@ -43,7 +43,7 @@ public class ObjectExportService {
   private final FileControllerAuthorizationService authorizationService;
   private final ObjectStoreMetaDataService objectMetadataService;
   private final DerivativeService derivativeService;
-  private final TemporaryObjectAccessController toaCtrl;
+  private final ObjectStoreTOAController toaCtrl;
 
   private final DinaMessageProducer messageProducer;
 
@@ -54,7 +54,7 @@ public class ObjectExportService {
                              FileControllerAuthorizationService authorizationService,
                              ObjectStoreMetaDataService objectMetadataService,
                              DerivativeService derivativeService,
-                             TemporaryObjectAccessController toaCtrl,
+                             ObjectStoreTOAController toaCtrl,
                              DinaMessageProducer messageProducer) {
 
     maxObjectExportSizeInBytes = objectExportConfiguration.getMaxObjectExportSize().toBytes();

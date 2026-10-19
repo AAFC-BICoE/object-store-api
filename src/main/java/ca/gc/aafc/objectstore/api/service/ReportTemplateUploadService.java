@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 import ca.gc.aafc.dina.messaging.message.ReportTemplateUploadNotification;
 import ca.gc.aafc.dina.util.UUIDHelper;
 import ca.gc.aafc.objectstore.api.entities.ObjectUpload;
-import ca.gc.aafc.objectstore.api.file.TemporaryObjectAccessController;
+import ca.gc.aafc.objectstore.api.file.ObjectStoreTOAController;
 import ca.gc.aafc.dina.messaging.producer.DinaMessageProducer;
 import ca.gc.aafc.objectstore.api.storage.FileStorage;
 
@@ -25,12 +25,12 @@ public class ReportTemplateUploadService {
 
   private final FileStorage fileStorage;
   private final ObjectUploadService objectUploadService;
-  private final TemporaryObjectAccessController toaCtrl;
+  private final ObjectStoreTOAController toaCtrl;
   private final DinaMessageProducer dinaMessageProducer;
 
   public ReportTemplateUploadService(FileStorage fileStorage,
                                      ObjectUploadService objectUploadService,
-                                     TemporaryObjectAccessController toaCtrl,
+                                     ObjectStoreTOAController toaCtrl,
                                      DinaMessageProducer dinaMessageProducer) {
     this.fileStorage = fileStorage;
     this.objectUploadService = objectUploadService;
