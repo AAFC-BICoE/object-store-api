@@ -13,7 +13,7 @@ import java.util.Optional;
 import lombok.extern.log4j.Log4j2;
 
 /**
- * Resolves a metadata {@code resourceExternalURL} to a file on the local file system, constrained
+ * Resolves a {@code resourceExternalURL} to a file using the local file system, constrained
  * to the configured {@code externalResourceBasePath}.
  * <p>
  * Only {@code file:} URLs that resolve beneath the configured base path are considered locally
@@ -36,11 +36,11 @@ public class ExternalResourceFileResolver {
   }
 
   /**
-   * @param resourceExternalURL the resourceExternalURL to inspect, may be null or blank
-   * @return true if the given resourceExternalURL is a {@code file} URL, false otherwise
+   * @param resourceExternal the resourceExternal URI to inspect, may be null or blank
+   * @return true if the given resourceExternal URI has a {@code file} scheme, false otherwise
    */
-  public boolean isFileURL(String resourceExternalURL) {
-    return FILE_SCHEME.equalsIgnoreCase(schemeOf(resourceExternalURL));
+  private static boolean isFileScheme(URI resourceExternal) {
+    return FILE_SCHEME.equalsIgnoreCase(resourceExternal.getScheme( ));
   }
 
   /**
@@ -54,13 +54,18 @@ public class ExternalResourceFileResolver {
    * @return the resolved path, if any
    */
   public Optional<Path> resolve(String resourceExternalURL) {
-    if (externalResourceBasePath == null || !isFileURL(resourceExternalURL)) {
+    if (externalResourceBasePath == null) {
       return Optional.empty();
     }
 
     Path path;
     try {
-      path = Paths.get(URI.create(resourceExternalURL)).toAbsolutePath().normalize();
+      URI resourceExternal = URI.create(resourceExternalURL);
+
+      if (!isFileScheme(resourceExternal)) {
+        return Optional.empty();
+      }
+      path = Paths.get(resourceExternal).toAbsolutePath().normalize();
     } catch (IllegalArgumentException | FileSystemNotFoundException e) {
       log.warn("Invalid resourceExternalURL: {}", resourceExternalURL);
       return Optional.empty();
@@ -84,17 +89,6 @@ public class ExternalResourceFileResolver {
     } catch (IOException e) {
       // the resource does not exist, keep the normalized path so callers can report it as missing
       return Optional.of(path);
-    }
-  }
-
-  private static String schemeOf(String resourceExternalURL) {
-    if (StringUtils.isBlank(resourceExternalURL)) {
-      return null;
-    }
-    try {
-      return URI.create(resourceExternalURL).getScheme();
-    } catch (IllegalArgumentException e) {
-      return null;
     }
   }
 

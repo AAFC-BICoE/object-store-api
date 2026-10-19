@@ -1,7 +1,6 @@
 package ca.gc.aafc.objectstore.api.file;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -23,22 +22,6 @@ public class ExternalResourceFileResolverTest {
 
   private ExternalResourceFileResolver newResolver() throws IOException {
     return new ExternalResourceFileResolver(tempDir.toRealPath().toString());
-  }
-
-  @Test
-  public void isFileURL_onFileURL_true() {
-    ExternalResourceFileResolver resolver = new ExternalResourceFileResolver("");
-    assertTrue(resolver.isFileURL("file:///tmp/some-file.txt"));
-    assertTrue(resolver.isFileURL("FILE:///tmp/some-file.txt"));
-  }
-
-  @Test
-  public void isFileURL_onNonFileURL_false() {
-    ExternalResourceFileResolver resolver = new ExternalResourceFileResolver("");
-    assertFalse(resolver.isFileURL("https://example.com/some-file.txt"));
-    assertFalse(resolver.isFileURL("not a uri"));
-    assertFalse(resolver.isFileURL(null));
-    assertFalse(resolver.isFileURL("  "));
   }
 
   @Test
