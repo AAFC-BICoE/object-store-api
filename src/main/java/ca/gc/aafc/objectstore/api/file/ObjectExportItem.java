@@ -1,21 +1,54 @@
 package ca.gc.aafc.objectstore.api.file;
 
 import java.nio.file.Path;
+import java.util.Objects;
 
 import ca.gc.aafc.objectstore.api.entities.AbstractObjectStoreMetadata;
 
 /**
  * A fully resolved entry to include in an export archive.
  * <p>
- * For stored files and derivatives {@code externalPath} is {@code null} and the content is read
- * from the object store. For externally hosted resources {@code externalPath} points to the
- * resolved local file and the content is read from the file system.
- *
- * @param metadata      the metadata backing this export entry
- * @param filenameAlias optional alias to use for the filename, may be null
- * @param folder        optional folder to place the entry under, may be null
- * @param externalPath  resolved path for externally hosted resources, {@code null} for stored files
+ * Either a {@link StoredFile} (stored files and derivatives, read from the object store) or an
+ * {@link ExternalResource} (externally hosted resources, read from the local file system).
  */
-public record ObjectExportItem(AbstractObjectStoreMetadata metadata, String filenameAlias,
-                               String folder, Path externalPath) {
+public sealed interface ObjectExportItem
+    permits ObjectExportItem.StoredFile, ObjectExportItem.ExternalResource {
+
+  /**
+   * @return the metadata backing this export entry
+   */
+  AbstractObjectStoreMetadata metadata();
+
+  /**
+   * @return optional alias to use for the filename, may be null
+   */
+  String filenameAlias();
+
+  /**
+   * @return optional folder to place the entry under, may be null
+   */
+  String folder();
+
+  /**
+   * Export of a file (or derivative) stored in the object store.
+   */
+  record StoredFile(AbstractObjectStoreMetadata metadata, String filenameAlias, String folder)
+      implements ObjectExportItem {
+    public StoredFile {
+      Objects.requireNonNull(metadata, "metadata");
+    }
+  }
+
+  /**
+   * Export of an externally hosted resource.
+   *
+   * @param externalPath resolved local path of the external resource
+   */
+  record ExternalResource(AbstractObjectStoreMetadata metadata, String filenameAlias,
+                          String folder, Path externalPath) implements ObjectExportItem {
+    public ExternalResource {
+      Objects.requireNonNull(metadata, "metadata");
+      Objects.requireNonNull(externalPath, "externalPath");
+    }
+  }
 }
