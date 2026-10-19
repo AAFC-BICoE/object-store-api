@@ -1,10 +1,10 @@
 package ca.gc.aafc.objectstore.api.file;
 
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.compress.archivers.ArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MimeType;
 import org.apache.tika.mime.MimeTypeException;
@@ -27,12 +27,10 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -63,29 +61,31 @@ public class ObjectExportGenerator {
   }
 
   @Async(MainConfiguration.DINA_THREAD_POOL_BEAN_NAME)
-  public CompletableFuture<UUID> export(UUID exportUUID, List<ObjectExportItem> itemsToExport,
+  public CompletableFuture<UUID> export(UUID exportUUID, List<AbstractObjectStoreMetadata> objectsToExport,
                                         Path zipFile, ObjectExportOption exportOptions) {
 
+    Map<UUID, String> layoutByFileIdentifier = invertExportLayout(exportOptions.exportLayout());
+    Map<UUID, String> filenameAliases = exportOptions.aliases() == null ? Map.of() : exportOptions.aliases();
     Map<String, AtomicInteger> filenamesIncluded = new HashMap<>();
 
     try (ArchiveOutputStream<ZipArchiveEntry> o = new ZipArchiveOutputStream(zipFile)) {
-      for (ObjectExportItem item: itemsToExport) {
-        String entryFilename = generateExportItemFilename(item, filenamesIncluded,
-          exportOptions.exportFunction());
+      for (AbstractObjectStoreMetadata currObj: objectsToExport) {
+
+        String entryFilename = generateExportItemFilename(currObj, filenameAliases.get(currObj.getFileIdentifier()),
+          layoutByFileIdentifier.get(currObj.getFileIdentifier()), filenamesIncluded, exportOptions.exportFunction());
 
         // Set zipEntry
-        ZipArchiveEntry entry = new ZipArchiveEntry(entryFilename);
+        ZipArchiveEntry entry =
+          new ZipArchiveEntry(entryFilename);
         o.putArchiveEntry(entry);
 
         // Get and copy the stream into the zip
-        Optional<InputStream> optIs = item.externalPath() == null
-          ? fileStorage.retrieveFile(item.metadata().getBucket(), item.metadata().getInternalFilename(),
-              item.metadata() instanceof Derivative)
-          : Optional.of(Files.newInputStream(item.externalPath()));
+        Optional<InputStream> optIs =
+          fileStorage.retrieveFile(currObj.getBucket(), currObj.getInternalFilename(), currObj instanceof Derivative);
         try (InputStream is = optIs.orElseThrow(
           () -> new IllegalStateException("No InputStream available"))) {
           //If there is no function(s) handling the stream copy it
-          if (!handleImageFunction(is, item.metadata().getDcFormat(), o, exportOptions.exportFunction())) {
+          if (!handleImageFunction(is, currObj.getDcFormat(), o, exportOptions.exportFunction())) {
             IOUtils.copy(is, o);
           }
         }
@@ -173,30 +173,19 @@ public class ObjectExportGenerator {
   /**
    * Get a unique (withing the export) filename.
    *
-   * @param item          the prepared export item (metadata, alias, folder and resolved external path)
+   * @param obj           the data about the file to add
+   * @param filenameAlias use an alternative name for the filename
+   * @param folder        folder to which the file should be stored under
    * @param usedFilenames filenames that are already used with a counter. Will be modified by this function.
    * @param exportFunction optional export function provided for the export
    * @return
    */
-  private static String generateExportItemFilename(ObjectExportItem item,
+  private static String generateExportItemFilename(AbstractObjectStoreMetadata obj,
+                                                   String filenameAlias, String folder,
                                                    Map<String, AtomicInteger> usedFilenames,
                                                    ExportFunction exportFunction) {
-    AbstractObjectStoreMetadata obj = item.metadata();
-    String filenameAlias = item.filenameAlias();
-    String folder = item.folder();
-
     String filename;
-    if (item.externalPath() != null && obj instanceof ObjectStoreMetadata metadata) {
-      String externalFilename = Objects.toString(item.externalPath().getFileName(),
-        metadata.getUuid().toString());
-      String candidate = StringUtils.firstNonBlank(filenameAlias, metadata.getFilename(),
-        metadata.getOriginalFilename(), externalFilename, metadata.getUuid().toString());
-      String extension = FilenameUtils.getExtension(externalFilename);
-      filename = FilenameUtils.getBaseName(ObjectFilenameUtils.standardizeFilename(candidate));
-      if (StringUtils.isNotBlank(extension)) {
-        filename += "." + extension;
-      }
-    } else if (obj instanceof ObjectStoreMetadata metadata) {
+    if (obj instanceof ObjectStoreMetadata metadata) {
       filename = ObjectFilenameUtils.generateMainObjectFilename(metadata, filenameAlias);
     } else if (obj instanceof Derivative derivative) {
       filename = ObjectFilenameUtils.generateDerivativeFilename(derivative, filenameAlias);
@@ -247,5 +236,23 @@ public class ObjectExportGenerator {
       usedFilenames.put(filename, new AtomicInteger(0));
     }
     return filename;
+  }
+
+  private static Map<UUID, String> invertExportLayout(Map<String, List<UUID>> exportLayout) {
+
+    if (MapUtils.isEmpty(exportLayout)) {
+      return Map.of();
+    }
+
+    Map<UUID, String> layoutByFileIdentifier = new HashMap<>();
+    for (var entry : exportLayout.entrySet()) {
+      for (var uuid : entry.getValue()) {
+        if (layoutByFileIdentifier.containsKey(uuid)) {
+          throw new IllegalArgumentException("fileIdentifiers should be unique in exportLayout");
+        }
+        layoutByFileIdentifier.put(uuid, entry.getKey());
+      }
+    }
+    return layoutByFileIdentifier;
   }
 }

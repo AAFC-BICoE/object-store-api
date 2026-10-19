@@ -31,35 +31,11 @@ public class ObjectExportDto implements ca.gc.aafc.dina.dto.JsonApiResource {
   private List<UUID> fileIdentifiers;
   private Map<UUID, String> filenameAliases;
   private Map<String, List<UUID>> exportLayout;
-
-  /**
-   * Externally hosted resources to include in the export. These are resolved from their
-   * metadata uuid, the backing resourceExternalURL is owned by the server.
-   */
-  private List<ExternalResource> externalResources;
-
   private ExportFunction exportFunction;
   private String name;
 
   @JsonIgnore
   private String username;
-
-  /**
-   * A single externally hosted resource to include in an export.
-   * <p>
-   * The metadata is identified by its uuid (not by a fileIdentifier). The optional filenameAlias
-   * and folder only apply to this external item and do not affect stored files or derivatives.
-   */
-  @Getter
-  @Setter
-  @Builder
-  @NoArgsConstructor
-  @AllArgsConstructor
-  public static class ExternalResource {
-    private UUID metadataUuid;
-    private String filenameAlias;
-    private String folder;
-  }
 
   @JsonIgnore
   @Override
