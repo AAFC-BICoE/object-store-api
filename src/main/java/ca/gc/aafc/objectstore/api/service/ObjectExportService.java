@@ -21,7 +21,9 @@ import ca.gc.aafc.objectstore.api.storage.FileStorage;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -87,6 +89,10 @@ public class ObjectExportService {
 
     String filename = exportUUID + EXPORT_EXT;
     Path zipFile = toaCtrl.generatePath(filename);
+    Map<UUID, String> folderByFileIdentifier =
+      invertExportLayout(exportArgs.objectExportOption().exportLayout());
+    Map<UUID, String> filenameAliases = exportArgs.objectExportOption().aliases() == null
+      ? Map.of() : exportArgs.objectExportOption().aliases();
     List<ObjectExportItem> toExport = new ArrayList<>(exportArgs.fileIdentifiers().size());
     long totalSizeInBytes = 0;
 
@@ -124,7 +130,8 @@ public class ObjectExportService {
         throw new IllegalStateException("Maximum export size exceeded. Max: " + maxObjectExportSizeInBytes + " bytes");
       }
 
-      toExport.add(new ObjectExportItem.StoredFile(obj, null, null));
+      toExport.add(new ObjectExportItem.StoredFile(obj, filenameAliases.get(fileIdentifier),
+        folderByFileIdentifier.get(fileIdentifier)));
     }
 
     // then complete the export
@@ -163,6 +170,23 @@ public class ObjectExportService {
 
   private static void throwIllegalStateFileNotFound(UUID fileIdentifier) throws IllegalStateException {
     throw new IllegalStateException("File " + fileIdentifier + " not found");
+  }
+
+  private static Map<UUID, String> invertExportLayout(Map<String, List<UUID>> exportLayout) {
+    if (exportLayout == null || exportLayout.isEmpty()) {
+      return Map.of();
+    }
+
+    Map<UUID, String> folderByFileIdentifier = new HashMap<>();
+    for (var entry : exportLayout.entrySet()) {
+      for (var fileIdentifier : entry.getValue()) {
+        if (folderByFileIdentifier.containsKey(fileIdentifier)) {
+          throw new IllegalArgumentException("fileIdentifiers should be unique in exportLayout");
+        }
+        folderByFileIdentifier.put(fileIdentifier, entry.getKey());
+      }
+    }
+    return folderByFileIdentifier;
   }
 
   /**
