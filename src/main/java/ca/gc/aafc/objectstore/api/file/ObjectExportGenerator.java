@@ -61,7 +61,7 @@ public class ObjectExportGenerator {
   }
 
   @Async(MainConfiguration.DINA_THREAD_POOL_BEAN_NAME)
-  public CompletableFuture<UUID> export(UUID exportUUID, List<AbstractObjectStoreMetadata> objectsToExport,
+  public CompletableFuture<UUID> export(UUID exportUUID, List<ObjectExportItem> objectsToExport,
                                         Path zipFile, ObjectExportOption exportOptions) {
 
     Map<UUID, String> layoutByFileIdentifier = invertExportLayout(exportOptions.exportLayout());
@@ -69,10 +69,13 @@ public class ObjectExportGenerator {
     Map<String, AtomicInteger> filenamesIncluded = new HashMap<>();
 
     try (ArchiveOutputStream<ZipArchiveEntry> o = new ZipArchiveOutputStream(zipFile)) {
-      for (AbstractObjectStoreMetadata currObj: objectsToExport) {
+      for (ObjectExportItem exportItem: objectsToExport) {
+        AbstractObjectStoreMetadata currObj = exportItem.metadata();
 
-        String entryFilename = generateExportItemFilename(currObj, filenameAliases.get(currObj.getFileIdentifier()),
-          layoutByFileIdentifier.get(currObj.getFileIdentifier()), filenamesIncluded, exportOptions.exportFunction());
+        String entryFilename = generateExportItemFilename(currObj,
+          filenameAliases.get(currObj.getFileIdentifier()),
+          layoutByFileIdentifier.get(currObj.getFileIdentifier()),
+          filenamesIncluded, exportOptions.exportFunction());
 
         // Set zipEntry
         ZipArchiveEntry entry =
@@ -239,7 +242,7 @@ public class ObjectExportGenerator {
   }
 
   private static Map<UUID, String> invertExportLayout(Map<String, List<UUID>> exportLayout) {
-
+    
     if (MapUtils.isEmpty(exportLayout)) {
       return Map.of();
     }

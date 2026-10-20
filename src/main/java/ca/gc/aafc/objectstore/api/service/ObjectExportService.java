@@ -13,6 +13,7 @@ import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.file.FileObjectInfo;
 import ca.gc.aafc.objectstore.api.file.ObjectExportGenerator;
+import ca.gc.aafc.objectstore.api.file.ObjectExportItem;
 import ca.gc.aafc.objectstore.api.file.ObjectStoreTOAController;
 import ca.gc.aafc.objectstore.api.security.FileControllerAuthorizationService;
 import ca.gc.aafc.objectstore.api.storage.FileStorage;
@@ -86,7 +87,7 @@ public class ObjectExportService {
 
     String filename = exportUUID + EXPORT_EXT;
     Path zipFile = toaCtrl.generatePath(filename);
-    List<AbstractObjectStoreMetadata> toExport = new ArrayList<>(exportArgs.fileIdentifiers().size());
+    List<ObjectExportItem> toExport = new ArrayList<>(exportArgs.fileIdentifiers().size());
     long totalSizeInBytes = 0;
 
     for (UUID fileIdentifier : exportArgs.fileIdentifiers()) {
@@ -123,7 +124,7 @@ public class ObjectExportService {
         throw new IllegalStateException("Maximum export size exceeded. Max: " + maxObjectExportSizeInBytes + " bytes");
       }
 
-      toExport.add(obj);
+      toExport.add(new ObjectExportItem.StoredFile(obj, null, null));
     }
 
     // then complete the export
