@@ -1,6 +1,5 @@
 package ca.gc.aafc.objectstore.api.file;
 
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.compress.archivers.ArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
@@ -61,18 +60,17 @@ public class ObjectExportGenerator {
   }
 
   @Async(MainConfiguration.DINA_THREAD_POOL_BEAN_NAME)
-  public CompletableFuture<UUID> export(UUID exportUUID, List<AbstractObjectStoreMetadata> objectsToExport,
+  public CompletableFuture<UUID> export(UUID exportUUID, List<ObjectExportItem> objectsToExport,
                                         Path zipFile, ObjectExportOption exportOptions) {
 
-    Map<UUID, String> layoutByFileIdentifier = invertExportLayout(exportOptions.exportLayout());
-    Map<UUID, String> filenameAliases = exportOptions.aliases() == null ? Map.of() : exportOptions.aliases();
     Map<String, AtomicInteger> filenamesIncluded = new HashMap<>();
 
     try (ArchiveOutputStream<ZipArchiveEntry> o = new ZipArchiveOutputStream(zipFile)) {
-      for (AbstractObjectStoreMetadata currObj: objectsToExport) {
+      for (ObjectExportItem exportItem: objectsToExport) {
+        AbstractObjectStoreMetadata currObj = exportItem.metadata();
 
-        String entryFilename = generateExportItemFilename(currObj, filenameAliases.get(currObj.getFileIdentifier()),
-          layoutByFileIdentifier.get(currObj.getFileIdentifier()), filenamesIncluded, exportOptions.exportFunction());
+        String entryFilename = generateExportItemFilename(currObj, exportItem.filenameAlias(),
+          exportItem.folder(), filenamesIncluded, exportOptions.exportFunction());
 
         // Set zipEntry
         ZipArchiveEntry entry =
@@ -236,23 +234,5 @@ public class ObjectExportGenerator {
       usedFilenames.put(filename, new AtomicInteger(0));
     }
     return filename;
-  }
-
-  private static Map<UUID, String> invertExportLayout(Map<String, List<UUID>> exportLayout) {
-
-    if (MapUtils.isEmpty(exportLayout)) {
-      return Map.of();
-    }
-
-    Map<UUID, String> layoutByFileIdentifier = new HashMap<>();
-    for (var entry : exportLayout.entrySet()) {
-      for (var uuid : entry.getValue()) {
-        if (layoutByFileIdentifier.containsKey(uuid)) {
-          throw new IllegalArgumentException("fileIdentifiers should be unique in exportLayout");
-        }
-        layoutByFileIdentifier.put(uuid, entry.getKey());
-      }
-    }
-    return layoutByFileIdentifier;
   }
 }
