@@ -29,6 +29,9 @@ steps:
      tags: $(imageTag)
      command: build
      Dockerfile: imagemagick/Dockerfile
+     arguments: >
+      --provenance=false
+      --output=type=docker,oci-mediatypes=false
 
  - task: AzureCLI@2
    displayName: Login and push to Azure Container Registry
