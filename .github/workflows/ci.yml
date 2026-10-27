@@ -66,8 +66,9 @@ jobs:
           outputs: type=image,oci-mediatypes=false
 
       - name: Scan image
-        # use specific version, not main
-        uses: aquasecurity/trivy-action@v0.36.0
+        # use specific commit, not main/master or tags since they are not immutable
+        # version: v0.76.1
+        uses: aquasecurity/trivy-action@8f28faec26515256b6d22074d1d2a8986f4cbd87
         with:
           image-ref: aafcbicoe/object-store-api:${{ env.VERSION_TAG }}
           severity: CRITICAL
