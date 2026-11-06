@@ -6,8 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import ca.gc.aafc.objectstore.api.entities.DcType;
 import lombok.AllArgsConstructor;
@@ -25,19 +26,20 @@ public class DcTypeJsonSerDeTest {
 
   @BeforeEach
   public void before() {
-    objectMapper = new ObjectMapper();
-    objectMapper.registerModule(DcTypeJsonSerDe.asModule());
+    objectMapper = JsonMapper.builder()
+        .addModule(DcTypeJsonSerDe.asModule())
+        .build();
   }
 
   @Test
-  public void serialization_onDcType_jsonContainsValue() throws JsonProcessingException {
+  public void serialization_onDcType_jsonContainsValue() throws JacksonException {
     DcTypeJsonSerDeTestClass tesObject = new DcTypeJsonSerDeTestClass("a", DcType.IMAGE);
     assertTrue(objectMapper.writeValueAsString(tesObject).contains(DcType.IMAGE.name()));
   }
 
   @Test
   public void deserialization_onValidString_matchingDcTypeReturned()
-      throws JsonProcessingException {
+      throws JacksonException {
     DcTypeJsonSerDeTestClass tesObject = objectMapper.readValue("{\"a\":\"a\",\"b\":\"IMAGE\"}",
         DcTypeJsonSerDeTestClass.class);
     assertEquals(DcType.IMAGE, tesObject.getB());
@@ -48,7 +50,7 @@ public class DcTypeJsonSerDeTest {
     Throwable rootCause = null;
     try {
       objectMapper.readValue("{\"a\":\"a\",\"b\":\"EGAMI\"}", DcTypeJsonSerDeTestClass.class);
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       rootCause = e.getCause();
     }
     assertEquals(IllegalArgumentException.class, rootCause.getClass());

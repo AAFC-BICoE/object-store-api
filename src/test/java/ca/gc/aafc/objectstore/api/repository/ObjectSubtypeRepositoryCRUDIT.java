@@ -23,8 +23,8 @@ import ca.gc.aafc.objectstore.api.entities.DcType;
 import ca.gc.aafc.objectstore.api.entities.ObjectSubtype;
 import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectSubtypeFactory;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 public class ObjectSubtypeRepositoryCRUDIT extends ObjectStoreModuleBaseRepositoryIT {
 
@@ -50,7 +50,7 @@ public class ObjectSubtypeRepositoryCRUDIT extends ObjectStoreModuleBaseReposito
   }
 
   @BeforeEach
-  public void setup() throws JsonProcessingException {
+  public void setup() throws JacksonException {
     this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
   }
 

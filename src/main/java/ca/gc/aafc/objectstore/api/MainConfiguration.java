@@ -3,7 +3,7 @@ package ca.gc.aafc.objectstore.api;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -11,8 +11,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import com.toedter.spring.hateoas.jsonapi.JsonApiConfiguration;
 
 import ca.gc.aafc.dina.DinaBaseApiAutoConfiguration;
@@ -57,9 +56,6 @@ public class MainConfiguration {
     return new JsonApiConfiguration()
       .withPluralizedTypeRendered(false)
       .withPageMetaAutomaticallyCreated(false)
-      .withObjectMapperCustomizer(objectMapper -> {
-        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-        objectMapper.registerModule(new JavaTimeModule());
-      });
+      .withMapperCustomizer(builder -> builder.disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS));
   }
 }

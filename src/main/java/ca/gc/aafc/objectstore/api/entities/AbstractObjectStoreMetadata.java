@@ -1,11 +1,11 @@
 package ca.gc.aafc.objectstore.api.entities;
 
 import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.GenerationTime;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.NaturalIdCache;
 import org.hibernate.type.SqlTypes;
+import org.hibernate.generator.EventType;
 
 import ca.gc.aafc.dina.entity.DinaEntity;
 
@@ -115,7 +115,7 @@ public abstract class AbstractObjectStoreMetadata implements DinaEntity {
   }
 
   @Column(name = "created_on", insertable = false, updatable = false)
-  @Generated(value = GenerationTime.INSERT)
+  @Generated(event = EventType.INSERT)
   public OffsetDateTime getCreatedOn() {
     return createdOn;
   }

@@ -2,17 +2,15 @@ package ca.gc.aafc.objectstore.api.entities;
 
 import ca.gc.aafc.dina.entity.DinaEntity;
 
-import io.hypersistence.utils.hibernate.type.json.JsonType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 
 import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.GenerationTime;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.NaturalIdCache;
-import org.hibernate.annotations.Type;
+import org.hibernate.generator.EventType;
 import org.hibernate.type.SqlTypes;
 
 import jakarta.persistence.Column;
@@ -100,7 +98,7 @@ public class ObjectUpload implements DinaEntity {
   }
 
   @Column(name = "created_on", insertable = false, updatable = false)
-  @Generated(value = GenerationTime.INSERT)
+  @Generated(event = EventType.INSERT)
   public OffsetDateTime getCreatedOn() {
     return this.createdOn;
   }
@@ -205,7 +203,7 @@ public class ObjectUpload implements DinaEntity {
     this.dateTimeDigitized = dateTimeDigitized;
   }
 
-  @Type(JsonType.class)
+  @JdbcTypeCode(SqlTypes.JSON)
   @Column(name = "exif", columnDefinition = "jsonb")
   public Map<String, String> getExif() {
     return exif;
