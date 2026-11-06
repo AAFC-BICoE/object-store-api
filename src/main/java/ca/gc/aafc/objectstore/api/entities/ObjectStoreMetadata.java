@@ -1,6 +1,5 @@
 package ca.gc.aafc.objectstore.api.entities;
 
-import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.Version;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -8,7 +7,8 @@ import java.util.HashMap;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.validator.constraints.URL;
 
@@ -300,7 +300,7 @@ public class ObjectStoreMetadata extends AbstractObjectStoreMetadata {
   public void setGroup(String group) {
   }
 
-  @Type(JsonType.class)
+  @JdbcTypeCode(SqlTypes.JSON)
   @NotNull
   @Column(name = "managed_attribute_values", columnDefinition = "jsonb")
   public Map<String, String> getManagedAttributes() {

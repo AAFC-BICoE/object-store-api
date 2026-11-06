@@ -12,11 +12,11 @@ Configuration:
       target: SYSTEM_OUT
       PatternLayout:
         pattern: "%d [%t] %-5p %c - %m%n"
-    File:
-      name: LogToFile
-      fileName: ${log-path}/app.log
-      PatternLayout:
-        pattern: "%d [%t] %-5p %c - %m%n"
+    # File:
+    #   name: LogToFile
+    #   fileName: ${log-path}/app.log
+    #   PatternLayout:
+    #     pattern: "%d [%t] %-5p %c - %m%n"
 
   Loggers:
       Logger:

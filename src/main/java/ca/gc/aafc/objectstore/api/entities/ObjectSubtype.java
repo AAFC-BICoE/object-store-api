@@ -18,15 +18,12 @@ import jakarta.validation.constraints.Size;
 import ca.gc.aafc.dina.entity.DinaEntity;
 import ca.gc.aafc.dina.i18n.MultilingualDescription;
 import ca.gc.aafc.dina.i18n.MultilingualTitle;
-import io.hypersistence.utils.hibernate.type.json.JsonType;
 
 import org.hibernate.annotations.ColumnTransformer;
 import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.GenerationTime;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.NaturalIdCache;
-import org.hibernate.annotations.Type;
 import org.hibernate.generator.EventType;
 import org.hibernate.type.SqlTypes;
 
@@ -72,11 +69,11 @@ public class ObjectSubtype implements DinaEntity {
   private Boolean systemDefined;
 
   @Column(name = "multilingual_title", columnDefinition = "jsonb")
-  @Type(JsonType.class)
+  @JdbcTypeCode(SqlTypes.JSON)
   private MultilingualTitle multilingualTitle;
 
   @Column(name = "multilingual_description", columnDefinition = "jsonb")
-  @Type(JsonType.class)
+  @JdbcTypeCode(SqlTypes.JSON)
   private MultilingualDescription multilingualDescription;
 
   @NotBlank
@@ -84,7 +81,7 @@ public class ObjectSubtype implements DinaEntity {
   private String createdBy;
 
   @Column(name = "created_on", insertable = false, updatable = false)
-  @Generated(value = GenerationTime.INSERT)
+  @Generated(event = EventType.INSERT)
   private OffsetDateTime createdOn;
 
 }
