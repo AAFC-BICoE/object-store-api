@@ -3,6 +3,7 @@ package ca.gc.aafc.objectstore.api.file;
 import org.apache.commons.compress.archivers.ArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MimeType;
@@ -26,10 +27,12 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -69,8 +72,8 @@ public class ObjectExportGenerator {
       for (ObjectExportItem exportItem: objectsToExport) {
         AbstractObjectStoreMetadata currObj = exportItem.metadata();
 
-        String entryFilename = generateExportItemFilename(currObj, exportItem.filenameAlias(),
-          exportItem.folder(), filenamesIncluded, exportOptions.exportFunction());
+        String entryFilename = generateExportItemFilename(exportItem, filenamesIncluded,
+          exportOptions.exportFunction());
 
         // Set zipEntry
         ZipArchiveEntry entry =
@@ -78,8 +81,7 @@ public class ObjectExportGenerator {
         o.putArchiveEntry(entry);
 
         // Get and copy the stream into the zip
-        Optional<InputStream> optIs =
-          fileStorage.retrieveFile(currObj.getBucket(), currObj.getInternalFilename(), currObj instanceof Derivative);
+        Optional<InputStream> optIs = openStream(exportItem);
         try (InputStream is = optIs.orElseThrow(
           () -> new IllegalStateException("No InputStream available"))) {
           //If there is no function(s) handling the stream copy it
@@ -95,6 +97,20 @@ public class ObjectExportGenerator {
     }
     
     return CompletableFuture.completedFuture(exportUUID);
+  }
+
+  /**
+   * Opens the content of an export item: from the file storage for stored files/derivatives or
+   * from the local file system for externally hosted resources.
+   */
+  private Optional<InputStream> openStream(ObjectExportItem item) throws IOException {
+    return switch (item) {
+      case ObjectExportItem.StoredFile stored -> fileStorage.retrieveFile(
+        stored.metadata().getBucket(), stored.metadata().getInternalFilename(),
+        stored.metadata() instanceof Derivative);
+      case ObjectExportItem.ExternalResource external ->
+        Optional.of(Files.newInputStream(external.externalPath()));
+    };
   }
 
   private static boolean isFunctionPresentAndValid(String sourceMediaType,
@@ -171,19 +187,22 @@ public class ObjectExportGenerator {
   /**
    * Get a unique (withing the export) filename.
    *
-   * @param obj           the data about the file to add
-   * @param filenameAlias use an alternative name for the filename
-   * @param folder        folder to which the file should be stored under
+   * @param item          the export item (metadata, optional alias and folder, and source)
    * @param usedFilenames filenames that are already used with a counter. Will be modified by this function.
    * @param exportFunction optional export function provided for the export
    * @return
    */
-  private static String generateExportItemFilename(AbstractObjectStoreMetadata obj,
-                                                   String filenameAlias, String folder,
+  private static String generateExportItemFilename(ObjectExportItem item,
                                                    Map<String, AtomicInteger> usedFilenames,
                                                    ExportFunction exportFunction) {
+    AbstractObjectStoreMetadata obj = item.metadata();
+    String filenameAlias = item.filenameAlias();
+    String folder = item.folder();
+
     String filename;
-    if (obj instanceof ObjectStoreMetadata metadata) {
+    if (item instanceof ObjectExportItem.ExternalResource external) {
+      filename = generateExternalResourceFilename(external);
+    } else if (obj instanceof ObjectStoreMetadata metadata) {
       filename = ObjectFilenameUtils.generateMainObjectFilename(metadata, filenameAlias);
     } else if (obj instanceof Derivative derivative) {
       filename = ObjectFilenameUtils.generateDerivativeFilename(derivative, filenameAlias);
@@ -234,5 +253,21 @@ public class ObjectExportGenerator {
       usedFilenames.put(filename, new AtomicInteger(0));
     }
     return filename;
+  }
+
+  /**
+   * Filename for an externally hosted resource. Uses the alias first, then the metadata filenames
+   * and finally the name of the resolved file. The extension is always the one of the actual file.
+   */
+  private static String generateExternalResourceFilename(ObjectExportItem.ExternalResource item) {
+    ObjectStoreMetadata metadata = item.metadata();
+    String resolvedFilename = Objects.toString(item.externalPath().getFileName(), null);
+
+    String candidate = StringUtils.firstNonBlank(item.filenameAlias(), metadata.getFilename(),
+      metadata.getOriginalFilename(), resolvedFilename, Objects.toString(metadata.getUuid(), null));
+
+    String filename = FilenameUtils.getBaseName(ObjectFilenameUtils.standardizeFilename(candidate));
+    String extension = FilenameUtils.getExtension(resolvedFilename);
+    return StringUtils.isBlank(extension) ? filename : filename + "." + extension;
   }
 }
