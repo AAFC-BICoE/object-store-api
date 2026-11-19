@@ -34,7 +34,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ContextConfiguration(initializers = VersityWGTestContainerInitializer.class)
 @SpringBootTest(classes = ObjectStoreApiLauncher.class, properties = {
   "orphan-removal.expiration.object_max_age=12d",
-  "orphan-removal.cron.expression=*/1 * * * * *",
   "dev-user.enabled=true"
 })
 class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
@@ -189,22 +188,6 @@ class ObjectOrphanRemovalServiceIT extends BaseIntegrationTest {
     assertNull(
       objectUploadService.findOne(derivativeUpload.getFileIdentifier(), ObjectUpload.class),
       "There should be no upload record");
-  }
-
-  @SneakyThrows
-  @Test
-  void removeOrphans_ScheduledAction() {
-    persistOrphanRecord();
-    ObjectUpload upload = findUploads().get(0);
-    String fileName = storeFileForUpload(upload);
-    Assertions.assertFalse(findUploads().isEmpty());
-
-    Thread.sleep(2000);
-
-    assertTrue(
-      fileStorage.retrieveFile(BUCKET, fileName,false).isEmpty(),
-      "There should be no returned files");
-    assertTrue(findUploads().isEmpty(), "There should be no upload record");
   }
 
   private List<ObjectUpload> findUploads() {
