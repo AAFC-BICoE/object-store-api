@@ -27,7 +27,9 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
@@ -109,8 +111,33 @@ public class ObjectExportGenerator {
         stored.metadata().getBucket(), stored.metadata().getInternalFilename(),
         stored.metadata() instanceof Derivative);
       case ObjectExportItem.ExternalResource external ->
-        Optional.of(Files.newInputStream(external.externalPath()));
+        Optional.of(openExternalResource(external));
     };
+  }
+
+  /**
+   * Opens an externally hosted resource. Only regular files on the local (default) file system are
+   * accepted: other file system providers (e.g. zip/jar), directories, devices, pipes and symbolic
+   * links are rejected.
+   * <p>
+   * (see {@link ExternalResourceFileResolver}).
+   *
+   * @throws IllegalStateException if the resource is not a readable regular local file
+   * @throws IOException           if the file can't be opened
+   */
+  private static InputStream openExternalResource(ObjectExportItem.ExternalResource item)
+      throws IOException {
+    Path path = item.externalPath();
+    if (path.getFileSystem() != FileSystems.getDefault()) {
+      throw new IllegalStateException(
+        "External resource " + item.metadata().getUuid() + " is not on the local file system");
+    }
+    if (!Files.isRegularFile(path, LinkOption.NOFOLLOW_LINKS)) {
+      throw new IllegalStateException(
+        "External resource " + item.metadata().getUuid() + " is not available as a regular file");
+    }
+    // refuse to open the file if its last path element is a symbolic link
+    return Files.newInputStream(path, LinkOption.NOFOLLOW_LINKS);
   }
 
   private static boolean isFunctionPresentAndValid(String sourceMediaType,
@@ -195,26 +222,16 @@ public class ObjectExportGenerator {
   private static String generateExportItemFilename(ObjectExportItem item,
                                                    Map<String, AtomicInteger> usedFilenames,
                                                    ExportFunction exportFunction) {
-    AbstractObjectStoreMetadata obj = item.metadata();
-    String filenameAlias = item.filenameAlias();
-    String folder = item.folder();
-
-    String filename;
-    if (item instanceof ObjectExportItem.ExternalResource external) {
-      filename = generateExternalResourceFilename(external);
-    } else if (obj instanceof ObjectStoreMetadata metadata) {
-      filename = ObjectFilenameUtils.generateMainObjectFilename(metadata, filenameAlias);
-    } else if (obj instanceof Derivative derivative) {
-      filename = ObjectFilenameUtils.generateDerivativeFilename(derivative, filenameAlias);
-    } else {
-      filename = obj.getInternalFilename();
-    }
+    String filename = switch (item) {
+      case ObjectExportItem.StoredFile stored -> generateStoredFileFilename(stored);
+      case ObjectExportItem.ExternalResource external -> generateExternalResourceFilename(external);
+    };
 
     // Is there a valid function that will be applied ?
-    if (isFunctionPresentAndValid(obj.getDcFormat(), exportFunction)) {
+    if (isFunctionPresentAndValid(item.metadata().getDcFormat(), exportFunction)) {
 
       // We are adding function related suffix but only if there is no alias provided
-      if (StringUtils.isBlank(filenameAlias)) {
+      if (StringUtils.isBlank(item.filenameAlias())) {
         filename = ObjectFilenameUtils.insertBeforeFileExtension(filename,
           "_" + exportFunction.functionDef().getSuffix());
       }
@@ -234,8 +251,8 @@ public class ObjectExportGenerator {
 
 
     // Do we have an export layout to consider ?
-    if (StringUtils.isNotBlank(folder)) {
-      String folderName = ObjectFilenameUtils.standardizeFolderName(folder);
+    if (StringUtils.isNotBlank(item.folder())) {
+      String folderName = ObjectFilenameUtils.standardizeFolderName(item.folder());
       filename = folderName + filename;
     }
 
@@ -253,6 +270,19 @@ public class ObjectExportGenerator {
       usedFilenames.put(filename, new AtomicInteger(0));
     }
     return filename;
+  }
+
+  /**
+   * Filename for a file (or derivative) stored in the object store.
+   */
+  private static String generateStoredFileFilename(ObjectExportItem.StoredFile item) {
+    return switch (item.metadata()) {
+      case ObjectStoreMetadata metadata ->
+        ObjectFilenameUtils.generateMainObjectFilename(metadata, item.filenameAlias());
+      case Derivative derivative ->
+        ObjectFilenameUtils.generateDerivativeFilename(derivative, item.filenameAlias());
+      default -> item.metadata().getInternalFilename();
+    };
   }
 
   /**

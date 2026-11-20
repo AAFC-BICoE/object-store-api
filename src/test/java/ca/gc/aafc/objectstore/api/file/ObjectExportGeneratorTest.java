@@ -1,6 +1,8 @@
 package ca.gc.aafc.objectstore.api.file;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -9,7 +11,10 @@ import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -136,15 +141,40 @@ public class ObjectExportGeneratorTest {
     assertEquals(Map.of("stored.txt", "stored content", "ext/ext.txt", "external content"), entries);
   }
 
+  private Throwable exportFailure(Path externalPath) {
+    var item = new ObjectExportItem.ExternalResource(externalMetadata("x.txt"), null, null, externalPath);
+    var future = generator.export(UUID.randomUUID(), List.of(item),
+      tempDir.resolve(UUID.randomUUID() + ".zip"), ObjectExportOption.builder().build());
+    assertTrue(future.isCompletedExceptionally());
+    return assertThrows(ExecutionException.class, future::get).getCause();
+  }
+
   @Test
   public void export_externalResourceFileMissing_failedFuture() {
-    var item = new ObjectExportItem.ExternalResource(externalMetadata("gone.txt"), null, null,
-      tempDir.resolve("does-not-exist.txt"));
+    assertInstanceOf(IllegalStateException.class, exportFailure(tempDir.resolve("does-not-exist.txt")));
+  }
 
-    var future = generator.export(UUID.randomUUID(), List.of(item), tempDir.resolve("out.zip"),
-      ObjectExportOption.builder().build());
+  @Test
+  public void export_externalResourceIsDirectory_failedFuture() throws IOException {
+    Path dir = Files.createDirectory(tempDir.resolve("a-directory"));
+    assertInstanceOf(IllegalStateException.class, exportFailure(dir));
+  }
 
-    assertTrue(future.isCompletedExceptionally());
+  @Test
+  public void export_externalResourceIsSymlink_failedFuture() throws IOException {
+    Path target = writeFile("target.txt", "content");
+    Path link = Files.createSymbolicLink(tempDir.resolve("link.txt"), target);
+    assertInstanceOf(IllegalStateException.class, exportFailure(link));
+  }
+
+  @Test
+  public void export_externalResourceNotOnLocalFileSystem_failedFuture() throws IOException {
+    Path zip = tempDir.resolve("container.zip");
+    try (FileSystem zipFs = FileSystems.newFileSystem(URI.create("jar:" + zip.toUri()),
+        Map.of("create", "true"))) {
+      Path inZip = Files.writeString(zipFs.getPath("/inside.txt"), "content");
+      assertInstanceOf(IllegalStateException.class, exportFailure(inZip));
+    }
   }
 
   @Test
