@@ -68,6 +68,10 @@ dina:
     # FS (requires root) or S3 (uses the s3 properties)
     implementation: FS
    # root: "/tmp/dina-nfs"
+    # Mount points of external resources (file: URLs): "[stored mount point]": active mount point
+    # (keys must be wrapped in [] to keep the slashes)
+    # externalResourceMounts:
+    #   "[/gpsc5/abc]": "/mnt/gpsc/abc"
 
 rabbitmq:
   queue: dina.search.queue
