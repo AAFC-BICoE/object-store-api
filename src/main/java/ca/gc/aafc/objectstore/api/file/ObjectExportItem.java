@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.util.Objects;
 
 import ca.gc.aafc.objectstore.api.entities.AbstractObjectStoreMetadata;
+import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
 
 /**
  * A fully resolved entry to include in an export archive.
@@ -44,7 +45,7 @@ public sealed interface ObjectExportItem
    *
    * @param externalPath resolved local path of the external resource
    */
-  record ExternalResource(AbstractObjectStoreMetadata metadata, String filenameAlias,
+  record ExternalResource(ObjectStoreMetadata metadata, String filenameAlias,
                           String folder, Path externalPath) implements ObjectExportItem {
     public ExternalResource {
       Objects.requireNonNull(metadata, "metadata");

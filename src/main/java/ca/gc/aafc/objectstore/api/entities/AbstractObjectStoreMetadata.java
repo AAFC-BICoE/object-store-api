@@ -154,6 +154,6 @@ public abstract class AbstractObjectStoreMetadata implements DinaEntity {
    */
   @Transient
   public String getInternalFilename() {
-    return fileIdentifier + fileExtension;
+    return fileIdentifier == null ? null : fileIdentifier + fileExtension;
   }
 }
