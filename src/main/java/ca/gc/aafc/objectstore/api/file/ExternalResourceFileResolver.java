@@ -8,9 +8,8 @@ import java.net.URI;
 import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import lombok.extern.log4j.Log4j2;
 
@@ -32,24 +31,15 @@ import ca.gc.aafc.objectstore.api.config.ExternalResourceConfiguration;
 public class ExternalResourceFileResolver {
 
   private static final String FILE_SCHEME = "file";
-  private static final String PATH_TRAVERSAL_MSG = "Path traversal detected";
 
   private final List<Mount> mounts;
 
   public ExternalResourceFileResolver(ExternalResourceConfiguration externalResourceConfiguration) {
-    List<Mount> configuredMounts = new ArrayList<>();
-    for (Map.Entry<String, String> entry : externalResourceConfiguration.externalResourceMounts()
-        .entrySet()) {
-      Path storedMountPoint = toMountPoint(entry.getKey());
-      Path activeMountPoint = toMountPoint(entry.getValue());
-      configuredMounts.add(new Mount(storedMountPoint, activeMountPoint));
-    }
-
     // longest stored mount point (most path elements) first
-    configuredMounts.sort((a, b) -> Integer.compare(
-      b.storedMountPoint().getNameCount(), a.storedMountPoint().getNameCount()));
-
-    this.mounts = List.copyOf(configuredMounts);
+    this.mounts = externalResourceConfiguration.externalResourceMounts().entrySet().stream()
+      .map(e -> new Mount(normalizeAbsolutePath(e.getKey()), normalizeAbsolutePath(e.getValue())))
+      .sorted(Comparator.comparingInt((Mount m) -> m.storedMountPoint().getNameCount()).reversed())
+      .toList();
   }
 
   /**
@@ -76,84 +66,53 @@ public class ExternalResourceFileResolver {
       return Optional.empty();
     }
 
-    try {
-      return Optional.of(resolveUnderActiveMountPoint(requestedPath, mount.get()));
-    } catch (SecurityException e) {
-      log.warn("{} for external resource: {}", PATH_TRAVERSAL_MSG, resourceExternalURL);
-      throw e;
-    }
+    return Optional.of(resolveUnderActiveMountPoint(requestedPath, mount.get()));
   }
 
   /**
-   * Find the mount whose stored mount point the requested path starts with.
-   *
    * @param requestedPath path from the resourceExternalURL (e.g. /gpsc5/abc/images/a.tif)
-   * @return the matching mount (e.g. /gpsc5/abc -> /mnt/gpsc/abc), if any
+   * @return the mount whose stored mount point the path starts with (e.g. /gpsc5/abc), if any
    */
   private Optional<Mount> findMount(Path requestedPath) {
-    for (Mount mount : mounts) {
-      if (requestedPath.startsWith(mount.storedMountPoint())) {
-        return Optional.of(mount);
-      }
-    }
-    return Optional.empty();
+    return mounts.stream()
+      .filter(m -> requestedPath.startsWith(m.storedMountPoint()))
+      .findFirst();
   }
 
   /**
    * Move the requested path from the stored mount point to the active mount point and make sure
-   * it stays inside the active mount point.
+   * it stays inside the active mount point, including once symbolic links are resolved.
+   *
+   * @return the real path, or the normalized path if the resource doesn't exist
    */
   private static Path resolveUnderActiveMountPoint(Path requestedPath, Mount mount) {
     Path activeMountPoint = mount.activeMountPoint();
 
-    Path pathInsideMount = removeMountPoint(requestedPath, mount.storedMountPoint());
-
+    // e.g. /gpsc5/abc/images/a.tif relative to /gpsc5/abc -> images/a.tif.
+    // requestedPath is not normalized, so ".." elements are kept and checked below.
+    Path pathInsideMount = mount.storedMountPoint().relativize(requestedPath);
     Path resolvedPath = activeMountPoint.resolve(pathInsideMount).normalize();
 
     if (!resolvedPath.startsWith(activeMountPoint)) {
-      throw new SecurityException(PATH_TRAVERSAL_MSG);
+      throw pathTraversal(requestedPath);
     }
 
-    return checkRealPathInsideMountPoint(resolvedPath, activeMountPoint);
-  }
-
-  /**
-   * Remove the mount point from the beginning of the path. The result is kept as provided
-   * (not normalized) so ".." elements are still there to be checked.
-   *
-   * @param path       e.g. /gpsc5/abc/images/a.tif
-   * @param mountPoint e.g. /gpsc5/abc
-   * @return e.g. images/a.tif, or an empty path if path is the mount point itself
-   */
-  private static Path removeMountPoint(Path path, Path mountPoint) {
-    int start = mountPoint.getNameCount();
-    int end = path.getNameCount();
-    if (start == end) {
-      return Paths.get("");
-    }
-    return path.subpath(start, end);
-  }
-
-  /**
-   * Make sure the resource does not escape the active mount point through a symbolic link.
-   *
-   * @return the real path, or the resolved path if the resource doesn't exist
-   */
-  private static Path checkRealPathInsideMountPoint(Path resolvedPath, Path activeMountPoint) {
-    Path realPath;
-    Path realMountPoint;
     try {
-      realPath = resolvedPath.toRealPath();
-      realMountPoint = activeMountPoint.toRealPath();
+      Path realPath = resolvedPath.toRealPath();
+      if (!realPath.startsWith(activeMountPoint.toRealPath())) {
+        throw pathTraversal(requestedPath);
+      }
+      return realPath;
     } catch (IOException e) {
       // the resource doesn't exist, callers will report it as missing
       return resolvedPath;
     }
+  }
 
-    if (!realPath.startsWith(realMountPoint)) {
-      throw new SecurityException(PATH_TRAVERSAL_MSG);
-    }
-    return realPath;
+  private static SecurityException pathTraversal(Path requestedPath) {
+    String msg = "Path traversal detected for external resource: " + requestedPath;
+    log.warn(msg);
+    return new SecurityException(msg);
   }
 
   /**
@@ -177,18 +136,22 @@ public class ExternalResourceFileResolver {
     }
   }
 
-  private static Path toMountPoint(String mountPoint) {
-    Path path = Paths.get(mountPoint);
-    if (!path.isAbsolute()) {
+  /**
+   * @param path a configured mount point (e.g. /gpsc5/abc/)
+   * @return the path normalized (e.g. /gpsc5/abc)
+   * @throws IllegalArgumentException if the path is not absolute
+   */
+  private static Path normalizeAbsolutePath(String path) {
+    Path parsedPath = Paths.get(path);
+    if (!parsedPath.isAbsolute()) {
       throw new IllegalArgumentException(
-        "externalResourceMounts entries must be absolute paths: " + mountPoint);
+        "externalResourceMounts entries must be absolute paths: " + path);
     }
-    return path.normalize();
+    return parsedPath.normalize();
   }
 
   /**
-   * @param storedMountPoint mount point recorded in resourceExternalURL (e.g. /gpsc5/abc)
-   * @param activeMountPoint where it is actually mounted (e.g. /mnt/gpsc/abc)
+   * Stored (recorded in resourceExternalURL) to active (actually mounted) mount point.
    */
   private record Mount(Path storedMountPoint, Path activeMountPoint) {
   }
