@@ -19,6 +19,12 @@ Send a POST request to `object-export` with a body like:
 
 The response will include the export UUID.
 
+Externally hosted resources (metadata with a `resourceExternalURL`) have no file identifier: use the
+metadata UUID in `fileIdentifiers` instead. The same identifier applies to `exportLayout` and
+`filenameAliases`. Only `file:` URLs under a configured `dina.fileStorage.externalResourceMounts`
+mount point can be exported (see <<_external_resource_mounts, External resource mounts>>); the export is rejected if
+the file can't be resolved or doesn't exist.
+
 To include files in folder(s), add the following attributes:
 
 ```

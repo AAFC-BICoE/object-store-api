@@ -10,12 +10,17 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import ca.gc.aafc.dina.repository.JsonApiModelAssistant;
 import ca.gc.aafc.objectstore.api.BaseIntegrationTest;
 import ca.gc.aafc.objectstore.api.async.AsyncConsumer;
 import ca.gc.aafc.objectstore.api.config.AsyncOverrideConfig;
 import ca.gc.aafc.objectstore.api.config.ExportFunction;
+import ca.gc.aafc.objectstore.api.config.ExternalResourceConfiguration;
 import ca.gc.aafc.objectstore.api.config.ObjectExportOption;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
@@ -26,11 +31,16 @@ import ca.gc.aafc.objectstore.api.testsupport.factories.ObjectStoreMetadataFacto
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +71,12 @@ public class ObjectExportServiceIT extends BaseIntegrationTest {
 
   @Inject
   private ObjectStoreTOAController toaController;
+
+  @Inject
+  private ExternalResourceConfiguration externalResourceConfiguration;
+
+  @Inject
+  private PlatformTransactionManager transactionManager;
 
   @Test
   public void exportObjects_onExport_ZipContentValid()
@@ -188,5 +204,98 @@ public class ObjectExportServiceIT extends BaseIntegrationTest {
 
     assertEquals(1, filenamesInZip.size());
     assertTrue(filenamesInZip.contains("testfile_resized.jpg"));
+  }
+
+  /**
+   * Runs outside a transaction, like a request from the API.
+   */
+  @Test
+  @Transactional(propagation = Propagation.NOT_SUPPORTED)
+  public void exportObjects_externalResource_ZipContentValid() throws IOException {
+    writeExternalResourceFile("images/external.txt", "external-content");
+    TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
+    ObjectStoreMetadata external = transactionTemplate.execute(status ->
+      createExternalResourceMetadata(
+        "file://" + EXTERNAL_RESOURCE_STORED_MOUNT_POINT + "/images/external.txt"));
+    assertNotNull(external);
+
+    try {
+      objectExportService.export(ObjectExportService.ExportArgs.builder()
+        .username("testuser")
+        .fileIdentifiers(List.of(external.getUuid()))
+        .objectExportOption(ObjectExportOption.builder()
+          .exportLayout(Map.of("external/", List.of(external.getUuid())))
+          .aliases(Map.of(external.getUuid(), "externalAlias"))
+          .build())
+        .build());
+
+      assertEquals(Map.of("external/externalAlias.txt", "external-content"),
+        readZipContent(waitForExport()));
+    } finally {
+      transactionTemplate.executeWithoutResult(status ->
+        service.deleteByProperty(ObjectStoreMetadata.class, "uuid", external.getUuid()));
+    }
+  }
+
+  @Test
+  public void exportObjects_externalResourceMissingFile_throwsIllegalState() {
+    ObjectStoreMetadata external = createExternalResourceMetadata(
+      "file://" + EXTERNAL_RESOURCE_STORED_MOUNT_POINT + "/does-not-exist.txt");
+
+    assertThrows(IllegalStateException.class, () -> objectExportService.export(
+      ObjectExportService.ExportArgs.builder()
+        .username("testuser")
+        .fileIdentifiers(List.of(external.getUuid()))
+        .objectExportOption(ObjectExportOption.builder().build())
+        .build()));
+  }
+
+  private void writeExternalResourceFile(String relativePath, String content)
+    throws IOException {
+    Path activeMountPoint = Path.of(externalResourceConfiguration.externalResourceMounts()
+      .get(EXTERNAL_RESOURCE_STORED_MOUNT_POINT));
+    Path file = activeMountPoint.resolve(relativePath);
+    Files.createDirectories(file.getParent());
+    Files.writeString(file, content, StandardCharsets.UTF_8);
+  }
+
+  private ObjectStoreMetadata createExternalResourceMetadata(String resourceExternalURL) {
+    return objectStoreMetaDataService.create(ObjectStoreMetadataFactory
+      .newObjectStoreMetadata()
+      .fileIdentifier(null)
+      .fileExtension(null)
+      .bucket(TEST_BUCKET_NAME)
+      .dcFormat(MediaType.TEXT_PLAIN_VALUE)
+      .resourceExternalURL(resourceExternalURL)
+      .build());
+  }
+
+  private ObjectExportService.ExportResult waitForExport() {
+    try {
+      ObjectExportService.ExportResult result = asyncConsumer.getAccepted().getFirst().get();
+      asyncConsumer.clear();
+      return result;
+    } catch (InterruptedException | ExecutionException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  /**
+   * @return the zip entries (name to content) of the export downloaded with its toa key
+   */
+  private Map<String, String> readZipContent(ObjectExportService.ExportResult result)
+    throws IOException {
+    ResponseEntity<InputStreamResource> response = toaController.handleDownload(result.toaKey());
+    assertEquals(200, response.getStatusCode().value());
+
+    Map<String, String> content = new HashMap<>();
+    try (ZipArchiveInputStream archive = new ZipArchiveInputStream(
+      response.getBody().getInputStream())) {
+      ZipArchiveEntry entry;
+      while ((entry = archive.getNextZipEntry()) != null) {
+        content.put(entry.getName(), new String(archive.readAllBytes(), StandardCharsets.UTF_8));
+      }
+    }
+    return content;
   }
 }

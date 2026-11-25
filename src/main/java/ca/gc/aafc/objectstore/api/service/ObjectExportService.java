@@ -11,6 +11,7 @@ import ca.gc.aafc.objectstore.api.config.ObjectExportOption;
 import ca.gc.aafc.objectstore.api.entities.AbstractObjectStoreMetadata;
 import ca.gc.aafc.objectstore.api.entities.Derivative;
 import ca.gc.aafc.objectstore.api.entities.ObjectStoreMetadata;
+import ca.gc.aafc.objectstore.api.file.ExternalResourceFileResolver;
 import ca.gc.aafc.objectstore.api.file.FileObjectInfo;
 import ca.gc.aafc.objectstore.api.file.ObjectExportGenerator;
 import ca.gc.aafc.objectstore.api.file.ObjectExportItem;
@@ -19,6 +20,7 @@ import ca.gc.aafc.objectstore.api.security.FileControllerAuthorizationService;
 import ca.gc.aafc.objectstore.api.storage.FileStorage;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,6 +43,7 @@ public class ObjectExportService {
   private final long maxObjectExportSizeInBytes;
   private final FileStorage fileStorage;
   private final ObjectExportGenerator objectExportGenerator;
+  private final ExternalResourceFileResolver externalResourceFileResolver;
   private final Consumer<Future<ExportResult>> asyncConsumer;
 
   private final FileControllerAuthorizationService authorizationService;
@@ -54,6 +57,7 @@ public class ObjectExportService {
                              ObjectExportGenerator objectExportGenerator,
                              Optional<Consumer<Future<ExportResult>>> asyncConsumer,
                              FileStorage fileStorage,
+                             ExternalResourceFileResolver externalResourceFileResolver,
                              FileControllerAuthorizationService authorizationService,
                              ObjectStoreMetaDataService objectMetadataService,
                              DerivativeService derivativeService,
@@ -65,6 +69,7 @@ public class ObjectExportService {
     this.asyncConsumer = asyncConsumer.orElse(null);
 
     this.fileStorage = fileStorage;
+    this.externalResourceFileResolver = externalResourceFileResolver;
     this.authorizationService = authorizationService;
     this.objectMetadataService = objectMetadataService;
     this.derivativeService = derivativeService;
@@ -75,7 +80,10 @@ public class ObjectExportService {
   /**
    * From a list of identifiers, package all the files into a single zip file.
    * Authorization will be checked on every file, if unauthorized is triggered the package will not be created.
-   *
+   * <p>
+   * Stored files and derivatives are identified by their fileIdentifier. Externally hosted resources
+   * have no fileIdentifier: they are identified by their metadata uuid and read from the local file
+   * system (see {@link ExternalResourceFileResolver}).
    *
    * @return the uuid generated for the export
    */
@@ -97,32 +105,16 @@ public class ObjectExportService {
     long totalSizeInBytes = 0;
 
     for (UUID fileIdentifier : exportArgs.fileIdentifiers()) {
-      AbstractObjectStoreMetadata obj;
-      Optional<Derivative> derivative = derivativeService.findByFileId(fileIdentifier);
+      AbstractObjectStoreMetadata obj = findMetadataToExport(fileIdentifier);
 
-      if (derivative.isPresent()) {
-        obj = derivative.get();
-      } else {
-        Optional<ObjectStoreMetadata> objectMetadata =
-          objectMetadataService.findByFileId(fileIdentifier);
-        obj = objectMetadata.orElseThrow(
-          () -> new IllegalArgumentException("Can't find provided fileIdentifier"));
-      }
       // make sure the user is authorized before adding it to the list
       authorizationService.authorizeDownload(obj);
 
-      // get file info to make sure the file exists and compute total size
-      try {
-        Optional<FileObjectInfo> fileInfo =
-          fileStorage.getFileInfo(obj.getBucket(), obj.getInternalFilename(), obj instanceof Derivative);
-        if (fileInfo.isPresent()) {
-          totalSizeInBytes += fileInfo.get().getLength();
-        } else {
-          throwIllegalStateFileNotFound(fileIdentifier);
-        }
-      } catch (IOException e) {
-        throwIllegalStateFileNotFound(fileIdentifier);
-      }
+      // make sure the file exists and compute total size
+      ObjectExportItem exportItem = createExportItem(obj,
+        filenameAliases.get(fileIdentifier), folderByFileIdentifier.get(fileIdentifier));
+      totalSizeInBytes += getFileSize(exportItem)
+        .orElseThrow(() -> fileNotFound(fileIdentifier));
 
       // validate total size
       // Note: this is not considering potential functions like image resize
@@ -130,8 +122,7 @@ public class ObjectExportService {
         throw new IllegalStateException("Maximum export size exceeded. Max: " + maxObjectExportSizeInBytes + " bytes");
       }
 
-      toExport.add(new ObjectExportItem.StoredFile(obj, filenameAliases.get(fileIdentifier),
-        folderByFileIdentifier.get(fileIdentifier)));
+      toExport.add(exportItem);
     }
 
     // then complete the export
@@ -168,8 +159,63 @@ public class ObjectExportService {
     return exportUUID;
   }
 
-  private static void throwIllegalStateFileNotFound(UUID fileIdentifier) throws IllegalStateException {
-    throw new IllegalStateException("File " + fileIdentifier + " not found");
+  /**
+   * Find the metadata to export: a derivative or a stored file by fileIdentifier, otherwise an
+   * externally hosted resource by its metadata uuid.
+   *
+   * @param identifier fileIdentifier, or metadata uuid for externally hosted resources
+   * @return the metadata
+   * @throws IllegalArgumentException if nothing can be found for the identifier
+   */
+  private AbstractObjectStoreMetadata findMetadataToExport(UUID identifier) {
+    Optional<Derivative> derivative = derivativeService.findByFileId(identifier);
+    if (derivative.isPresent()) {
+      return derivative.get();
+    }
+
+    return objectMetadataService.findByFileId(identifier)
+      .or(() -> objectMetadataService.findByUuid(identifier)
+        .filter(ObjectStoreMetadata::isExternal))
+      .orElseThrow(() -> new IllegalArgumentException("Can't find provided fileIdentifier"));
+  }
+
+  /**
+   * Create the export item. For externally hosted resources, the resourceExternalURL is resolved
+   * to a local path.
+   *
+   * @throws IllegalStateException if an externally hosted resource can't be resolved
+   */
+  private ObjectExportItem createExportItem(AbstractObjectStoreMetadata obj, String filenameAlias,
+                                            String folder) {
+    if (obj instanceof ObjectStoreMetadata metadata && metadata.isExternal()) {
+      Path externalPath = externalResourceFileResolver.resolve(metadata.getResourceExternalURL())
+        .orElseThrow(() -> fileNotFound(metadata.getUuid()));
+      return new ObjectExportItem.ExternalResource(metadata, filenameAlias, folder, externalPath);
+    }
+    return new ObjectExportItem.StoredFile(obj, filenameAlias, folder);
+  }
+
+  /**
+   * @return the size of the file in bytes, empty if the file can't be found
+   */
+  private Optional<Long> getFileSize(ObjectExportItem exportItem) {
+    try {
+      return switch (exportItem) {
+        case ObjectExportItem.StoredFile stored -> fileStorage.getFileInfo(
+            stored.metadata().getBucket(), stored.metadata().getInternalFilename(),
+            stored.metadata() instanceof Derivative)
+          .map(FileObjectInfo::getLength);
+        case ObjectExportItem.ExternalResource external ->
+          Files.isRegularFile(external.externalPath())
+            ? Optional.of(Files.size(external.externalPath())) : Optional.empty();
+      };
+    } catch (IOException e) {
+      return Optional.empty();
+    }
+  }
+
+  private static IllegalStateException fileNotFound(UUID fileIdentifier) {
+    return new IllegalStateException("File " + fileIdentifier + " not found");
   }
 
   private static Map<UUID, String> invertExportLayout(Map<String, List<UUID>> exportLayout) {
@@ -191,7 +237,8 @@ public class ObjectExportService {
 
   /**
    * @param username           the username of the user requesting the export
-   * @param fileIdentifiers    list of files identifier to export
+   * @param fileIdentifiers    list of files identifier to export (metadata uuid for externally
+   *                           hosted resources)
    * @param name               optional name of the export (optional)
    * @param objectExportOption export options (optional)
    */
