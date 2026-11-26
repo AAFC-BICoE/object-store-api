@@ -106,10 +106,11 @@ public class ObjectExportService {
 
     String filename = exportUUID + EXPORT_EXT;
     Path zipFile = toaCtrl.generatePath(filename);
-    Map<UUID, String> folderByFileIdentifier =
+    Map<UUID, String> folderByIdentifier =
       invertExportLayout(exportArgs.objectExportOption().exportLayout());
     Map<UUID, String> filenameAliases = exportArgs.objectExportOption().aliases() == null
       ? Map.of() : exportArgs.objectExportOption().aliases();
+
     // identifier as provided by the user (used for layout and aliases) -> metadata
     Map<UUID, AbstractObjectStoreMetadata> metadataToExport = new LinkedHashMap<>();
     for (UUID fileIdentifier : fileIdentifiers) {
@@ -123,7 +124,7 @@ public class ObjectExportService {
     long totalSizeInBytes = 0;
 
     for (Map.Entry<UUID, AbstractObjectStoreMetadata> entry : metadataToExport.entrySet()) {
-      UUID fileIdentifier = entry.getKey();
+      UUID identifier = entry.getKey();
       AbstractObjectStoreMetadata obj = entry.getValue();
 
       // make sure the user is authorized before adding it to the list
@@ -131,9 +132,9 @@ public class ObjectExportService {
 
       // make sure the file exists and compute total size
       ObjectExportItem exportItem = createExportItem(obj,
-        filenameAliases.get(fileIdentifier), folderByFileIdentifier.get(fileIdentifier));
+        filenameAliases.get(identifier), folderByIdentifier.get(identifier));
       totalSizeInBytes += getFileSize(exportItem)
-        .orElseThrow(() -> fileNotFound(fileIdentifier));
+        .orElseThrow(() -> throwFileNotFound(identifier));
 
       // validate total size
       // Note: this is not considering potential functions like image resize
@@ -214,7 +215,7 @@ public class ObjectExportService {
                                             String folder) {
     if (obj instanceof ObjectStoreMetadata metadata && metadata.isExternal()) {
       Path externalPath = externalResourceFileResolver.resolve(metadata.getResourceExternalURL())
-        .orElseThrow(() -> fileNotFound(metadata.getUuid()));
+        .orElseThrow(() -> throwFileNotFound(metadata.getUuid()));
       return new ObjectExportItem.ExternalResource(metadata, filenameAlias, folder, externalPath);
     }
     return new ObjectExportItem.StoredFile(obj, filenameAlias, folder);
@@ -239,7 +240,7 @@ public class ObjectExportService {
     }
   }
 
-  private static IllegalStateException fileNotFound(UUID fileIdentifier) {
+  private static IllegalStateException throwFileNotFound(UUID fileIdentifier) {
     return new IllegalStateException("File " + fileIdentifier + " not found");
   }
 
