@@ -201,6 +201,18 @@ public class ObjectStoreMetaDataService extends MessageProducingService<ObjectSt
   }
 
   /**
+   * Find an ObjectStoreMetadata by its uuid using a query, so it can be used outside a transaction
+   * (unlike {@link #findOne(UUID)}). Mainly used to find externally hosted resources since they
+   * have no fileIdentifier.
+   *
+   * @param uuid the metadata uuid
+   * @return an Optional ObjectStoreMetadata
+   */
+  public Optional<ObjectStoreMetadata> findByUuid(UUID uuid) {
+    return Optional.ofNullable(baseDAO.findOneByProperty(ObjectStoreMetadata.class, "uuid", uuid));
+  }
+
+  /**
    * findOne implementation specific to ObjectStoreMetadata
    *
    * @param uuid

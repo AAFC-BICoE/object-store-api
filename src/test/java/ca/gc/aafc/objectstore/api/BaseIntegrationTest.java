@@ -38,6 +38,13 @@ import jakarta.inject.Inject;
 @Import(BaseIntegrationTest.ObjectStoreModuleTestConfiguration.class)
 public abstract class BaseIntegrationTest {
 
+  /**
+   * Mount point of external resources as recorded in resourceExternalURL. Since the Spring context
+   * is shared between test classes, get where it is actually mounted from
+   * {@link ca.gc.aafc.objectstore.api.config.ExternalResourceConfiguration}.
+   */
+  protected static final String EXTERNAL_RESOURCE_STORED_MOUNT_POINT = "/external-resources";
+
   // let junit create a temp dir for us
   @TempDir
   static Path rootTempDir;
@@ -46,6 +53,8 @@ public abstract class BaseIntegrationTest {
   @DynamicPropertySource
   static void registerProperties(DynamicPropertyRegistry registry) {
     registry.add("dina.fileStorage.root", () -> rootTempDir.toAbsolutePath().toString());
+    registry.add("dina.fileStorage.externalResourceMounts[" + EXTERNAL_RESOURCE_STORED_MOUNT_POINT + "]",
+      () -> rootTempDir.toAbsolutePath().resolve("external-resources").toString());
   }
 
   @Inject

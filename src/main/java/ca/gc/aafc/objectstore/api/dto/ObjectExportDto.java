@@ -29,6 +29,7 @@ public class ObjectExportDto implements ca.gc.aafc.dina.dto.JsonApiResource {
   private UUID uuid;
 
   private List<UUID> fileIdentifiers;
+  private List<UUID> externalResourceIds;
   private Map<UUID, String> filenameAliases;
   private Map<String, List<UUID>> exportLayout;
   private ExportFunction exportFunction;
