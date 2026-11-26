@@ -24,6 +24,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -82,15 +83,23 @@ public class ObjectExportService {
    * Authorization will be checked on every file, if unauthorized is triggered the package will not be created.
    * <p>
    * Stored files and derivatives are identified by their fileIdentifier. Externally hosted resources
-   * have no fileIdentifier: they are identified by their metadata uuid and read from the local file
-   * system (see {@link ExternalResourceFileResolver}).
+   * have no fileIdentifier: they are identified by their metadata uuid, provided separately in
+   * externalResourceIds, and read from the local file system
+   * (see {@link ExternalResourceFileResolver}).
    *
    * @return the uuid generated for the export
    */
   public UUID export(ExportArgs exportArgs) {
 
-    if (StringUtils.isBlank(exportArgs.username()) || exportArgs.fileIdentifiers() == null) {
-      throw new IllegalArgumentException("username and fileIdentifiers must be provided");
+    List<UUID> fileIdentifiers = exportArgs.fileIdentifiers() == null
+      ? List.of() : exportArgs.fileIdentifiers();
+    List<UUID> externalResourceIds = exportArgs.externalResourceIds() == null
+      ? List.of() : exportArgs.externalResourceIds();
+
+    if (StringUtils.isBlank(exportArgs.username())
+        || fileIdentifiers.isEmpty() && externalResourceIds.isEmpty()) {
+      throw new IllegalArgumentException(
+        "username and at least one of fileIdentifiers or externalResourceIds must be provided");
     }
 
     UUID exportUUID = UUIDHelper.generateUUIDv7();
@@ -101,11 +110,21 @@ public class ObjectExportService {
       invertExportLayout(exportArgs.objectExportOption().exportLayout());
     Map<UUID, String> filenameAliases = exportArgs.objectExportOption().aliases() == null
       ? Map.of() : exportArgs.objectExportOption().aliases();
-    List<ObjectExportItem> toExport = new ArrayList<>(exportArgs.fileIdentifiers().size());
+    // identifier as provided by the user (used for layout and aliases) -> metadata
+    Map<UUID, AbstractObjectStoreMetadata> metadataToExport = new LinkedHashMap<>();
+    for (UUID fileIdentifier : fileIdentifiers) {
+      metadataToExport.put(fileIdentifier, findByFileIdentifier(fileIdentifier));
+    }
+    for (UUID externalResourceId : externalResourceIds) {
+      metadataToExport.put(externalResourceId, findExternalResource(externalResourceId));
+    }
+
+    List<ObjectExportItem> toExport = new ArrayList<>(metadataToExport.size());
     long totalSizeInBytes = 0;
 
-    for (UUID fileIdentifier : exportArgs.fileIdentifiers()) {
-      AbstractObjectStoreMetadata obj = findMetadataToExport(fileIdentifier);
+    for (Map.Entry<UUID, AbstractObjectStoreMetadata> entry : metadataToExport.entrySet()) {
+      UUID fileIdentifier = entry.getKey();
+      AbstractObjectStoreMetadata obj = entry.getValue();
 
       // make sure the user is authorized before adding it to the list
       authorizationService.authorizeDownload(obj);
@@ -160,23 +179,29 @@ public class ObjectExportService {
   }
 
   /**
-   * Find the metadata to export: a derivative or a stored file by fileIdentifier, otherwise an
-   * externally hosted resource by its metadata uuid.
+   * Find the metadata of a derivative or a stored file by fileIdentifier.
    *
-   * @param identifier fileIdentifier, or metadata uuid for externally hosted resources
-   * @return the metadata
-   * @throws IllegalArgumentException if nothing can be found for the identifier
+   * @throws IllegalArgumentException if nothing can be found for the fileIdentifier
    */
-  private AbstractObjectStoreMetadata findMetadataToExport(UUID identifier) {
-    Optional<Derivative> derivative = derivativeService.findByFileId(identifier);
+  private AbstractObjectStoreMetadata findByFileIdentifier(UUID fileIdentifier) {
+    Optional<Derivative> derivative = derivativeService.findByFileId(fileIdentifier);
     if (derivative.isPresent()) {
       return derivative.get();
     }
 
-    return objectMetadataService.findByFileId(identifier)
-      .or(() -> objectMetadataService.findByUuid(identifier)
-        .filter(ObjectStoreMetadata::isExternal))
+    return objectMetadataService.findByFileId(fileIdentifier)
       .orElseThrow(() -> new IllegalArgumentException("Can't find provided fileIdentifier"));
+  }
+
+  /**
+   * Find the metadata of an externally hosted resource by its metadata uuid.
+   *
+   * @throws IllegalArgumentException if the uuid doesn't match an externally hosted resource
+   */
+  private ObjectStoreMetadata findExternalResource(UUID externalResourceId) {
+    return objectMetadataService.findByUuid(externalResourceId)
+      .filter(ObjectStoreMetadata::isExternal)
+      .orElseThrow(() -> new IllegalArgumentException("Can't find provided externalResourceId"));
   }
 
   /**
@@ -237,14 +262,14 @@ public class ObjectExportService {
 
   /**
    * @param username           the username of the user requesting the export
-   * @param fileIdentifiers    list of files identifier to export (metadata uuid for externally
-   *                           hosted resources)
+   * @param fileIdentifiers    list of files identifier (stored files and derivatives) to export
+   * @param externalResourceIds list of metadata uuid of externally hosted resources to export
    * @param name               optional name of the export (optional)
    * @param objectExportOption export options (optional)
    */
   @Builder
   public record ExportArgs(String username, List<UUID> fileIdentifiers,
-                           String name, ObjectExportOption objectExportOption) {
+                           List<UUID> externalResourceIds, String name, ObjectExportOption objectExportOption) {
   }
 
   public record ExportResult(UUID uuid, String toaKey) {

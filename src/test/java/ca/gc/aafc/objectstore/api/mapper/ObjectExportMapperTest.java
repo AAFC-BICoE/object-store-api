@@ -18,10 +18,12 @@ public class ObjectExportMapperTest {
   public void testMapping() {
 
     UUID file1UUID = UUID.randomUUID();
+    UUID externalUUID = UUID.randomUUID();
 
     ObjectExportDto exportDto = ObjectExportDto.builder()
       .username("Jim")
       .fileIdentifiers(List.of(file1UUID))
+      .externalResourceIds(List.of(externalUUID))
       .name("my-export")
       .filenameAliases(Map.of(file1UUID, "alias1"))
       .exportLayout(Map.of("myfolder", List.of(file1UUID)))
@@ -35,6 +37,7 @@ public class ObjectExportMapperTest {
     assertEquals(ExportFunction.FunctionDef.IMG_RESIZE, exportArgs.objectExportOption().exportFunction().functionDef());
     assertEquals("Jim", exportArgs.username());
     assertEquals(file1UUID, exportArgs.fileIdentifiers().getFirst());
+    assertEquals(externalUUID, exportArgs.externalResourceIds().getFirst());
     assertEquals("my-export", exportArgs.name());
 
   }

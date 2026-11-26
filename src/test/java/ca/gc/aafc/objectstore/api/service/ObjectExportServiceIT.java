@@ -222,7 +222,7 @@ public class ObjectExportServiceIT extends BaseIntegrationTest {
     try {
       objectExportService.export(ObjectExportService.ExportArgs.builder()
         .username("testuser")
-        .fileIdentifiers(List.of(external.getUuid()))
+        .externalResourceIds(List.of(external.getUuid()))
         .objectExportOption(ObjectExportOption.builder()
           .exportLayout(Map.of("external/", List.of(external.getUuid())))
           .aliases(Map.of(external.getUuid(), "externalAlias"))
@@ -245,7 +245,41 @@ public class ObjectExportServiceIT extends BaseIntegrationTest {
     assertThrows(IllegalStateException.class, () -> objectExportService.export(
       ObjectExportService.ExportArgs.builder()
         .username("testuser")
+        .externalResourceIds(List.of(external.getUuid()))
+        .objectExportOption(ObjectExportOption.builder().build())
+        .build()));
+  }
+
+  @Test
+  public void exportObjects_externalResourceUuidAsFileIdentifier_throwsIllegalArgument() {
+    ObjectStoreMetadata external = createExternalResourceMetadata(
+      "file://" + EXTERNAL_RESOURCE_STORED_MOUNT_POINT + "/images/external.txt");
+
+    assertThrows(IllegalArgumentException.class, () -> objectExportService.export(
+      ObjectExportService.ExportArgs.builder()
+        .username("testuser")
         .fileIdentifiers(List.of(external.getUuid()))
+        .objectExportOption(ObjectExportOption.builder().build())
+        .build()));
+  }
+
+  @Test
+  public void exportObjects_storedFileUuidAsExternalResourceId_throwsIllegalArgument()
+    throws Exception {
+    MockMultipartFile mockFile = MultipartFileFactory
+      .createMockMultipartFile(resourceLoader, TEST_UPLOAD_FILE_NAME, MediaType.IMAGE_PNG_VALUE);
+    UUID objectUploadUuid = JsonApiModelAssistant.extractUUIDFromRepresentationModelLink(
+      fileController.handleFileUpload(mockFile, TEST_BUCKET_NAME));
+    ObjectStoreMetadata stored = objectStoreMetaDataService.create(ObjectStoreMetadataFactory
+      .newObjectStoreMetadata()
+      .bucket(TEST_BUCKET_NAME)
+      .fileIdentifier(objectUploadUuid)
+      .build());
+
+    assertThrows(IllegalArgumentException.class, () -> objectExportService.export(
+      ObjectExportService.ExportArgs.builder()
+        .username("testuser")
+        .externalResourceIds(List.of(stored.getUuid()))
         .objectExportOption(ObjectExportOption.builder().build())
         .build()));
   }
