@@ -22,3 +22,4 @@ Unit test classes generally end in `Test`; integration test classes generally en
 - Avoid committing generated Maven output from `target/`.
 - UUIDs inserted as database values must be real, generated values. Never hand-write or invent one (e.g. 00000000-0000-0000-0000-000000000001); generate it with a UUID generator such as UUID.randomUUID(), uuidgen, or python -c "import uuid; print(uuid.uuid4())".
 - Liquibase changeset IDs should follow the repository's existing naming convention.
+- Treat existing Liquibase migration files and changesets as immutable; do not alter them unless the user explicitly asks. Append new migration include entries to the master changelog as needed, but never change or remove its existing content.
