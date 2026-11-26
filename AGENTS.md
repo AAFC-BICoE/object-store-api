@@ -20,4 +20,5 @@ Unit test classes generally end in `Test`; integration test classes generally en
 - Keep API, persistence, and configuration changes consistent with the existing DINA object-store behavior and update relevant AsciiDoc files in `docs/` when behavior or configuration changes.
 - Keep credentials and machine-specific settings out of source control. Use the examples under `local/` for local setup.
 - Avoid committing generated Maven output from `target/`.
-- UUIDs must be real, generated values. Never hand-write or invent one (e.g. 00000000-0000-0000-0000-000000000001); generate it with a UUID generator such as UUID.randomUUID(), uuidgen, or python -c "import uuid; print(uuid.uuid4())" (this is also the accepted way to generate values for Liquibase XML changesets).
+- UUIDs inserted as database values must be real, generated values. Never hand-write or invent one (e.g. 00000000-0000-0000-0000-000000000001); generate it with a UUID generator such as UUID.randomUUID(), uuidgen, or python -c "import uuid; print(uuid.uuid4())".
+- Liquibase changeset IDs should follow the repository's existing naming convention.
